@@ -8,8 +8,13 @@ package io.imunity.furms.core.sites;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
+import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.core.users.audit_log.RoleAssignmentAuditLogServiceTest;
+import io.imunity.furms.domain.audit_log.Action;
+import io.imunity.furms.domain.audit_log.AuditLog;
+import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -24,6 +29,7 @@ import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,12 +40,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackages = {"io.imunity.furms.core.audit_log", "io.imunity.furms.core.users.audit_log"}, scanBasePackageClasses = SiteAuditLogService.class)
+@SpringBootApplication(scanBasePackageClasses = {SiteAuditLogService.class, AuditLogServiceImplTest.class, RoleAssignmentAuditLogServiceTest.class})
 class SiteAuditLogServiceIntegrationTest {
 	@MockBean
 	private SiteRepository repository;
@@ -95,7 +102,10 @@ class SiteAuditLogServiceIntegrationTest {
 		//when
 		service.delete(id);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.SITES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.DELETE, argument.getValue().action);
 	}
 
 	@Test
@@ -113,7 +123,10 @@ class SiteAuditLogServiceIntegrationTest {
 		//when
 		service.update(request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.SITES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.UPDATE, argument.getValue().action);
 	}
 
 	@Test
@@ -130,7 +143,10 @@ class SiteAuditLogServiceIntegrationTest {
 		//when
 		service.create(request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.SITES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.CREATE, argument.getValue().action);
 	}
 
 	@Test
@@ -151,7 +167,10 @@ class SiteAuditLogServiceIntegrationTest {
 		service.addAdmin(siteId, userId);
 
 		//then
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.ROLE_ASSIGNMENT, argument.getValue().operationCategory);
+		assertEquals(Action.GRANT, argument.getValue().action);
 	}
 
 	@Test
@@ -172,7 +191,10 @@ class SiteAuditLogServiceIntegrationTest {
 		service.addSupport(siteId, userId);
 
 		//then
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.ROLE_ASSIGNMENT, argument.getValue().operationCategory);
+		assertEquals(Action.GRANT, argument.getValue().action);
 	}
 
 	@Test
@@ -192,6 +214,9 @@ class SiteAuditLogServiceIntegrationTest {
 		//when
 		service.removeSiteUser(siteId, userId);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.ROLE_ASSIGNMENT, argument.getValue().operationCategory);
+		assertEquals(Action.REVOKE, argument.getValue().action);
 	}
 }

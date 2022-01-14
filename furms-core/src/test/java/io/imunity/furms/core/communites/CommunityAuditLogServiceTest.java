@@ -8,7 +8,12 @@ package io.imunity.furms.core.communites;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
+import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
 import io.imunity.furms.core.invitations.InvitatoryService;
+import io.imunity.furms.core.users.audit_log.RoleAssignmentAuditLogServiceTest;
+import io.imunity.furms.domain.audit_log.Action;
+import io.imunity.furms.domain.audit_log.AuditLog;
+import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -19,6 +24,7 @@ import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,12 +35,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackages = {"io.imunity.furms.core.audit_log", "io.imunity.furms.core.users.audit_log"}, scanBasePackageClasses = CommunityAuditLogService.class)
-class CommunityAuditLogServiceIntegrationTest {
+@SpringBootApplication(scanBasePackageClasses = {CommunityAuditLogService.class, RoleAssignmentAuditLogServiceTest.class, AuditLogServiceImplTest.class})
+class CommunityAuditLogServiceTest {
 	@MockBean
 	private CommunityRepository communityRepository;
 	@MockBean
@@ -77,7 +83,10 @@ class CommunityAuditLogServiceIntegrationTest {
 		//when
 		service.delete(id);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.COMMUNITIES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.DELETE, argument.getValue().action);
 	}
 
 	@Test
@@ -94,7 +103,10 @@ class CommunityAuditLogServiceIntegrationTest {
 		//when
 		service.update(request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.COMMUNITIES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.UPDATE, argument.getValue().action);
 	}
 
 	@Test
@@ -111,7 +123,10 @@ class CommunityAuditLogServiceIntegrationTest {
 		//when
 		service.create(request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.COMMUNITIES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.CREATE, argument.getValue().action);
 	}
 
 	@Test
@@ -130,7 +145,10 @@ class CommunityAuditLogServiceIntegrationTest {
 		service.addAdmin(communityId, userId);
 
 		//then
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.ROLE_ASSIGNMENT, argument.getValue().operationCategory);
+		assertEquals(Action.GRANT, argument.getValue().action);
 	}
 
 	@Test
@@ -152,6 +170,9 @@ class CommunityAuditLogServiceIntegrationTest {
 		service.removeAdmin(communityId, userId);
 
 		//then
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.ROLE_ASSIGNMENT, argument.getValue().operationCategory);
+		assertEquals(Action.REVOKE, argument.getValue().action);
 	}
 }

@@ -7,8 +7,12 @@ package io.imunity.furms.core.project_allocation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
+import io.imunity.furms.domain.audit_log.Action;
+import io.imunity.furms.domain.audit_log.AuditLog;
+import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
@@ -18,6 +22,7 @@ import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,11 +33,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackages = "io.imunity.furms.core.audit_log", scanBasePackageClasses = ProjectAllocationAuditLogService.class)
+@SpringBootApplication(scanBasePackageClasses = {ProjectAllocationAuditLogService.class, AuditLogServiceImplTest.class})
 class ProjectAllocationAuditLogServiceIntegrationTest {
 	@MockBean
 	private ProjectAllocationServiceValidator validator;
@@ -79,7 +84,10 @@ class ProjectAllocationAuditLogServiceIntegrationTest {
 		//when
 		service.delete("projectId", id);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.PROJECT_ALLOCATION, argument.getValue().operationCategory);
+		assertEquals(Action.DELETE, argument.getValue().action);
 	}
 
 	@Test
@@ -104,7 +112,10 @@ class ProjectAllocationAuditLogServiceIntegrationTest {
 		//when
 		service.update("communityId", request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.PROJECT_ALLOCATION, argument.getValue().operationCategory);
+		assertEquals(Action.UPDATE, argument.getValue().action);
 	}
 
 	@Test
@@ -129,6 +140,9 @@ class ProjectAllocationAuditLogServiceIntegrationTest {
 
 		service.create("communityId", request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.PROJECT_ALLOCATION, argument.getValue().operationCategory);
+		assertEquals(Action.CREATE, argument.getValue().action);
 	}
 }

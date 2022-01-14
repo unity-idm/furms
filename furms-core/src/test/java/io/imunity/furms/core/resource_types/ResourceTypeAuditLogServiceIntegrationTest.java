@@ -7,6 +7,10 @@ package io.imunity.furms.core.resource_types;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
+import io.imunity.furms.domain.audit_log.Action;
+import io.imunity.furms.domain.audit_log.AuditLog;
+import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
@@ -17,6 +21,7 @@ import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,11 +31,11 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackages = "io.imunity.furms.core.audit_log", scanBasePackageClasses = ResourceTypeAuditLogService.class)
+@SpringBootApplication(scanBasePackageClasses = {ResourceTypeAuditLogService.class, AuditLogServiceImplTest.class})
 class ResourceTypeAuditLogServiceIntegrationTest {
 	@MockBean
 	private ResourceTypeRepository resourceTypeRepository;
@@ -70,7 +75,10 @@ class ResourceTypeAuditLogServiceIntegrationTest {
 		//when
 		service.delete(id, "");
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.RESOURCE_TYPES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.DELETE, argument.getValue().action);
 	}
 
 	@Test
@@ -93,7 +101,10 @@ class ResourceTypeAuditLogServiceIntegrationTest {
 		//when
 		service.update(request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.RESOURCE_TYPES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.UPDATE, argument.getValue().action);
 	}
 
 	@Test
@@ -116,6 +127,9 @@ class ResourceTypeAuditLogServiceIntegrationTest {
 		//when
 		service.create(request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.RESOURCE_TYPES_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.CREATE, argument.getValue().action);
 	}
 }

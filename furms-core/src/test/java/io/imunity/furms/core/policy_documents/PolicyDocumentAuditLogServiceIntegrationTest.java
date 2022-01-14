@@ -7,6 +7,10 @@ package io.imunity.furms.core.policy_documents;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
+import io.imunity.furms.domain.audit_log.Action;
+import io.imunity.furms.domain.audit_log.AuditLog;
+import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -22,6 +26,7 @@ import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -32,11 +37,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackages = "io.imunity.furms.core.audit_log", scanBasePackageClasses = PolicyDocumentAuditLogService.class)
+@SpringBootApplication(scanBasePackageClasses = {PolicyDocumentAuditLogService.class, AuditLogServiceImplTest.class})
 class PolicyDocumentAuditLogServiceIntegrationTest {
 	@MockBean
 	private PolicyDocumentRepository repository;
@@ -85,7 +90,10 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 
 		service.delete("siteId", policyId);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.POLICY_DOCUMENTS_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.DELETE, argument.getValue().action);
 	}
 
 	@Test
@@ -99,7 +107,10 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 
 		service.update(policyDocument);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.POLICY_DOCUMENTS_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.UPDATE, argument.getValue().action);
 	}
 
 	@Test
@@ -118,7 +129,10 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 
 		service.updateWithRevision(policyDocument);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.POLICY_DOCUMENTS_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.UPDATE, argument.getValue().action);
 	}
 
 	@Test
@@ -132,7 +146,10 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 
 		service.create(policyDocument);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.POLICY_DOCUMENTS_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.CREATE, argument.getValue().action);
 	}
 
 	@Test
@@ -157,6 +174,9 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 
 		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.POLICY_ACCEPTANCE, argument.getValue().operationCategory);
+		assertEquals(Action.ACCEPT, argument.getValue().action);
 	}
 }

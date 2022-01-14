@@ -90,12 +90,12 @@ class PolicyDocumentAuditLogService {
 	}
 
 	@EventListener
-	void onPolicyDocumentUpdatedEvent(UserAcceptedPolicyEvent event) {
+	void onUserAcceptedPolicyEvent(UserAcceptedPolicyEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
 			.originator(currentAuthNUser)
 			.action(Action.ACCEPT)
-			.operationCategory(Operation.POLICY_DOCUMENTS_MANAGEMENT)
+			.operationCategory(Operation.POLICY_ACCEPTANCE)
 			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
 			.operationSubject(usersDAO.findById(event.userId).get())
 			.dataJson(toJson(event.policyAcceptance))

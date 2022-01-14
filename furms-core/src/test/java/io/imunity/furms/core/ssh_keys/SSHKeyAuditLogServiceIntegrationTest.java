@@ -7,6 +7,10 @@ package io.imunity.furms.core.ssh_keys;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
+import io.imunity.furms.domain.audit_log.Action;
+import io.imunity.furms.domain.audit_log.AuditLog;
+import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
@@ -26,6 +30,7 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,11 +45,11 @@ import java.util.Set;
 
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackages = "io.imunity.furms.core.audit_log", scanBasePackageClasses = SSHKeyAuditLogService.class)
+@SpringBootApplication(scanBasePackageClasses = {SSHKeyAuditLogService.class, AuditLogServiceImplTest.class})
 class SSHKeyAuditLogServiceIntegrationTest {
 
 	@MockBean
@@ -94,7 +99,7 @@ class SSHKeyAuditLogServiceIntegrationTest {
 	}
 
 	@Test
-	void shouldDetectInfraServiceDeletion() {
+	void shouldDetectSSHKeyDeletion() {
 		// given
 		String id = "id";
 		when(repository.exists(id)).thenReturn(true);
@@ -110,11 +115,14 @@ class SSHKeyAuditLogServiceIntegrationTest {
 		// when
 		service.delete(id);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.SSH_KEYS_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.DELETE, argument.getValue().action);
 	}
 
 	@Test
-	void shouldDetectInfraServiceUpdate() {
+	void shouldDetectSSHKeyUpdate() {
 		// given
 		SSHKey oldKey = getKey("name", Set.of("s1"));
 		SSHKey request = getKey("brandNewName", Set.of("s1", "s2"));
@@ -141,11 +149,14 @@ class SSHKeyAuditLogServiceIntegrationTest {
 		// when
 		service.update(request);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.SSH_KEYS_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.UPDATE, argument.getValue().action);
 	}
 
 	@Test
-	void shouldDetectInfraServiceCreation() {
+	void shouldDetectSSHKeyCreation() {
 		final SSHKey key = getKey("key", Set.of("s1"));
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
@@ -159,7 +170,10 @@ class SSHKeyAuditLogServiceIntegrationTest {
 		// when
 		service.create(key);
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.SSH_KEYS_MANAGEMENT, argument.getValue().operationCategory);
+		assertEquals(Action.CREATE, argument.getValue().action);
 	}
 
 	private SSHKey getKey(String name, Set<String> sites) {

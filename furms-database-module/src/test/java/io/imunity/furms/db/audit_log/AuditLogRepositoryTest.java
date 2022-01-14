@@ -7,6 +7,7 @@ package io.imunity.furms.db.audit_log;
 
 
 import io.imunity.furms.db.DBIntegrationTest;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -48,6 +49,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	@Disabled
 	void shouldHaveGoodPerformance() {
 		LocalDateTime now = LocalDate.now().atStartOfDay();
 		Random rand = new Random();
@@ -72,7 +74,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 		);
 		long end = System.currentTimeMillis();
 
-		assertTrue(TimeUnit.MILLISECONDS.toSeconds(end - start) < 3);
+		assertTrue(TimeUnit.MILLISECONDS.toSeconds(end - start) < 1);
 	}
 
 	@Test

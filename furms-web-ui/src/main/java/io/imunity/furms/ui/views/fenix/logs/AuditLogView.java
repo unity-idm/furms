@@ -34,6 +34,7 @@ import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -77,6 +78,7 @@ public class AuditLogView extends FurmsViewComponent {
 		endDateTimePicker.addValueChangeListener(event -> reloadGrid());
 
 		userComboBox = new MultiselectComboBox<>();
+		userComboBox.setClassName("abc");
 		userComboBox.setItems(userService.getAllUsers());
 		userComboBox.setItemLabelGenerator(usr -> usr.email);
 		userComboBox.setRequired(true);
@@ -142,6 +144,8 @@ public class AuditLogView extends FurmsViewComponent {
 	}
 
 	private Map<String, Object> getData(AuditLog auditLog) {
+		if(auditLog.dataJson == null)
+			return new HashMap<>();
 		try {
 			return mapper.convertValue(mapper.readTree(auditLog.dataJson), new TypeReference<>() {});
 		} catch (JsonProcessingException e) {

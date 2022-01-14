@@ -19,6 +19,7 @@ import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.domain.ssh_keys.InvalidSSHKeyFromOptionException;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyFromOptionValidator;
+import io.imunity.furms.ui.components.BigMultiSelectComboBox;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
@@ -54,7 +55,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.user-settings.ssh-keys.form.field.name"));
 
-		sitesComboBox = new MultiselectComboBox<>();
+		sitesComboBox = new BigMultiSelectComboBox<>();
 		sitesComboBox.setItems(resolver.getSites());
 		sitesComboBox.setItemLabelGenerator(site -> site.name);
 		formLayout.addFormItem(sitesComboBox,

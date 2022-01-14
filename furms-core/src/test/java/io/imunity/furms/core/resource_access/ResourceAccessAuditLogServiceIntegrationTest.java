@@ -8,8 +8,12 @@ package io.imunity.furms.core.resource_access;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
+import io.imunity.furms.domain.audit_log.Action;
+import io.imunity.furms.domain.audit_log.AuditLog;
+import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -25,6 +29,7 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,12 +45,13 @@ import java.util.UUID;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
 import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKE_PENDING;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackages = "io.imunity.furms.core.audit_log", scanBasePackageClasses = ResourceAccessAuditLogService.class)
+@SpringBootApplication(scanBasePackageClasses = {ResourceAccessAuditLogService.class, AuditLogServiceImplTest.class})
 class ResourceAccessAuditLogServiceIntegrationTest {
 	@MockBean
 	private SiteAgentResourceAccessService siteAgentResourceAccessService;
@@ -115,7 +121,10 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 			transactionSynchronization.afterCommit();
 		}
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.PROJECT_RESOURCE_ASSIGNMENT, argument.getValue().operationCategory);
+		assertEquals(Action.GRANT, argument.getValue().action);
 	}
 
 	@Test
@@ -138,6 +147,9 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 			transactionSynchronization.afterCommit();
 		}
 
-		Mockito.verify(auditLogRepository).create(any());
+		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
+		Mockito.verify(auditLogRepository).create(argument.capture());
+		assertEquals(Operation.PROJECT_RESOURCE_ASSIGNMENT, argument.getValue().operationCategory);
+		assertEquals(Action.REVOKE, argument.getValue().action);
 	}
 }
