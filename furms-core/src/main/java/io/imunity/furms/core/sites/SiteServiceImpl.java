@@ -8,6 +8,8 @@ package io.imunity.furms.core.sites;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.validation.exceptions.UserIsSiteAdmin;
+import io.imunity.furms.api.validation.exceptions.UserIsSiteSupport;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
@@ -31,6 +33,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
@@ -327,14 +330,38 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, PersistentId userId) {
+		ResourceId resourceId = new ResourceId(siteId, SITE);
+		if(hasRole(userId, resourceId, Role.SITE_SUPPORT))
+			throw new UserIsSiteSupport("User already has site support role");
 		siteRepository.findById(siteId).ifPresent(site ->
-			invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_ADMIN, site.getName())
+			invitatoryService.inviteUser(userId, resourceId, Role.SITE_ADMIN, site.getName())
 		);
+	}
+
+	private boolean hasRole(PersistentId userId, ResourceId resourceId, Role role) {
+		return usersDAO.getUserAttributes(usersDAO.getFenixUserId(userId))
+			.attributesByResource
+			.getOrDefault(resourceId, Set.of()).contains(new UserAttribute(role));
+	}
+
+	private boolean hasRole(String email, ResourceId resourceId, Role role) {
+		return usersDAO.getAllUsers().stream()
+			.filter(user -> user.email.equals(email))
+			.findAny()
+			.filter(user -> user.fenixUserId.isPresent())
+			.flatMap(user -> user.fenixUserId)
+			.map(userId -> usersDAO.getUserAttributes(userId)
+				.attributesByResource.getOrDefault(resourceId, Set.of())
+				.contains(new UserAttribute(role)))
+			.orElse(false);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, String email) {
+		ResourceId resourceId = new ResourceId(siteId, SITE);
+		if(hasRole(email, resourceId, Role.SITE_SUPPORT))
+			throw new UserIsSiteSupport("User already has site support role");
 		siteRepository.findById(siteId).ifPresent(site ->
 			invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_ADMIN, site.getName())
 		);
@@ -343,14 +370,20 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteSupport(String siteId, PersistentId userId) {
+		ResourceId resourceId = new ResourceId(siteId, SITE);
+		if(hasRole(userId, resourceId, Role.SITE_ADMIN))
+			throw new UserIsSiteAdmin("User already has site admin role");
 		siteRepository.findById(siteId).ifPresent(site ->
-			invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_SUPPORT, site.getName())
+			invitatoryService.inviteUser(userId, resourceId, Role.SITE_SUPPORT, site.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteSupport(String siteId, String email) {
+		ResourceId resourceId = new ResourceId(siteId, SITE);
+		if(hasRole(email, resourceId, Role.SITE_ADMIN))
+			throw new UserIsSiteAdmin("User already has site admin role");
 		siteRepository.findById(siteId).ifPresent(site ->
 			invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_SUPPORT, site.getName())
 		);
