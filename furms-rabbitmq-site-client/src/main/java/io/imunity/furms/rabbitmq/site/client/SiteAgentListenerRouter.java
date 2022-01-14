@@ -12,6 +12,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdateAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
+import io.imunity.furms.rabbitmq.site.models.ErrorPayload;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Result;
 import io.imunity.furms.rabbitmq.site.models.UserPolicyAcceptanceUpdateAck;
@@ -77,9 +78,11 @@ class SiteAgentListenerRouter {
 	}
 
 	@RabbitHandler(isDefault = true)
-	public void receive(Object o, @Header(CONSUMER_QUEUE) String queueName) {
-		LOG.info("Received object, which cannot be processed {}", o);
-		sendErrorMessageToSite(queueName, null, "InvalidMessageContent", "The message can not be parsed: " + o);
+	public void receive(ErrorPayload errorPayload, @Header(CONSUMER_QUEUE) String queueName) {
+		MDC.put(MDCKey.QUEUE_NAME.key, queueName);
+		LOG.info("Received object, which cannot be processed {}", errorPayload);
+		sendErrorMessageToSite(queueName, errorPayload.correlationId, "InvalidMessageContent", "The message can not be parsed: " + errorPayload.unparsableMessage);
+		MDC.remove(MDCKey.QUEUE_NAME.key);
 	}
 
 	private void sendErrorMessageToSite(String queueName, String correlationId, String errorType, String description) {

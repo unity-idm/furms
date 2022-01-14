@@ -36,7 +36,6 @@ public class QueueNamesService {
 			return queueName.replace(SITE_PUB, FURMS_PUB);
 		if(queueName.contains(FURMS_PUB))
 			return queueName.replace(FURMS_PUB, SITE_PUB);
-
-		return queueName;
+		throw new IllegalArgumentException(String.format("This queue %s doesn't have opposite queue", queueName));
 	}
 }

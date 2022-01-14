@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserAllocationGrantAccessResult")
 public class UserAllocationGrantAccessResult implements Body, Result {
+	@Override
+	public String toString() {
+		return "UserAllocationGrantAccessResult{}";
+	}
 }

@@ -5,13 +5,13 @@
 
 package io.imunity.furms.rabbitmq.site.models.converter;
 
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
-import static java.util.Optional.ofNullable;
-
-import java.lang.invoke.MethodHandles;
-import java.util.HashSet;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import io.imunity.furms.rabbitmq.site.models.ErrorPayload;
+import io.imunity.furms.rabbitmq.site.models.Payload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
@@ -23,12 +23,14 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import java.io.UnsupportedEncodingException;
+import java.lang.invoke.MethodHandles;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
-import io.imunity.furms.rabbitmq.site.models.Payload;
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+import static java.util.Optional.ofNullable;
 
 public class FurmsPayloadConverter implements MessageConverter {
 	private static final String TYPE_ID = "__TypeId__";
@@ -79,14 +81,33 @@ public class FurmsPayloadConverter implements MessageConverter {
 
 	@Override
 	public Object fromMessage(Message message) throws MessageConversionException {
+		String contentAsString = null;
 		try {
 			String contentEncoding = ofNullable(message.getMessageProperties().getContentEncoding()).orElse(UTF_8);
-			String contentAsString = new String(message.getBody(), contentEncoding);
+			contentAsString = new String(message.getBody(), contentEncoding);
+		} catch (UnsupportedEncodingException e) {
+			LOG.error("Message cannot be convert: {}", message);
+			return new ErrorPayload(null, message.toString());
+		}
+
+		try {
 			return mapper.readValue(contentAsString, mapper.constructType(Payload.class));
 		} catch (Exception e) {
 			LOG.error("Message cannot be convert: {}", message);
 			LOG.error("This error occurred when message was parsing: ", e);
-			return new Object();
+			return new ErrorPayload(getCorrelationId(contentAsString), contentAsString);
+		}
+	}
+
+	private String getCorrelationId(String content) {
+		try {
+			return Optional.ofNullable(mapper.readTree(content))
+				.flatMap(value -> Optional.ofNullable(value.get("messageCorrelationId")))
+				.map(JsonNode::textValue)
+				.orElse(null);
+		} catch (Exception e) {
+			LOG.error("Correlation Id cannot be found", e);
+			return null;
 		}
 	}
 }

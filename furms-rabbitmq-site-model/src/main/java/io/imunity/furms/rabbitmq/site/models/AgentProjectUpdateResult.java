@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("ProjectUpdateResult")
 public class AgentProjectUpdateResult implements Body, Result {
+	@Override
+	public String toString() {
+		return "AgentProjectUpdateResult{}";
+	}
 }
