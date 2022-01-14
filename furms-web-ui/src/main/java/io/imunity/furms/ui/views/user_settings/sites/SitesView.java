@@ -27,6 +27,9 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
+import org.owasp.html.Sanitizers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +53,10 @@ public class SitesView extends FurmsViewComponent implements AfterNavigationObse
 
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private final static int DOUBLECLICK = 2;
+	private final static PolicyFactory policy = Sanitizers.FORMATTING
+		.and(Sanitizers.STYLES)
+		.and(Sanitizers.LINKS)
+		.and(new HtmlPolicyBuilder().allowElements("p").toFactory());
 
 	private final UserAllocationsService userAllocationsService;
 
@@ -137,7 +144,9 @@ public class SitesView extends FurmsViewComponent implements AfterNavigationObse
 	private void showConnectionInfo(UserSitesGridModel item) {
 		connectionInfo.removeAll();
 		connectionInfoLabel.setText(getTranslation("view.user-settings.sites.connectionInfo.label", item.getSiteName()));
-		connectionInfo.add(new Html("<div>" + item.getConnectionInfo() + "</div>"));
+
+		if(item.getConnectionInfo() != null)
+			connectionInfo.add(new Html("<div>" + policy.sanitize(item.getConnectionInfo()) + "</div>"));
 		connectionInfoLabel.setVisible(true);
 		connectionInfo.setVisible(true);
 	}
