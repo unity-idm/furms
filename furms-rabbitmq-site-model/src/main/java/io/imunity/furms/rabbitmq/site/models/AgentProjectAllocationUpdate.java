@@ -53,8 +53,8 @@ public class AgentProjectAllocationUpdate implements Body {
 
 	@Override
 	public String toString() {
-		return "AgentProjectResourceAllocationResult{" +
-			", allocationIdentifier='" + allocationIdentifier + '\'' +
+		return "AgentProjectAllocationUpdate{" +
+			"allocationIdentifier='" + allocationIdentifier + '\'' +
 			", allocationChunkIdentifier='" + allocationChunkIdentifier + '\'' +
 			", amount=" + amount +
 			", validFrom=" + validFrom +

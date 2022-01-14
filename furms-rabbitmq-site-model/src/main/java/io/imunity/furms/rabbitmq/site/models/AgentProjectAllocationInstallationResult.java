@@ -15,7 +15,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 @JsonTypeName("ProjectResourceAllocationResult")
-public class AgentProjectAllocationInstallationResult implements Body, Result {
+public class AgentProjectAllocationInstallationResult implements Body {
 	public final String allocationIdentifier;
 	public final String allocationChunkIdentifier;
 	public final String resourceType;
@@ -56,7 +56,7 @@ public class AgentProjectAllocationInstallationResult implements Body, Result {
 	@Override
 	public String toString() {
 		return "AgentProjectResourceAllocationResult{" +
-			", allocationIdentifier='" + allocationIdentifier + '\'' +
+			"allocationIdentifier='" + allocationIdentifier + '\'' +
 			", allocationChunkIdentifier='" + allocationChunkIdentifier + '\'' +
 			", resourceType='" + resourceType + '\'' +
 			", amount=" + amount +
