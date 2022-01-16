@@ -236,7 +236,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		LOG.debug("Creating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateCreate(policyDocument);
 		PolicyId policyId = policyDocumentRepository.create(policyDocument);
-		publisher.publishEvent(new PolicyDocumentCreatedEvent(policyId));
+		PolicyDocument created = policyDocumentRepository.findById(policyId).get();
+		publisher.publishEvent(new PolicyDocumentCreatedEvent(created));
 	}
 
 	@Override
@@ -244,8 +245,9 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public void update(PolicyDocument policyDocument) {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
-		PolicyId policyId = policyDocumentRepository.update(policyDocument, false);
-		publisher.publishEvent(new PolicyDocumentUpdatedEvent(policyId));
+		PolicyDocument oldPolicyDocument = policyDocumentRepository.findById(policyDocument.id).get();
+		policyDocumentRepository.update(policyDocument, false);
+		publisher.publishEvent(new PolicyDocumentUpdatedEvent(oldPolicyDocument, policyDocument));
 	}
 
 	@Override
@@ -254,6 +256,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	public void updateWithRevision(PolicyDocument policyDocument) {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
+		PolicyDocument oldPolicyDocument = policyDocumentRepository.findById(policyDocument.id).get();
 		PolicyId policyId = policyDocumentRepository.update(policyDocument, true);
 		PolicyDocument updatedPolicyDocument = policyDocumentRepository.findById(policyId).get();
 
@@ -269,7 +272,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 			.forEach(serviceId -> siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(), updatedPolicyDocument, serviceId));
 
 		policyNotificationService.notifyAboutChangedPolicy(policyDocument);
-		publisher.publishEvent(new PolicyDocumentUpdatedEvent(policyId));
+		publisher.publishEvent(new PolicyDocumentUpdatedEvent(oldPolicyDocument, updatedPolicyDocument));
 	}
 
 	@Override
@@ -280,8 +283,9 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 			.anyMatch(policy -> policy.id.equals(policyId));
 		if(isAssigned)
 			throw new AssignedPolicyRemovingException(String.format("Policy %s removing error. Only not assigned policy can be removed", policyId.id));
+		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId).get();
 		policyDocumentRepository.deleteById(policyId);
-		publisher.publishEvent(new PolicyDocumentRemovedEvent(policyId));
+		publisher.publishEvent(new PolicyDocumentRemovedEvent(policyDocument));
 	}
 
 	private void assertPolicyBelongsToSite(String siteId, Optional<PolicyDocument> policyDocument) {

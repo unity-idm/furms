@@ -1,0 +1,3 @@
+.big-multiselect-combo-box {
+	width: calc(var(--vaadin-text-field-default-width, 30em) * 2);
+}

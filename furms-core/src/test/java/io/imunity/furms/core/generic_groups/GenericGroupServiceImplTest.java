@@ -8,11 +8,11 @@ package io.imunity.furms.core.generic_groups;
 import io.imunity.furms.api.validation.exceptions.GroupNotBelongingToCommunityException;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
-import io.imunity.furms.domain.generic_groups.GenericGroupCreateEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupCreatedEvent;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
-import io.imunity.furms.domain.generic_groups.GenericGroupRemoveEvent;
-import io.imunity.furms.domain.generic_groups.GenericGroupUpdateEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupRemovedEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
@@ -31,6 +31,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -128,13 +129,13 @@ class GenericGroupServiceImplTest {
 			.description("description")
 			.build();
 
-		when(genericGroupRepository.existsBy("communityId", "name")).thenReturn(false);
 		when(genericGroupRepository.create(genericGroup)).thenReturn(genericGroupId);
+		when(genericGroupRepository.findBy(genericGroupId)).thenReturn(Optional.of(genericGroup));
 
 		GenericGroupId createdGenericGroupId = genericGroupService.create(genericGroup);
 
 		assertEquals(genericGroupId, createdGenericGroupId);
-		verify(publisher).publishEvent(new GenericGroupCreateEvent(genericGroupId));
+		verify(publisher).publishEvent(new GenericGroupCreatedEvent(genericGroup));
 	}
 
 	@Test
@@ -144,6 +145,10 @@ class GenericGroupServiceImplTest {
 
 		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
 		when(genericGroupRepository.existsBy(genericGroupId, userId)).thenReturn(false);
+		when(genericGroupRepository.findBy(genericGroupId)).thenReturn(Optional.of(GenericGroup.builder().build()));
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+			.email("email")
+			.build()));
 
 		genericGroupService.createMembership("communityId", genericGroupId, userId);
 
@@ -164,22 +169,25 @@ class GenericGroupServiceImplTest {
 			.name("name")
 			.description("description")
 			.build();
+		when(genericGroupRepository.findBy(genericGroupId)).thenReturn(Optional.of(genericGroup));
 
 		genericGroupService.update(genericGroup);
 
 		verify(genericGroupRepository).update(genericGroup);
-		verify(publisher).publishEvent(new GenericGroupUpdateEvent(genericGroupId));
+		verify(publisher).publishEvent(new GenericGroupUpdatedEvent(genericGroup, genericGroup));
 	}
 
 	@Test
 	void deleteGenericGroup() {
 		GenericGroupId groupId = new GenericGroupId(UUID.randomUUID());
 		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
+		GenericGroup genericGroup = GenericGroup.builder().build();
+		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(genericGroup));
 
 		genericGroupService.delete("communityId", groupId);
 
 		verify(genericGroupRepository).delete(groupId);
-		verify(publisher).publishEvent(new GenericGroupRemoveEvent(groupId));
+		verify(publisher).publishEvent(new GenericGroupRemovedEvent(genericGroup));
 	}
 
 	@Test
@@ -188,6 +196,10 @@ class GenericGroupServiceImplTest {
 		FenixUserId userId = new FenixUserId("userId");
 
 		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
+		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(GenericGroup.builder().build()));
+		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+			.email("email")
+			.build()));
 
 		genericGroupService.deleteMembership("communityId", groupId, userId);
 

@@ -6,7 +6,7 @@
 package io.imunity.furms.core.users.api.key;
 
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.spi.users.api.key.UserApiKeyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +33,11 @@ public class RemoveApiKeyListener {
 	@Async
 	@EventListener
 	@Transactional
-	public void onUserAdminRoleRemoval(RemoveUserRoleEvent removeUserRoleEvent) {
-		LOG.debug("RemoveProjectEvent received: {}", removeUserRoleEvent);
+	public void onUserAdminRoleRemoval(UserRoleRevokedEvent userRoleRevokedEvent) {
+		LOG.debug("RemoveProjectEvent received: {}", userRoleRevokedEvent);
 		try {
-			if (!authzService.hasRESTAPITokensCreationRights(removeUserRoleEvent.getId())) {
-				userApiKeyRepository.delete(removeUserRoleEvent.id);
+			if (!authzService.hasRESTAPITokensCreationRights(userRoleRevokedEvent.getId())) {
+				userApiKeyRepository.delete(userRoleRevokedEvent.id);
 			}
 		} catch (Exception e) {
 			LOG.error("Can not remove API KEY for user event", e);

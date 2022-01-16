@@ -4,6 +4,7 @@
  */
 package io.imunity.furms.db;
 
+import io.imunity.furms.db.audit_log.AuditLogEntityRepository;
 import io.imunity.furms.db.resource_access.UserGrantEntityRepository;
 import io.imunity.furms.db.site_agent_pending_message.SiteAgentPendingMessageEntityRepository;
 import io.imunity.furms.db.user_operation.UserAdditionEntityRepository;
@@ -46,7 +47,8 @@ public class RepoCleaner {
 	private InfraServiceRepository infraServiceRepository;
 	@Autowired
 	private SiteAgentPendingMessageEntityRepository siteAgentPendingMessageEntityRepository;
-
+	@Autowired
+	private AuditLogEntityRepository auditLogRepository;
 
 	public void cleanAll() {
 		siteAgentPendingMessageEntityRepository.deleteAll();
@@ -61,5 +63,6 @@ public class RepoCleaner {
 		infraServiceRepository.deleteAll();
 		siteRepository.deleteAll();
 		policyDocumentRepository.deleteAll();
+		auditLogRepository.deleteAll();
 	}
 }

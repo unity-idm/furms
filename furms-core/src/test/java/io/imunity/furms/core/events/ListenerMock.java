@@ -5,9 +5,9 @@
 
 package io.imunity.furms.core.events;
 
-import io.imunity.furms.domain.communities.CreateCommunityEvent;
-import io.imunity.furms.domain.communities.RemoveCommunityEvent;
-import io.imunity.furms.domain.communities.UpdateCommunityEvent;
+import io.imunity.furms.domain.communities.CommunityCreatedEvent;
+import io.imunity.furms.domain.communities.CommunityRemovedEvent;
+import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.users.UserEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -26,17 +26,17 @@ public class ListenerMock {
 	}
 
 	@EventListener
-	public void onCommunityEvents(CreateCommunityEvent event) {
+	public void onCommunityEvents(CommunityCreatedEvent event) {
 			serviceMock.handleEventCommunityCreate();
 	}
 
 	@EventListener
-	public void onCommunityEvents(UpdateCommunityEvent event) {
+	public void onCommunityEvents(CommunityUpdatedEvent event) {
 		serviceMock.handleEventCommunityUpdate();
 	}
 
 	@EventListener
-	public void onCommunityEvents(RemoveCommunityEvent event) {
+	public void onCommunityEvents(CommunityRemovedEvent event) {
 		serviceMock.handleEventCommunityRemove();
 	}
 }
