@@ -5,34 +5,7 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
-import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import com.google.common.collect.Sets;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
@@ -47,10 +20,36 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
+import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
+import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.UPDATE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SSHKeyServiceImplTest {
@@ -82,6 +81,10 @@ public class SSHKeyServiceImplTest {
 	@Mock
 	private InstalledSSHKeyRepository installedSSHKeyRepository;
 
+	@Mock
+	private ApplicationEventPublisher publisher;
+
+
 	private SSHKeyServiceImpl service;
 
 	@BeforeEach
@@ -93,7 +96,7 @@ public class SSHKeyServiceImplTest {
 		final SSHKeyFromSiteRemover sshKeyFromSiteRemover = new SSHKeyFromSiteRemover(repository, siteRepository,
 				sshKeyOperationRepository, siteAgentSSHKeyInstallationService);
 		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository, sshKeyOperationRepository,
-				siteAgentSSHKeyInstallationService, usersDAO, sshKeyFromSiteRemover, installedSSHKeyRepository);
+				siteAgentSSHKeyInstallationService, usersDAO, sshKeyFromSiteRemover, installedSSHKeyRepository, publisher);
 	}
 	
 	@AfterEach

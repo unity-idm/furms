@@ -10,9 +10,9 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
-import io.imunity.furms.domain.community_allocation.CreateCommunityAllocationEvent;
-import io.imunity.furms.domain.community_allocation.RemoveCommunityAllocationEvent;
-import io.imunity.furms.domain.community_allocation.UpdateCommunityAllocationEvent;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationCreatedEvent;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationRemovedEvent;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationUpdatedEvent;
 import io.imunity.furms.domain.resource_usage.ResourceUsageByCommunityAllocation;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
@@ -161,7 +161,8 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	public void create(CommunityAllocation communityAllocation) {
 		validator.validateCreate(communityAllocation);
 		String id = communityAllocationRepository.create(communityAllocation);
-		publisher.publishEvent(new CreateCommunityAllocationEvent(communityAllocation.id));
+		CommunityAllocation allocation = communityAllocationRepository.findById(id).get();
+		publisher.publishEvent(new CommunityAllocationCreatedEvent(allocation));
 		LOG.info("CommunityAllocation with given ID: {} was created: {}", id, communityAllocation);
 	}
 
@@ -170,8 +171,9 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void update(CommunityAllocation communityAllocation) {
 		validator.validateUpdate(communityAllocation);
+		CommunityAllocation oldAllocation = communityAllocationRepository.findById(communityAllocation.id).get();
 		communityAllocationRepository.update(communityAllocation);
-		publisher.publishEvent(new UpdateCommunityAllocationEvent(communityAllocation.id));
+		publisher.publishEvent(new CommunityAllocationUpdatedEvent(oldAllocation, communityAllocation));
 		LOG.info("CommunityAllocation was updated {}", communityAllocation);
 	}
 
@@ -180,8 +182,9 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void delete(String id) {
 		validator.validateDelete(id);
+		CommunityAllocation allocation = communityAllocationRepository.findById(id).get();
 		communityAllocationRepository.delete(id);
-		publisher.publishEvent(new RemoveCommunityAllocationEvent(id));
+		publisher.publishEvent(new CommunityAllocationRemovedEvent(allocation));
 		LOG.info("CommunityAllocation with given ID: {} was deleted", id);
 	}
 }

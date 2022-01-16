@@ -10,11 +10,11 @@ import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.core.community_allocation.CommunityAllocationServiceHelper;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
-import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditCreatedEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditRemovedEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
-import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditUpdatedEvent;
 import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
@@ -147,7 +147,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	public void create(ResourceCredit resourceCredit) {
 		validator.validateCreate(resourceCredit);
 		String id = resourceCreditRepository.create(resourceCredit);
-		publisher.publishEvent(new CreateResourceCreditEvent(id, authzService.getCurrentUserId()));
+		ResourceCredit created = resourceCreditRepository.findById(id).get();
+		publisher.publishEvent(new ResourceCreditCreatedEvent(authzService.getCurrentUserId(), created));
 		LOG.info("ResourceCredit with given ID: {} was created: {}", id, resourceCredit);
 	}
 
@@ -155,8 +156,9 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.siteId")
 	public void update(ResourceCredit resourceCredit) {
 		validator.validateUpdate(resourceCredit);
+		ResourceCredit oldResourceCredit = resourceCreditRepository.findById(resourceCredit.id).get();
 		resourceCreditRepository.update(resourceCredit);
-		publisher.publishEvent(new UpdateResourceCreditEvent(resourceCredit.id));
+		publisher.publishEvent(new ResourceCreditUpdatedEvent(oldResourceCredit, resourceCredit));
 		LOG.info("ResourceCredit was updated {}", resourceCredit);
 	}
 
@@ -164,8 +166,9 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
 	public void delete(String id, String siteId) {
 		validator.validateDelete(id);
+		ResourceCredit resourceCredit = resourceCreditRepository.findById(id).get();
 		resourceCreditRepository.delete(id);
-		publisher.publishEvent(new RemoveResourceCreditEvent(id));
+		publisher.publishEvent(new ResourceCreditRemovedEvent(resourceCredit));
 		LOG.info("ResourceCredit with given ID: {} was deleted", id);
 	}
 

@@ -12,11 +12,13 @@ import io.imunity.furms.api.validation.exceptions.UserAlreadyIsInGroupError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
-import io.imunity.furms.domain.generic_groups.GenericGroupCreateEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupCreatedEvent;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
-import io.imunity.furms.domain.generic_groups.GenericGroupRemoveEvent;
-import io.imunity.furms.domain.generic_groups.GenericGroupUpdateEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupRemovedEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupUpdatedEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupUserGrantedEvent;
+import io.imunity.furms.domain.generic_groups.GenericGroupUserRevokedEvent;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignmentAmount;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignments;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -27,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.time.Clock;
@@ -100,17 +103,20 @@ class GenericGroupServiceImpl implements GenericGroupService {
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "group.communityId")
 	public GenericGroupId create(GenericGroup group) {
 		assertNotNull(group);
 		assertUniqueness(group.communityId, group.name);
 		GenericGroupId genericGroupId = genericGroupRepository.create(group);
+		GenericGroup genericGroup = genericGroupRepository.findBy(genericGroupId).get();
 		LOG.info("Generic group with given ID: {} was created: {}", genericGroupId.id, group);
-		publisher.publishEvent(new GenericGroupCreateEvent(genericGroupId));
+		publisher.publishEvent(new GenericGroupCreatedEvent(genericGroup));
 		return genericGroupId;
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void createMembership(String communityId, GenericGroupId groupId, FenixUserId userId) {
 		assertNotNull(communityId, groupId, userId);
@@ -123,34 +129,44 @@ class GenericGroupServiceImpl implements GenericGroupService {
 				.utcMemberSince(convertToUTCTime(ZonedDateTime.now(clock)))
 				.build()
 		);
+		publisher.publishEvent(new GenericGroupUserGrantedEvent(usersDAO.findById(userId).get(), genericGroupRepository.findBy(groupId).get()));
 		LOG.info("Membership in group ID: {} for user ID: {} was created", groupId.id, userId.id);
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "group.communityId")
 	public void update(GenericGroup group) {
 		assertNotNull(group);
 		assertUniqueness(group.id, group.communityId, group.name);
+		GenericGroup genericGroup = genericGroupRepository.findBy(group.id).get();
 		genericGroupRepository.update(group);
 		LOG.info("Generic group with given ID: {} was updated: {}", group.id.id, group);
-		publisher.publishEvent(new GenericGroupUpdateEvent(group.id));
+		publisher.publishEvent(new GenericGroupUpdatedEvent(genericGroup, group));
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(String communityId, GenericGroupId id) {
 		assertGroupBelongsToCommunity(communityId, id);
+		GenericGroup genericGroup = genericGroupRepository.findBy(id).get();
 		genericGroupRepository.delete(id);
 		LOG.info("Generic group with given ID: {} was removed", id.id);
-		publisher.publishEvent(new GenericGroupRemoveEvent(id));
+		publisher.publishEvent(new GenericGroupRemovedEvent(genericGroup));
 	}
 
 	@Override
+	@Transactional
 	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void deleteMembership(String communityId,  GenericGroupId groupId, FenixUserId fenixUserId) {
 		assertNotNull(communityId, groupId, fenixUserId);
 		assertGroupBelongsToCommunity(communityId, groupId);
 		genericGroupRepository.deleteMembership(groupId, fenixUserId);
+		publisher.publishEvent(new GenericGroupUserRevokedEvent(
+			usersDAO.findById(fenixUserId).orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", fenixUserId))),
+			genericGroupRepository.findBy(groupId).get())
+		);
 		LOG.info("Membership in group ID: {} for user ID: {} was removed", groupId.id, fenixUserId.id);
 	}
 

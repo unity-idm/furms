@@ -5,12 +5,12 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import io.imunity.furms.domain.projects.RemoveProjectEvent;
+import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserProjectMembershipEvent;
+import io.imunity.furms.domain.users.UserProjectMembershipRevokedEvent;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -51,14 +51,14 @@ public class ProjectAndUserRemoveListener {
 	@Async
 	@EventListener
 	@Transactional
-	public void onProjectRemove(RemoveProjectEvent removeProjectEvent) {
-		LOG.debug("RemoveProjectEvent received: {}", removeProjectEvent);
-		for (FURMSUser user : removeProjectEvent.projectUsers) {
+	public void onProjectRemove(ProjectRemovedEvent projectRemovedEvent) {
+		LOG.debug("RemoveProjectEvent received: {}", projectRemovedEvent);
+		for (FURMSUser user : projectRemovedEvent.projectUsers) {
 			try {
-				processUser(user.id.get(), user.fenixUserId.get(), removeProjectEvent.id);
+				processUser(user.id.get(), user.fenixUserId.get(), projectRemovedEvent.project.getId());
 			} catch (Exception e) {
 				LOG.error("Can not remove sites from ssh keys owned by user {} after project {} remove",
-						user, removeProjectEvent.id);
+						user, projectRemovedEvent.project.getId());
 			}
 		}
 	}
@@ -66,7 +66,7 @@ public class ProjectAndUserRemoveListener {
 	@Async
 	@EventListener
 	@Transactional
-	public void onUserRoleRemove(RemoveUserProjectMembershipEvent removeUserRoleEvent) {
+	public void onUserRoleRemove(UserProjectMembershipRevokedEvent removeUserRoleEvent) {
 		LOG.debug("RemoveUserProjectMembershipEvent received: {}", removeUserRoleEvent);
 		FenixUserId fenixUserId = usersDAO.getFenixUserId(removeUserRoleEvent.id);
 		if (fenixUserId == null) {

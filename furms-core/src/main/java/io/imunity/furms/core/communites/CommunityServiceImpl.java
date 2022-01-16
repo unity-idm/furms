@@ -14,15 +14,15 @@ import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.domain.communities.CreateCommunityEvent;
-import io.imunity.furms.domain.communities.RemoveCommunityEvent;
-import io.imunity.furms.domain.communities.UpdateCommunityEvent;
+import io.imunity.furms.domain.communities.CommunityCreatedEvent;
+import io.imunity.furms.domain.communities.CommunityRemovedEvent;
+import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.users.AddUserEvent;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import org.slf4j.Logger;
@@ -106,9 +106,10 @@ class CommunityServiceImpl implements CommunityService {
 	public void create(Community community) {
 		validator.validateCreate(community);
 		String id = communityRepository.create(community);
+		Community created = communityRepository.findById(id).get();
 		communityGroupsDAO.create(new CommunityGroup(id, community.getName()));
 		LOG.info("Community with given ID: {} was created: {}", id, community);
-		publisher.publishEvent(new CreateCommunityEvent(community.getId()));
+		publisher.publishEvent(new CommunityCreatedEvent(created));
 	}
 
 	@Override
@@ -116,10 +117,11 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "community.id")
 	public void update(Community community) {
 		validator.validateUpdate(community);
+		Community oldCommunity = communityRepository.findById(community.getId()).get();
 		communityRepository.update(community);
 		communityGroupsDAO.update(new CommunityGroup(community.getId(), community.getName()));
 		LOG.info("Community was updated: {}", community);
-		publisher.publishEvent(new UpdateCommunityEvent(community.getId()));
+		publisher.publishEvent(new CommunityUpdatedEvent(oldCommunity, community));
 	}
 
 	@Override
@@ -127,10 +129,11 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void delete(String id) {
 		validator.validateDelete(id);
+		Community community = communityRepository.findById(id).get();
 		communityRepository.delete(id);
 		communityGroupsDAO.delete(id);
 		LOG.info("Community with given ID: {} was deleted", id);
-		publisher.publishEvent(new RemoveCommunityEvent(id));
+		publisher.publishEvent(new CommunityRemovedEvent(community));
 	}
 
 	@Override
@@ -190,15 +193,17 @@ class CommunityServiceImpl implements CommunityService {
 	public void addAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
-		publisher.publishEvent(new AddUserEvent(userId,  new ResourceId(communityId, COMMUNITY)));
+		String communityName = communityRepository.findById(communityId).get().getName();
+		publisher.publishEvent(new UserRoleGrantedEvent(userId,  new ResourceId(communityId, COMMUNITY), communityName, COMMUNITY_ADMIN));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void removeAdmin(String communityId, PersistentId userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
+		String communityName = communityRepository.findById(communityId).get().getName();
 		LOG.info("Removed Community Administrator ({}) from Unity for Site ID={}", userId, communityId);
-		publisher.publishEvent(new RemoveUserRoleEvent(userId,  new ResourceId(communityId, COMMUNITY)));
+		publisher.publishEvent(new UserRoleRevokedEvent(userId,  new ResourceId(communityId, COMMUNITY), communityName, COMMUNITY_ADMIN));
 	}
 
 	@Override

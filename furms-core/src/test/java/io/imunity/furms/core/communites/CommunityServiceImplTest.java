@@ -10,14 +10,15 @@ import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
-import io.imunity.furms.domain.communities.CreateCommunityEvent;
-import io.imunity.furms.domain.communities.RemoveCommunityEvent;
-import io.imunity.furms.domain.communities.UpdateCommunityEvent;
+import io.imunity.furms.domain.communities.CommunityCreatedEvent;
+import io.imunity.furms.domain.communities.CommunityRemovedEvent;
+import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -122,6 +123,7 @@ class CommunityServiceImplTest {
 			.name("userFacingName")
 			.build();
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
+		when(communityRepository.findById("id")).thenReturn(Optional.of(request));
 		when(communityRepository.create(request)).thenReturn("id");
 
 		//when
@@ -129,7 +131,7 @@ class CommunityServiceImplTest {
 
 		orderVerifier.verify(communityRepository).create(eq(request));
 		orderVerifier.verify(communityGroupsDAO).create(eq(groupRequest));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateCommunityEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new CommunityCreatedEvent(request)));
 	}
 
 	@Test
@@ -142,7 +144,7 @@ class CommunityServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateCommunityEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CommunityCreatedEvent(null)));
 	}
 
 	@Test
@@ -158,13 +160,15 @@ class CommunityServiceImplTest {
 			.build();
 		when(communityRepository.exists(request.getId())).thenReturn(true);
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
+		when(communityRepository.findById("id")).thenReturn(Optional.of(request));
+
 
 		//when
 		service.update(request);
 
 		orderVerifier.verify(communityRepository).update(eq(request));
 		orderVerifier.verify(communityGroupsDAO).update(eq(groupRequest));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateCommunityEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new CommunityUpdatedEvent( request, request)));
 	}
 
 	@Test
@@ -172,13 +176,15 @@ class CommunityServiceImplTest {
 		//given
 		String id = "id";
 		when(communityRepository.exists(id)).thenReturn(true);
+		Community community = Community.builder().build();
+		when(communityRepository.findById(id)).thenReturn(Optional.of(community));
 
 		//when
 		service.delete(id);
 
 		orderVerifier.verify(communityRepository).delete(eq(id));
 		orderVerifier.verify(communityGroupsDAO).delete(eq(id));
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveCommunityEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new CommunityRemovedEvent(community)));
 	}
 
 	@Test
@@ -189,7 +195,7 @@ class CommunityServiceImplTest {
 
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new RemoveCommunityEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CommunityRemovedEvent(null)));
 	}
 
 	@Test
@@ -217,7 +223,8 @@ class CommunityServiceImplTest {
 		//given
 		String communityId = UUID.randomUUID().toString();
 		PersistentId userId = new PersistentId("userId");
-
+		Community community = Community.builder().build();
+		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
 		//when
 		service.addAdmin(communityId, userId);
 
@@ -231,13 +238,17 @@ class CommunityServiceImplTest {
 		//given
 		String communityId = UUID.randomUUID().toString();
 		PersistentId userId = new PersistentId("userId");
+		Community community = Community.builder()
+			.name("name")
+			.build();
+		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
 
 		//when
 		service.removeAdmin(communityId, userId);
 
 		//then
 		verify(communityGroupsDAO, times(1)).removeAdmin(communityId, userId);
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveUserRoleEvent(userId, new ResourceId(communityId, COMMUNITY))));
+		orderVerifier.verify(publisher).publishEvent(eq(new UserRoleRevokedEvent(userId, new ResourceId(communityId, COMMUNITY), "name", Role.COMMUNITY_ADMIN)));
 	}
 
 	@Test

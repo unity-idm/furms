@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.imunity.furms.domain.authz.roles.Capability.AUDIT_LOG_MANAGEMENT;
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_WRITE;
@@ -48,7 +49,7 @@ public enum Role {
 		List.of(
 			AUTHENTICATED, PROFILE, SITE_READ, SITE_WRITE, SITE_POLICY_ACCEPTANCE_READ, SITE_POLICY_ACCEPTANCE_WRITE,
 			COMMUNITY_READ, COMMUNITY_WRITE, FENIX_ADMINS_MANAGEMENT, READ_ALL_USERS, USERS_MAINTENANCE,
-			OWNED_SSH_KEY_MANAGMENT
+			OWNED_SSH_KEY_MANAGMENT, AUDIT_LOG_MANAGEMENT
 		),
 		List.of(SITE_READ, SITE_WRITE, COMMUNITY_READ, COMMUNITY_WRITE, PROJECT_LIMITED_READ, REST_API_KEY_MANAGEMENT,
 			SITE_POLICY_ACCEPTANCE_READ, SITE_POLICY_ACCEPTANCE_WRITE, RESOURCE_USAGE_READ)

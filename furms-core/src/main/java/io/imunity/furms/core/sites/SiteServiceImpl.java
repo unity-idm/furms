@@ -5,6 +5,28 @@
 
 package io.imunity.furms.core.sites;
 
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.utils.ValidationUtils.assertFalse;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.sites.SiteService;
@@ -22,18 +44,18 @@ import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.sites.CreateSiteEvent;
-import io.imunity.furms.domain.sites.RemoveSiteEvent;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteCreatedEvent;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.sites.UpdateSiteEvent;
-import io.imunity.furms.domain.users.AddUserEvent;
+import io.imunity.furms.domain.sites.SiteRemovedEvent;
+import io.imunity.furms.domain.sites.SiteUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
 import io.imunity.furms.domain.users.UserAttribute;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
+import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
@@ -42,27 +64,6 @@ import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.utils.ValidationUtils.assertFalse;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
@@ -184,7 +185,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 			webClient.create(createdSite);
 			siteAgentService.initializeSiteConnection(externalId);
 			LOG.info("Initialized connection channel to site agent: {}", siteId);
-			publisher.publishEvent(new CreateSiteEvent(site.getId()));
+			publisher.publishEvent(new SiteCreatedEvent(createdSite));
 			LOG.info("Created Site in Unity: {}", createdSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not create Site: ", e);
@@ -211,7 +212,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		try {
 			webClient.update(updatedSite);
 			handlePolicyChange(updatedSite, oldSite);
-			publisher.publishEvent(new UpdateSiteEvent(updatedSite.getId()));
+			publisher.publishEvent(new SiteUpdatedEvent(oldSite, updatedSite));
 			LOG.info("Updated Site in Unity: {}", updatedSite);
 		} catch (RuntimeException e) {
 			LOG.error("Could not update Site: ", e);
@@ -267,13 +268,13 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	public void delete(String id) {
 		validator.validateDelete(id);
 		SiteExternalId externalId = siteRepository.findByIdExternalId(id);
-
+		Site site = siteRepository.findById(id).get();
 		siteRepository.delete(id);
 		LOG.info("Removed Site from repository with ID={}", id);
 		try {
 			webClient.delete(id);
 			siteAgentService.removeSiteConnection(externalId);
-			publisher.publishEvent(new RemoveSiteEvent(id));
+			publisher.publishEvent(new SiteRemovedEvent(site));
 			LOG.info("Removed Site from Unity with ID={}", id);
 		} catch (RuntimeException e) {
 			LOG.error("Could not delete Site: ", e);
@@ -437,14 +438,16 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void addAdmin(String siteId, PersistentId userId) {
 		addUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_ADMIN));
-		publisher.publishEvent(new AddUserEvent(userId, new ResourceId(siteId, SITE)));
+		String siteName = siteRepository.findById(siteId).get().getName();
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(siteId, SITE), siteName, Role.SITE_ADMIN));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void addSupport(String siteId, PersistentId userId) {
 		addUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_SUPPORT));
-		publisher.publishEvent(new AddUserEvent(userId, new ResourceId(siteId, SITE)));
+		String siteName = siteRepository.findById(siteId).get().getName();
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(siteId, SITE), siteName, Role.SITE_SUPPORT));
 	}
 
 	@Override
@@ -470,7 +473,6 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 			LOG.error("Could not add Site Administrator: ", e);
 			try {
 				webClient.get(siteId).ifPresent(incompleteSite -> webClient.removeSiteUser(siteId, userId));
-				publisher.publishEvent(new AddUserEvent(userId, new ResourceId(siteId, SITE)));
 			} catch (RuntimeException ex) {
 				LOG.error("Could not add Site Administrator: Failed to rollback, problem during unity group deletion: ", ex);
 			}
@@ -482,10 +484,11 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void removeSiteUser(String siteId, PersistentId userId) {
 		assertNotEmpty(siteId, userId);
-
+		Role role = authzService.isResourceMember(siteId, Role.SITE_SUPPORT) ? Role.SITE_SUPPORT : Role.SITE_ADMIN;
+		String siteName = siteRepository.findById(siteId).get().getName();
 		try {
 			webClient.removeSiteUser(siteId, userId);
-			publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(siteId, SITE)));
+			publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), siteName, role));
 			LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not remove Site Administrator: ", e);
