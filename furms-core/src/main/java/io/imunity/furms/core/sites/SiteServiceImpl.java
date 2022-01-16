@@ -5,9 +5,33 @@
 
 package io.imunity.furms.core.sites;
 
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.utils.ValidationUtils.assertFalse;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.validation.exceptions.UserIsSiteAdmin;
+import io.imunity.furms.api.validation.exceptions.UserIsSiteSupport;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
@@ -20,16 +44,17 @@ import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.sites.SiteCreatedEvent;
-import io.imunity.furms.domain.sites.SiteRemovedEvent;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteCreatedEvent;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.sites.SiteRemovedEvent;
 import io.imunity.furms.domain.sites.SiteUpdatedEvent;
-import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserAttribute;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.site.api.SiteExternalIdsResolver;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
@@ -39,27 +64,6 @@ import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.utils.ValidationUtils.assertFalse;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
@@ -327,14 +331,38 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, PersistentId userId) {
+		ResourceId resourceId = new ResourceId(siteId, SITE);
+		if(hasRole(userId, resourceId, Role.SITE_SUPPORT))
+			throw new UserIsSiteSupport("User already has site support role");
 		siteRepository.findById(siteId).ifPresent(site ->
-			invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_ADMIN, site.getName())
+			invitatoryService.inviteUser(userId, resourceId, Role.SITE_ADMIN, site.getName())
 		);
+	}
+
+	private boolean hasRole(PersistentId userId, ResourceId resourceId, Role role) {
+		return usersDAO.getUserAttributes(usersDAO.getFenixUserId(userId))
+			.attributesByResource
+			.getOrDefault(resourceId, Set.of()).contains(new UserAttribute(role));
+	}
+
+	private boolean hasRole(String email, ResourceId resourceId, Role role) {
+		return usersDAO.getAllUsers().stream()
+			.filter(user -> user.email.equals(email))
+			.findAny()
+			.filter(user -> user.fenixUserId.isPresent())
+			.flatMap(user -> user.fenixUserId)
+			.map(userId -> usersDAO.getUserAttributes(userId)
+				.attributesByResource.getOrDefault(resourceId, Set.of())
+				.contains(new UserAttribute(role)))
+			.orElse(false);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteAdmin(String siteId, String email) {
+		ResourceId resourceId = new ResourceId(siteId, SITE);
+		if(hasRole(email, resourceId, Role.SITE_SUPPORT))
+			throw new UserIsSiteSupport("User already has site support role");
 		siteRepository.findById(siteId).ifPresent(site ->
 			invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_ADMIN, site.getName())
 		);
@@ -343,14 +371,20 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteSupport(String siteId, PersistentId userId) {
+		ResourceId resourceId = new ResourceId(siteId, SITE);
+		if(hasRole(userId, resourceId, Role.SITE_ADMIN))
+			throw new UserIsSiteAdmin("User already has site admin role");
 		siteRepository.findById(siteId).ifPresent(site ->
-			invitatoryService.inviteUser(userId, new ResourceId(siteId, SITE), Role.SITE_SUPPORT, site.getName())
+			invitatoryService.inviteUser(userId, resourceId, Role.SITE_SUPPORT, site.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public void inviteSupport(String siteId, String email) {
+		ResourceId resourceId = new ResourceId(siteId, SITE);
+		if(hasRole(email, resourceId, Role.SITE_ADMIN))
+			throw new UserIsSiteAdmin("User already has site admin role");
 		siteRepository.findById(siteId).ifPresent(site ->
 			invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_SUPPORT, site.getName())
 		);
