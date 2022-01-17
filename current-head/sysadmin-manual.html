@@ -457,6 +457,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#furms-ansible-scripts">FURMS Ansible scripts</a></li>
 <li><a href="#setup-ansible-configuration-files">Setup Ansible configuration files</a></li>
 <li><a href="#email-templates-configuration">Email templates configuration</a></li>
+<li><a href="#styling-furms-application">Styling FURMS application</a></li>
+<li><a href="#furms-ui-outer-panels">FURMS UI outer panels</a></li>
 <li><a href="#install-furms-stack">Install FURMS stack</a></li>
 </ul>
 </li>
@@ -1237,6 +1239,67 @@ For more information on email templates configuration, please refer to <a href="
 <td class="tableblock halign-left valign-top"><p class="tableblock">integer (default 120)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Optional value that, defines number of seconds before the user is shown the warning message about automatic logout from FURMS UI.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.layout</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><div class="content"><div class="paragraph">
+<p>Configuration of FURMS UI look&amp;feel.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+For more information on styling the FURMS UI please refer to <a href="#styling-furms-application">Styling FURMS application</a> section.
+</td>
+</tr>
+</table>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.layout.cssStyle</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional value with custom CSS styles applied to FURMS UI.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.layout.panels</p></td>
+<td class="tableblock halign-left valign-top" colspan="2"><div class="content"><div class="paragraph">
+<p>Configuration of FURMS UI outer panels.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+For more information on panels please refer to <a href="#furms-ui-outer-panels">FURMS UI outer panels</a> section.
+</td>
+</tr>
+</table>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.layout.panels.top</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional value which provides HTML content of the top outer element displayed in the FURMS application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.layout.panels.bottom</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional value which provides HTML content of the bottom outer element displayed in the FURMS application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.layout.panels.left</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional value which provides HTML content of the left outer element displayed in the FURMS application.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">furmsServer.layout.panels.right</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional value which provides HTML content of the right outer element displayed in the FURMS application.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="admonitionblock note">
@@ -1509,6 +1572,103 @@ applicationRejected.html</p>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="styling-furms-application"><a class="anchor" href="#styling-furms-application"></a>Styling FURMS application</h3>
+<div class="paragraph">
+<p>FURMS UI look &amp; feel adjustments are achieved through custom CSS configuration that overrides the default styles.
+The custom CSS is provided in a file that can be configured in <code>furmsServer.layout.cssStyle</code> property of Ansible groups variable file. Administrator is capable to customize:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>color and size of main layout components like menu, breadcrumb view, page content view,</p>
+</li>
+<li>
+<p>color scheme,</p>
+</li>
+<li>
+<p>font scheme including font sizes.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In order to customize the main layout components, administrator must find the corresponding component&#8217;s HTML ID, and then provide the style changes in the aforementioned custom CSS file, here is the example of such style changes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>/*
+ * Changes the width and background color of the right side menu.
+ */
+#furms-layout-menu {
+    width: 25rem;
+    background-color: magenta;
+}
+
+/*
+ * Changes background color of the component that displays the content of page view.
+ */
+#furms-layout-main {
+    background-color: white;
+}
+
+/*
+ * Changes the style of breadcrumb view.
+ */
+#header {
+    height: 10rem;
+    background-color: gray;
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Any other changes like color scheme &amp; fonts, can be done with help of <a href="https://demo.vaadin.com/lumo-editor">Vaadin styles editor</a>. Using this editor the administrator is capable to change the overall look&amp;feel of the entire application. The styles editor provides convenient way of styling the web components, and generates the CSS that can be included in FURMS custom CSS file. In order to do so, after finishing the styling in Vaadin styles editor, the administrator should click on the "Download" button on the top right corner of the page, copy the "html" CSS section from the popup, and paste it into the custom CSS file, example of copied "html" styles:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>html {
+  --lumo-shade-5pct: rgba(72, 129, 203, 0.05);
+  --lumo-shade-10pct: rgba(72, 129, 203, 0.1);
+  --lumo-shade-20pct: rgba(72, 129, 203, 0.2);
+  --lumo-shade-30pct: rgba(72, 129, 203, 0.3);
+  --lumo-shade-40pct: rgba(72, 129, 203, 0.4);
+  --lumo-shade-50pct: rgba(72, 129, 203, 0.5);
+  --lumo-shade-60pct: rgba(72, 129, 203, 0.6);
+  --lumo-shade-70pct: rgba(72, 129, 203, 0.7);
+  --lumo-shade-80pct: rgba(72, 129, 203, 0.8);
+  --lumo-shade-90pct: rgba(72, 129, 203, 0.9);
+  --lumo-shade: hsl(214, 56%, 54%);
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="furms-ui-outer-panels"><a class="anchor" href="#furms-ui-outer-panels"></a>FURMS UI outer panels</h3>
+<div class="paragraph">
+<p>Outer panels are fixed HTML contents that can be displayed on top, bottom, right and/or left side of the FURMS UI application, typically to include additional information for users e.g. with links or legal information. In order to configure e.g. bottom panel, administrator must create a HTML file and configure the path to it in the <code>furmsServer.layout.panels.bottom</code> property of the Ansible groups variable file.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The HTML content of a panel must consists of exactly one top level element, example:
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>&lt;!-- example of bottom pannel --&gt;
+&lt;div style=&quot;background-color:gray; height:50px; width:100%;&quot;&gt;
+    &lt;!--
+            Here goes the content of the panel.
+    --&gt;
+&lt;/div&gt;</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1802,7 +1962,7 @@ applicationRejected.html</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-11-25 13:51:36 UTC
+Last updated 2022-01-17 12:24:37 UTC
 </div>
 </div>
 <style>

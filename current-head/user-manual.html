@@ -454,6 +454,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#managing-communities">Managing communities</a></li>
 <li><a href="#managing-fenix-administrators">Managing Fenix administrators</a></li>
 <li><a href="#distributing-resources-to-communities">Distributing resources to communities</a></li>
+<li><a href="#resource-usage">Resource usage</a></li>
 <li><a href="#rest-api-access-credentials">REST API access credentials</a></li>
 </ul>
 </li>
@@ -475,6 +476,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#managing-community-administrators">Managing community administrators</a></li>
 <li><a href="#managing-community-metadata">Managing community metadata</a></li>
 <li><a href="#distributing-resources-to-projects">Distributing resources to projects</a></li>
+<li><a href="#resource-usage-2">Resource usage</a></li>
 <li><a href="#managing-groups">Managing groups</a></li>
 <li><a href="#rest-api-access-credentials-3">REST API access credentials</a></li>
 </ul>
@@ -517,20 +519,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="content">
 <img src="./images/logo-fenix.png" alt="logo fenix">
 </div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-In various places in this document, the following text is used to mark a limitation which is specific to the current release:<br>
-<span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span><br>
-All such marked limitations will be removed in the final release.
-</td>
-</tr>
-</table>
 </div>
 <div class="paragraph">
 <p>Fenix User and Resource Management Service (FURMS for short) is a central system responsible for the authorization of access and resource management across multiple research infrastructures.</p>
@@ -736,6 +724,21 @@ Community administrators can also themselves manage administrators of their comm
 </div>
 </div>
 <div class="sect2">
+<h3 id="resource-usage"><a class="anchor" href="#resource-usage"></a>Resource usage</h3>
+<div class="paragraph">
+<p>Fenix administrators can see the details of resource usage per each community resource allocation.</p>
+</div>
+<div class="paragraph">
+<p>High level overview of the resource consumption is presented in allocations table itself as a small progress bar-like widget. More detailed information is available after navigating to the charts view, from allocation row menu.</p>
+</div>
+<div class="paragraph">
+<p>Chart is showing the resource usage reported by a site under the given allocation.</p>
+</div>
+<div class="paragraph">
+<p>If the visual representation is not detailed enough, it is possible to export raw information on all recorded consumption records. FURMS can export the data either to a CSV or JSON files, with a self-explanatory syntax.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="rest-api-access-credentials"><a class="anchor" href="#rest-api-access-credentials"></a>REST API access credentials</h3>
 <div class="paragraph">
 <p>To access FURMS REST API, administrator has to generate an API key  (secret token) and use it together with its user identifier when authenticating against <a href="./openapi-static.html">FURMS REST API</a> endpoints.</p>
@@ -864,7 +867,31 @@ Community administrators can also themselves manage administrators of their comm
 <div class="sect2">
 <h3 id="site-agent-connection-and-requests"><a class="anchor" href="#site-agent-connection-and-requests"></a>Site agent connection and requests</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is available only partially, allowing site administrators to check whether the agent is up and connected.</p>
+<p>Site connection view allows site administrators to monitor and debug problems related to connection with site agent.</p>
+</div>
+<div class="paragraph">
+<p>The module offers two functions. First of all it is possible to send a ping message (which is a part of the site agent protocol) to test whether the agent is up, running and answers the most basic request properly.</p>
+</div>
+<div class="paragraph">
+<p>The other function of the module is to present all messages that are expected to have a response (or at least acknowledgment of request reception) and for which such response haven&#8217;t arrived yet.</p>
+</div>
+<div class="paragraph">
+<p>For all the presented messages administrator can check the contents of the request&#8217;s body. It is also possible to re-send any message, and to cancel (drop) it.</p>
+</div>
+<div class="paragraph">
+<p>Cancellation can be used to unblock some parts of UI, which are blocked waiting for an operation to be finished, when it is certain that the requested operation will not be served on site agent (e.g. due to its crash or other bug).</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Using cancel and resend functions should be used as the last resort. FURMS handles such interruptions of the regular message flow on the best effort basis. Therefore canceling and resend of requests should be performed only when it is certain that site agent is not going to properly handle the original request.
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -964,6 +991,21 @@ Selection of existing users is limited to the users already belonging to the com
 </div>
 <div class="paragraph">
 <p>The other way to create project allocations is to start from a target project, in the Projects view. After selecting a project and navigating to its <em>Allocations</em> tab, community administrator can create an allocation for that project. When creating allocation this way, one of community allocations needs to be selected.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="resource-usage-2"><a class="anchor" href="#resource-usage-2"></a>Resource usage</h3>
+<div class="paragraph">
+<p>Community administrators can see the details of resource usage per each project resource allocation.</p>
+</div>
+<div class="paragraph">
+<p>High level overview of the resource consumption is presented in allocations table itself as a small progress bar-like widget. More detailed information is available after navigating to the charts view, from allocation row menu.</p>
+</div>
+<div class="paragraph">
+<p>Chart is showing the resource usage reported by a site under the given allocation.</p>
+</div>
+<div class="paragraph">
+<p>If the visual representation is not detailed enough, it is possible to export raw information on all recorded consumption records. FURMS can export the data either to a CSV or JSON files, with a self-explanatory syntax.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1068,11 +1110,52 @@ Selection of existing users is limited to the users already belonging to the com
 <img src="./images/allocation.png" alt="allocation">
 </div>
 </div>
+<div class="sect3">
+<h4 id="resource-usage-3"><a class="anchor" href="#resource-usage-3"></a>Resource usage</h4>
+<div class="paragraph">
+<p>Project administrators can see the details of resource usage per each resource allocation.</p>
+</div>
+<div class="paragraph">
+<p>High level overview of the resource consumption is presented in allocations table itself as a small progress bar-like widget. More detailed information is available after navigating to the charts view, from allocation row menu.</p>
+</div>
+<div class="paragraph">
+<p>Chart is showing the resource usage reported by a site under the given allocation. What is more the actual allocation chunks as assigned by site are also shown as a red line. Finally, if an alarm is defined, its threshold level is also shown as an orange line.</p>
+</div>
+<div class="paragraph">
+<p>In case when site agent is reporting per-user resource consumption (what is optional in FURMS), it is possible to see per-user breakdown of the consumption, after turning it on with a toggle on top of the page.</p>
+</div>
+<div class="paragraph">
+<p>If the visual representation is not detailed enough, it is possible to export raw information on all recorded consumption records. FURMS can export the data either to a CSV or JSON files, with a self-explanatory syntax.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="defining-alarms"><a class="anchor" href="#defining-alarms"></a>Defining alarms</h3>
 <div class="paragraph">
-<p><span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> This functionality is not available yet.</p>
+<p>Project administrator can define resource usage alarms, in order to notify stakeholders about reaching a warning level of resources consumption from an allocation.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./images/alarm.png" alt="alarm">
+</div>
+</div>
+<div class="paragraph">
+<p>Alarm threshold is defined as a percentage of a total usage of allocated resources.</p>
+</div>
+<div class="paragraph">
+<p>Administrator can define who should be notified in case of reaching of the alarm&#8217;s threshold: all administrators of the project can be notified and/or individually picked users.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Alarm level is shown on resource usage charts as well as is marked on the small resource usage widget shown in allocations table.
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -1450,7 +1533,7 @@ Some sites may require to set the 'from' option in the SSH key. Keys without tha
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-11-25 13:51:36 UTC
+Last updated 2022-01-17 12:24:37 UTC
 </div>
 </div>
 <style>
