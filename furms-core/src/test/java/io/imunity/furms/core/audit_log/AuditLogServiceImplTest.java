@@ -7,6 +7,7 @@ package io.imunity.furms.core.audit_log;
 
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +40,10 @@ public class AuditLogServiceImplTest {
 	void shouldFind() {
 		LocalDateTime start = LocalDate.now().atStartOfDay();
 		LocalDateTime stop = LocalDate.now().atStartOfDay().plusDays(2);
-		auditLogService.findBy(start.atZone(ZoneOffset.UTC), stop.atZone(ZoneOffset.UTC), Set.of("id"), Set.of(1), Set.of(2), "");
-		Mockito.verify(repository).findBy(start, stop, Set.of("id"), Set.of(1), Set.of(2), "");
+		Set<FURMSUser> users = Set.of(FURMSUser.builder()
+			.email("email")
+			.build());
+		auditLogService.findBy(start.atZone(ZoneOffset.UTC), stop.atZone(ZoneOffset.UTC), users, Set.of(1), Set.of(2), "");
+		Mockito.verify(repository).findBy(start, stop, users, Set.of(1), Set.of(2), "");
 	}
 }

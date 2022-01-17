@@ -31,11 +31,23 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 	}
 
 	@Override
-	public Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<String> originatorIds, Set<Integer> actionIds, Set<Integer> operationIds, String subject) {
+	public Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds, String subject) {
 		Map<String, FURMSUser> users = usersDAO.getAllUsers().stream()
 			.filter(usr -> usr.fenixUserId.isPresent())
 			.collect(Collectors.toMap(x -> x.fenixUserId.get().id, Function.identity()));
-		return repository.findByCreationTimeBetweenAndOriginatorIdInAndOperationActionInAndOperationCategoryInAndOperationSubjectContaining(from, to, originatorIds, actionIds, operationIds, subject).stream()
+
+		Set<String> originatorIds = originators.stream()
+			.filter(usr -> usr.fenixUserId.isPresent())
+			.map(usr -> usr.fenixUserId.get().id)
+			.collect(Collectors.toSet());
+
+		Set<String> originatorPersistenceIds = originators.stream()
+			.filter(usr -> usr.fenixUserId.isPresent())
+			.map(usr -> usr.fenixUserId.get().id)
+			.collect(Collectors.toSet());
+
+		return repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistenceIdIn(
+			from, to, actionIds, operationIds, subject, originatorIds, originatorPersistenceIds).stream()
 			.map(auditLog -> AuditLog.builder()
 				.utcTimestamp(auditLog.creationTime)
 				.originator(users.get(auditLog.originatorId))
@@ -51,7 +63,8 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 	public void create(AuditLog auditLog) {
 		repository.save(AuditLogEntity.builder()
 				.creationTime(auditLog.utcTimestamp)
-				.originatorId(auditLog.originator.fenixUserId.get().id)
+				.originatorId(auditLog.originator.fenixUserId.map(x -> x.id).orElse(null))
+				.originatorPersistenceId(auditLog.originator.id.map(x -> x.id).orElse(null))
 				.operationCategory(auditLog.operationCategory.getPersistentId())
 				.operationAction(auditLog.action.getPersistentId())
 				.operationSubject(auditLog.operationSubject)

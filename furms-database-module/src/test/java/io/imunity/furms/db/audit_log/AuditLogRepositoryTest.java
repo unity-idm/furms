@@ -69,8 +69,8 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 		}
 
 		long start = System.currentTimeMillis();
-		Set<AuditLogEntity> found = auditLogRepository.findByCreationTimeBetweenAndOriginatorIdInAndOperationActionInAndOperationCategoryInAndOperationSubjectContaining(
-			now.minusDays(3), now.plusDays(3), Set.of("originatorId", "originatorId1"), Set.of(1, 3, 4), Set.of(1, 2, 5), ""
+		Set<AuditLogEntity> found = auditLogRepository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistenceIdIn(
+			now.minusDays(3), now.plusDays(3), Set.of(1, 3, 4), Set.of(1, 2, 5), "", Set.of("originatorId", "originatorId1"), Set.of()
 		);
 		long end = System.currentTimeMillis();
 
@@ -154,8 +154,8 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 
 		Set<AuditLogEntity> entitiesInBorder = stream(auditLogRepository.saveAll(Set.of(auditLog, auditLog1, auditLog2)).spliterator(), false).collect(Collectors.toSet());
 		auditLogRepository.saveAll(Set.of(auditLogWrongDate, auditLogWrongDate1, auditLogWrongAction, auditLogWrongOperation, auditLogWrongOriginator));
-		Set<AuditLogEntity> found = auditLogRepository.findByCreationTimeBetweenAndOriginatorIdInAndOperationActionInAndOperationCategoryInAndOperationSubjectContaining(
-			now.minusDays(3), now.plusDays(3), Set.of("originatorId", "originatorId1"), Set.of(1, 3, 4), Set.of(1, 2, 5), ""
+		Set<AuditLogEntity> found = auditLogRepository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistenceIdIn(
+			now.minusDays(3), now.plusDays(3), Set.of(1, 3, 4), Set.of(1, 2, 5), "", Set.of("originatorId", "originatorId1"), Set.of()
 		);
 
 		assertEquals(entitiesInBorder, found);

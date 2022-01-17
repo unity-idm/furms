@@ -143,15 +143,17 @@ class AuditLogDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		auditLogRepository.saveAll(Set.of(auditLog, auditLog1, auditLog2, auditLogWrongDate, auditLogWrongDate1, auditLogWrongAction, auditLogWrongOperation, auditLogWrongOriginator));
+		FURMSUser user = FURMSUser.builder()
+			.email("email")
+			.fenixUserId(new FenixUserId("originatorId"))
+			.build();
+		FURMSUser user1 = FURMSUser.builder()
+			.email("email1")
+			.fenixUserId(new FenixUserId("originatorId1"))
+			.build();
 		when(usersDAO.getAllUsers()).thenReturn(List.of(
-			FURMSUser.builder()
-				.email("email")
-				.fenixUserId(new FenixUserId("originatorId"))
-				.build(),
-			FURMSUser.builder()
-				.email("email1")
-				.fenixUserId(new FenixUserId("originatorId1"))
-				.build(),
+			user,
+			user1,
 			FURMSUser.builder()
 				.email("email2")
 				.fenixUserId(new FenixUserId("originatorId2"))
@@ -159,7 +161,7 @@ class AuditLogDatabaseRepositoryTest extends DBIntegrationTest {
 		));
 
 		Set<AuditLog> found = repository.findBy(
-			now.minusDays(3), now.plusDays(3), Set.of("originatorId", "originatorId1"), Set.of(1, 3, 4), Set.of(1, 2, 5), ""
+			now.minusDays(3), now.plusDays(3), Set.of(user, user1), Set.of(1, 3, 4), Set.of(1, 2, 5), ""
 		);
 
 		assertEquals(Set.of("originatorId", "originatorId1"), found.stream().map(a -> a.originator.fenixUserId.get().id).collect(Collectors.toSet()));
