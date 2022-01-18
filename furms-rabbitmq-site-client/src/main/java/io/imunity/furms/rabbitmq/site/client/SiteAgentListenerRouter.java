@@ -80,9 +80,12 @@ class SiteAgentListenerRouter {
 	@RabbitHandler(isDefault = true)
 	public void receive(ErrorPayload errorPayload, @Header(CONSUMER_QUEUE) String queueName) {
 		MDC.put(MDCKey.QUEUE_NAME.key, queueName);
-		LOG.info("Received object, which cannot be processed {}", errorPayload);
-		sendErrorMessageToSite(queueName, errorPayload.correlationId, "InvalidMessageContent", "The message can not be parsed: " + errorPayload.unparsableMessage);
-		MDC.remove(MDCKey.QUEUE_NAME.key);
+		try {
+			LOG.info("Received object, which cannot be processed {}", errorPayload);
+			sendErrorMessageToSite(queueName, errorPayload.correlationId, "InvalidMessageContent", "The message can not be parsed: " + errorPayload.unparsableMessage);
+		} finally {
+			MDC.remove(MDCKey.QUEUE_NAME.key);
+		}
 	}
 
 	private void sendErrorMessageToSite(String queueName, String correlationId, String errorType, String description) {

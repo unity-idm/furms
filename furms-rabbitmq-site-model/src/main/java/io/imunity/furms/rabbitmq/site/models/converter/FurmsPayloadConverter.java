@@ -102,6 +102,7 @@ public class FurmsPayloadConverter implements MessageConverter {
 	private String getCorrelationId(String content) {
 		try {
 			return Optional.ofNullable(mapper.readTree(content))
+				.flatMap(value -> Optional.ofNullable(value.get("header")))
 				.flatMap(value -> Optional.ofNullable(value.get("messageCorrelationId")))
 				.map(JsonNode::textValue)
 				.orElse(null);
