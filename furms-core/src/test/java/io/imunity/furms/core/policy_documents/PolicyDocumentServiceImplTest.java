@@ -120,25 +120,29 @@ class PolicyDocumentServiceImplTest {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder().build();
 		when(repository.create(policyDocument)).thenReturn(policyId);
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		service.create(policyDocument);
 
 		orderVerifier.verify(validator).validateCreate(policyDocument);
 		orderVerifier.verify(repository).create(policyDocument);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentCreatedEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentCreatedEvent(policyDocument));
 	}
 
 	@Test
 	void shouldUpdate() {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		PolicyDocument policyDocument = PolicyDocument.builder().build();
+		PolicyDocument policyDocument = PolicyDocument.builder()
+			.id(policyId)
+			.build();
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 		when(repository.update(policyDocument, false)).thenReturn(policyId);
 
 		service.update(policyDocument);
 
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, false);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyDocument, policyDocument));
 
 	}
 
@@ -161,7 +165,7 @@ class PolicyDocumentServiceImplTest {
 		orderVerifier.verify(validator).validateUpdate(policyDocument);
 		orderVerifier.verify(repository).update(policyDocument, true);
 		orderVerifier.verify(policyNotificationService).notifyAboutChangedPolicy(policyDocument);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentUpdatedEvent(policyDocument, policyDocument));
 	}
 
 	@Test
@@ -215,10 +219,13 @@ class PolicyDocumentServiceImplTest {
 	@Test
 	void shouldDelete() {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		PolicyDocument policyDocument = PolicyDocument.builder().build();
+		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
+
 		service.delete("siteId", policyId);
 
 		orderVerifier.verify(repository).deleteById(policyId);
-		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentRemovedEvent(policyId));
+		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentRemovedEvent(policyDocument));
 	}
 
 	@Test

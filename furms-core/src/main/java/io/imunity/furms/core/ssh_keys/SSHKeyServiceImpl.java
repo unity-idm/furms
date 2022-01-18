@@ -13,7 +13,10 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyCreatedEvent;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_keys.SSHKeyRemovedEvent;
+import io.imunity.furms.domain.ssh_keys.SSHKeyUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -28,6 +31,7 @@ import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +69,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private final UsersDAO userDao;
 	private final SSHKeyFromSiteRemover sshKeyRemover;
 	private final InstalledSSHKeyRepository installedSSHKeyRepository;
+	private final ApplicationEventPublisher publisher;
 
 	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository,
 	                  SSHKeyServiceValidator validator,
@@ -74,7 +79,8 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	                  SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService,
 	                  UsersDAO userDao,
 	                  SSHKeyFromSiteRemover sshKeyRemover,
-	                  InstalledSSHKeyRepository installedSSHKeyRepository) {
+	                  InstalledSSHKeyRepository installedSSHKeyRepository,
+	                  ApplicationEventPublisher publisher) {
 		this.userDao = userDao;
 		this.validator = validator;
 		this.authzService = authzService;
@@ -84,6 +90,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
 		this.sshKeyRemover = sshKeyRemover;
 		this.installedSSHKeyRepository = installedSSHKeyRepository;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -127,11 +134,13 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public void create(SSHKey sshKey) {
 		validator.validateCreate(sshKey);
-		String created = sshKeysRepository.create(sshKey);
-		SSHKey createdKey = sshKeysRepository.findById(created).orElseThrow(
+		String id = sshKeysRepository.create(sshKey);
+		SSHKey created = sshKeysRepository.findById(id).get();
+		SSHKey createdKey = sshKeysRepository.findById(id).orElseThrow(
 				() -> new IllegalStateException("SSH key has not been saved to DB correctly."));
 		LOG.info("Created SSHKey in repository: {}", createdKey);
 		addKeyToSites(createdKey);
+		publisher.publishEvent(new SSHKeyCreatedEvent(created));
 	}
 
 	@Transactional
@@ -139,12 +148,14 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public void update(SSHKey sshKey) {
 		validator.validateUpdate(sshKey);
+		SSHKey oldSshKey = sshKeysRepository.findById(sshKey.id).get();
 		final SSHKey oldKey = sshKeysRepository.findById(sshKey.id)
 				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + sshKey.id));
 		SSHKey merged = merge(oldKey, sshKey);
 		updateKeyOnSites(getSiteDiff(oldKey, merged), oldKey, merged);
 		String updatedId = sshKeysRepository.update(merged);
 		LOG.info("Update SSH key in repository with ID={}, {}", sshKey.id, merged);
+		publisher.publishEvent(new SSHKeyUpdatedEvent(oldSshKey, sshKey));
 	}
 
 	@Transactional
@@ -152,7 +163,9 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public void delete(String id) {
 		validator.validateDelete(id);
+		SSHKey sshKey = sshKeysRepository.findById(id).get();
 		removeKeyFromSites(sshKeysRepository.findById(id).get());
+		publisher.publishEvent(new SSHKeyRemovedEvent(sshKey));
 	}
 
 	private SSHKey merge(SSHKey oldKey, SSHKey key) {

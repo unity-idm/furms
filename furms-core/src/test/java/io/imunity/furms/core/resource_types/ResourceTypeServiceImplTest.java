@@ -5,12 +5,12 @@
 
 package io.imunity.furms.core.resource_types;
 
-import io.imunity.furms.domain.resource_types.CreateResourceTypeEvent;
-import io.imunity.furms.domain.resource_types.RemoveResourceTypeEvent;
+import io.imunity.furms.domain.resource_types.ResourceTypeCreatedEvent;
+import io.imunity.furms.domain.resource_types.ResourceTypeRemovedEvent;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
-import io.imunity.furms.domain.resource_types.UpdateResourceTypeEvent;
+import io.imunity.furms.domain.resource_types.ResourceTypeUpdatedEvent;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
@@ -28,6 +28,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
@@ -111,14 +112,14 @@ class ResourceTypeServiceImplTest {
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
+		when(resourceTypeRepository.findById("id")).thenReturn(Optional.of(request));
 		when(resourceTypeRepository.create(request)).thenReturn("id");
 
 		//when
 		service.create(request);
 
 		orderVerifier.verify(resourceTypeRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateResourceTypeEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ResourceTypeCreatedEvent(request)));
 	}
 
 	@Test
@@ -132,7 +133,7 @@ class ResourceTypeServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		orderVerifier.verify(resourceTypeRepository, times(0)).create(eq(request));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateResourceTypeEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(any());
 	}
 
 	@Test
@@ -156,7 +157,7 @@ class ResourceTypeServiceImplTest {
 		service.update(request);
 
 		orderVerifier.verify(resourceTypeRepository).update(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateResourceTypeEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ResourceTypeUpdatedEvent(request, request)));
 	}
 
 	@Test
@@ -164,12 +165,14 @@ class ResourceTypeServiceImplTest {
 		//given
 		String id = "id";
 		when(resourceTypeRepository.exists(id)).thenReturn(true);
+		ResourceType resourceType = ResourceType.builder().build();
+		when(resourceTypeRepository.findById("id")).thenReturn(Optional.of(resourceType));
 
 		//when
 		service.delete(id, "");
 
 		orderVerifier.verify(resourceTypeRepository).delete(eq(id));
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveResourceTypeEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ResourceTypeRemovedEvent(resourceType)));
 	}
 
 	@Test
@@ -181,7 +184,7 @@ class ResourceTypeServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
 		orderVerifier.verify(resourceTypeRepository, times(0)).delete(eq(id));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new UpdateResourceTypeEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(any());
 	}
 
 }
