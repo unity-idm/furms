@@ -7,8 +7,6 @@ package io.imunity.furms.ui.charts;
 
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.github.appreciated.apexcharts.ApexChartsBuilder;
-import com.github.appreciated.apexcharts.config.Annotations;
-import com.github.appreciated.apexcharts.config.annotations.builder.YAxisAnnotationsBuilder;
 import com.github.appreciated.apexcharts.config.builder.ChartBuilder;
 import com.github.appreciated.apexcharts.config.builder.DataLabelsBuilder;
 import com.github.appreciated.apexcharts.config.builder.FillBuilder;
@@ -93,11 +91,6 @@ public class ResourceAllocationChart extends VerticalLayout {
 				)
 				.build()
 			)
-			.withAnnotations(
-				chartData.threshold > 0 && !disableThreshold ?
-					getAnnotations(chartData.threshold, chartData.getMaxValue()) :
-					null
-			)
 			.withLegend(LegendBuilder.get().withHorizontalAlign(HorizontalAlign.left).build())
 			.build();
 
@@ -117,6 +110,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 		curves.add(Curve.stepline);
 		curves.add(Curve.smooth);
 
+		widths.add(5D);
 		widths.add(5D);
 		widths.add(5D);
 
@@ -140,32 +134,12 @@ public class ResourceAllocationChart extends VerticalLayout {
 		if(!chartData.chunks.isEmpty())
 			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()));
 		if(!(chartData.threshold < 1 || disableThreshold))
-			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.thresholds.toArray()));
+			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.getFullThresholds().toArray()));
 		for(UserUsage userUsage : chartData.usersUsages){
 			series.add(new Series<>(userUsage.email, SeriesType.line, userUsage.usages.toArray()));
 		}
 
 		return series.toArray(Series[]::new);
-	}
-
-	private Annotations getAnnotations(double threshold, double maxVale) {
-		Annotations annotations = new Annotations();
-		annotations.setYaxis(List.of(
-			YAxisAnnotationsBuilder.get()
-				.withBorderColor("orange")
-				.withY(threshold)
-				.withY2(getApproximateYWidth(threshold, maxVale))
-				.withOpacity(0.5D)
-				.withStrokeDashArray(5000D)
-				.withFillColor("orange")
-				.build()
-
-		));
-		return annotations;
-	}
-
-	private double getApproximateYWidth(double threshold, double maxVale) {
-		return threshold + (((maxVale % 4) + maxVale)) * 0.01;
 	}
 
 	@CssImport("./styles/components/grid-action-menu.css")

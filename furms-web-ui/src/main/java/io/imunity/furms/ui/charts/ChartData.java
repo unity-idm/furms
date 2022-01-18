@@ -51,6 +51,13 @@ public class ChartData {
 		return times;
 	}
 
+	List<Double> getFullThresholds() {
+		List<Double> thresholds =  new ArrayList<>(this.thresholds);
+		if(thresholds.size() > 1)
+			thresholds.add(thresholds.get(0));
+		return thresholds;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
