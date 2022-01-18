@@ -12,6 +12,7 @@ import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.Test;
@@ -88,8 +89,26 @@ class AuditLogDatabaseRepositoryTest extends DBIntegrationTest {
 			.creationTime(now.plusDays(1))
 			.build();
 
+		AuditLogEntity auditLog11 = AuditLogEntity.builder()
+			.originatorPersistenceId("originatorPersistenceId")
+			.operationCategory(2)
+			.operationAction(3)
+			.operationSubject("name1")
+			.dataJson("dataJson1")
+			.creationTime(now.plusDays(1))
+			.build();
+
 		AuditLogEntity auditLog2 = AuditLogEntity.builder()
 			.originatorId("originatorId")
+			.operationCategory(5)
+			.operationAction(4)
+			.operationSubject("name2")
+			.dataJson("dataJson2")
+			.creationTime(now.minusDays(1))
+			.build();
+
+		AuditLogEntity auditLog21 = AuditLogEntity.builder()
+			.originatorPersistenceId("originatorPersistenceId1")
 			.operationCategory(5)
 			.operationAction(4)
 			.operationSubject("name2")
@@ -142,13 +161,15 @@ class AuditLogDatabaseRepositoryTest extends DBIntegrationTest {
 			.creationTime(now.minusDays(1))
 			.build();
 
-		auditLogRepository.saveAll(Set.of(auditLog, auditLog1, auditLog2, auditLogWrongDate, auditLogWrongDate1, auditLogWrongAction, auditLogWrongOperation, auditLogWrongOriginator));
+		auditLogRepository.saveAll(Set.of(auditLog, auditLog1, auditLog11, auditLog2, auditLog21, auditLogWrongDate, auditLogWrongDate1, auditLogWrongAction, auditLogWrongOperation, auditLogWrongOriginator));
 		FURMSUser user = FURMSUser.builder()
 			.email("email")
+			.id(new PersistentId("originatorPersistenceId"))
 			.fenixUserId(new FenixUserId("originatorId"))
 			.build();
 		FURMSUser user1 = FURMSUser.builder()
 			.email("email1")
+			.id(new PersistentId("originatorPersistenceId1"))
 			.fenixUserId(new FenixUserId("originatorId1"))
 			.build();
 		when(usersDAO.getAllUsers()).thenReturn(List.of(
@@ -165,6 +186,7 @@ class AuditLogDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		assertEquals(Set.of("originatorId", "originatorId1"), found.stream().map(a -> a.originator.fenixUserId.get().id).collect(Collectors.toSet()));
+		assertEquals(Set.of("originatorPersistenceId", "originatorPersistenceId1"), found.stream().map(a -> a.originator.id.get().id).collect(Collectors.toSet()));
 		assertEquals(Set.of("dataJson", "dataJson1", "dataJson2"), found.stream().map(a -> a.dataJson).collect(Collectors.toSet()));
 		assertEquals(Set.of("name", "name1", "name2"), found.stream().map(a -> a.operationSubject).collect(Collectors.toSet()));
 		assertEquals(Set.of(Action.LOGOUT, Action.UPDATE, Action.DELETE), found.stream().map(a -> a.action).collect(Collectors.toSet()));

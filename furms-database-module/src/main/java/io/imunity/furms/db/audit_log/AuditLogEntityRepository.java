@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface AuditLogEntityRepository extends CrudRepository<AuditLogEntity, UUID> {
-	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistenceIdIn(
+	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
 		LocalDateTime from,
 		LocalDateTime to,
 		Set<Integer> actionIds,

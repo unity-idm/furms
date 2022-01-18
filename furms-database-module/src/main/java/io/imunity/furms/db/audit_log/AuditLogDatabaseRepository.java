@@ -14,6 +14,7 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -32,25 +33,29 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 
 	@Override
 	public Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds, String subject) {
-		Map<String, FURMSUser> users = usersDAO.getAllUsers().stream()
+		List<FURMSUser> allUsers = usersDAO.getAllUsers();
+		Map<String, FURMSUser> fenixIdUsers = allUsers.stream()
 			.filter(usr -> usr.fenixUserId.isPresent())
 			.collect(Collectors.toMap(x -> x.fenixUserId.get().id, Function.identity()));
+		Map<String, FURMSUser> idUsers = allUsers.stream()
+			.filter(usr -> usr.id.isPresent())
+			.collect(Collectors.toMap(x -> x.id.get().id, Function.identity()));
 
 		Set<String> originatorIds = originators.stream()
 			.filter(usr -> usr.fenixUserId.isPresent())
 			.map(usr -> usr.fenixUserId.get().id)
 			.collect(Collectors.toSet());
 
-		Set<String> originatorPersistenceIds = originators.stream()
-			.filter(usr -> usr.fenixUserId.isPresent())
-			.map(usr -> usr.fenixUserId.get().id)
+		Set<String> originatorPersistentIds = originators.stream()
+			.filter(usr -> usr.id.isPresent())
+			.map(usr -> usr.id.get().id)
 			.collect(Collectors.toSet());
 
-		return repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistenceIdIn(
-			from, to, actionIds, operationIds, subject, originatorIds, originatorPersistenceIds).stream()
+		return repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
+			from, to, actionIds, operationIds, subject, originatorIds, originatorPersistentIds).stream()
 			.map(auditLog -> AuditLog.builder()
 				.utcTimestamp(auditLog.creationTime)
-				.originator(users.get(auditLog.originatorId))
+				.originator(fenixIdUsers.getOrDefault(auditLog.originatorId, idUsers.get(auditLog.originatorPersistentId)))
 				.operationCategory(Operation.valueOf(auditLog.operationCategory))
 				.action(Action.valueOf(auditLog.operationAction))
 				.operationSubject(auditLog.operationSubject)
