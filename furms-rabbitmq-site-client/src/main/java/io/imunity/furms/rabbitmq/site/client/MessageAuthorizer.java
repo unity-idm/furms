@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.rabbitmq.site.client.message_resolvers_conector.DefaultSiteIdResolversConnector;
 import io.imunity.furms.rabbitmq.site.client.message_resolvers_conector.SiteIdGetter;
 import io.imunity.furms.rabbitmq.site.models.Body;
@@ -29,6 +30,6 @@ public class MessageAuthorizer {
 		SiteIdGetter siteIdResolversConnector = siteIdGetterMap.getOrDefault(payload.body.getClass(), defaultSiteIdResolversConnector);
 		siteIdResolversConnector.getSiteId(payload)
 			.filter(siteExternalId -> getSiteId(queueName).equals(siteExternalId.id))
-			.orElseThrow(() -> new InvalidSiteIdException(String.format("Message doesn't belong to site:  %s", payload)));
+			.orElseThrow(() -> new InvalidCorrelationIdException(String.format("Message doesn't belong to site:  %s", payload)));
 	}
 }

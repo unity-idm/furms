@@ -26,7 +26,6 @@ import java.lang.invoke.MethodHandles;
 
 import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_SUCCESS_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGOUT_TRIGGER_URL;
 import static io.imunity.furms.domain.constant.RoutesConst.PUBLIC_URL;
@@ -40,15 +39,18 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final ClientRegistrationRepository clientRegistrationRepo;
 	private final RestTemplate unityRestTemplate;
 	private final TokenRevokerHandler tokenRevokerHandler;
+	private final FurmsAuthenticationSuccessHandler authenticationSuccessHandler;
 	private final RoleLoader roleLoader;
 
 	WebAppSecurityConfiguration(RestTemplate unityRestTemplate,
 	                            ClientRegistrationRepository clientRegistrationRepo,
 	                            TokenRevokerHandler tokenRevokerHandler,
+	                            FurmsAuthenticationSuccessHandler authenticationSuccessHandler,
 	                            RoleLoader roleLoader) {
 		this.unityRestTemplate = unityRestTemplate;
 		this.clientRegistrationRepo = clientRegistrationRepo;
 		this.tokenRevokerHandler = tokenRevokerHandler;
+		this.authenticationSuccessHandler = authenticationSuccessHandler;
 		this.roleLoader = roleLoader;
 	}
 
@@ -78,7 +80,7 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 			// Configure the login page.
 			.and().oauth2Login().loginPage(LOGIN_URL)
-				.defaultSuccessUrl(LOGIN_SUCCESS_URL, false)
+				.successHandler(authenticationSuccessHandler)
 				.failureUrl(LOGIN_ERROR_URL).permitAll()
 
 			// Configure rest client template.

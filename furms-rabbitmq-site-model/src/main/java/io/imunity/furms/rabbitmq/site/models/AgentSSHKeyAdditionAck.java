@@ -10,4 +10,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserSSHKeyAddRequestAck")
 public class AgentSSHKeyAdditionAck implements Body, Ack {
+	@Override
+	public String toString() {
+		return "AgentSSHKeyAdditionAck{}";
+	}
 }

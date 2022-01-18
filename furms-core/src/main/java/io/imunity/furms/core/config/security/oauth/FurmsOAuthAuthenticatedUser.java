@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Map;
 import java.util.Set;
 
-class FurmsOAuthAuthenticatedUser extends DefaultOAuth2User implements FURMSUserProvider {
+public class FurmsOAuthAuthenticatedUser extends DefaultOAuth2User implements FURMSUserProvider {
 	public FURMSUser furmsUser;
 
 	FurmsOAuthAuthenticatedUser(OAuth2User defaultOAuth2User, String key, Map<ResourceId, Set<Role>> roles) {

@@ -5,22 +5,6 @@
 
 package io.imunity.furms.ui.views.project.resource_access;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.CHEVRON_DOWN_SMALL;
-import static com.vaadin.flow.component.icon.VaadinIcon.CHEVRON_RIGHT_SMALL;
-import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
-import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static java.util.Collections.emptyList;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.vaadin.gatanaso.MultiselectComboBox;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -30,10 +14,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.ui.components.BigMultiSelectComboBox;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
@@ -42,6 +26,21 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+import org.vaadin.gatanaso.MultiselectComboBox;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.CHEVRON_DOWN_SMALL;
+import static com.vaadin.flow.component.icon.VaadinIcon.CHEVRON_RIGHT_SMALL;
+import static com.vaadin.flow.component.icon.VaadinIcon.MINUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.SEARCH;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static java.util.Collections.emptyList;
 
 @Route(value = "project/admin/resource/access", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.resource-access.page.title")
@@ -51,7 +50,7 @@ public class ResourceAccessView extends FurmsViewComponent {
 	public final ResourceAccessViewService resourceAccessViewService;
 
 	public final TreeGrid<ResourceAccessModel> treeGrid;
-	public final MultiselectComboBox<String> multiselectComboBox = new MultiselectComboBox<>(getTranslation("view.project-admin.resource-access.multi-combo-box.filter"));
+	public final MultiselectComboBox<String> multiselectComboBox = new BigMultiSelectComboBox<>(getTranslation("view.project-admin.resource-access.multi-combo-box.filter"));
 	public final TextField searchTextField = new TextField();
 
 	ResourceAccessView(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService) {

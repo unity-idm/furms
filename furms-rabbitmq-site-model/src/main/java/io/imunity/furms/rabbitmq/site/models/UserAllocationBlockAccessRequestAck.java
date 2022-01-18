@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserAllocationBlockAccessRequestAck")
 public class UserAllocationBlockAccessRequestAck implements Body, Ack {
+	@Override
+	public String toString() {
+		return "UserAllocationBlockAccessRequestAck{}";
+	}
 }

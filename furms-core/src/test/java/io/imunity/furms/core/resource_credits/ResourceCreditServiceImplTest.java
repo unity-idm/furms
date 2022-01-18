@@ -8,11 +8,11 @@ package io.imunity.furms.core.resource_credits;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.core.community_allocation.CommunityAllocationServiceHelper;
-import io.imunity.furms.domain.resource_credits.CreateResourceCreditEvent;
-import io.imunity.furms.domain.resource_credits.RemoveResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditCreatedEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditRemovedEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
-import io.imunity.furms.domain.resource_credits.UpdateResourceCreditEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditUpdatedEvent;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
 import io.imunity.furms.domain.users.PersistentId;
@@ -207,12 +207,13 @@ class ResourceCreditServiceImplTest {
 		when(resourceTypeRepository.exists(request.resourceTypeId)).thenReturn(true);
 		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
 		when(resourceCreditRepository.create(request)).thenReturn("id");
+		when(resourceCreditRepository.findById("id")).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
 
 		orderVerifier.verify(resourceCreditRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateResourceCreditEvent("id", new PersistentId("userId"))));
+		orderVerifier.verify(publisher).publishEvent(eq(new ResourceCreditCreatedEvent(new PersistentId("userId"), request)));
 	}
 
 	@Test
@@ -231,7 +232,7 @@ class ResourceCreditServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.create(request));
 		orderVerifier.verify(resourceCreditRepository, times(0)).create(eq(request));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new CreateResourceCreditEvent("id", new PersistentId("use"))));
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new ResourceCreditCreatedEvent(new PersistentId("use"), request)));
 	}
 
 	@Test
@@ -256,20 +257,21 @@ class ResourceCreditServiceImplTest {
 		service.update(request);
 
 		orderVerifier.verify(resourceCreditRepository).update(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateResourceCreditEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ResourceCreditUpdatedEvent(request, request)));
 	}
 
 	@Test
 	void shouldAllowToDeleteResourceCredit() {
 		//given
 		String id = "id";
-		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(mock(ResourceCredit.class)));
+		ResourceCredit mock = mock(ResourceCredit.class);
+		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(mock));
 
 		//when
 		service.delete(id, "");
 
 		orderVerifier.verify(resourceCreditRepository).delete(eq(id));
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveResourceCreditEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ResourceCreditRemovedEvent(mock)));
 	}
 
 	@Test
@@ -280,7 +282,7 @@ class ResourceCreditServiceImplTest {
 		//when
 		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
 		orderVerifier.verify(resourceCreditRepository, times(0)).delete(eq(id));
-		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new UpdateResourceCreditEvent("id")));
+		orderVerifier.verify(publisher, times(0)).publishEvent(any());
 	}
 
 }

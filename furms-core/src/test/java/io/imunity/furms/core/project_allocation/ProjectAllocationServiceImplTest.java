@@ -8,11 +8,11 @@ package io.imunity.furms.core.project_allocation;
 import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
-import io.imunity.furms.domain.project_allocation.CreateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationCreatedEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.project_allocation.RemoveProjectAllocationEvent;
-import io.imunity.furms.domain.project_allocation.UpdateProjectAllocationEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationRemovedEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationUpdatedEvent;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
@@ -139,11 +139,12 @@ class ProjectAllocationServiceImplTest {
 				.build()
 		);
 		when(projectAllocationRepository.create(request)).thenReturn("projectAllocationId");
+		when(projectAllocationRepository.findById("projectAllocationId")).thenReturn(Optional.of(request));
 
 		service.create("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).create(eq(request));
-		orderVerifier.verify(publisher).publishEvent(eq(new CreateProjectAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationCreatedEvent(request)));
 	}
 
 	@Test
@@ -163,13 +164,14 @@ class ProjectAllocationServiceImplTest {
 				.build()
 		);
 		when(projectInstallationService.isProjectInstalled("siteId", "id")).thenReturn(true);
+		when(projectAllocationRepository.findById("id")).thenReturn(Optional.of(request));
 
 		//when
 		service.update("communityId", request);
 
 		orderVerifier.verify(projectAllocationRepository).update(eq(request));
 		orderVerifier.verify(projectAllocationInstallationService).updateAndStartAllocation("id");
-		orderVerifier.verify(publisher).publishEvent(eq(new UpdateProjectAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationUpdatedEvent( request, request)));
 	}
 
 	@Test
@@ -180,13 +182,15 @@ class ProjectAllocationServiceImplTest {
 			.amount(BigDecimal.TEN)
 			.consumed(BigDecimal.ZERO)
 			.build();
+		ProjectAllocation projectAllocation = ProjectAllocation.builder().build();
 		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(projectAllocation));
 
 		//when
 		service.delete("projectId", id);
 
 		orderVerifier.verify(projectAllocationInstallationService).createDeallocation(projectAllocationResolved);
-		orderVerifier.verify(publisher).publishEvent(eq(new RemoveProjectAllocationEvent("id")));
+		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationRemovedEvent(projectAllocation)));
 	}
 
 	@Test

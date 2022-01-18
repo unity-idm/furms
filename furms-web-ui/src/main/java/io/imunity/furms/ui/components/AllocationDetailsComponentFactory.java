@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,7 +49,7 @@ public class AllocationDetailsComponentFactory {
 		theadRow.appendChild(amountHeader, receivedHeader, validFromHeader, validToHeader);
 		thead.appendChild(theadRow);
 
-		Tbody tbody = new Tbody();
+		TBody tbody = new TBody();
 		List<ProjectAllocationChunk> orderedChunks = allocationChunks.stream()
 			.sorted(Comparator.comparing((ProjectAllocationChunk chunk) -> chunk.validFrom)
 				.thenComparing(chunk -> chunk.validTo)
@@ -89,7 +90,7 @@ public class AllocationDetailsComponentFactory {
 		tableElement.getStyle().set("text-align", "left");
 		Element thead = new Element("thead");
 
-		Tbody tbody = new Tbody();
+		TBody tbody = new TBody();
 
 		Tr row = new Tr();
 		Td createdTd = new Td();
@@ -136,28 +137,37 @@ public class AllocationDetailsComponentFactory {
 		return div;
 	}
 
-	private static class Td extends Element {
-		public Td() {
-			super("td");
-		}
-	}
+	public static Component create(Map<String, Object> data) {
+		ZoneId browserZoneId = UIContext.getCurrent().getZone();
+		Element tableElement = new Element("table");
+		tableElement.getStyle().set("width", "50%");
+		tableElement.getStyle().set("text-align", "left");
+		Element thead = new Element("thead");
 
-	private static class Th extends Element {
-		public Th() {
-			super("th");
-		}
-	}
+		TBody tbody = new TBody();
 
-	private static class Tr extends Element {
-		public Tr() {
-			super("tr");
-		}
-	}
+		data.forEach((key, value) -> {
+			Tr row = new Tr();
+			Td createdTd = new Td();
+			createdTd.setText(key);
+			createdTd.getStyle().set("font-weight", "bold");
+			Td createdTimeTd = new Td();
+			createdTimeTd.setText(Optional.ofNullable(value)
+				.map(t -> {
+					if(value instanceof LocalDateTime)
+						return convertToZoneTime((LocalDateTime)value, browserZoneId).format(dateTimeFormatter);
+					else
+						return value.toString();
+				})
+				.orElse(""));
+			row.appendChild(createdTd, createdTimeTd);
+			tbody.appendChild(row);
+		});
 
-	private static class Tbody extends Element {
-		public Tbody() {
-			super("tbody");
-		}
+		tableElement.appendChild(thead, tbody);
+		Div div = new AllocationDetails();
+		div.getElement().appendChild(tableElement);
+		return div;
 	}
 	
 	@CssImport(value = "./styles/components/allocation-details.css")

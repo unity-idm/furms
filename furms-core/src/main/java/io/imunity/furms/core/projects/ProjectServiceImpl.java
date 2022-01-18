@@ -18,17 +18,17 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.projects.CreateProjectEvent;
+import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.ProjectGroup;
-import io.imunity.furms.domain.projects.RemoveProjectEvent;
-import io.imunity.furms.domain.projects.UpdateProjectEvent;
-import io.imunity.furms.domain.users.AddUserEvent;
+import io.imunity.furms.domain.projects.ProjectRemovedEvent;
+import io.imunity.furms.domain.projects.ProjectUpdatedEvent;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserProjectMembershipEvent;
-import io.imunity.furms.domain.users.RemoveUserRoleEvent;
+import io.imunity.furms.domain.users.UserProjectMembershipRevokedEvent;
+import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -174,8 +174,9 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateCreate(project);
 		String id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
+		Project createdProject = projectRepository.findById(id).get();
 		addAdmin(project.getCommunityId(), id, project.getLeaderId());
-		publisher.publishEvent(new CreateProjectEvent(project.getId()));
+		publisher.publishEvent(new ProjectCreatedEvent(createdProject));
 		LOG.info("Project with given ID: {} was created: {}", id, project);
 		return id;
 	}
@@ -185,11 +186,12 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_WRITE, resourceType = PROJECT, id = "project.id")
 	public void update(Project project) {
 		validator.validateUpdate(project);
+		Project oldProject = projectRepository.findById(project.getId()).get();
 		projectRepository.update(project);
 		projectGroupsDAO.update(new ProjectGroup(project.getId(), project.getName(), project.getCommunityId()));
 		addAdmin(project.getCommunityId(), project.getId(), project.getLeaderId());
 		updateInAgent(project);
-		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
+		publisher.publishEvent(new ProjectUpdatedEvent(oldProject, project));
 		LOG.info("Project was updated {}", project);
 	}
 
@@ -215,7 +217,7 @@ class ProjectServiceImpl implements ProjectService {
 		projectRepository.update(updatedProject);
 		projectGroupsDAO.update(new ProjectGroup(updatedProject.getId(), updatedProject.getName(), updatedProject.getCommunityId()));
 		updateInAgent(project);
-		publisher.publishEvent(new UpdateProjectEvent(project.getId()));
+		publisher.publishEvent(new ProjectUpdatedEvent(project, updatedProject));
 		LOG.info("Project was updated {}", attributes);
 	}
 
@@ -230,9 +232,10 @@ class ProjectServiceImpl implements ProjectService {
 		validator.validateDelete(projectId);
 		List<FURMSUser> allProjectUsers = projectGroupsDAO.getAllUsers(communityId, projectId);
 		removeFromAgent(projectId);
+		Project project = projectRepository.findById(projectId).get();
 		projectRepository.delete(projectId);
 		projectGroupsDAO.delete(communityId, projectId);
-		publisher.publishEvent(new RemoveProjectEvent(projectId, allProjectUsers));
+		publisher.publishEvent(new ProjectRemovedEvent(allProjectUsers, project));
 		LOG.info("Project with given ID: {} was deleted", projectId);
 	}
 
@@ -265,7 +268,8 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
 	public void addAdmin(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_ADMIN);
-		publisher.publishEvent(new AddUserEvent(userId, new ResourceId(projectId, PROJECT)));
+		String projectName = projectRepository.findById(projectId).get().getName();
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId, PROJECT), projectName, PROJECT_ADMIN));
 	}
 
 	@Override
@@ -300,7 +304,8 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
 	public void removeAdmin(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.removeAdmin(communityId, projectId, userId);
-		publisher.publishEvent(new RemoveUserRoleEvent(userId, new ResourceId(projectId, PROJECT)));
+		String projectName = projectRepository.findById(projectId).get().getName();
+		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(projectId, PROJECT), projectName, PROJECT_ADMIN));
 	}
 
 	@Override
@@ -337,7 +342,8 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addUser(String communityId, String projectId, PersistentId userId){
 		projectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_USER);
-		publisher.publishEvent(new AddUserEvent(userId, new ResourceId(projectId, PROJECT)));
+		String projectName = projectRepository.findById(projectId).get().getName();
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId, PROJECT), projectName, PROJECT_USER));
 	}
 
 	@Override
@@ -390,6 +396,7 @@ class ProjectServiceImpl implements ProjectService {
 	private void removeUserFromProject(String communityId, String projectId, PersistentId userId) {
 		userOperationService.createUserRemovals(projectId, userId);
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
-		publisher.publishEvent(new RemoveUserProjectMembershipEvent(userId, new ResourceId(projectId, PROJECT)));
+		String projectName = projectRepository.findById(projectId).get().getName();
+		publisher.publishEvent(new UserProjectMembershipRevokedEvent(userId, new ResourceId(projectId, PROJECT), projectName));
 	}
 }

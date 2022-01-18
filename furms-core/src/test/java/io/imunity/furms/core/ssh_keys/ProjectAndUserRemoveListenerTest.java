@@ -8,14 +8,15 @@ package io.imunity.furms.core.ssh_keys;
 import com.google.common.collect.Sets;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
-import io.imunity.furms.domain.projects.RemoveProjectEvent;
+import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.RemoveUserProjectMembershipEvent;
+import io.imunity.furms.domain.users.UserProjectMembershipRevokedEvent;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -76,8 +77,8 @@ public class ProjectAndUserRemoveListenerTest {
 						.siteId(new SiteId("s1", "id")).build()));
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));
 
-		listener.onUserRoleRemove(new RemoveUserProjectMembershipEvent(new PersistentId("id"),
-				new ResourceId(projectUUID, ResourceType.PROJECT)));
+		listener.onUserRoleRemove(new UserProjectMembershipRevokedEvent(new PersistentId("id"),
+				new ResourceId(projectUUID, ResourceType.PROJECT), null));
 
 		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
 		verify(sshKeyHistoryRepository).deleteLatest("s2", "id");
@@ -107,10 +108,10 @@ public class ProjectAndUserRemoveListenerTest {
 						.siteId(new SiteId("s1", "id")).build()));
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));
 
-		listener.onProjectRemove(new RemoveProjectEvent(projectUUID.toString(),
+		listener.onProjectRemove(new ProjectRemovedEvent(
 			Collections.singletonList(FURMSUser.builder().email("demo@test.com")
 				.fenixUserId(new FenixUserId("id")).id(new PersistentId("id"))
-				.build())));
+				.build()), Project.builder().build()));
 
 		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
 		verify(sshKeyHistoryRepository).deleteLatest("s2", "id");

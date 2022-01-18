@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserAllocationBlockAccessResult")
 public class UserAllocationBlockAccessResult implements Body, Result {
+	@Override
+	public String toString() {
+		return "UserAllocationBlockAccessResult{}";
+	}
 }

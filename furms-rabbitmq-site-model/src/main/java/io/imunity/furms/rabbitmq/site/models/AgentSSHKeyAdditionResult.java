@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserSSHKeyAddResult")
 public class AgentSSHKeyAdditionResult implements Body, Result {
+	@Override
+	public String toString() {
+		return "AgentSSHKeyAdditionResult{}";
+	}
 }

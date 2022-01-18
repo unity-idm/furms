@@ -5,17 +5,13 @@
 
 package io.imunity.furms.core.config.security;
 
-import static io.imunity.furms.domain.constant.RoutesConst.POST_LOGOUT_PAGE_URL;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import io.imunity.furms.core.config.security.oauth.FurmsOAuthAuthenticatedUser;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.authn.UserLoggedOutEvent;
+import io.imunity.furms.spi.tokens.AccessTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -24,18 +20,27 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import io.imunity.furms.spi.tokens.AccessTokenRepository;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.domain.constant.RoutesConst.POST_LOGOUT_PAGE_URL;
 
 @Component
 class TokenRevokerHandler implements LogoutSuccessHandler {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private final AccessTokenRepository accessTokenRepository;
 	private final OAuth2AuthorizedClientService auth2AuthorizedClientService;
+	private final ApplicationEventPublisher publisher;
 
 	TokenRevokerHandler(AccessTokenRepository accessTokenRepository, 
-			OAuth2AuthorizedClientService auth2AuthorizedClientService) {
+			OAuth2AuthorizedClientService auth2AuthorizedClientService,
+			ApplicationEventPublisher publisher) {
 		this.accessTokenRepository = accessTokenRepository;
 		this.auth2AuthorizedClientService = auth2AuthorizedClientService;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -47,7 +52,7 @@ class TokenRevokerHandler implements LogoutSuccessHandler {
 		httpServletResponse.sendRedirect(POST_LOGOUT_PAGE_URL);
 	}
 
-	public void revokeOauthToken(OAuth2AuthenticationToken oAuth2AuthenticationToken) {
+	private void revokeOauthToken(OAuth2AuthenticationToken oAuth2AuthenticationToken) {
 		if (oAuth2AuthenticationToken == null) //may be null if request to logout is made while session expired on its own
 			return;
 		LOG.info("Closing Unity authn session & invalidating oauth token");
@@ -59,5 +64,12 @@ class TokenRevokerHandler implements LogoutSuccessHandler {
 		String clientId = oAuth2AuthorizedClient.getClientRegistration().getClientId();
 
 		accessTokenRepository.revoke(accessToken, clientId);
+
+		try {
+			FURMSUser furmsUser = ((FurmsOAuthAuthenticatedUser)oAuth2AuthenticationToken.getPrincipal()).furmsUser;
+			publisher.publishEvent(new UserLoggedOutEvent(furmsUser));
+		} catch (Exception e){
+			LOG.error("Publishing user logged out event failed", e);
+		}
 	}
 }

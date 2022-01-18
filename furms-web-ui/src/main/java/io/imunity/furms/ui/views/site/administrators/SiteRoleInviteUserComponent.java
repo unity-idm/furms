@@ -14,6 +14,8 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.EmailValidator;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.api.validation.exceptions.UserIsSiteAdmin;
+import io.imunity.furms.api.validation.exceptions.UserIsSiteSupport;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
@@ -102,6 +104,10 @@ class SiteRoleInviteUserComponent extends HorizontalLayout {
 				showErrorNotification(getTranslation("invite.error.duplicate"));
 			} catch (UserAlreadyHasRoleError e) {
 				showErrorNotification(getTranslation("invite.error.role.own"));
+			} catch (UserIsSiteAdmin e) {
+				showErrorNotification(getTranslation("invite.error.role.site.admin"));
+			} catch (UserIsSiteSupport e) {
+				showErrorNotification(getTranslation("invite.error.role.site.support"));
 			} catch (RuntimeException e) {
 				showErrorNotification(getTranslation("invite.error.unexpected"));
 				LOG.error("Could not invite user. ", e);
