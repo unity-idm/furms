@@ -117,10 +117,7 @@ public class AuditLogView extends FurmsViewComponent {
 		Set<AuditLog> auditLogs = auditLogService.findBy(
 			startDateTimePicker.getValue(),
 			endDateTimePicker.getValue(),
-			userComboBox.getSelectedItems().stream()
-				.filter(user -> user.fenixUserId.isPresent())
-				.map(user -> user.fenixUserId.get().id)
-				.collect(Collectors.toSet()),
+			userComboBox.getSelectedItems(),
 			actionComboBox.getSelectedItems().stream()
 				.map(Action::getPersistentId)
 				.collect(Collectors.toSet()),

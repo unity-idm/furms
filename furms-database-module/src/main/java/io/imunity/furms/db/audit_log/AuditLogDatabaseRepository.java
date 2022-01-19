@@ -14,6 +14,7 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -31,14 +32,30 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 	}
 
 	@Override
-	public Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<String> originatorIds, Set<Integer> actionIds, Set<Integer> operationIds, String subject) {
-		Map<String, FURMSUser> users = usersDAO.getAllUsers().stream()
+	public Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds, String subject) {
+		List<FURMSUser> allUsers = usersDAO.getAllUsers();
+		Map<String, FURMSUser> fenixIdUsers = allUsers.stream()
 			.filter(usr -> usr.fenixUserId.isPresent())
 			.collect(Collectors.toMap(x -> x.fenixUserId.get().id, Function.identity()));
-		return repository.findByCreationTimeBetweenAndOriginatorIdInAndOperationActionInAndOperationCategoryInAndOperationSubjectContaining(from, to, originatorIds, actionIds, operationIds, subject).stream()
+		Map<String, FURMSUser> idUsers = allUsers.stream()
+			.filter(usr -> usr.id.isPresent())
+			.collect(Collectors.toMap(x -> x.id.get().id, Function.identity()));
+
+		Set<String> originatorIds = originators.stream()
+			.filter(usr -> usr.fenixUserId.isPresent())
+			.map(usr -> usr.fenixUserId.get().id)
+			.collect(Collectors.toSet());
+
+		Set<String> originatorPersistentIds = originators.stream()
+			.filter(usr -> usr.id.isPresent())
+			.map(usr -> usr.id.get().id)
+			.collect(Collectors.toSet());
+
+		return repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
+			from, to, actionIds, operationIds, subject, originatorIds, originatorPersistentIds).stream()
 			.map(auditLog -> AuditLog.builder()
 				.utcTimestamp(auditLog.creationTime)
-				.originator(users.get(auditLog.originatorId))
+				.originator(fenixIdUsers.getOrDefault(auditLog.originatorId, idUsers.get(auditLog.originatorPersistentId)))
 				.operationCategory(Operation.valueOf(auditLog.operationCategory))
 				.action(Action.valueOf(auditLog.operationAction))
 				.operationSubject(auditLog.operationSubject)
@@ -51,7 +68,8 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 	public void create(AuditLog auditLog) {
 		repository.save(AuditLogEntity.builder()
 				.creationTime(auditLog.utcTimestamp)
-				.originatorId(auditLog.originator.fenixUserId.get().id)
+				.originatorId(auditLog.originator.fenixUserId.map(x -> x.id).orElse(null))
+				.originatorPersistenceId(auditLog.originator.id.map(x -> x.id).orElse(null))
 				.operationCategory(auditLog.operationCategory.getPersistentId())
 				.operationAction(auditLog.action.getPersistentId())
 				.operationSubject(auditLog.operationSubject)

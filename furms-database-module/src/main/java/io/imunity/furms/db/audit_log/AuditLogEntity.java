@@ -15,15 +15,17 @@ import java.util.UUID;
 @Table("audit_log")
 class AuditLogEntity extends UUIDIdentifiable {
 	public final LocalDateTime creationTime;
+	public final String originatorPersistentId;
 	public final String originatorId;
 	public final int operationCategory;
 	public final int operationAction;
 	public final String operationSubject;
 	public final String dataJson;
 
-	AuditLogEntity(UUID id, LocalDateTime creationTime, String originatorId, int operationCategory, int operationAction, String operationSubject, String dataJson) {
+	AuditLogEntity(UUID id, LocalDateTime creationTime, String originatorId, String originatorPersistentId, int operationCategory, int operationAction, String operationSubject, String dataJson) {
 		this.id = id;
 		this.creationTime = creationTime;
+		this.originatorPersistentId = originatorPersistentId;
 		this.originatorId = originatorId;
 		this.operationCategory = operationCategory;
 		this.operationAction = operationAction;
@@ -39,6 +41,7 @@ class AuditLogEntity extends UUIDIdentifiable {
 		return operationCategory == that.operationCategory &&
 			operationAction == that.operationAction &&
 			Objects.equals(id, that.id) &&
+			Objects.equals(originatorPersistentId, that.originatorPersistentId) &&
 			Objects.equals(originatorId, that.originatorId) &&
 			Objects.equals(creationTime, that.creationTime) &&
 			Objects.equals(operationSubject, that.operationSubject) &&
@@ -47,13 +50,14 @@ class AuditLogEntity extends UUIDIdentifiable {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, creationTime, originatorId, operationCategory, operationAction, operationSubject, dataJson);
+		return Objects.hash(id, creationTime, originatorId, originatorPersistentId, operationCategory, operationAction, operationSubject, dataJson);
 	}
 
 	@Override
 	public String toString() {
 		return "AuditLogEntity{" +
 			"originatorId='" + originatorId + '\'' +
+			"originatorPersistenceId='" + originatorPersistentId + '\'' +
 			", operationCategory=" + operationCategory +
 			", operationAction=" + operationAction +
 			", operationSubject='" + operationSubject + '\'' +
@@ -70,6 +74,7 @@ class AuditLogEntity extends UUIDIdentifiable {
 	public static final class AuditLogEntityBuilder {
 		private LocalDateTime creationTime;
 		private String originatorId;
+		private String originatorPersistentId;
 		private int operationCategory;
 		private int operationAction;
 		private String operationSubject;
@@ -80,6 +85,11 @@ class AuditLogEntity extends UUIDIdentifiable {
 
 		public AuditLogEntityBuilder originatorId(String originatorId) {
 			this.originatorId = originatorId;
+			return this;
+		}
+
+		public AuditLogEntityBuilder originatorPersistenceId(String originatorPersistentId) {
+			this.originatorPersistentId = originatorPersistentId;
 			return this;
 		}
 
@@ -109,7 +119,7 @@ class AuditLogEntity extends UUIDIdentifiable {
 		}
 
 		public AuditLogEntity build() {
-			return new AuditLogEntity(null, creationTime, originatorId, operationCategory, operationAction, operationSubject, dataJson);
+			return new AuditLogEntity(null, creationTime, originatorId, originatorPersistentId, operationCategory, operationAction, operationSubject, dataJson);
 		}
 	}
 }
