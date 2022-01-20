@@ -191,12 +191,16 @@ The following table provides description of all configuration options.
 |Property name |Type |Description
 
 |installDir
-|string
+|filesystem path on Ansible management host
 |Directory name where FURMS services will be installed e.g. "{{inventory_dir}}/services"
 
 |furmsVersion
 |string
 |Version of released FURMS software e.g. "1.0.0"
+
+|backupDir
+|filesystem path on Ansible management host
+|Directory name where FURMS backup files are stored by dedicated Ansible playbook. For more information go to <<Backup>> section.
 
 
 |trustStore
@@ -852,4 +856,73 @@ Unity console is available at the configured address of Unity server:
 ``https://{{unity.advertisedHost}}/console``.
 
 Login credentials are set to the ones from Ansible configuration: ``{{unity.initialAdminUsername}}`` and ``{{unity.initialAdminPassword}}``. 
+
+
+== Backup and restore
+
+The following sections provides detailed information on steps that needs to be taken in order to backup the system, and the steps to restore it from scratch basing on the backuped data.
+
+NOTE: FURMS devops tooling comes with handy Ansible Playbooks to perform backup and restore operations, therefore all the operations are performed on Ansible management hosts. The backup files are stored under the directory pointed out by `backupDir` parameter in the Ansible group vars configuration file. It is up system administrator to store backups in a secure place.
+
+=== Backup
+
+The `backup-furms.yml` Ansible Playbook performs the FURMS backup which is placed under subdirectory of `backupDir`. The subdirectory name consists of date, time and FURMS version e.g. `2022-01-19_10:33:27_v4.0.0`. The backup consists of the following files:
+
+* Compressed FURMS database dump file named: `<furmsServer.db.dbName>.dump.gz`,
+* Compressed Unity-IdM database dump file named: `<unity.db.dbName>.dump.gz`,
+* Compressed Ansible configuration file named: `ansible_config.tgz`. The archive consists of `inventory` and `group_vars` directory, as well as FURMS configuration files e.g. email templates, truststore etc.
+
+In order to perform backup execute the following on Ansible management host:
+
+```
+> cd $FURMS_ROOT_DIR
+> ansible-playbook -i inventory furms-devops-tooling/backup-furms.yml
+```
+
+=== Restore
+
+Depending upon whether you are restoring the system from scratch or restoring the system state from a backup, the steps taken by administrator differs.
+
+==== Restoring FURMS databases from backup
+
+In order to restore the FURMS and Unity-IdM databases at once, basing on a backup files done by Ansible tooling, execute the following on the management host:
+
+``` 
+> cd $FURMS_ROOT_DIR
+> ansible-playbook -i inventory furms-devops-tooling/restore-furms.yml --extra-vars "dbDumpDirName=2022-01-19_10:33:27_v4.0.0"
+```
+
+Where `dbDumpDirName` used in the command above is the subdirectory name, placed under `backupDir` configured in Ansible group vars file.
+
+It is also possible to restore the databases pointing out full directory path with backup files using `dbDumpDirPath` instead of `dbDumpDirName` e.g.:
+
+``` 
+> cd $FURMS_ROOT_DIR
+> ansible-playbook -i inventory furms-devops-tooling/restore-furms.yml --extra-vars "dbDumpDirPath=/home/furms/backups/2022-01-19_10:33:27_v4.0.0/"
+```
+
+==== Restore FURMS system from scratch
+ 
+This section describes steps to restore the system from scratch basing on a backup. 
+
+Prerequisites:
+
+* System administrator has access to the FURMS backup files, performed by <<Backup>> tool. 
+* PostgreSQL service is up and running,
+* Broker service is up and running,
+* Ansible Management host is up and running.
+
+Restore procedure:
+
+* Login to the host that shall act as Ansible Management host.
+* Install the FURMS devops tools, refer to <<FURMS devops tools installation utility>> section.
+* Restore Ansible configuration files from backup of your choice.
+* Validate whether Ansible group vars file needs reconfiguration e.g. database host and credentials for Unity-IdM and FURMS service are correct, or Broker configuration is valid taking into account current environment setup.
+* Create empty Unity-IdM and FURMS databases.
+* Restore FURMS databases from the backup of your choice, refer to <<Restoring FURMS databases from backup>> section.
+* <<Install FURMS stack>>
+* Make sure that Broker is up and running.
+* <<Starting FURMS stack,Start FURMS stack>>.
+
+END OF RESTORE PROCEDURE
 

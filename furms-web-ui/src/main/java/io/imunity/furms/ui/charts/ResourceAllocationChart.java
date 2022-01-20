@@ -7,10 +7,9 @@ package io.imunity.furms.ui.charts;
 
 import com.github.appreciated.apexcharts.ApexCharts;
 import com.github.appreciated.apexcharts.ApexChartsBuilder;
-import com.github.appreciated.apexcharts.config.Annotations;
-import com.github.appreciated.apexcharts.config.annotations.builder.YAxisAnnotationsBuilder;
 import com.github.appreciated.apexcharts.config.builder.ChartBuilder;
 import com.github.appreciated.apexcharts.config.builder.DataLabelsBuilder;
+import com.github.appreciated.apexcharts.config.builder.FillBuilder;
 import com.github.appreciated.apexcharts.config.builder.LegendBuilder;
 import com.github.appreciated.apexcharts.config.builder.TitleSubtitleBuilder;
 import com.github.appreciated.apexcharts.config.builder.XAxisBuilder;
@@ -41,6 +40,7 @@ import java.util.function.Supplier;
 import static com.vaadin.flow.component.icon.VaadinIcon.MENU;
 
 public class ResourceAllocationChart extends VerticalLayout {
+	private static final List<String> COLORS = List.of("#0000FF", "#FF0000", "#FFA500", "#008000", "#FFFF00", "#000000", "#800080", "#FF7F50", "#8B008B", "#FFC0CB", "#808080", "#4B0082", "#800000", "#808000");
 	public final boolean disableThreshold;
 
 	public ResourceAllocationChart(ChartData chartData, Supplier<String> jsonGetter, Supplier<String> csvGetter) {
@@ -67,7 +67,12 @@ public class ResourceAllocationChart extends VerticalLayout {
 				.build())
 			.withStroke(getStroke(chartData))
 			.withSeries(createSeries(chartData))
-			.withColors("blue", "red", "orange", "green", "yellow", "black", "purple", "coral", "darkmagenta", "pink", "grey", "indigo", "maroon", "olive")
+			.withFill(FillBuilder.get()
+				.withType("solid")
+				.withColors(List.of("LightSkyBlue"))
+				.withOpacity(0.01D, 1D, 1D, 1D, 1D, 1D, 1D, 1D, 1D, 1D, 1D, 1D, 1D, 1D)
+				.build())
+			.withColors(COLORS.toArray(String[]::new))
 			.withTitle(TitleSubtitleBuilder.get()
 				.withText(chartData.projectAllocationName)
 				.withAlign(Align.left).build())
@@ -85,11 +90,6 @@ public class ResourceAllocationChart extends VerticalLayout {
 					.build()
 				)
 				.build()
-			)
-			.withAnnotations(
-				chartData.threshold > 0 && !disableThreshold ?
-					getAnnotations(chartData.threshold, chartData.getMaxValue()) :
-					null
 			)
 			.withLegend(LegendBuilder.get().withHorizontalAlign(HorizontalAlign.left).build())
 			.build();
@@ -112,16 +112,19 @@ public class ResourceAllocationChart extends VerticalLayout {
 
 		widths.add(5D);
 		widths.add(5D);
+		widths.add(5D);
 
 		if(!(chartData.threshold < 1 || disableThreshold)) {
 			curves.add(Curve.smooth);
-			widths.add(1D);
+			widths.add(2D);
 		}
 		for(int i = 0; i < chartData.usersUsages.size(); i++) {
 			curves.add(Curve.smooth);
-			widths.add(1D);
+			widths.add(2D);
 		}
-		return new MultiStroke(curves, widths);
+		MultiStroke multiStroke = new MultiStroke(curves, widths);
+		multiStroke.setColors(COLORS);
+		return multiStroke;
 	}
 
 	private Series<?>[] createSeries(ChartData chartData) {
@@ -131,32 +134,12 @@ public class ResourceAllocationChart extends VerticalLayout {
 		if(!chartData.chunks.isEmpty())
 			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()));
 		if(!(chartData.threshold < 1 || disableThreshold))
-			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.thresholds.toArray()));
+			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.getFullThresholds().toArray()));
 		for(UserUsage userUsage : chartData.usersUsages){
 			series.add(new Series<>(userUsage.email, SeriesType.line, userUsage.usages.toArray()));
 		}
 
 		return series.toArray(Series[]::new);
-	}
-
-	private Annotations getAnnotations(double threshold, double maxVale) {
-		Annotations annotations = new Annotations();
-		annotations.setYaxis(List.of(
-			YAxisAnnotationsBuilder.get()
-				.withBorderColor("orange")
-				.withY(threshold)
-				.withY2(getApproximateYWidth(threshold, maxVale))
-				.withOpacity(0.5D)
-				.withStrokeDashArray(5000D)
-				.withFillColor("orange")
-				.build()
-
-		));
-		return annotations;
-	}
-
-	private double getApproximateYWidth(double threshold, double maxVale) {
-		return threshold + (((maxVale % 4) + maxVale)) * 0.01;
 	}
 
 	@CssImport("./styles/components/grid-action-menu.css")
