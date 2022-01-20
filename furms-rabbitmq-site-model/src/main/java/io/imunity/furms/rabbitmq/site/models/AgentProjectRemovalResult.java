@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("ProjectRemovalResult")
 public class AgentProjectRemovalResult implements Body, Result {
+	@Override
+	public String toString() {
+		return "AgentProjectRemovalResult{}";
+	}
 }

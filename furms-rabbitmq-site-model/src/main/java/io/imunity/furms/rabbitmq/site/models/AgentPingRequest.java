@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("AgentPingRequest")
 public class AgentPingRequest implements Body {
+	@Override
+	public String toString() {
+		return "AgentPingRequest{}";
+	}
 }

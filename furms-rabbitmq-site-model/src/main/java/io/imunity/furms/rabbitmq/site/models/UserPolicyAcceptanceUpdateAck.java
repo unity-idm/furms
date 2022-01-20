@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserPolicyAcceptanceUpdateAck")
 public class UserPolicyAcceptanceUpdateAck implements Body, Ack {
+	@Override
+	public String toString() {
+		return "UserPolicyAcceptanceUpdateAck{}";
+	}
 }

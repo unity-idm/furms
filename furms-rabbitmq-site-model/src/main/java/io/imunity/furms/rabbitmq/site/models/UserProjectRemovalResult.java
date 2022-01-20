@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("UserProjectRemovalResult")
 public class UserProjectRemovalResult implements Body, Result {
+	@Override
+	public String toString() {
+		return "UserProjectRemovalResult{}";
+	}
 }

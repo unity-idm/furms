@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("ProjectUpdateRequestAck")
 public class AgentProjectUpdateRequestAck implements Body, Ack {
+	@Override
+	public String toString() {
+		return "AgentProjectUpdateRequestAck{}";
+	}
 }

@@ -9,4 +9,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName("SetUserStatusRequestAck")
 public class SetUserStatusRequestAck implements Body, Ack {
+	@Override
+	public String toString() {
+		return "SetUserStatusRequestAck{}";
+	}
 }
