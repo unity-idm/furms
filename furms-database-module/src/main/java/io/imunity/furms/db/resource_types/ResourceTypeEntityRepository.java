@@ -7,11 +7,11 @@ package io.imunity.furms.db.resource_types;
 
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 public interface ResourceTypeEntityRepository extends CrudRepository<ResourceTypeEntity, UUID> {
-	Stream<ResourceTypeEntity> findAllBySiteId(UUID siteId);
-	Stream<ResourceTypeEntity> findAllByServiceId(UUID serviceId);
+	Set<ResourceTypeEntity> findAllBySiteId(UUID siteId);
+	Set<ResourceTypeEntity> findAllByServiceId(UUID serviceId);
 	boolean existsByNameAndSiteId(String name, UUID siteId);
 }

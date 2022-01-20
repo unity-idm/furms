@@ -37,7 +37,7 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 
 	@Override
 	public Set<InfraService> findAll(String siteId) {
-		return repository.findAllBySiteId(UUID.fromString(siteId))
+		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
 			.map(InfraServiceEntity::toService)
 			.collect(toSet());
 	}

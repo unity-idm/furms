@@ -41,14 +41,14 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 
 	@Override
 	public Set<ResourceCredit> findAll(String siteId) {
-		return repository.findAllBySiteId(UUID.fromString(siteId))
+		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
 			.map(ResourceCreditEntity::toResourceCredit)
 			.collect(toSet());
 	}
 
 	@Override
 	public Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId) {
-		return repository.findAllByResourceTypeId(UUID.fromString(resourceTypeId))
+		return repository.findAllByResourceTypeId(UUID.fromString(resourceTypeId)).stream()
 				.map(ResourceCreditEntity::toResourceCredit)
 				.filter(not(ResourceCredit::isExpired))
 				.collect(toSet());
@@ -63,14 +63,14 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 
 	@Override
 	public Set<ResourceCredit> findAllByNameOrSiteName(String name) {
-		return repository.findAllByNameOrSiteName(name)
+		return repository.findAllByNameOrSiteName(name).stream()
 				.map(ResourceCreditEntity::toResourceCredit)
 				.collect(toSet());
 	}
 
 	@Override
 	public Set<ResourceCredit> findAllNotExpiredByNameOrSiteName(String name) {
-		return repository.findAllByNameOrSiteName(name)
+		return repository.findAllByNameOrSiteName(name).stream()
 				.map(ResourceCreditEntity::toResourceCredit)
 				.filter(not(ResourceCredit::isExpired))
 				.collect(toSet());

@@ -10,21 +10,21 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 public interface ResourceCreditEntityRepository extends CrudRepository<ResourceCreditEntity, UUID> {
 
-	Stream<ResourceCreditEntity> findAllBySiteId(UUID siteId);
+	Set<ResourceCreditEntity> findAllBySiteId(UUID siteId);
 
-	Stream<ResourceCreditEntity> findAllByResourceTypeId(UUID resourceTypeId);
+	Set<ResourceCreditEntity> findAllByResourceTypeId(UUID resourceTypeId);
 
 	@Query("SELECT rc.* " +
 			"FROM resource_credit rc " +
 			"JOIN site s ON rc.site_id = s.id " +
 			"WHERE (UPPER(rc.name) LIKE UPPER(CONCAT('%', :name, '%')) " +
 			"        OR UPPER(s.name) LIKE UPPER(CONCAT('%', :name, '%')))")
-	Stream<ResourceCreditEntity> findAllByNameOrSiteName(@Param("name") String name);
+	Set<ResourceCreditEntity> findAllByNameOrSiteName(@Param("name") String name);
 
 	boolean existsByNameAndSiteId(String name, UUID siteId);
 
