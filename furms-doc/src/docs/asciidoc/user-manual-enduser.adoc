@@ -22,6 +22,17 @@ For each project of the user, it is possible to drill down and check available a
 
 It is possible to apply for a membership in a project. In order to do so, first the filter to include "Remaining projects" must be selected. Then after locating a project of interest an access application can be submitted.    
 
+==== Resource usage
+
+It is possible to inspect the details of actual resource usage per each resource allocation in any of the projects.
+
+High level overview of the resource consumption is presented in allocations table itself as a small progress bar-like widget. More detailed information is available after navigating to the charts view, from allocation row menu.
+
+Chart is showing the resource usage reported by a site under the given allocation. What is more the actual allocation chunks as assigned by site are also shown as a red line. Finally, if an alarm is defined, its threshold level is also shown as an orange line.
+
+If the visual representation is not detailed enough, it is possible to export raw information on all recorded consumption records. FURMS can export the data either to a CSV or JSON files, with a self-explanatory syntax. 
+
+
 === SSH keys management
 
 The 'SSH Keys' view allows for managing public SSH keys across all sites to which access is granted via project membership.
