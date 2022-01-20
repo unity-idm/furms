@@ -155,7 +155,7 @@ class InviteeServiceImpl implements InviteeService {
 		invitationRepository.findBy(invitationCode).ifPresent(invitation -> {
 			invitationRepository.deleteBy(invitationCode);
 			notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> userInvitationNotificationService.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
-			publisher.publishEvent(new UserRoleGrantedByRegistrationEvent(new FenixUserId(invitation.originator), invitation.resourceId, invitation.resourceName, invitation.role));
+			publisher.publishEvent(new UserRoleGrantedByRegistrationEvent(invitation.originator, invitation.resourceId, invitation.resourceName, invitation.role, invitation.email));
 		});
 	}
 }

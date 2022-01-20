@@ -11,16 +11,18 @@ import io.imunity.furms.domain.authz.roles.Role;
 import java.util.Objects;
 
 public class UserRoleGrantedByRegistrationEvent {
-	public final FenixUserId originatorId;
+	public final String originatorEmail;
 	public final ResourceId resourceId;
 	public final String resourceName;
 	public final Role role;
+	public final String userEmail;
 
-	public UserRoleGrantedByRegistrationEvent(FenixUserId originatorId, ResourceId resourceId, String resourceName, Role role) {
-		this.originatorId = originatorId;
+	public UserRoleGrantedByRegistrationEvent(String originatorEmail, ResourceId resourceId, String resourceName, Role role, String userEmail) {
+		this.originatorEmail = originatorEmail;
 		this.resourceId = resourceId;
 		this.resourceName = resourceName;
 		this.role = role;
+		this.userEmail = userEmail;
 	}
 
 	@Override
@@ -28,24 +30,26 @@ public class UserRoleGrantedByRegistrationEvent {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		UserRoleGrantedByRegistrationEvent that = (UserRoleGrantedByRegistrationEvent) o;
-		return Objects.equals(originatorId, that.originatorId) &&
+		return Objects.equals(originatorEmail, that.originatorEmail) &&
 			Objects.equals(resourceId, that.resourceId) &&
 			Objects.equals(resourceName, that.resourceName) &&
+			Objects.equals(userEmail, that.userEmail) &&
 			role == that.role;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(originatorId, resourceId, resourceName, role);
+		return Objects.hash(originatorEmail, resourceId, resourceName, role, userEmail);
 	}
 
 	@Override
 	public String toString() {
 		return "UserRoleGrantedByRegistrationEvent{" +
-			"orginatorId=" + originatorId +
+			"orginatorId=" + originatorEmail +
 			", resourceId=" + resourceId +
 			", resourceName='" + resourceName + '\'' +
 			", role=" + role +
+			", userEmail=" + userEmail +
 			'}';
 	}
 }

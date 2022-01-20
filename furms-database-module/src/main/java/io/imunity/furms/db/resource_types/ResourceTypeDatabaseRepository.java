@@ -39,14 +39,14 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 
 	@Override
 	public Set<ResourceType> findAllBySiteId(String siteId) {
-		return repository.findAllBySiteId(UUID.fromString(siteId))
+		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
 			.map(resourceTypeConverter::toResourceType)
 			.collect(toSet());
 	}
 
 	@Override
 	public Set<ResourceType> findAllByInfraServiceId(String siteId) {
-		return repository.findAllByServiceId(UUID.fromString(siteId))
+		return repository.findAllByServiceId(UUID.fromString(siteId)).stream()
 			.map(resourceTypeConverter::toResourceType)
 			.collect(toSet());
 	}

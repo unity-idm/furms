@@ -143,7 +143,7 @@ private RegistrationForm createRegistrationForm(String name, GroupRegistrationPa
 			.withAutoLoginToRealm('main')
 			.withDefaultCredentialRequirement("user password")
 			.withNotificationsConfiguration(registrationFormNotifications)
-			.withExternalSignupSpec(new ExternalSignupSpec([new AuthenticationOptionsSelector('registration', 'registration')]))
+			.withExternalSignupSpec(new ExternalSignupSpec([new AuthenticationOptionsSelector('oauth', 'local')]))
 			.withDisplayedName(title)
 			.withFormInformation(info)
 			.build()

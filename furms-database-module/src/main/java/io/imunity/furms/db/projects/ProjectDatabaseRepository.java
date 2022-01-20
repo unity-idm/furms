@@ -41,14 +41,14 @@ class ProjectDatabaseRepository implements ProjectRepository {
 
 	@Override
 	public Set<Project> findAllByCommunityId(String communityId) {
-		return repository.findAllByCommunityId(fromString(communityId))
+		return repository.findAllByCommunityId(fromString(communityId)).stream()
 				.map(ProjectEntity::toProject)
 				.collect(toSet());
 	}
 
 	@Override
 	public Set<Project> findAllNotExpiredByCommunityId(String communityId) {
-		return repository.findAllByCommunityId(fromString(communityId))
+		return repository.findAllByCommunityId(fromString(communityId)).stream()
 				.map(ProjectEntity::toProject)
 				.filter(not(Project::isExpired))
 				.collect(toSet());

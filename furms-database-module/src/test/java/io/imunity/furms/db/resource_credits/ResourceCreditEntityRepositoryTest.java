@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -31,7 +30,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -264,8 +262,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteName("name2")
-												.collect(toSet());
+		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteName("name2");
 
 		//then
 		assertThat(all).hasSize(2);
@@ -308,8 +305,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteName("ther")
-												.collect(toSet());
+		final Set<ResourceCreditEntity> all = resourceCreditRepository.findAllByNameOrSiteName("ther");
 
 		//then
 		assertThat(all).hasSize(2);

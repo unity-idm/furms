@@ -8,6 +8,7 @@ package io.imunity.furms.core.users.audit_log;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.validation.exceptions.UserNotPresentException;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
@@ -74,16 +76,25 @@ class RoleAssignmentAuditLogService {
 
 	@EventListener
 	void onUserRoleGrantedEvent(UserRoleGrantedByRegistrationEvent event) {
-		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
+		List<FURMSUser> allUsers = usersDAO.getAllUsers();
+		FURMSUser originator = findUserByEmail(allUsers, event.originatorEmail);
+		FURMSUser currentUser = findUserByEmail(allUsers, event.userEmail);
 		AuditLog auditLog = AuditLog.builder()
-			.originator(usersDAO.findById(event.originatorId).get())
+			.originator(originator)
 			.action(Action.GRANT)
 			.operationCategory(Operation.ROLE_ASSIGNMENT)
 			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
-			.operationSubject(currentAuthNUser)
+			.operationSubject(currentUser)
 			.dataJson(toJson(event.role, event.resourceId, event.resourceName))
 			.build();
 		publisher.publishEvent(new AuditLogEvent(auditLog));
+	}
+
+	private FURMSUser findUserByEmail(List<FURMSUser> allUsers, String email){
+		return allUsers.stream()
+			.filter(usr -> usr.email.equals(email))
+			.findAny()
+			.orElseThrow(() -> new UserNotPresentException(String.format("User with email %s doesn't exist", email)));
 	}
 
 	private String toJson(Role role, ResourceId resourceId, String resourceName) {
