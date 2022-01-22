@@ -5,13 +5,12 @@
 
 package io.imunity.furms.ui.charts;
 
-import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
-import io.imunity.furms.domain.resource_usage.ResourceUsage;
-import io.imunity.furms.domain.resource_usage.UserResourceUsage;
-import org.springframework.stereotype.Component;
+import static java.util.Comparator.comparing;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -21,12 +20,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Comparator.comparing;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import org.springframework.stereotype.Component;
+
+import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 
 @Component
 class DataMapper {
@@ -58,7 +59,7 @@ class DataMapper {
 	}
 
 	Collection<Map<LocalDate, Double>> prepareTimedProjectsUsages(Set<ResourceUsage> allResourceUsageHistory) {
-		return allResourceUsageHistory.stream()
+		Map<String, Map<LocalDate, Double>> retValue = allResourceUsageHistory.stream()
 			.collect(
 				groupingBy(
 					usage -> usage.projectAllocationId,
@@ -71,7 +72,9 @@ class DataMapper {
 						usageMap -> usageMap.entrySet().stream()
 							.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().cumulativeConsumption.doubleValue()))
 					))
-			).values();
+			);
+		return retValue.values();
+		
 	}
 
 	Map<String, Map<LocalDate, Double>> prepareTimedUserUsagesGroupedByEmails(Set<UserResourceUsage> allUserResourceUsageHistory) {
