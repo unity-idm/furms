@@ -926,9 +926,9 @@ Login credentials are set to the ones from Ansible configuration: ``{{unity.init
 
 == Backup and restore
 
-The following sections provides detailed information on steps that needs to be taken in order to backup the system, and the steps to restore it from scratch basing on the backuped data.
+The following sections provides detailed information on steps that needs to be taken in order to take system backup, and the steps to restore it from scratch basing on the backup data.
 
-NOTE: FURMS devops tooling comes with handy Ansible Playbooks to perform backup and restore operations, therefore all the operations are performed on Ansible management hosts. The backup files are stored under the directory pointed out by `backupDir` parameter in the Ansible group vars configuration file. It is up system administrator to store backups in a secure place.
+NOTE: FURMS devops tooling comes with handy Ansible Playbooks to perform backup and restore operations, therefore all the operations are performed on Ansible management hosts. The backup files are stored under the directory pointed out by `backupDir` parameter in the Ansible group vars configuration file. It is system administrator responsibility to store backups in a secure place.
 
 === Backup
 
@@ -947,7 +947,7 @@ In order to perform backup execute the following on Ansible management host:
 
 === Restore
 
-Depending upon whether you are restoring the system from scratch or restoring the system state from a backup, the steps taken by administrator differs.
+Depending upon whether system should be restored from scratch or only the database should be recovered, the steps taken by administrator differ.
 
 ==== Restoring FURMS databases from backup
 
@@ -983,7 +983,7 @@ Restore procedure:
 * Login to the host that shall act as Ansible Management host.
 * Install the FURMS devops tools, refer to <<FURMS devops tools installation utility>> section.
 * Restore Ansible configuration files from backup of your choice.
-* Validate whether Ansible group vars file needs reconfiguration e.g. database host and credentials for Unity-IdM and FURMS service are correct, or Broker configuration is valid taking into account current environment setup.
+* Validate whether Ansible group vars file needs reconfiguration e.g. database host and credentials for Unity-IdM and FURMS service are correct, as well as the broker configuration is valid taking into account current environment setup.
 * Create empty Unity-IdM and FURMS databases.
 * Restore FURMS databases from the backup of your choice, refer to <<Restoring FURMS databases from backup>> section.
 * <<Install FURMS stack>>
