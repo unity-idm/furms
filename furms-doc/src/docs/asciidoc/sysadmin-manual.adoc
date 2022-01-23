@@ -70,7 +70,7 @@ Install any recent RabbitMQ broker with support for AMPQ 0.9.1. The broker setup
 * configuration of the TLS in order to enable encryption on the protocol level,
 * definition of the https://www.rabbitmq.com/vhosts.html[RabbitMQ virtual host] utilized for the FURMS purposes,
 * definition of the client user name and password with
-** a connection rights to FURMS virtual host, 
+** connection rights to FURMS virtual host, 
 ** privileges to provision queues within this virtual host
 ** permissions to write messages to AMQP default exchange (`amq.default`)
 
