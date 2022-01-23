@@ -574,10 +574,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>The other function of the module is to present all messages that are expected to have a response (or at least acknowledgment of request reception) and for which such response haven&#8217;t arrived yet.</p>
 </div>
 <div class="paragraph">
-<p>For all the presented messages administrator can check the contents of the request&#8217;s body. It is also possible to re-send any message, and to cancel (drop) it.</p>
+<p>For all the presented messages administrator can check the contents of the request&#8217;s body. It is also possible to retry (i.e. re-send) any message, and to delete it.</p>
 </div>
 <div class="paragraph">
-<p>Cancellation can be used to unblock some parts of UI, which are blocked waiting for an operation to be finished, when it is certain that the requested operation will not be served on site agent (e.g. due to its crash or other bug).</p>
+<p>Deleting can be used to unblock some parts of UI, which are waiting for an operation to be finished, when it is certain that the requested operation will not be served by site agent (e.g. due to its crash or other bug).</p>
+</div>
+<div class="paragraph">
+<p>Retry can be used in situation when site agent received the original request but haven&#8217;t processed it successfully (e.g. due to bug, retry can be used after the bug is fixed).</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -586,7 +589,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-Using cancel and resend functions should be used as the last resort. FURMS handles such interruptions of the regular message flow on the best effort basis. Therefore canceling and resend of requests should be performed only when it is certain that site agent is not going to properly handle the original request.
+Using any of delete or retry functions should be used as the last resort. FURMS handles such interruptions of the regular message flow on the best effort basis. Therefore both deleting and retrying of requests should be performed only when it is certain, that the site agent is not going to properly handle the original request. Otherwise inconsistency of data may occur. E.g. retry of a message which was (in the end) successfully handled by site agent may lead to execution of the operation two times. Similarly deletion of a request for which response will eventually arrive, can cause FURMS to ignore the change that actually happened on the site.
 </td>
 </tr>
 </table>
@@ -632,7 +635,7 @@ Using cancel and resend functions should be used as the last resort. FURMS handl
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-01-17 12:24:37 UTC
+Last updated 2022-01-23 09:58:50 UTC
 </div>
 </div>
 <style>

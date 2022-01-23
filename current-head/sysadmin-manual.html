@@ -466,12 +466,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#upgrade-from-1-0-to-2-0-release">Upgrade from 1.0 to 2.0 release</a></li>
 <li><a href="#upgrade-from-2-0-to-3-0-release">Upgrade from 2.0 to 3.0 release</a></li>
 <li><a href="#upgrade-from-3-0-to-3-1-release">Upgrade from 3.0 to 3.1 release</a></li>
+<li><a href="#upgrade-from-3-x-to-4-0-release">Upgrade from 3.x to 4.0 release</a></li>
 <li><a href="#operating-the-system">Operating the system</a>
 <ul class="sectlevel2">
 <li><a href="#starting-furms-stack">Starting FURMS stack</a></li>
 <li><a href="#stopping-furms-stack">Stopping FURMS stack</a></li>
 <li><a href="#runtime-directories-structure-log-files">Runtime directories structure, log files</a></li>
 <li><a href="#authentication-to-unity-console">Authentication to Unity console</a></li>
+</ul>
+</li>
+<li><a href="#backup-and-restore">Backup and restore</a>
+<ul class="sectlevel2">
+<li><a href="#backup">Backup</a></li>
+<li><a href="#restore">Restore</a></li>
 </ul>
 </li>
 </ul>
@@ -920,13 +927,18 @@ The devops tooling provides also a file that is filled out with example values. 
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">installDir</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Directory name where FURMS services will be installed e.g. "{{inventory_dir}}/services"</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">furmsVersion</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Version of released FURMS software e.g. "1.0.0"</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">backupDir</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">filesystem path on Ansible management host</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Directory name where FURMS backup files are stored by dedicated Ansible playbook. For more information go to <a href="#backup">Backup</a> section.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">trustStore</p></td>
@@ -1390,7 +1402,19 @@ applicationRejected.subject.en=Application has been rejected
 applicationRejected.consumer=UserNotification
 applicationRejected.notificationChannel=default_email
 applicationRejected.type=HTML
-applicationRejected.bodyFile.en=${CONF}/msgTemplates/applicationRejected.html</code></pre>
+applicationRejected.bodyFile.en=${CONF}/msgTemplates/applicationRejected.html
+
+resourceUsageAlarm.subject.en=Resource usage alarm
+resourceUsageAlarm.consumer=UserNotification
+resourceUsageAlarm.notificationChannel=default_email
+resourceUsageAlarm.type=HTML
+resourceUsageAlarm.bodyFile.en=${CONF}/msgTemplates/resourceUsageAlarm.html
+
+resourceUsageAlarmWithoutUrl.subject.en=Resource usage alarm
+resourceUsageAlarmWithoutUrl.consumer=UserNotification
+resourceUsageAlarmWithoutUrl.notificationChannel=default_email
+resourceUsageAlarmWithoutUrl.type=HTML
+resourceUsageAlarmWithoutUrl.bodyFile.en=${CONF}/msgTemplates/resourceUsageAlarmWithoutUrl.html</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1424,6 +1448,12 @@ applicationRejected.bodyFile.en=${CONF}/msgTemplates/applicationRejected.html</c
 </li>
 <li>
 <p><code>applicationRejected</code> - utilized to send information to a user, that her/his application to become member of a project, has been rejected by project administrator.</p>
+</li>
+<li>
+<p><code>resourceUsageAlarm</code> - utilized to send information to project administrators, that particular resource usage alarm reached configured threshold.</p>
+</li>
+<li>
+<p><code>resourceUsageAlarmWithoutUrl</code> - utilized to send information that particular resource usage alarm reached configured threshold. This template is used to notify individually picked users configured on resource Alarm level.</p>
 </li>
 </ul>
 </div>
@@ -1465,6 +1495,12 @@ It is recommended for system administrator to adjust the template subject only.<
 </li>
 <li>
 <p><code>applicationRejected.html</code> - used by <code>applicationRejected</code> template definition,</p>
+</li>
+<li>
+<p><code>resourceUsageAlarm.html</code> - used by <code>resourceUsageAlarm</code> template definition,</p>
+</li>
+<li>
+<p><code>resourceUsageAlarmWithoutUrl.html</code> - used by <code>resourceUsageAlarmWithoutUrl</code> template definition,</p>
 </li>
 <li>
 <p><code>masterTemplate-furms-head.html</code> - header that can be utilized in body files of other HTML templates. In the resolved HTML email the <code>${include:master-furms-head}</code> tag is replaced with the header content,</p>
@@ -1569,6 +1605,30 @@ applicationRejected.html</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.projectName}</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Project name for which user has requested membership</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" rowspan="3"><p class="tableblock">resourceUsageAlarm.html</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.projectAllocationName}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Project allocation name for which alarm has been configured</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.alarmName}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the alarm that reached configured threshold</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.furmsUrl}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">URL to FURMS that points to project, which reached alarm threshold</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top" rowspan="2"><div class="content"><div class="paragraph">
+<p>resourceUsageAlarmWithoutUrl.html</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.projectAllocationName}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Project allocation name for which alarm has been configured</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${custom.alarmName}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the alarm that reached configured threshold</p></td>
 </tr>
 </tbody>
 </table>
@@ -1882,6 +1942,71 @@ The HTML content of a panel must consists of exactly one top level element, exam
 </div>
 </div>
 <div class="sect1">
+<h2 id="upgrade-from-3-x-to-4-0-release"><a class="anchor" href="#upgrade-from-3-x-to-4-0-release"></a>Upgrade from 3.x to 4.0 release</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes the FURMS 4.0 release installation steps basing on 3.x release configuration. This procedure does not require dropping any of the databases, and all of the Ansible related configuration is reused.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Make a backup of PostgreSQL database used by Unity-IdM instance.</p>
+</li>
+<li>
+<p>Make a backup of PostgreSQL database used by FURMS service instance.</p>
+</li>
+<li>
+<p>Update the FURMS Ansible scripts to the latest version, execute <code>./install_furms_devops_tooling.py</code> in the directory where tooling was installed.</p>
+</li>
+<li>
+<p><a href="#stopping-furms-stack">Stop FURMS stack</a>.</p>
+</li>
+<li>
+<p>Update your existing <code>groups_var/all.yml</code> Ansible configuration file:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>change the version of furmsVersion to <code>4.0.0</code></p>
+</li>
+<li>
+<p>add the following configuration:</p>
+<div class="literalblock">
+<div class="content">
+<pre>...
+backupDir:                  -- set -- me --
+...
+furmsServer:
+	...
+	layout:                 # this section is optional
+	  cssStyle:             -- set -- me --
+	  panels:
+	    top:                -- set -- me --
+	    left:               -- set -- me --
+	    right:              -- set -- me --
+	    bottom:             -- set -- me --</pre>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Optional step: the <code>resourceUsageAlarm.html</code> and <code>resourceUsageAlarmWithoutUrl.html</code> email templates has been introduced in this release. If the administrator will not configure customized templates, then the default once are used. Please refer to the <a href="#email-templates-configuration">Email templates configuration</a> section in case aforementioned email template customizations are required.</p>
+</li>
+<li>
+<p><a href="#install-furms-stack">Install FURMS stack</a>.</p>
+</li>
+<li>
+<p>Make sure that RabbitMQ broker is up and running.</p>
+</li>
+<li>
+<p><a href="#starting-furms-stack">Start FURMS stack</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="operating-the-system"><a class="anchor" href="#operating-the-system"></a>Operating the system</h2>
 <div class="sectionbody">
 <div class="sect2">
@@ -1959,10 +2084,150 @@ The HTML content of a panel must consists of exactly one top level element, exam
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="backup-and-restore"><a class="anchor" href="#backup-and-restore"></a>Backup and restore</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following sections provides detailed information on steps that needs to be taken in order to backup the system, and the steps to restore it from scratch basing on the backuped data.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+FURMS devops tooling comes with handy Ansible Playbooks to perform backup and restore operations, therefore all the operations are performed on Ansible management hosts. The backup files are stored under the directory pointed out by <code>backupDir</code> parameter in the Ansible group vars configuration file. It is up system administrator to store backups in a secure place.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="backup"><a class="anchor" href="#backup"></a>Backup</h3>
+<div class="paragraph">
+<p>The <code>backup-furms.yml</code> Ansible Playbook performs the FURMS backup which is placed under subdirectory of <code>backupDir</code>. The subdirectory name consists of date, time and FURMS version e.g. <code>2022-01-19_10:33:27_v4.0.0</code>. The backup consists of the following files:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Compressed FURMS database dump file named: <code>&lt;furmsServer.db.dbName&gt;.dump.gz</code>,</p>
+</li>
+<li>
+<p>Compressed Unity-IdM database dump file named: <code>&lt;unity.db.dbName&gt;.dump.gz</code>,</p>
+</li>
+<li>
+<p>Compressed Ansible configuration file named: <code>ansible_config.tgz</code>. The archive consists of <code>inventory</code> and <code>group_vars</code> directory, as well as FURMS configuration files e.g. email templates, truststore etc.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In order to perform backup execute the following on Ansible management host:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>&gt; cd $FURMS_ROOT_DIR
+&gt; ansible-playbook -i inventory furms-devops-tooling/backup-furms.yml</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="restore"><a class="anchor" href="#restore"></a>Restore</h3>
+<div class="paragraph">
+<p>Depending upon whether you are restoring the system from scratch or restoring the system state from a backup, the steps taken by administrator differs.</p>
+</div>
+<div class="sect3">
+<h4 id="restoring-furms-databases-from-backup"><a class="anchor" href="#restoring-furms-databases-from-backup"></a>Restoring FURMS databases from backup</h4>
+<div class="paragraph">
+<p>In order to restore the FURMS and Unity-IdM databases at once, basing on a backup files done by Ansible tooling, execute the following on the management host:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>&gt; cd $FURMS_ROOT_DIR
+&gt; ansible-playbook -i inventory furms-devops-tooling/restore-furms.yml --extra-vars &quot;dbDumpDirName=2022-01-19_10:33:27_v4.0.0&quot;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Where <code>dbDumpDirName</code> used in the command above is the subdirectory name, placed under <code>backupDir</code> configured in Ansible group vars file.</p>
+</div>
+<div class="paragraph">
+<p>It is also possible to restore the databases pointing out full directory path with backup files using <code>dbDumpDirPath</code> instead of <code>dbDumpDirName</code> e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>&gt; cd $FURMS_ROOT_DIR
+&gt; ansible-playbook -i inventory furms-devops-tooling/restore-furms.yml --extra-vars &quot;dbDumpDirPath=/home/furms/backups/2022-01-19_10:33:27_v4.0.0/&quot;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="restore-furms-system-from-scratch"><a class="anchor" href="#restore-furms-system-from-scratch"></a>Restore FURMS system from scratch</h4>
+<div class="paragraph">
+<p>This section describes steps to restore the system from scratch basing on a backup.</p>
+</div>
+<div class="paragraph">
+<p>Prerequisites:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>System administrator has access to the FURMS backup files, performed by <a href="#backup">Backup</a> tool.</p>
+</li>
+<li>
+<p>PostgreSQL service is up and running,</p>
+</li>
+<li>
+<p>Broker service is up and running,</p>
+</li>
+<li>
+<p>Ansible Management host is up and running.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Restore procedure:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Login to the host that shall act as Ansible Management host.</p>
+</li>
+<li>
+<p>Install the FURMS devops tools, refer to <a href="#furms-devops-tools-installation-utility">FURMS devops tools installation utility</a> section.</p>
+</li>
+<li>
+<p>Restore Ansible configuration files from backup of your choice.</p>
+</li>
+<li>
+<p>Validate whether Ansible group vars file needs reconfiguration e.g. database host and credentials for Unity-IdM and FURMS service are correct, or Broker configuration is valid taking into account current environment setup.</p>
+</li>
+<li>
+<p>Create empty Unity-IdM and FURMS databases.</p>
+</li>
+<li>
+<p>Restore FURMS databases from the backup of your choice, refer to <a href="#restoring-furms-databases-from-backup">Restoring FURMS databases from backup</a> section.</p>
+</li>
+<li>
+<p><a href="#install-furms-stack">Install FURMS stack</a></p>
+</li>
+<li>
+<p>Make sure that Broker is up and running.</p>
+</li>
+<li>
+<p><a href="#starting-furms-stack">Start FURMS stack</a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>END OF RESTORE PROCEDURE</p>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-01-17 12:24:37 UTC
+Last updated 2022-01-23 09:58:50 UTC
 </div>
 </div>
 <style>

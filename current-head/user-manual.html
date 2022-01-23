@@ -575,23 +575,14 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect1">
 <h2 id="sign-in-and-sign-up"><a class="anchor" href="#sign-in-and-sign-up"></a>Sign in and sign up</h2>
 <div class="sectionbody">
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-<span class="icon"><i class="fa fa-wrench"></i></span> v2 limitation <span class="icon"><i class="fa fa-wrench"></i></span> the final shape of the sign-up process will be implemented in the phase 4 of the project. The current version provides only a simplified signup mechanism, allowing for complete testing of other, already delivered functions. That said, the onboarding described below is tentative and will be changed in next versions.
-</td>
-</tr>
-</table>
-</div>
 <div class="paragraph">
 <p>Regular user sign in is handled via the Fenix Central IdP. After entering the FURMS public address (as configured during installation) user is redirected to the Central IdP and has to authenticate using his/her home identity provider.</p>
 </div>
 <div class="paragraph">
-<p>Each user who can authenticate using Fenix Central IdP can access FURMS. Initially only access to User Settings view is granted, without access to any of the projects. Access to a project needs to be granted either by community or project&#8217;s administrator. User can be also added to Fenix, site, community or project administrators by other administrators.</p>
+<p>Each user who can authenticate using Fenix Central IdP can access FURMS. Initially only access to User Settings view is granted, without access to any of the projects. Access to a project can be requested by such user and afterwards needs to be accepted by the project&#8217;s administrator.</p>
+</div>
+<div class="paragraph">
+<p>Alternatively FURMS supports inviting of users. All invited users need to have Fenix identity. It is possible to invite a user on each administration level, starting from Fenix and ending on Project level. User is always invited to a specific role, e.g. site administrator can invite a user to become additional site administrator or to have site-support role. Invited user has to accept the invitation, what is equivalent to becoming FURMS user.</p>
 </div>
 <div class="sect2">
 <h3 id="initial-onboarding"><a class="anchor" href="#initial-onboarding"></a>Initial onboarding</h3>
@@ -599,35 +590,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Since initially every user authenticated with the Central IdP has no administrative privileges, the initial setup of the system has to be performed in special way.</p>
 </div>
 <div class="paragraph">
-<p>During FURMS installation a local user account is created with configured user name and password. The created user is granted Fenix administrator privileges as well as Unity administrative privileges. To sign in as a local user, a special URL parameter needs to be added when entering FURMS Web UI, as follows:</p>
+<p>During FURMS installation a <strong>local</strong> user account is created with a configured user name and password. The created user is granted Fenix administrator privileges as well as Unity administrative privileges. To sign in as a local user, a special URL parameter needs to be added when entering FURMS Web UI, as follows:</p>
 </div>
 <div class="paragraph">
 <p>https://FURMS-PUBLIC-HOST/<strong>?showSignInOptions</strong></p>
 </div>
 <div class="paragraph">
 <p>Entering FURMS web interface with the <code>showSignInOptions</code> parameter prevents FURMS to trigger automatic authentication with the Central IdP. Instead user can choose to authenticate locally. This authentication method must be used at least once to initially configure the system, and can be used at will later on.</p>
-</div>
-<div class="paragraph">
-<p>Since the complete invitation mechanism is going to be delivered in future releases, currently inviting of users to become administrators or ordinary project users is limited to those Central IdP users who has signed into FURMS at least once.</p>
-</div>
-<div class="paragraph">
-<p>Let&#8217;s consider an example where <em>Local Fenix Admin</em> wants to invite <em>Mary</em>&#8201;&#8212;&#8201;a Central IdP user&#8201;&#8212;&#8201;to become community admin:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p><em>Local Fenix Admin</em> has to sign in using the <code>showSignInOptions</code> parameter.</p>
-</li>
-<li>
-<p><em>Mary</em> has to sign in into FURMS in a regular way. She won&#8217;t have access to anything besides her profile at this time. <em>Mary</em> can sign out now.</p>
-</li>
-<li>
-<p><em>Local Fenix Admin</em> can now add <em>Mary</em> as a community admin as she signed into FURMS at least once.</p>
-</li>
-<li>
-<p>After <em>Mary</em> signs into FURMS next time she will have access to her community administrative functions.</p>
-</li>
-</ol>
 </div>
 </div>
 </div>
@@ -876,10 +845,13 @@ Community administrators can also themselves manage administrators of their comm
 <p>The other function of the module is to present all messages that are expected to have a response (or at least acknowledgment of request reception) and for which such response haven&#8217;t arrived yet.</p>
 </div>
 <div class="paragraph">
-<p>For all the presented messages administrator can check the contents of the request&#8217;s body. It is also possible to re-send any message, and to cancel (drop) it.</p>
+<p>For all the presented messages administrator can check the contents of the request&#8217;s body. It is also possible to retry (i.e. re-send) any message, and to delete it.</p>
 </div>
 <div class="paragraph">
-<p>Cancellation can be used to unblock some parts of UI, which are blocked waiting for an operation to be finished, when it is certain that the requested operation will not be served on site agent (e.g. due to its crash or other bug).</p>
+<p>Deleting can be used to unblock some parts of UI, which are waiting for an operation to be finished, when it is certain that the requested operation will not be served by site agent (e.g. due to its crash or other bug).</p>
+</div>
+<div class="paragraph">
+<p>Retry can be used in situation when site agent received the original request but haven&#8217;t processed it successfully (e.g. due to bug, retry can be used after the bug is fixed).</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -888,7 +860,7 @@ Community administrators can also themselves manage administrators of their comm
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-Using cancel and resend functions should be used as the last resort. FURMS handles such interruptions of the regular message flow on the best effort basis. Therefore canceling and resend of requests should be performed only when it is certain that site agent is not going to properly handle the original request.
+Using any of delete or retry functions should be used as the last resort. FURMS handles such interruptions of the regular message flow on the best effort basis. Therefore both deleting and retrying of requests should be performed only when it is certain, that the site agent is not going to properly handle the original request. Otherwise inconsistency of data may occur. E.g. retry of a message which was (in the end) successfully handled by site agent may lead to execution of the operation two times. Similarly deletion of a request for which response will eventually arrive, can cause FURMS to ignore the change that actually happened on the site.
 </td>
 </tr>
 </table>
@@ -1485,6 +1457,21 @@ Retrieve site policies
 <div class="paragraph">
 <p>It is possible to apply for a membership in a project. In order to do so, first the filter to include "Remaining projects" must be selected. Then after locating a project of interest an access application can be submitted.</p>
 </div>
+<div class="sect3">
+<h4 id="resource-usage-4"><a class="anchor" href="#resource-usage-4"></a>Resource usage</h4>
+<div class="paragraph">
+<p>It is possible to inspect the details of actual resource usage per each resource allocation in any of the projects.</p>
+</div>
+<div class="paragraph">
+<p>High level overview of the resource consumption is presented in allocations table itself as a small progress bar-like widget. More detailed information is available after navigating to the charts view, from allocation row menu.</p>
+</div>
+<div class="paragraph">
+<p>Chart is showing the resource usage reported by a site under the given allocation. What is more the actual allocation chunks as assigned by site are also shown as a red line. Finally, if an alarm is defined, its threshold level is also shown as an orange line.</p>
+</div>
+<div class="paragraph">
+<p>If the visual representation is not detailed enough, it is possible to export raw information on all recorded consumption records. FURMS can export the data either to a CSV or JSON files, with a self-explanatory syntax.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="ssh-keys-management"><a class="anchor" href="#ssh-keys-management"></a>SSH keys management</h3>
@@ -1533,7 +1520,7 @@ Some sites may require to set the 'from' option in the SSH key. Keys without tha
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-01-17 12:24:37 UTC
+Last updated 2022-01-23 09:58:47 UTC
 </div>
 </div>
 <style>
