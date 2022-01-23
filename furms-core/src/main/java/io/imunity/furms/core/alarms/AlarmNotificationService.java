@@ -60,14 +60,30 @@ class AlarmNotificationService {
 			.filter(userNotificationWrapper -> userNotificationWrapper.user.fenixUserId.isPresent())
 			.forEach(userNotificationWrapper -> {
 				if(userNotificationWrapper.isProjectAdmin())
-					emailNotificationSender.notifyProjectAdminAboutResourceUsage(userNotificationWrapper.user.id.get(), alarm.projectId, alarm.projectAllocationId, projectAllocationName, alarm.name);
+					emailNotificationSender.notifyProjectAdminAboutResourceUsage(
+							userNotificationWrapper.user.id.get(), 
+							alarm.projectId, 
+							alarm.projectAllocationId, 
+							projectAllocationName, 
+							alarm.name);
 				else if(userNotificationWrapper.isProjectUser())
-					emailNotificationSender.notifyProjectUserAboutResourceUsage(userNotificationWrapper.user.id.get(), alarm.projectId, alarm.projectAllocationId, projectAllocationName, alarm.name);
+					emailNotificationSender.notifyProjectUserAboutResourceUsage(
+							userNotificationWrapper.user.id.get(), 
+							alarm.projectId, 
+							alarm.projectAllocationId, 
+							projectAllocationName, 
+							alarm.name);
 				else
-					emailNotificationSender.notifyUserAboutResourceUsage(userNotificationWrapper.user.id.get(), alarm.projectId, alarm.projectAllocationId, projectAllocationName, alarm.name);
+					emailNotificationSender.notifyUserAboutResourceUsage(
+							userNotificationWrapper.user.id.get(), 
+							alarm.projectId, 
+							alarm.projectAllocationId, 
+							projectAllocationName, 
+							alarm.name);
 
 				runAfterCommit(() ->
-					publisher.publishEvent(new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get()))
+					publisher.publishEvent(new UserAlarmListChangedEvent(
+							userNotificationWrapper.user.fenixUserId.get()))
 				);
 			});
 	}

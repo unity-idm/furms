@@ -566,8 +566,8 @@ The path to this file shall be provided in the  `unity.msgTemplates.configuratio
 * `applicationNew` - utilized to send information to particular project's administrators that a new user has applied for project membership,
 * `applicationAccepted` - utilized to send information to a user, that her/his application to become member of a project, has been accepted by project administrator,
 * `applicationRejected` - utilized to send information to a user, that her/his application to become member of a project, has been rejected by project administrator.  
-* `resourceUsageAlarm` - utilized to send information to project administrators, that particular resource usage alarm reached configured threshold. 
-* `resourceUsageAlarmWithoutUrl` - utilized to send information that particular resource usage alarm reached configured threshold. This template is used to notify individually picked users configured on resource Alarm level. 
+* `resourceUsageAlarm` - utilized to send notification to configured project administrators and users, that resource usage alarm reached its threshold. 
+* `resourceUsageAlarmWithoutUrl` - utilized to send notification to configured users who are not members of the project, that resource usage alarm reached its threshold.
 
 
 Most of the configuration in the default message template file should not be changed.
@@ -660,20 +660,20 @@ applicationRejected.html
 
 .3+| resourceUsageAlarm.html
 | `${custom.projectAllocationName}`
-| Project allocation name for which alarm has been configured
+| Project allocation name for which alarm was raised
 
 | `${custom.alarmName}`
-| Name of the alarm that reached configured threshold
+| Name of the alarm which triggered notification
 
 | `${custom.furmsUrl}`
-| URL to FURMS that points to project, which reached alarm threshold
+| URL of FURMS project, which triggered the alarm
 
 .2+a|resourceUsageAlarmWithoutUrl.html
 | `${custom.projectAllocationName}`
-| Project allocation name for which alarm has been configured
+| Project allocation name for which alarm was raised
 
 | `${custom.alarmName}`
-| Name of the alarm that reached configured threshold
+| Name of the alarm which triggered notification
 |===   
 
 === Styling FURMS application
