@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.context.annotation.Profile;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -37,7 +37,7 @@ import static io.imunity.furms.performance.tests.SecurityUserUtils.createSecurit
 import static java.lang.String.format;
 
 @SpringBootTest
-@ActiveProfiles("performance_tests")
+@Profile("performance_tests")
 public class DataLoader {
 
 	@Autowired private PolicyDocumentService policyDocumentService;

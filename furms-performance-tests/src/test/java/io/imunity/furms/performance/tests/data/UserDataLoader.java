@@ -209,7 +209,13 @@ class UserDataLoader {
 
 	private void assignAttributes(EntityId id, String userName, String role) {
 		final Set<Attribute> attributes = Set.of(
-				new Attribute("email", "verifiableEmail", "/", List.of("{\"value\":\"" + userName.replace("-", "") + "@domain.com\",\"confirmationData\":{\"confirmed\":true,\"confirmationDate\":1491257136061,\"sentRequestAmount\":0},\"tags\":[]}")),
+				new Attribute("email", "verifiableEmail", "/",
+						List.of("{\"value\":\"" + userName.replace("-", "") + "@domain.com\"," +
+								"\"confirmationData\":{" +
+									"\"confirmed\":true," +
+									"\"confirmationDate\":1491257136061," +
+									"\"sentRequestAmount\":0}," +
+								"\"tags\":[]}")),
 				new Attribute("firstname", STRING, "/", List.of(userName)),
 				new Attribute("name", STRING, "/", List.of(userName)),
 				new Attribute("surname", STRING, "/", List.of(userName)),
