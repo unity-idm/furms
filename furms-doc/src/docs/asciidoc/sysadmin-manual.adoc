@@ -540,6 +540,19 @@ applicationRejected.consumer=UserNotification
 applicationRejected.notificationChannel=default_email
 applicationRejected.type=HTML
 applicationRejected.bodyFile.en=${CONF}/msgTemplates/applicationRejected.html
+
+resourceUsageAlarm.subject.en=Resource usage alarm
+resourceUsageAlarm.consumer=UserNotification
+resourceUsageAlarm.notificationChannel=default_email
+resourceUsageAlarm.type=HTML
+resourceUsageAlarm.bodyFile.en=${CONF}/msgTemplates/resourceUsageAlarm.html
+
+resourceUsageAlarmWithoutUrl.subject.en=Resource usage alarm
+resourceUsageAlarmWithoutUrl.consumer=UserNotification
+resourceUsageAlarmWithoutUrl.notificationChannel=default_email
+resourceUsageAlarmWithoutUrl.type=HTML
+resourceUsageAlarmWithoutUrl.bodyFile.en=${CONF}/msgTemplates/resourceUsageAlarmWithoutUrl.html
+
 ```
 
 The path to this file shall be provided in the  `unity.msgTemplates.configuration` property value in the Ansible groups variable file. Note that there are couple of predefined message template definitions that must be preserved. The following template definitions are used by FURMS:
@@ -553,6 +566,8 @@ The path to this file shall be provided in the  `unity.msgTemplates.configuratio
 * `applicationNew` - utilized to send information to particular project's administrators that a new user has applied for project membership,
 * `applicationAccepted` - utilized to send information to a user, that her/his application to become member of a project, has been accepted by project administrator,
 * `applicationRejected` - utilized to send information to a user, that her/his application to become member of a project, has been rejected by project administrator.  
+* `resourceUsageAlarm` - utilized to send information to project administrators, that particular resource usage alarm reached configured threshold. 
+* `resourceUsageAlarmWithoutUrl` - utilized to send information that particular resource usage alarm reached configured threshold. This template is used to notify individually picked users configured on resource Alarm level. 
 
 
 Most of the configuration in the default message template file should not be changed.
@@ -570,6 +585,8 @@ Given the default template configuration file, FURMS system administrator has to
 * `applicationNew.html` - used by `applicationNew` template definition,
 * `applicationAccepted.html` - used by `applicationAccepted` template definition,
 * `applicationRejected.html` - used by `applicationRejected` template definition,
+* `resourceUsageAlarm.html` - used by `resourceUsageAlarm` template definition,
+* `resourceUsageAlarmWithoutUrl.html` - used by `resourceUsageAlarmWithoutUrl` template definition,
 * `masterTemplate-furms-head.html` - header that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-head}` tag is replaced with the header content,
 * `masterTemplate-furms-footer.html`- footer that can be utilized in body files of other HTML templates. In the resolved HTML email the `${include:master-furms-footer}` tag is replaced with the footer content.
 
@@ -640,6 +657,23 @@ applicationAccepted.html
 applicationRejected.html
 | `${custom.projectName}`
 | Project name for which user has requested membership 
+
+.3+| resourceUsageAlarm.html
+| `${custom.projectAllocationName}`
+| Project allocation name for which alarm has been configured
+
+| `${custom.alarmName}`
+| Name of the alarm that reached configured threshold
+
+| `${custom.furmsUrl}`
+| URL to FURMS that points to project, which reached alarm threshold
+
+.2+a|resourceUsageAlarmWithoutUrl.html
+| `${custom.projectAllocationName}`
+| Project allocation name for which alarm has been configured
+
+| `${custom.alarmName}`
+| Name of the alarm that reached configured threshold
 |===   
 
 === Styling FURMS application
