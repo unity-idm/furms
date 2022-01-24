@@ -26,7 +26,7 @@ public class WebClientConfig {
 	
 	public static final String BASE_UNITY_CLIENT = "baseUnityClient";
 	public static final String OAUTH_UNITY_CLIENT = "oauthTokenEndpointWebClient";
-	public static final int TEN_MB = 10 * 1024 * 1024;
+	public static final int SEVENTY_FIVE_MB = 75 * 1024 * 1024;
 
 	@Bean
 	@Primary
@@ -64,7 +64,7 @@ public class WebClientConfig {
 				.baseUrl(baseUrl)
 			.codecs(config -> config
 				.defaultCodecs()
-				.maxInMemorySize(TEN_MB)
+				.maxInMemorySize(SEVENTY_FIVE_MB)
 			);
 	}
 

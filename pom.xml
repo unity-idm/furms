@@ -75,6 +75,7 @@
 		<module>furms-rabbitmq-site-integration-test</module>
 		<module>furms-integration-tests</module>
 		<module>furms-cli</module>
+		<module>furms-performance-tests</module>
     </modules>
 
 	<developers>
