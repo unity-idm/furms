@@ -855,7 +855,7 @@ This section describes the FURMS 4.0 release installation steps basing on 3.x re
 	...
 	furmsServer: 
 		...
-		layout:                 # this section is optional
+		layout:                 # this section is optional, comment out whole section if not used
 		  cssStyle:             -- set -- me --
 		  panels:
 		    top:                -- set -- me --
