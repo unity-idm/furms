@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static java.util.Comparator.comparing;
@@ -172,11 +173,11 @@ public class ChartPowerService {
 			projectAllocation.resourceCredit.utcStartTime.toLocalDate(),
 			today,
 			lastChunkTime,
-			Set.of(
+			Stream.of(
 				allChunks.stream().map(chunk -> chunk.validFrom.toLocalDate()).collect(Collectors.toSet()),
 				allResourceUsageHistory.stream().map(usage -> usage.utcProbedAt.toLocalDate()).collect(Collectors.toSet()),
 				allUserResourceUsageHistory.stream().map(usage -> usage.utcConsumedUntil.toLocalDate()).collect(Collectors.toSet())
-			)
+			).collect(Collectors.toSet())
 		);
 	}
 
