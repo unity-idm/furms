@@ -5,15 +5,6 @@
 
 package io.imunity.furms.ui.components;
 
-import static java.util.Optional.ofNullable;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Locale;
-import java.util.function.Supplier;
-
 import com.vaadin.componentfactory.ToggleButton;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -27,8 +18,16 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.shared.Registration;
-
 import io.imunity.furms.ui.user_context.UIContext;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Locale;
+import java.util.function.Supplier;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * Works on dates aligned to browser's zone.
@@ -75,6 +74,11 @@ public class FurmsDateTimePicker
 		ZonedDateTime oldValueBuffered = getValue();
 		ComponentUtil.fireEvent(this,
 				new AbstractField.ComponentValueChangeEvent<>(this, this, oldValueBuffered, true));
+	}
+
+	public void setWidth(String width) {
+		datePicker.setWidth(width);
+		timePicker.setWidth(width);
 	}
 
 	@Override

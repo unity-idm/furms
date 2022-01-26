@@ -12,6 +12,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -33,6 +35,7 @@ import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,8 +44,6 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
-import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 import static java.util.Comparator.comparing;
 
@@ -50,6 +51,7 @@ import static java.util.Comparator.comparing;
 @PageTitle(key = "view.fenix-admin.audit-log.page.title")
 public class AuditLogView extends FurmsViewComponent {
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private static final String fieldWidth = "calc(var(--vaadin-text-field-default-width) * 0.85)";
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private final AuditLogService auditLogService;
 
@@ -71,49 +73,57 @@ public class AuditLogView extends FurmsViewComponent {
 
 		grid = createCommunityGrid();
 
-		startDateTimePicker = new FurmsDateTimePicker(() -> DEFAULT_START_TIME);
-		startDateTimePicker.addValueChangeListener(event -> reloadGrid());
-
-		endDateTimePicker = new FurmsDateTimePicker(() -> DEFAULT_END_TIME);
-		endDateTimePicker.addValueChangeListener(event -> reloadGrid());
-
-		userComboBox = new MultiselectComboBox<>();
-		userComboBox.setClassName("abc");
+		userComboBox = new AuditLogMultiSelectComboBox<>(fieldWidth);
 		userComboBox.setItems(userService.getAllUsers());
 		userComboBox.setItemLabelGenerator(usr -> usr.email);
-		userComboBox.setRequired(true);
 		userComboBox.addValueChangeListener(event -> reloadGrid());
 		userComboBox.setPlaceholder(getTranslation("view.fenix-admin.audit-log.placeholder.user"));
 
-		operationComboBox = new MultiselectComboBox<>();
+		operationComboBox = new AuditLogMultiSelectComboBox<>(fieldWidth);
 		operationComboBox.setItems(Operation.values());
 		operationComboBox.setItemLabelGenerator(operation -> getTranslation("view.fenix-admin.audit-log.operation." + operation));
-		operationComboBox.setRequired(true);
 		operationComboBox.addValueChangeListener(event -> reloadGrid());
 		operationComboBox.setPlaceholder(getTranslation("view.fenix-admin.audit-log.placeholder.type"));
 
-		actionComboBox = new MultiselectComboBox<>();
+		actionComboBox = new AuditLogMultiSelectComboBox<>(fieldWidth);
 		actionComboBox.setItems(Action.values());
 		actionComboBox.setItemLabelGenerator(action -> getTranslation("view.fenix-admin.audit-log.action." + action));
-		actionComboBox.setRequired(true);
 		actionComboBox.addValueChangeListener(event -> reloadGrid());
 		actionComboBox.setPlaceholder(getTranslation("view.fenix-admin.audit-log.placeholder.action"));
 
 		searchLayout = new SearchLayout();
 		searchLayout.addValueChangeGridReloader(this::reloadGrid);
+		searchLayout.setWidth(fieldWidth);
+		searchLayout.getStyle().set("margin-top", "0.7em");
+		searchLayout.getStyle().set("margin-right", "0.7em");
+
+		ZonedDateTime now = ZonedDateTime.now(browserZoneId);
+		startDateTimePicker = new FurmsDateTimePicker(() -> now.minusHours(24).toLocalTime());
+		startDateTimePicker.setValue(now.minusHours(24));
+		startDateTimePicker.addValueChangeListener(event -> reloadGrid());
+		startDateTimePicker.setWidth(fieldWidth);
+
+		endDateTimePicker = new FurmsDateTimePicker(now::toLocalTime);
+		endDateTimePicker.setValue(now);
+		endDateTimePicker.addValueChangeListener(event -> reloadGrid());
+		endDateTimePicker.setWidth(fieldWidth);
+
+		FlexLayout searchLayout = new FlexLayout(userComboBox, operationComboBox, actionComboBox, this.searchLayout);
+		searchLayout.setAlignItems(FlexComponent.Alignment.START);
+		searchLayout.setFlexWrap(FlexLayout.FlexWrap.WRAP);
+		searchLayout.setFlexDirection(FlexLayout.FlexDirection.ROW);
 
 		getContent().add(
 			new VerticalLayout(
 				new HorizontalLayout(startDateTimePicker, endDateTimePicker),
-				new HorizontalLayout(userComboBox, operationComboBox, actionComboBox, searchLayout),
+				searchLayout,
 				grid
 			)
 		);
+		reloadGrid();
 	}
 
 	private void reloadGrid() {
-		if(userComboBox.getSelectedItems().isEmpty() || actionComboBox.getSelectedItems().isEmpty() || operationComboBox.getSelectedItems().isEmpty())
-			return;
 		Set<AuditLog> auditLogs = auditLogService.findBy(
 			startDateTimePicker.getValue(),
 			endDateTimePicker.getValue(),
@@ -154,6 +164,8 @@ public class AuditLogView extends FurmsViewComponent {
 		Grid<AuditLogGridModel> grid = new DenseGrid<>(AuditLogGridModel.class);
 
 		grid.addComponentColumn(model -> {
+				if(model.data.isEmpty())
+					return new Div(new Label(model.timestamp.format(dateTimeFormatter)));
 				Icon icon = grid.isDetailsVisible(model) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
 				return new Div(icon, new Label(model.timestamp.format(dateTimeFormatter)));
 			})

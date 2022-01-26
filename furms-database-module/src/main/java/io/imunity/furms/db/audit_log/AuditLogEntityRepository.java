@@ -21,4 +21,12 @@ public interface AuditLogEntityRepository extends CrudRepository<AuditLogEntity,
 		Set<String> originatorIds,
 		Set<String> originatorPersistenceIds
 	);
+
+	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContaining(
+		LocalDateTime from,
+		LocalDateTime to,
+		Set<Integer> actionIds,
+		Set<Integer> operationIds,
+		String operationSubject
+	);
 }
