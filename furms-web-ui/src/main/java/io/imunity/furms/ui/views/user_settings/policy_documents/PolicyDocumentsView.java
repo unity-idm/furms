@@ -5,22 +5,6 @@
 
 package io.imunity.furms.ui.views.user_settings.policy_documents;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
-
-import java.io.ByteArrayInputStream;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Set;
-import java.util.UUID;
-
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -35,7 +19,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteConfiguration;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
@@ -50,6 +33,22 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+
+import java.io.ByteArrayInputStream;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.UUID;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 @Route(value = "users/settings/policy/documents", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.policy-documents.page.title")
@@ -150,7 +149,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 			String id = UUID.randomUUID().toString();
 			String url = RouteConfiguration.forSessionScope().getUrl(EmbeddedPolicyDocumentView.class, id);
 			anchor.setHref(url);
-			UI.getCurrent().getSession().setAttribute(id, "<div>" + policyDocumentExtended.htmlText + "</div>");
+			UI.getCurrent().getSession().setAttribute(id, policyDocumentExtended.htmlText);
 		}
 		else {
 			anchor.getElement().setAttribute("download", true);
