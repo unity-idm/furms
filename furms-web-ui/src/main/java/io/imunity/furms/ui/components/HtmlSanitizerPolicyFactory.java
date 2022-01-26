@@ -17,8 +17,8 @@ public class HtmlSanitizerPolicyFactory {
 				.allowStandardUrlProtocols()
 				.allowCommonBlockElements()
 				.allowCommonInlineFormattingElements()
-				.allowElements("a", "img", "audio", "video", "audio-wrapper", "video-wrapper")
-				.allowAttributes("href", "src", "controls")
+				.allowElements("a", "img", "audio", "video", "audio-wrapper", "video-wrapper", "center")
+				.allowAttributes("href", "src", "controls", "target")
 				.onElements("a", "img", "audio", "video")
 				.toFactory()
 			);
