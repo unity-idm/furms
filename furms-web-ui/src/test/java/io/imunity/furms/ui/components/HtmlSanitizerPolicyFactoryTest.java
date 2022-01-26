@@ -11,13 +11,13 @@ import org.owasp.html.PolicyFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class FurmsPolicyFactoryTest {
+class HtmlSanitizerPolicyFactoryTest {
 
 	private PolicyFactory policyFactory;
 
 	@BeforeEach
 	void setUp() {
-		policyFactory = FurmsPolicyFactory.create();
+		policyFactory = HtmlSanitizerPolicyFactory.create();
 	}
 
 	@Test

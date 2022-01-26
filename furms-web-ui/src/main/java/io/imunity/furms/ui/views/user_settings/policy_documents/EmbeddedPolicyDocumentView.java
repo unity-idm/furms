@@ -10,7 +10,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-import io.imunity.furms.ui.components.FurmsPolicyFactory;
+import io.imunity.furms.ui.components.HtmlSanitizerPolicyFactory;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import org.owasp.html.PolicyFactory;
@@ -18,7 +18,7 @@ import org.owasp.html.PolicyFactory;
 @Route(value = "users/settings/policy/documents/embedded")
 @PageTitle(key = "view.user-settings.policy-documents-embedded.page.title")
 class EmbeddedPolicyDocumentView extends FurmsViewComponent {
-	private final static PolicyFactory policy = FurmsPolicyFactory.create();
+	private final static PolicyFactory policy = HtmlSanitizerPolicyFactory.create();
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {

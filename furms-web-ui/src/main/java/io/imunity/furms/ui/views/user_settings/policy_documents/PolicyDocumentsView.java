@@ -153,7 +153,10 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 		}
 		else {
 			anchor.getElement().setAttribute("download", true);
-			anchor.setHref(new StreamResource(policyDocumentExtended.policyFile.getName() + "." + policyDocumentExtended.policyFile.getTypeExtension(), () -> new ByteArrayInputStream(policyDocumentExtended.policyFile.getFile())));
+			anchor.setHref(new StreamResource(
+				policyDocumentExtended.policyFile.getName() + "." + policyDocumentExtended.policyFile.getTypeExtension(),
+				() -> new ByteArrayInputStream(policyDocumentExtended.policyFile.getFile()))
+			);
 		}
 		return anchor;
 	}

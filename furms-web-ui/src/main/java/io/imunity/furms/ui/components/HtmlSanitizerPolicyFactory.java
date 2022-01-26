@@ -9,7 +9,7 @@ import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 
-public class FurmsPolicyFactory {
+public class HtmlSanitizerPolicyFactory {
 	public static PolicyFactory create(){
 		return Sanitizers.STYLES
 			.and(Sanitizers.TABLES)

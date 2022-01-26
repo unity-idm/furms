@@ -23,7 +23,7 @@ import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationEr
 import io.imunity.furms.domain.sites.UserProjectsInstallationInfoData;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsFormLayout;
-import io.imunity.furms.ui.components.FurmsPolicyFactory;
+import io.imunity.furms.ui.components.HtmlSanitizerPolicyFactory;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
@@ -52,7 +52,7 @@ public class SitesView extends FurmsViewComponent implements AfterNavigationObse
 
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private final static int DOUBLECLICK = 2;
-	private final static PolicyFactory policy = FurmsPolicyFactory.create();
+	private final static PolicyFactory policy = HtmlSanitizerPolicyFactory.create();
 
 	private final UserAllocationsService userAllocationsService;
 
