@@ -13,7 +13,7 @@ spring:
           trustStorePassword: changeit
           algorithm: TLSv1.2
 
-#This is workaround for spring boot 2.6.x bug, it depends to spring shell
+#This is workaround for spring boot 2.6.x bug, it relates to spring shell
 #ONLY USE FOR TESTS
 #See https://github.com/spring-projects/spring-shell/issues/324
 spring.main.allow-circular-references: true
