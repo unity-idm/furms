@@ -5,15 +5,6 @@
 
 package io.imunity.furms.ui.components.layout;
 
-import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MAIN_VIEW_CONTAINER_ID;
-import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MENU_CONTAINER_ID;
-import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.BOTOOM_PANEL_ID;
-import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.LEFT_PANEL_ID;
-import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.RIGHT_PANEL_ID;
-import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.TOP_PANEL_ID;
-
-import java.util.List;
-
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.HasElement;
@@ -25,7 +16,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -34,9 +24,6 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
 import com.vaadin.flow.shared.Registration;
-import com.vaadin.flow.theme.Theme;
-import com.vaadin.flow.theme.lumo.Lumo;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.FurmsEvent;
 import io.imunity.furms.domain.users.PersistentId;
@@ -49,12 +36,19 @@ import io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.ViewMode;
 
+import java.util.List;
+
+import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MAIN_VIEW_CONTAINER_ID;
+import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MENU_CONTAINER_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.BOTOOM_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.LEFT_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.RIGHT_PANEL_ID;
+import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.TOP_PANEL_ID;
+
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
 @CssImport("./styles/custom-lumo-theme.css")
-@Theme(value = Lumo.class)
 @PreserveOnRefresh
-@Push
 public class FurmsAppLayout
 		extends FlexLayout
 		implements RouterLayout, AfterNavigationObserver, BeforeEnterObserver {

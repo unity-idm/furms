@@ -4,20 +4,6 @@
  */
 package io.imunity.furms.ui.config;
 
-import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
-
-import java.lang.invoke.MethodHandles;
-
-import javax.servlet.ServletException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-
 import com.vaadin.componentfactory.IdleNotification;
 import com.vaadin.flow.server.SessionDestroyEvent;
 import com.vaadin.flow.server.SessionInitEvent;
@@ -29,14 +15,27 @@ import com.vaadin.flow.server.WrappedHttpSession;
 import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.spring.SpringServlet;
 import com.vaadin.flow.spring.annotation.EnableVaadin;
-
 import io.imunity.furms.domain.constant.RoutesConst;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+
+import javax.servlet.ServletException;
+import java.lang.invoke.MethodHandles;
+
+import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
 
 @Configuration
 @EnableVaadin("io.imunity.furms")
 class VaadinConfiguration {
 		
 	@Bean
+	@Primary
 	public ServletRegistrationBean<SpringServlet> configVaadinMapping(ApplicationContext context,
 			FrontProperties frontConfig,
 			FurmsI18NProvider i18nProvider) {
