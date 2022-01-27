@@ -108,15 +108,12 @@ public class ResourceAllocationChart extends VerticalLayout {
 
 		curves.add(Curve.smooth);
 		curves.add(Curve.stepline);
-		curves.add(Curve.smooth);
-
-		widths.add(5D);
 		widths.add(5D);
 		widths.add(5D);
 
 		if(!(chartData.threshold < 1 || disableThreshold)) {
 			curves.add(Curve.smooth);
-			widths.add(2D);
+			widths.add(5D);
 		}
 		for(int i = 0; i < chartData.usersUsages.size(); i++) {
 			curves.add(Curve.smooth);
