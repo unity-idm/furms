@@ -5,41 +5,33 @@
 
 package io.imunity.furms.ui.mvc;
 
-import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.OAUTH_START_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.OAUTH_START_WITH_AUTOPROXY_URL;
-import static io.imunity.furms.domain.constant.RoutesConst.PROXY_AUTH_PARAM;
-import static io.imunity.furms.domain.constant.RoutesConst.REGISTRATION_ID;
-
-import java.util.Map;
-
+import io.imunity.furms.ui.config.FurmsI18NProvider;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import io.imunity.furms.ui.config.FurmsI18NProvider;
+import java.util.Map;
+
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_URL;
+import static io.imunity.furms.domain.constant.RoutesConst.PROXY_AUTH_PARAM;
 
 
 @Controller
 public class LoginView {
 	
 	private final FurmsI18NProvider i18nProvider;
-	
-	LoginView(FurmsI18NProvider i18nProvider) {
+	private final RedirectService redirectService;
+
+	LoginView(FurmsI18NProvider i18nProvider, RedirectService redirectService) {
 		this.i18nProvider = i18nProvider;
+		this.redirectService = redirectService;
 	}
 
 	@GetMapping(path = {"/", LOGIN_URL})
 	public String redirectToAuthN(@RequestParam Map<String, String> params) {
-
-		boolean showSignInOptions = params.containsKey(PROXY_AUTH_PARAM);
-		String forwardURL = OAUTH_START_WITH_AUTOPROXY_URL;
-		if (showSignInOptions)
-			forwardURL = OAUTH_START_URL;
-
-		return "redirect:" + forwardURL + REGISTRATION_ID;
+		return "redirect:" + redirectService.getRedirectURL(params.containsKey(PROXY_AUTH_PARAM));
 	}
 	
 	@GetMapping(LOGIN_ERROR_URL)
