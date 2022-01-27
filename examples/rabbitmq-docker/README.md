@@ -9,7 +9,7 @@ Docker immage documentation: https://hub.docker.com/_/rabbitmq
 
 ## Operating the Rabbitmq 
 * Start the docker: `docker-compose -f rabbitmq/docker-compose.yml up`
-* You can access the management page: http://localhost:15672 (guest/guest by default)
+* You can access the management page: http://localhost:8089 (guest/guest by default)
 * To stop the service simply Ctrl+C on the terminal when the service is running.
 Note there are other options to use docker-compose e.g. to start the container in the backgroupd. Plese see the docker-compose documentation for more information.
 
