@@ -5,11 +5,14 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import io.imunity.furms.api.authz.FURMSUserProvider;
-import io.imunity.furms.domain.authz.roles.Capability;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.ResourceType;
-import io.imunity.furms.domain.users.FURMSUser;
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
+
+import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
@@ -17,13 +20,12 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Set;
-
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
+import io.imunity.furms.api.authz.FURMSUserProvider;
+import io.imunity.furms.domain.authz.roles.Capability;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 
 class FurmsMethodSecurityExpressionRoot
 		extends SecurityExpressionRoot
@@ -54,8 +56,9 @@ class FurmsMethodSecurityExpressionRoot
 		final boolean hasCapability = userCapabilities.contains(capability);
 
 		if (!hasCapability) {
+			String user = principal.id.map(PersistentId::toString).orElse(principal.email);
 			LOG.warn("Access Denied for user \"{}\" with roles: {} when calling \"{}\" with required capability {} for" +
-					" resource: {}(id={})", principal.id.get(), principal.roles, method, capability, resourceType, id);
+					" resource: {}(id={})", user, principal.roles, method, capability, resourceType, id);
 		}
 		return hasCapability;
 	}
