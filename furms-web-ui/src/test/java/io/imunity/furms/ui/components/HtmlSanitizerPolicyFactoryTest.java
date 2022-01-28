@@ -83,4 +83,12 @@ class HtmlSanitizerPolicyFactoryTest {
 
 		assertThat(safeHtml).isEqualTo(html);
 	}
+
+	@Test
+	void shouldAllowAlignAttribute() {
+		String html = "<p align=\"center\">center text2</p>";
+		String safeHtml = policyFactory.sanitize(html);
+
+		assertThat(safeHtml).isEqualTo(html);
+	}
 }
