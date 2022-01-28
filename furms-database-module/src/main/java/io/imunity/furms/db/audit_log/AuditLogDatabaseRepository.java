@@ -14,6 +14,7 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,8 +52,25 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 			.map(usr -> usr.id.get().id)
 			.collect(Collectors.toSet());
 
-		return repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
-			from, to, actionIds, operationIds, subject, originatorIds, originatorPersistentIds).stream()
+		if(actionIds.isEmpty())
+			actionIds = Arrays.stream(Action.values())
+				.map(Action::getPersistentId)
+				.collect(Collectors.toSet());
+
+		if(operationIds.isEmpty())
+			operationIds = Arrays.stream(Operation.values())
+				.map(Operation::getPersistentId)
+				.collect(Collectors.toSet());
+
+		Set<AuditLogEntity> data;
+		if(originatorIds.isEmpty() && originatorPersistentIds.isEmpty())
+			data = repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContaining(
+				from, to, actionIds, operationIds, subject);
+		else
+			data = repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
+				from, to, actionIds, operationIds, subject, originatorIds, originatorPersistentIds);
+
+		return data.stream()
 			.map(auditLog -> AuditLog.builder()
 				.utcTimestamp(auditLog.creationTime)
 				.originator(fenixIdUsers.getOrDefault(auditLog.originatorId, idUsers.get(auditLog.originatorPersistentId)))

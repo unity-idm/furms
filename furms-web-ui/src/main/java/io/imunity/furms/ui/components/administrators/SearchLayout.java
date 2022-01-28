@@ -34,6 +34,15 @@ public class SearchLayout extends HorizontalLayout {
 		return searchText;
 	}
 
+	@Override
+	public void setWidth(String width) {
+		textField.setWidth(width);
+	}
+
+	public void setMargin(String margin) {
+		getStyle().set("margin", margin);
+	}
+
 	public void addValueChangeGridReloader(Runnable gridReloader){
 		textField.addValueChangeListener(event -> {
 				textField.blur();
