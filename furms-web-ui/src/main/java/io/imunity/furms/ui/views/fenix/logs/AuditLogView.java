@@ -170,11 +170,12 @@ public class AuditLogView extends FurmsViewComponent {
 				return new Div(icon, new Label(model.timestamp.format(dateTimeFormatter)));
 			})
 			.setHeader(getTranslation("view.fenix-admin.audit-log.grid.1"))
-			.setSortable(true);
+			.setSortable(true)
+			.setComparator(model -> model.timestamp);
 		grid.addColumn(model -> model.originator)
 			.setHeader(getTranslation("view.fenix-admin.audit-log.grid.2"))
 			.setSortable(true)
-			.setComparator(model -> getTranslation("view.fenix-admin.audit-log.operation." + model.originator));
+			.setComparator(model -> model.originator);
 		grid.addColumn(model -> model.operation)
 			.setHeader(getTranslation("view.fenix-admin.audit-log.grid.3"))
 			.setSortable(true)

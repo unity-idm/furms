@@ -1,3 +1,0 @@
-:host(.audit-log-multiselect-combo-box) [part="token-label"] {
-    font-size: var(--lumo-font-size-xxs);
-}

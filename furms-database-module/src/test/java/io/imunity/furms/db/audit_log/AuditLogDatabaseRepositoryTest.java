@@ -434,7 +434,7 @@ class AuditLogDatabaseRepositoryTest extends DBIntegrationTest {
 		));
 
 		Set<AuditLog> found = repository.findBy(
-			now.minusDays(3), now.plusDays(3), Set.of(user, user1), Set.of(1, 3, 4), Set.of(), ""
+			now.minusDays(3), now.plusDays(3), Set.of(user, user1), Set.of(1, 3, 4), Set.of(), "am"
 		);
 
 		assertEquals(Set.of("originatorId", "originatorId1"), found.stream().map(a -> a.originator.fenixUserId.get().id).collect(Collectors.toSet()));
