@@ -20,6 +20,8 @@ public class HtmlSanitizerPolicyFactory {
 				.allowElements("a", "img", "audio", "video", "audio-wrapper", "video-wrapper", "center")
 				.allowAttributes("href", "src", "controls", "target")
 				.onElements("a", "img", "audio", "video")
+				.allowAttributes("align")
+				.onElements("p", "div", "h1", "h2", "h3", "h4", "h5", "h6")
 				.toFactory()
 			);
 	}
