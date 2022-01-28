@@ -53,6 +53,14 @@ Chart is showing the resource usage reported by a site under the given allocatio
 
 If the visual representation is not detailed enough, it is possible to export raw information on all recorded consumption records. FURMS can export the data either to a CSV or JSON files, with a self-explanatory syntax. 
 
+=== Audit log
+
+FURMS records all important changes of state in journal, called audit log. Fenix administrator can access this journal from the "Audit Log" main menu menu entry.
+
+Audit log provides a range of filters allowing to narrow down presented set of log records. It is possible to filter by time, user (who triggered an operation), type of operation, specific action and finally perform a free-text search. 
+
+Some of the presented records can be expanded to inspect an additional,  operation specific information. For instance in case of `PROJECT_ALLOCATION` record with `Create` action, it is possible to check identifiers of the created allocation, project and community allocation basing on which the project allocation was created. Amount and name of the allocation are also provided.  
+
 === REST API access credentials
 
 include::rest-api-access.adoc[]
