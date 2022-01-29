@@ -55,7 +55,7 @@ If the visual representation is not detailed enough, it is possible to export ra
 
 === Audit log
 
-FURMS records all important changes of state in journal, called audit log. Fenix administrator can access this journal from the "Audit Log" main menu menu entry.
+FURMS records all important changes of state in journal, called audit log. Fenix administrator can access this journal from the "Audit Log" main menu entry.
 
 Audit log provides a range of filters allowing to narrow down presented set of log records. It is possible to filter by time, user (who triggered an operation), type of operation, specific action and finally perform a free-text search. 
 
