@@ -5,11 +5,7 @@
 
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.dom.Element;
-import io.imunity.furms.ui.user_context.UIContext;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -17,7 +13,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.dom.Element;
+
+import io.imunity.furms.ui.user_context.UIContext;
 
 public class AuditLogDetailsComponentFactory {
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -27,7 +28,6 @@ public class AuditLogDetailsComponentFactory {
 			return new Div();
 		ZoneId browserZoneId = UIContext.getCurrent().getZone();
 		Element tableElement = new Element("table");
-		tableElement.getStyle().set("width", "50%");
 		tableElement.getStyle().set("text-align", "left");
 		Element thead = new Element("thead");
 
@@ -36,8 +36,9 @@ public class AuditLogDetailsComponentFactory {
 		data.forEach((key, value) -> {
 			Tr row = new Tr();
 			Td createdTd = new Td();
-			createdTd.setText(key);
+			createdTd.setText(toHumanReadableString(key));
 			createdTd.getStyle().set("font-weight", "bold");
+			createdTd.getStyle().set("width", "11em");
 			Td createdTimeTd = new Td();
 			createdTimeTd.setText(Optional.ofNullable(value)
 				.map(t -> {
@@ -56,6 +57,24 @@ public class AuditLogDetailsComponentFactory {
 		div.getElement().appendChild(tableElement);
 		return div;
 	}
+	
+    private static String toHumanReadableString(String str)
+    {
+		StringBuilder sb = new StringBuilder();
+		sb.append(Character.toUpperCase(str.charAt(0)));
+		for (int i = 1; i < str.length(); i++)
+		{
+			char charAt = str.charAt(i);
+			if (Character.isUpperCase(charAt))
+			{
+				sb.append(" " + Character.toLowerCase(charAt));
+			} else
+			{
+				sb.append(charAt);
+			}
+		}
+		return sb.toString();
+    }
 	
 	@CssImport(value = "./styles/components/allocation-details.css")
 	private static class AuditLogDetails extends Div {

@@ -5,10 +5,28 @@
 
 package io.imunity.furms.ui.views.fenix.logs;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import static java.util.Comparator.comparing;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.vaadin.gatanaso.MultiselectComboBox;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
@@ -16,8 +34,10 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.furms.api.audit_log.AuditLogService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.audit_log.Action;
@@ -32,20 +52,6 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.administrators.SearchLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import org.vaadin.gatanaso.MultiselectComboBox;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
-import static java.util.Comparator.comparing;
 
 @Route(value = "fenix/admin/auditLog", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.audit-log.page.title")
@@ -104,7 +110,7 @@ public class AuditLogView extends FurmsViewComponent {
 		startDateTimePicker.setWidth(fieldWidth);
 
 		endDateTimePicker = new FurmsDateTimePicker(now::toLocalTime);
-		endDateTimePicker.setValue(now);
+		endDateTimePicker.setValue(now.plusMinutes(1));
 		endDateTimePicker.addValueChangeListener(event -> reloadGrid());
 		endDateTimePicker.setWidth(fieldWidth);
 
@@ -163,7 +169,7 @@ public class AuditLogView extends FurmsViewComponent {
 	private Grid<AuditLogGridModel> createCommunityGrid() {
 		Grid<AuditLogGridModel> grid = new DenseGrid<>(AuditLogGridModel.class);
 
-		grid.addComponentColumn(model -> {
+		Column<AuditLogGridModel> timestamp = grid.addComponentColumn(model -> {
 				if(model.data.isEmpty())
 					return new Div(new Label(model.timestamp.format(dateTimeFormatter)));
 				Icon icon = grid.isDetailsVisible(model) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
@@ -176,7 +182,7 @@ public class AuditLogView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.fenix-admin.audit-log.grid.2"))
 			.setSortable(true)
 			.setComparator(model -> model.originator);
-		grid.addColumn(model -> model.operation)
+		grid.addColumn(model -> getTranslation("view.fenix-admin.audit-log.operation." + model.operation))
 			.setHeader(getTranslation("view.fenix-admin.audit-log.grid.3"))
 			.setSortable(true)
 			.setComparator(comparing(model -> model.operation));
@@ -189,6 +195,7 @@ public class AuditLogView extends FurmsViewComponent {
 			.setSortable(true)
 			.setComparator(comparing(model -> model.name));
 
+		grid.sort(ImmutableList.of(new GridSortOrder<>(timestamp, SortDirection.DESCENDING)));
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> AuditLogDetailsComponentFactory
 			.create(c.data)));
 		grid.setSelectionMode(Grid.SelectionMode.NONE);
