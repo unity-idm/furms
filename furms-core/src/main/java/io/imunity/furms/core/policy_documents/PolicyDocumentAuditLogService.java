@@ -51,6 +51,7 @@ class PolicyDocumentAuditLogService {
 	void onPolicyDocumentCreatedEvent(PolicyDocumentCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.policyDocument.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.POLICY_DOCUMENTS_MANAGEMENT)
@@ -65,6 +66,7 @@ class PolicyDocumentAuditLogService {
 	void onPolicyDocumentRemovedEvent(PolicyDocumentRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.policyDocument.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.POLICY_DOCUMENTS_MANAGEMENT)
@@ -79,6 +81,7 @@ class PolicyDocumentAuditLogService {
 	void onPolicyDocumentUpdatedEvent(PolicyDocumentUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newPolicyDocument.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.POLICY_DOCUMENTS_MANAGEMENT)
@@ -92,20 +95,28 @@ class PolicyDocumentAuditLogService {
 	@EventListener
 	void onUserAcceptedPolicyEvent(UserAcceptedPolicyEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
+		FURMSUser user = usersDAO.findById(event.userId).get();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(user.id.get().id)
 			.originator(currentAuthNUser)
 			.action(Action.ACCEPT)
 			.operationCategory(Operation.POLICY_ACCEPTANCE)
 			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
-			.operationSubject(usersDAO.findById(event.userId).get())
+			.operationSubject(user)
 			.dataJson(toJson(event.policyAcceptance))
 			.build();
 		publisher.publishEvent(new AuditLogEvent(auditLog));
 	}
 
 	private String toJson(PolicyAcceptance policyAcceptance) {
+		Map<String, Object> json = new HashMap<>();
+		json.put("id", policyAcceptance.policyDocumentId.id);
+		json.put("policyDocumentRevision", policyAcceptance.policyDocumentRevision);
+		json.put("acceptanceStatus", policyAcceptance.acceptanceStatus);
+		json.put("decisionTs", policyAcceptance.decisionTs);
+
 		try {
-			return objectMapper.writeValueAsString(policyAcceptance);
+			return objectMapper.writeValueAsString(json);
 		} catch (JsonProcessingException e) {
 			throw new AuditLogException(String.format("Policy acceptance with id %s cannot be parse", policyAcceptance.policyDocumentId), e);
 		}
@@ -138,9 +149,9 @@ class PolicyDocumentAuditLogService {
 		if(!Objects.equals(oldPolicyDocument.contentType, newPolicyDocument.contentType))
 			diffs.put("contentType", newPolicyDocument.contentType);
 		if(!Objects.equals(oldPolicyDocument.htmlText, newPolicyDocument.htmlText))
-			diffs.put("htmlText", "changed");
+			diffs.put("htmlText", "CHANGED");
 		if(!Objects.equals(oldPolicyDocument.policyFile, newPolicyDocument.policyFile))
-			diffs.put("policyFile", "changed");
+			diffs.put("policyFile", "CHANGED");
 
 		try {
 			return objectMapper.writeValueAsString(diffs);

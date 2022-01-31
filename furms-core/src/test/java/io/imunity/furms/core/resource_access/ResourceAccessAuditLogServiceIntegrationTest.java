@@ -21,6 +21,7 @@ import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
@@ -110,6 +111,7 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDED));
 		when(usersDAO.findById(fenixUserId)).thenReturn(Optional.of(
 			FURMSUser.builder()
+				.id(new PersistentId("id"))
 				.fenixUserId(fenixUserId)
 				.email("email")
 				.build()
@@ -136,6 +138,7 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", userId)));
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(
 			FURMSUser.builder()
+				.id(new PersistentId("id"))
 				.fenixUserId(userId)
 				.email("email")
 				.build()

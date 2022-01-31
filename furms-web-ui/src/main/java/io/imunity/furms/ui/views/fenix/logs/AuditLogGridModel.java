@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 class AuditLogGridModel {
+	public final String id;
 	public final ZonedDateTime timestamp;
 	public final String originator;
 	public final Operation operation;
@@ -20,7 +21,8 @@ class AuditLogGridModel {
 	public final String name;
 	public final Map<String, Object> data;
 
-	AuditLogGridModel(ZonedDateTime timestamp, String originator, Operation operation, Action action, String name, Map<String, Object> data) {
+	AuditLogGridModel(String id, ZonedDateTime timestamp, String originator, Operation operation, Action action, String name, Map<String, Object> data) {
+		this.id = id;
 		this.timestamp = timestamp;
 		this.originator = originator;
 		this.operation = operation;
@@ -35,6 +37,7 @@ class AuditLogGridModel {
 		if (o == null || getClass() != o.getClass()) return false;
 		AuditLogGridModel that = (AuditLogGridModel) o;
 		return Objects.equals(timestamp, that.timestamp) &&
+			Objects.equals(id, that.id) &&
 			Objects.equals(originator, that.originator) &&
 			operation == that.operation &&
 			action == that.action &&
@@ -44,13 +47,14 @@ class AuditLogGridModel {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(timestamp, originator, operation, action, name, data);
+		return Objects.hash(id, timestamp, originator, operation, action, name, data);
 	}
 
 	@Override
 	public String toString() {
 		return "AuditLogGridModel{" +
 			"timestamp=" + timestamp +
+			", id='" + id + '\'' +
 			", originator='" + originator + '\'' +
 			", operation=" + operation +
 			", action=" + action +
@@ -64,6 +68,7 @@ class AuditLogGridModel {
 	}
 
 	public static final class AuditLogGridModelBuilder {
+		public String id;
 		public ZonedDateTime timestamp;
 		public String originator;
 		public Operation operation;
@@ -72,6 +77,11 @@ class AuditLogGridModel {
 		public Map<String, Object> data;
 
 		private AuditLogGridModelBuilder() {
+		}
+
+		public AuditLogGridModelBuilder id(String id) {
+			this.id = id;
+			return this;
 		}
 
 		public AuditLogGridModelBuilder timestamp(ZonedDateTime timestamp) {
@@ -105,7 +115,7 @@ class AuditLogGridModel {
 		}
 
 		public AuditLogGridModel build() {
-			return new AuditLogGridModel(timestamp, originator, operation, action, name, data);
+			return new AuditLogGridModel(id, timestamp, originator, operation, action, name, data);
 		}
 	}
 }

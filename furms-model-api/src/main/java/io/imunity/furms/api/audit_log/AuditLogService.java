@@ -12,5 +12,5 @@ import java.time.ZonedDateTime;
 import java.util.Set;
 
 public interface AuditLogService {
-	Set<AuditLog> findBy(ZonedDateTime from, ZonedDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds, String subject);
+	Set<AuditLog> findBy(ZonedDateTime from, ZonedDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds);
 }

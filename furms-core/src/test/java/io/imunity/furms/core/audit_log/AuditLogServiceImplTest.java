@@ -43,7 +43,7 @@ public class AuditLogServiceImplTest {
 		Set<FURMSUser> users = Set.of(FURMSUser.builder()
 			.email("email")
 			.build());
-		auditLogService.findBy(start.atZone(ZoneOffset.UTC), stop.atZone(ZoneOffset.UTC), users, Set.of(1), Set.of(2), "");
-		Mockito.verify(repository).findBy(start, stop, users, Set.of(1), Set.of(2), "");
+		auditLogService.findBy(start.atZone(ZoneOffset.UTC), stop.atZone(ZoneOffset.UTC), users, Set.of(1), Set.of(2));
+		Mockito.verify(repository).findBy(start, stop, users, Set.of(1), Set.of(2));
 	}
 }

@@ -33,7 +33,7 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 	}
 
 	@Override
-	public Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds, String subject) {
+	public Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds) {
 		List<FURMSUser> allUsers = usersDAO.getAllUsers();
 		Map<String, FURMSUser> fenixIdUsers = allUsers.stream()
 			.filter(usr -> usr.fenixUserId.isPresent())
@@ -64,14 +64,21 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 
 		Set<AuditLogEntity> data;
 		if(originatorIds.isEmpty() && originatorPersistentIds.isEmpty())
-			data = repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContaining(
-				from, to, actionIds, operationIds, subject);
+			data = repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryIn(
+				from, to, actionIds, operationIds);
+		else if(originatorIds.isEmpty())
+			data = repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOriginatorPersistentIdIn(
+				from, to, actionIds, operationIds, originatorPersistentIds);
+		else if(originatorPersistentIds.isEmpty())
+			data = repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOriginatorIdIn(
+				from, to, actionIds, operationIds, originatorIds);
 		else
-			data = repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
-				from, to, actionIds, operationIds, subject, originatorIds, originatorPersistentIds);
+			data = repository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOriginatorIdInOrOriginatorPersistentIdIn(
+				from, to, actionIds, operationIds, originatorIds, originatorPersistentIds);
 
 		return data.stream()
 			.map(auditLog -> AuditLog.builder()
+				.resourceId(auditLog.resourceId)
 				.utcTimestamp(auditLog.creationTime)
 				.originator(fenixIdUsers.getOrDefault(auditLog.originatorId, idUsers.get(auditLog.originatorPersistentId)))
 				.operationCategory(Operation.valueOf(auditLog.operationCategory))
@@ -86,6 +93,7 @@ class AuditLogDatabaseRepository implements AuditLogRepository {
 	public void create(AuditLog auditLog) {
 		repository.save(AuditLogEntity.builder()
 				.creationTime(auditLog.utcTimestamp)
+				.resourceId(auditLog.resourceId)
 				.originatorId(auditLog.originator.fenixUserId.map(x -> x.id).orElse(null))
 				.originatorPersistenceId(auditLog.originator.id.map(x -> x.id).orElse(null))
 				.operationCategory(auditLog.operationCategory.getPersistentId())

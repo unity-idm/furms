@@ -31,6 +31,7 @@ class UserAuthAuditLogService {
 	@EventListener
 	void onUserLoggedInEvent(UserLoggedInEvent event) {
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.user.id.get().id)
 			.originator(event.user)
 			.action(Action.LOGIN)
 			.operationCategory(Operation.AUTHENTICATION)
@@ -43,6 +44,7 @@ class UserAuthAuditLogService {
 	@EventListener
 	void onUserLoggedOutEvent(UserLoggedOutEvent event) {
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.user.id.get().id)
 			.originator(event.user)
 			.action(Action.LOGOUT)
 			.operationCategory(Operation.AUTHENTICATION)

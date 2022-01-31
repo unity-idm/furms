@@ -46,6 +46,7 @@ class SSHKeyAuditLogService {
 	void onSSHKeyCreatedEvent(SSHKeyCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.sshKey.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.SSH_KEYS_MANAGEMENT)
@@ -60,6 +61,7 @@ class SSHKeyAuditLogService {
 	void onSSHKeyRemovedEvent(SSHKeyRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.sshKey.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.SSH_KEYS_MANAGEMENT)
@@ -74,6 +76,7 @@ class SSHKeyAuditLogService {
 	void onSSHKeyUpdatedEvent(SSHKeyUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newSSHKey.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.SSH_KEYS_MANAGEMENT)
@@ -89,7 +92,8 @@ class SSHKeyAuditLogService {
 		json.put("id", sshKey.id);
 		json.put("name", sshKey.name);
 		json.put("createTime", sshKey.createTime);
-		json.put("updateTime", sshKey.updateTime);
+		if(sshKey.updateTime != null)
+			json.put("updateTime", sshKey.updateTime);
 		json.put("sites", sshKey.sites);
 
 		try {
@@ -104,7 +108,7 @@ class SSHKeyAuditLogService {
 		if(!Objects.equals(oldSshKey.name, newSshKey.name))
 			diffs.put("name", newSshKey.name);
 		if(!Objects.equals(oldSshKey.value, newSshKey.value))
-			diffs.put("value", "changed");
+			diffs.put("SSHPublicKey", "CHANGED");
 		if(!Objects.equals(oldSshKey.ownerId, newSshKey.ownerId))
 			diffs.put("ownerId", newSshKey.ownerId);
 		if(!Objects.equals(oldSshKey.sites, newSshKey.sites))

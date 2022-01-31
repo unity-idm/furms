@@ -34,6 +34,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 	void shouldCreate() {
 		LocalDateTime now = LocalDate.now().atStartOfDay();
 		AuditLogEntity auditLog = AuditLogEntity.builder()
+			.resourceId("resourceId")
 			.originatorId("originatorId")
 			.operationCategory(1)
 			.operationAction(1)
@@ -57,6 +58,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 		Set<AuditLogEntity> auditLogEntities = new HashSet<>();
 		for(int i =0; i < 1000; i++)
 			auditLogEntities.add(AuditLogEntity.builder()
+				.resourceId("resourceId")
 				.originatorId("originatorId" + i)
 				.operationCategory(rand.nextInt(16))
 				.operationAction(rand.nextInt(8))
@@ -69,8 +71,8 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 		}
 
 		long start = System.currentTimeMillis();
-		Set<AuditLogEntity> found = auditLogRepository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
-			now.minusDays(3), now.plusDays(3), Set.of(1, 3, 4), Set.of(1, 2, 5), "", Set.of("originatorId", "originatorId1"), Set.of()
+		Set<AuditLogEntity> found = auditLogRepository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOriginatorIdInOrOriginatorPersistentIdIn(
+			now.minusDays(3), now.plusDays(3), Set.of(1, 3, 4), Set.of(1, 2, 5), Set.of("originatorId", "originatorId1"), Set.of()
 		);
 		long end = System.currentTimeMillis();
 
@@ -81,6 +83,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 	void shouldFound() {
 		LocalDateTime now = LocalDate.now().atStartOfDay();
 		AuditLogEntity auditLog = AuditLogEntity.builder()
+			.resourceId("resourceId")
 			.originatorId("originatorId")
 			.operationCategory(1)
 			.operationAction(1)
@@ -90,6 +93,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLog1 = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorId("originatorId1")
 			.operationCategory(2)
 			.operationAction(3)
@@ -99,6 +103,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLog11 = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorPersistenceId("originatorPersistenceId1")
 			.operationCategory(2)
 			.operationAction(3)
@@ -108,6 +113,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLog2 = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorId("originatorId")
 			.operationCategory(5)
 			.operationAction(4)
@@ -117,6 +123,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLog21 = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorPersistenceId("originatorPersistenceId")
 			.operationCategory(5)
 			.operationAction(4)
@@ -126,6 +133,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLogWrongDate = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorId("originatorId1")
 			.operationCategory(5)
 			.operationAction(4)
@@ -135,6 +143,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLogWrongDate1 = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorId("originatorId")
 			.operationCategory(2)
 			.operationAction(3)
@@ -144,6 +153,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLogWrongAction = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorId("originatorId1")
 			.operationCategory(5)
 			.operationAction(7)
@@ -153,6 +163,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLogWrongOperation = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorId("originatorId1")
 			.operationCategory(8)
 			.operationAction(3)
@@ -162,6 +173,7 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		AuditLogEntity auditLogWrongOriginator = AuditLogEntity.builder()
+			.resourceId("resourceId1")
 			.originatorId("originatorId2")
 			.operationCategory(8)
 			.operationAction(3)
@@ -173,8 +185,8 @@ class AuditLogRepositoryTest extends DBIntegrationTest {
 		Set<AuditLogEntity> entitiesInBorder = stream(auditLogRepository.saveAll(Set.of(auditLog, auditLog1, auditLog11, auditLog2, auditLog21)).spliterator(), false)
 			.collect(Collectors.toSet());
 		auditLogRepository.saveAll(Set.of(auditLogWrongDate, auditLogWrongDate1, auditLogWrongAction, auditLogWrongOperation, auditLogWrongOriginator));
-		Set<AuditLogEntity> found = auditLogRepository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
-			now.minusDays(3), now.plusDays(3), Set.of(1, 3, 4), Set.of(1, 2, 5), "", Set.of("originatorId", "originatorId1"), Set.of("originatorPersistenceId", "originatorPersistenceId1")
+		Set<AuditLogEntity> found = auditLogRepository.findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOriginatorIdInOrOriginatorPersistentIdIn(
+			now.minusDays(3), now.plusDays(3), Set.of(1, 3, 4),  Set.of(1, 2, 5), Set.of("originatorId", "originatorId1"), Set.of("originatorPersistenceId", "originatorPersistenceId1")
 		);
 
 		assertEquals(entitiesInBorder, found);

@@ -14,10 +14,10 @@ import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserRoleGrantedByInvitationEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -120,7 +120,7 @@ class InviteeServiceImplTest {
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.FENIX_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
-		orderVerifier.verify(publisher).publishEvent(new UserRoleGrantedEvent(persistentId, invitation.resourceId, invitation.resourceName, invitation.role));
+		orderVerifier.verify(publisher).publishEvent(new UserRoleGrantedByInvitationEvent(originatorUser.email, persistentId, invitation.resourceId, invitation.resourceName, invitation.role));
 	}
 
 	@Test
@@ -161,7 +161,7 @@ class InviteeServiceImplTest {
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
-		orderVerifier.verify(publisher).publishEvent(new UserRoleGrantedEvent(persistentId, invitation.resourceId, invitation.resourceName, invitation.role));
+		orderVerifier.verify(publisher).publishEvent(new UserRoleGrantedByInvitationEvent(originatorUser.email, persistentId, invitation.resourceId, invitation.resourceName, invitation.role));
 	}
 
 	@Test
@@ -202,7 +202,7 @@ class InviteeServiceImplTest {
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.COMMUNITY_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
-		orderVerifier.verify(publisher).publishEvent(new UserRoleGrantedEvent(persistentId, invitation.resourceId, invitation.resourceName, invitation.role));
+		orderVerifier.verify(publisher).publishEvent(new UserRoleGrantedByInvitationEvent(originatorUser.email, persistentId, invitation.resourceId, invitation.resourceName, invitation.role));
 	}
 
 	@Test
@@ -247,7 +247,7 @@ class InviteeServiceImplTest {
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.PROJECT_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
-		orderVerifier.verify(publisher).publishEvent(new UserRoleGrantedEvent(persistentId, invitation.resourceId, invitation.resourceName, invitation.role));
+		orderVerifier.verify(publisher).publishEvent(new UserRoleGrantedByInvitationEvent(originatorUser.email, persistentId, invitation.resourceId, invitation.resourceName, invitation.role));
 	}
 
 	@Test

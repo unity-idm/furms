@@ -165,6 +165,7 @@ class AlarmServiceImplTest {
 			.alarmUser(Set.of(fenixUserId, fenixUserId1))
 			.build();
 		when(alarmRepository.create(alarmWithUserIds)).thenReturn(alarmId);
+		when(alarmRepository.find(alarmId)).thenReturn(Optional.of(alarmWithUserIds));
 		when(firedAlarmsService.isExceedThreshold(projectAllocationId, threshold)).thenReturn(false);
 
 

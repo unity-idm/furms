@@ -48,6 +48,7 @@ class GenericGroupAuditLogService {
 	void onGenericGroupCreatedEvent(GenericGroupCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.group.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.GENERIC_GROUPS_MANAGEMENT)
@@ -62,6 +63,7 @@ class GenericGroupAuditLogService {
 	void onGenericGroupRemovedEvent(GenericGroupRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.group.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.GENERIC_GROUPS_MANAGEMENT)
@@ -76,6 +78,7 @@ class GenericGroupAuditLogService {
 	void onGenericGroupUpdatedEvent(GenericGroupUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newGroup.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.GENERIC_GROUPS_MANAGEMENT)
@@ -90,6 +93,7 @@ class GenericGroupAuditLogService {
 	void onGenericGroupUserGrantedEvent(GenericGroupUserGrantedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.user.id.get().id)
 			.originator(currentAuthNUser)
 			.action(Action.GRANT)
 			.operationCategory(Operation.GENERIC_GROUPS_ASSIGNMENT)
@@ -104,6 +108,7 @@ class GenericGroupAuditLogService {
 	void onGenericGroupUserRevokedEvent(GenericGroupUserRevokedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.user.id.get().id)
 			.originator(currentAuthNUser)
 			.action(Action.REVOKE)
 			.operationCategory(Operation.GENERIC_GROUPS_ASSIGNMENT)
@@ -115,8 +120,14 @@ class GenericGroupAuditLogService {
 	}
 
 	private String toJson(GenericGroup group) {
+		Map<String, Object> json = new HashMap<>();
+		json.put("id", group.id.id);
+		json.put("communityId", group.communityId);
+		json.put("name", group.name);
+		json.put("description", group.description);
+
 		try {
-			return objectMapper.writeValueAsString(group);
+			return objectMapper.writeValueAsString(json);
 		} catch (JsonProcessingException e) {
 			throw new AuditLogException(String.format("Group with id %s cannot be parse", group.id), e);
 		}

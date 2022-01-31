@@ -46,6 +46,7 @@ class CommunityAuditLogService {
 	void onCommunityCreatedEvent(CommunityCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.community.getId())
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.COMMUNITIES_MANAGEMENT)
@@ -60,6 +61,7 @@ class CommunityAuditLogService {
 	void onCommunityRemovedEvent(CommunityRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.community.getId())
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.COMMUNITIES_MANAGEMENT)
@@ -74,6 +76,7 @@ class CommunityAuditLogService {
 	void onCommunityUpdatedEvent(CommunityUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newCommunity.getId())
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.COMMUNITIES_MANAGEMENT)
@@ -104,7 +107,7 @@ class CommunityAuditLogService {
 		if(!Objects.equals(oldCommunity.getDescription(), newCommunity.getDescription()))
 			diffs.put("description", newCommunity.getDescription());
 		if(!Objects.equals(oldCommunity.getLogo(), newCommunity.getLogo()))
-			diffs.put("logo", "changed");
+			diffs.put("logo", "CHANGED");
 
 		try {
 			return objectMapper.writeValueAsString(diffs);

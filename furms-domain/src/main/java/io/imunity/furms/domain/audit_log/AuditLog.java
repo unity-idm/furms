@@ -9,8 +9,10 @@ import io.imunity.furms.domain.users.FURMSUser;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 public class AuditLog {
+	public final String resourceId;
 	public final LocalDateTime utcTimestamp;
 	public final FURMSUser originator;
 	public final Operation operationCategory;
@@ -18,7 +20,8 @@ public class AuditLog {
 	public final String operationSubject;
 	public final String dataJson;
 
-	private AuditLog(LocalDateTime utcTimestamp, FURMSUser originator, Operation operationCategory, Action action, String operationSubject, String dataJson) {
+	private AuditLog(LocalDateTime utcTimestamp, String resourceId, FURMSUser originator, Operation operationCategory, Action action, String operationSubject, String dataJson) {
+		this.resourceId = resourceId;
 		this.utcTimestamp = utcTimestamp;
 		this.originator = originator;
 		this.operationCategory = operationCategory;
@@ -33,6 +36,7 @@ public class AuditLog {
 		if (o == null || getClass() != o.getClass()) return false;
 		AuditLog auditLog = (AuditLog) o;
 		return Objects.equals(utcTimestamp, auditLog.utcTimestamp) &&
+			Objects.equals(resourceId, auditLog.resourceId) &&
 			Objects.equals(originator, auditLog.originator) &&
 			operationCategory == auditLog.operationCategory &&
 			action == auditLog.action &&
@@ -42,7 +46,7 @@ public class AuditLog {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(utcTimestamp, originator, operationCategory, action, operationSubject, dataJson);
+		return Objects.hash(utcTimestamp, resourceId, originator, operationCategory, action, operationSubject, dataJson);
 	}
 
 	@Override
@@ -50,6 +54,7 @@ public class AuditLog {
 		return "AuditLog{" +
 			"utcTimestamp=" + utcTimestamp +
 			", originator=" + originator +
+			", resourceId=" + resourceId +
 			", operationCategory=" + operationCategory +
 			", action=" + action +
 			", operationSubject='" + operationSubject + '\'' +
@@ -62,6 +67,7 @@ public class AuditLog {
 	}
 
 	public static final class AuditLogBuilder {
+		private String resourceId;
 		private LocalDateTime utcTimestamp;
 		private FURMSUser originator;
 		private Operation operationCategory;
@@ -70,6 +76,16 @@ public class AuditLog {
 		private String dataJson;
 
 		private AuditLogBuilder() {
+		}
+
+		public AuditLogBuilder resourceId(UUID resourceId) {
+			this.resourceId = resourceId.toString();
+			return this;
+		}
+
+		public AuditLogBuilder resourceId(String resourceId) {
+			this.resourceId = resourceId;
+			return this;
 		}
 
 		public AuditLogBuilder utcTimestamp(LocalDateTime utcTimestamp) {
@@ -108,7 +124,7 @@ public class AuditLog {
 		}
 
 		public AuditLog build() {
-			return new AuditLog(utcTimestamp, originator, operationCategory, action, operationSubject, dataJson);
+			return new AuditLog(utcTimestamp, resourceId, originator, operationCategory, action, operationSubject, dataJson);
 		}
 	}
 }

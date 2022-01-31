@@ -12,6 +12,6 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 public interface AuditLogRepository {
-	Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<FURMSUser> originatorIds, Set<Integer> actionIds, Set<Integer> operationIds, String subject);
+	Set<AuditLog> findBy(LocalDateTime from, LocalDateTime to, Set<FURMSUser> originatorIds, Set<Integer> actionIds, Set<Integer> operationIds);
 	void create(AuditLog auditLog);
 }
