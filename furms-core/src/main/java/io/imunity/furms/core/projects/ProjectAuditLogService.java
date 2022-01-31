@@ -18,6 +18,7 @@ import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.projects.ProjectUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -33,11 +34,13 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 class ProjectAuditLogService {
 
 	private final AuthzService authzService;
+	private final UsersDAO usersDAO;
 	private final ApplicationEventPublisher publisher;
 	private final ObjectMapper objectMapper;
 
-	ProjectAuditLogService(AuthzService authzService, ApplicationEventPublisher publisher, ObjectMapper objectMapper) {
+	ProjectAuditLogService(AuthzService authzService, UsersDAO usersDAO, ApplicationEventPublisher publisher, ObjectMapper objectMapper) {
 		this.authzService = authzService;
+		this.usersDAO = usersDAO;
 		this.publisher = publisher;
 		this.objectMapper = objectMapper;
 	}
@@ -46,6 +49,7 @@ class ProjectAuditLogService {
 	void onProjectCreatedEvent(ProjectCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.project.getId())
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.PROJECTS_MANAGEMENT)
@@ -60,6 +64,7 @@ class ProjectAuditLogService {
 	void onProjectRemovedEvent(ProjectRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.project.getId())
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.PROJECTS_MANAGEMENT)
@@ -74,6 +79,7 @@ class ProjectAuditLogService {
 	void onProjectUpdatedEvent(ProjectUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newProject.getId())
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.PROJECTS_MANAGEMENT)
@@ -92,7 +98,7 @@ class ProjectAuditLogService {
 		json.put("researchField", project.getResearchField());
 		json.put("utcStartTime", project.getUtcStartTime());
 		json.put("utcEndTime", project.getUtcEndTime());
-		json.put("leaderId", project.getLeaderId());
+		json.put("leaderId", usersDAO.findById(project.getLeaderId()).map(usr -> usr.email).orElse(null));
 
 		try {
 			return objectMapper.writeValueAsString(json);
@@ -116,9 +122,9 @@ class ProjectAuditLogService {
 		if(!Objects.equals(oldProject.getUtcEndTime(), newProject.getUtcEndTime()))
 			diffs.put("utcEndTime", newProject.getUtcEndTime());
 		if(!Objects.equals(oldProject.getLeaderId(), newProject.getLeaderId()))
-			diffs.put("leaderId", newProject.getLeaderId());
+			diffs.put("leaderId", usersDAO.findById(newProject.getLeaderId()).map(usr -> usr.email).orElse(null));
 		if(!Objects.equals(oldProject.getLogo(), newProject.getLogo()))
-			diffs.put("logo", "changed");
+			diffs.put("logo", "CHANGED");
 
 		try {
 			return objectMapper.writeValueAsString(diffs);

@@ -15,6 +15,7 @@ import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.generic_groups.GenericGroupRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -67,7 +68,9 @@ class GenericGroupAuditLogServiceIntegrationTest {
 	void shouldDetectGroupDeletion() {
 		GenericGroupId groupId = new GenericGroupId(UUID.randomUUID());
 		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
-		GenericGroup genericGroup = GenericGroup.builder().build();
+		GenericGroup genericGroup = GenericGroup.builder()
+			.id(groupId)
+			.build();
 		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(genericGroup));
 
 		service.delete("communityId", groupId);
@@ -101,6 +104,7 @@ class GenericGroupAuditLogServiceIntegrationTest {
 	void shouldDetectGroupCreation() {
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		GenericGroup genericGroup = GenericGroup.builder()
+			.id(genericGroupId)
 			.communityId("communityId")
 			.name("name")
 			.description("description")
@@ -124,8 +128,11 @@ class GenericGroupAuditLogServiceIntegrationTest {
 
 		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
 		when(genericGroupRepository.existsBy(genericGroupId, userId)).thenReturn(false);
-		when(genericGroupRepository.findBy(genericGroupId)).thenReturn(Optional.of(GenericGroup.builder().build()));
+		when(genericGroupRepository.findBy(genericGroupId)).thenReturn(Optional.of(GenericGroup.builder()
+			.id(genericGroupId)
+			.build()));
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+			.id(new PersistentId("id"))
 			.email("email")
 			.build()));
 
@@ -143,8 +150,11 @@ class GenericGroupAuditLogServiceIntegrationTest {
 		FenixUserId userId = new FenixUserId("userId");
 
 		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
-		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(GenericGroup.builder().build()));
+		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(GenericGroup.builder()
+			.id(groupId)
+			.build()));
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+			.id(new PersistentId("id"))
 			.email("email")
 			.build()));
 

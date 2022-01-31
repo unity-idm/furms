@@ -46,6 +46,7 @@ class CommunityAllocationAuditLogService {
 	void onCommunityAllocationCreatedEvent(CommunityAllocationCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.communityAllocation.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.COMMUNITY_ALLOCATION)
@@ -60,6 +61,7 @@ class CommunityAllocationAuditLogService {
 	void onCommunityAllocationRemovedEvent(CommunityAllocationRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.communityAllocation.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.COMMUNITY_ALLOCATION)
@@ -74,6 +76,7 @@ class CommunityAllocationAuditLogService {
 	void onCommunityAllocationUpdatedEvent(CommunityAllocationUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newCommunityAllocation.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.COMMUNITY_ALLOCATION)

@@ -55,7 +55,7 @@ public class RoleAssignmentAuditLogServiceTest {
 			.build())
 		);
 
-		roleAssignmentAuditLogService.onGenericGroupCreatedEvent(new UserRoleRevokedEvent(
+		roleAssignmentAuditLogService.onUserRoleRevokedEvent(new UserRoleRevokedEvent(
 			id,
 			new ResourceId(UUID.randomUUID(), ResourceType.APP_LEVEL),
 			"",

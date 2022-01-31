@@ -17,6 +17,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
@@ -166,6 +167,7 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 			.policyDocumentRevision(1)
 			.build();
 		FURMSUser user = FURMSUser.builder()
+			.id(new PersistentId("id"))
 			.email("email")
 			.fenixUserId(userId).build();
 

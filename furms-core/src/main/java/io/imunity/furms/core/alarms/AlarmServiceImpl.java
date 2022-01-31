@@ -121,7 +121,8 @@ class AlarmServiceImpl implements AlarmService {
 		AlarmWithUserIds alarmWithUserIds = new AlarmWithUserIds(alarm, ids, false);
 
 		AlarmId alarmId = alarmRepository.create(alarmWithUserIds);
-		publisher.publishEvent(new AlarmCreatedEvent(alarmWithUserIds));
+		AlarmWithUserIds saved = alarmRepository.find(alarmId).get();
+		publisher.publishEvent(new AlarmCreatedEvent(saved));
 		LOG.info("Alarm ID {} for project allocation ID: {} was created", alarmId.id, alarm.projectAllocationId);
 	}
 

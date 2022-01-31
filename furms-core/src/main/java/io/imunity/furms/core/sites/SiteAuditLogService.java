@@ -46,6 +46,7 @@ class SiteAuditLogService {
 	void onSiteCreatedEvent(SiteCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.site.getId())
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.SITES_MANAGEMENT)
@@ -60,6 +61,7 @@ class SiteAuditLogService {
 	void onSiteRemovedEvent(SiteRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.site.getId())
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.SITES_MANAGEMENT)
@@ -74,6 +76,7 @@ class SiteAuditLogService {
 	void onSiteUpdatedEvent(SiteUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newSite.getId())
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.SITES_MANAGEMENT)
@@ -88,9 +91,10 @@ class SiteAuditLogService {
 		Map<String, Object> json = new HashMap<>();
 		json.put("id", site.getId());
 		json.put("name", site.getName());
-		json.put("connectionInfo", site.getConnectionInfo());
-		json.put("sshKeyFromOptionMandatory", site.isSshKeyFromOptionMandatory());
-		json.put("policyId", site.getPolicyId());
+		if(site.isSshKeyFromOptionMandatory() != null)
+			json.put("sshKeyFromOptionMandatory", site.isSshKeyFromOptionMandatory());
+		if(site.getPolicyId().id != null)
+			json.put("policyId", site.getPolicyId().id);
 
 		try {
 			return objectMapper.writeValueAsString(json);
@@ -104,13 +108,13 @@ class SiteAuditLogService {
 		if(!Objects.equals(oldSite.getName(), newSite.getName()))
 			diffs.put("name", newSite.getName());
 		if(!Objects.equals(oldSite.getConnectionInfo(), newSite.getConnectionInfo()))
-			diffs.put("connectionInfo", newSite.getConnectionInfo());
+			diffs.put("connectionInfo", "CHANGED");
 		if(!Objects.equals(oldSite.isSshKeyFromOptionMandatory(), newSite.isSshKeyFromOptionMandatory()))
 			diffs.put("sshKeyFromOptionMandatory", newSite.isSshKeyFromOptionMandatory());
 		if(!Objects.equals(oldSite.getPolicyId(), newSite.getPolicyId()))
-			diffs.put("policyId", newSite.getPolicyId());
+			diffs.put("policyId", newSite.getPolicyId().id);
 		if(!Objects.equals(oldSite.getLogo(), newSite.getLogo()))
-			diffs.put("logo", "changed");
+			diffs.put("logo", "CHANGED");
 
 		try {
 			return objectMapper.writeValueAsString(diffs);

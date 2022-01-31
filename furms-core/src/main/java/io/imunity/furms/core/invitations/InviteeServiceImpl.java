@@ -18,8 +18,8 @@ import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.UserRoleGrantedByInvitationEvent;
 import io.imunity.furms.domain.users.UserRoleGrantedByRegistrationEvent;
-import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -94,7 +94,7 @@ class InviteeServiceImpl implements InviteeService {
 		invitationRepository.deleteBy(invitation.id);
 		notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> userInvitationNotificationService.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
 		publisher.publishEvent(new InvitationAcceptedEvent(user.fenixUserId.get(), user.email, invitation.resourceId));
-		publisher.publishEvent(new UserRoleGrantedEvent(user.id.get(), invitation.resourceId, invitation.resourceName, invitation.role));
+		publisher.publishEvent(new UserRoleGrantedByInvitationEvent(invitation.originator, user.id.get(), invitation.resourceId, invitation.resourceName, invitation.role));
 	}
 
 	private void notifyOriginatorAndSameHierarchyAdmins(Invitation invitation, Consumer<FURMSUser> notifier){

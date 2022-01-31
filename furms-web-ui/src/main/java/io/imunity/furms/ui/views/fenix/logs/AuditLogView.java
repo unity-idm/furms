@@ -5,21 +5,6 @@
 
 package io.imunity.furms.ui.views.fenix.logs;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
-import static java.util.Comparator.comparing;
-
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.vaadin.gatanaso.MultiselectComboBox;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +22,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.audit_log.AuditLogService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.audit_log.Action;
@@ -52,6 +36,20 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.administrators.SearchLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+import org.vaadin.gatanaso.MultiselectComboBox;
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import static java.util.Comparator.comparing;
 
 @Route(value = "fenix/admin/auditLog", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.audit-log.page.title")
@@ -71,6 +69,7 @@ public class AuditLogView extends FurmsViewComponent {
 	private final MultiselectComboBox<Action> actionComboBox;
 	private final SearchLayout searchLayout;
 
+	private Set<AuditLogGridModel> data;
 
 	AuditLogView(AuditLogService auditLogService, UserService userService) {
 		this.auditLogService = auditLogService;
@@ -98,7 +97,7 @@ public class AuditLogView extends FurmsViewComponent {
 		actionComboBox.setPlaceholder(getTranslation("view.fenix-admin.audit-log.placeholder.action"));
 
 		searchLayout = new SearchLayout();
-		searchLayout.addValueChangeGridReloader(this::reloadGrid);
+		searchLayout.addValueChangeGridReloader(this::reloadGridForSearch);
 		searchLayout.setWidth(fieldWidth);
 		searchLayout.getStyle().set("margin-top", "0.7em");
 		searchLayout.getStyle().set("margin-right", "0.7em");
@@ -130,7 +129,7 @@ public class AuditLogView extends FurmsViewComponent {
 	}
 
 	private void reloadGrid() {
-		Set<AuditLog> auditLogs = auditLogService.findBy(
+		data = auditLogService.findBy(
 			startDateTimePicker.getValue(),
 			endDateTimePicker.getValue(),
 			userComboBox.getSelectedItems(),
@@ -139,21 +138,37 @@ public class AuditLogView extends FurmsViewComponent {
 				.collect(Collectors.toSet()),
 			operationComboBox.getSelectedItems().stream()
 				.map(Operation::getPersistentId)
-				.collect(Collectors.toSet()),
-			searchLayout.getSearchText()
-		);
+				.collect(Collectors.toSet())
+		).stream()
+			.map(auditLog -> AuditLogGridModel.builder()
+				.id(auditLog.resourceId)
+				.timestamp(convertToZoneTime(auditLog.utcTimestamp, browserZoneId))
+				.originator(auditLog.originator.email)
+				.action(auditLog.action)
+				.operation(auditLog.operationCategory)
+				.name(auditLog.operationSubject)
+				.data(getData(auditLog))
+				.build()
+			)
+			.collect(Collectors.toSet());
+		reloadGridForSearch();
+	}
+
+	private void reloadGridForSearch() {
 		grid.setItems(
-			auditLogs.stream()
-				.map(auditLog -> AuditLogGridModel.builder()
-					.timestamp(convertToZoneTime(auditLog.utcTimestamp, browserZoneId))
-					.originator(auditLog.originator.email)
-					.action(auditLog.action)
-					.operation(auditLog.operationCategory)
-					.name(auditLog.operationSubject)
-					.data(getData(auditLog))
-					.build()
-				)
+			data.stream()
+				.filter(model -> rowContains(model, searchLayout.getSearchText(), searchLayout))
+
 		);
+	}
+
+	private boolean rowContains(AuditLogGridModel row, String value, SearchLayout searchLayout) {
+		String lowerCaseValue = value.toLowerCase();
+		return searchLayout.getSearchText().isEmpty()
+			|| row.originator.toLowerCase().contains(lowerCaseValue)
+			|| row.id.toLowerCase().contains(lowerCaseValue)
+			|| row.operation.name().toLowerCase().contains(lowerCaseValue)
+			|| row.action.name().toLowerCase().contains(lowerCaseValue);
 	}
 
 	private Map<String, Object> getData(AuditLog auditLog) {
@@ -194,6 +209,10 @@ public class AuditLogView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.fenix-admin.audit-log.grid.5"))
 			.setSortable(true)
 			.setComparator(comparing(model -> model.name));
+		grid.addColumn(model -> model.id)
+			.setHeader(getTranslation("view.fenix-admin.audit-log.grid.6"))
+			.setSortable(true)
+			.setComparator(comparing(model -> model.id));
 
 		grid.sort(ImmutableList.of(new GridSortOrder<>(timestamp, SortDirection.DESCENDING)));
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(c -> AuditLogDetailsComponentFactory

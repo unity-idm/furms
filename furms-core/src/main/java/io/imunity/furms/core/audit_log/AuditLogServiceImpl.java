@@ -39,7 +39,7 @@ class AuditLogServiceImpl implements AuditLogService, AuditLogListener {
 
 	@Override
 	@FurmsAuthorize(capability = AUDIT_LOG_MANAGEMENT, resourceType = APP_LEVEL)
-	public Set<AuditLog> findBy(ZonedDateTime from, ZonedDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds, String subject) {
-		return repository.findBy(convertToUTCTime(from), convertToUTCTime(to), originators, actionIds, operationIds, subject);
+	public Set<AuditLog> findBy(ZonedDateTime from, ZonedDateTime to, Set<FURMSUser> originators, Set<Integer> actionIds, Set<Integer> operationIds) {
+		return repository.findBy(convertToUTCTime(from), convertToUTCTime(to), originators, actionIds, operationIds);
 	}
 }

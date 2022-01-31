@@ -19,22 +19,36 @@ public interface AuditLogEntityRepository extends CrudRepository<AuditLogEntity,
 		"FROM audit_log al " +
 		"WHERE (al.originator_id IN (:originator_ids) OR al.originator_persistent_id IN (:originator_persistent_ids)) " +
 		"AND al.operation_action IN (:action_ids) AND al.operation_category IN (:operation_ids) " +
-		"AND al.creation_time BETWEEN :from AND :to AND al.operation_subject LIKE '%' || :operation_subject || '%'")
-	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContainingAndOriginatorIdInOrOriginatorPersistentIdIn(
+		"AND al.creation_time BETWEEN :from AND :to")
+	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOriginatorIdInOrOriginatorPersistentIdIn(
 		@Param("from") LocalDateTime from,
 		@Param("to") LocalDateTime to,
 		@Param("action_ids") Set<Integer> actionIds,
 		@Param("operation_ids") Set<Integer> operationIds,
-		@Param("operation_subject") String operationSubject,
 		@Param("originator_ids") Set<String> originatorIds,
 		@Param("originator_persistent_ids") Set<String> originatorPersistentIds
 	);
 
-	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOperationSubjectContaining(
+	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryIn(
+		LocalDateTime from,
+		LocalDateTime to,
+		Set<Integer> actionIds,
+		Set<Integer> operationIds
+	);
+
+	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOriginatorIdIn(
 		LocalDateTime from,
 		LocalDateTime to,
 		Set<Integer> actionIds,
 		Set<Integer> operationIds,
-		String operationSubject
+		Set<String> originatorIds
+	);
+
+	Set<AuditLogEntity> findByCreationTimeBetweenAndOperationActionInAndOperationCategoryInAndOriginatorPersistentIdIn(
+		LocalDateTime from,
+		LocalDateTime to,
+		Set<Integer> actionIds,
+		Set<Integer> operationIds,
+		Set<String> originatorIds
 	);
 }

@@ -46,6 +46,7 @@ class ResourceCreditAuditLogService {
 	void onResourceCreditCreatedEvent(ResourceCreditCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.resourceCredit.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.RESOURCE_CREDIT)
@@ -60,6 +61,7 @@ class ResourceCreditAuditLogService {
 	void onResourceCreditRemovedEvent(ResourceCreditRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.resourceCredit.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.RESOURCE_CREDIT)
@@ -74,6 +76,7 @@ class ResourceCreditAuditLogService {
 	void onResourceCreditUpdatedEvent(ResourceCreditUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newResourceCredit.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.RESOURCE_CREDIT)

@@ -16,6 +16,7 @@ import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.UserRoleGrantedByInvitationEvent;
 import io.imunity.furms.domain.users.UserRoleGrantedByRegistrationEvent;
 import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.UserRoleRevokedEvent;
@@ -47,44 +48,66 @@ class RoleAssignmentAuditLogService {
 	}
 
 	@EventListener
-	void onGenericGroupCreatedEvent(UserRoleRevokedEvent event) {
+	void onUserRoleRevokedEvent(UserRoleRevokedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
+		FURMSUser user = usersDAO.findById(event.id).get();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(user.id.get().id)
 			.originator(currentAuthNUser)
 			.action(Action.REVOKE)
 			.operationCategory(Operation.ROLE_ASSIGNMENT)
 			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
-			.operationSubject(usersDAO.findById(event.id).get())
+			.operationSubject(user)
 			.dataJson(toJson(event.role, event.resourceId, event.resourceName))
 			.build();
 		publisher.publishEvent(new AuditLogEvent(auditLog));
 	}
 
 	@EventListener
-	void onUserRoleGrantedEvent(UserRoleGrantedEvent event) {
+	void onUserRoleGrantedByRegistrationEvent(UserRoleGrantedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
+		FURMSUser user = usersDAO.findById(event.id).get();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(user.id.get().id)
 			.originator(currentAuthNUser)
 			.action(Action.GRANT)
 			.operationCategory(Operation.ROLE_ASSIGNMENT)
 			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
-			.operationSubject(usersDAO.findById(event.id).get())
+			.operationSubject(user)
 			.dataJson(toJson(event.role, event.resourceId, event.resourceName))
 			.build();
 		publisher.publishEvent(new AuditLogEvent(auditLog));
 	}
 
 	@EventListener
-	void onUserRoleGrantedEvent(UserRoleGrantedByRegistrationEvent event) {
+	void onUserRoleGrantedByRegistrationEvent(UserRoleGrantedByRegistrationEvent event) {
 		List<FURMSUser> allUsers = usersDAO.getAllUsers();
 		FURMSUser originator = findUserByEmail(allUsers, event.originatorEmail);
 		FURMSUser currentUser = findUserByEmail(allUsers, event.userEmail);
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(currentUser.id.get().id)
 			.originator(originator)
 			.action(Action.GRANT)
 			.operationCategory(Operation.ROLE_ASSIGNMENT)
 			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
 			.operationSubject(currentUser)
+			.dataJson(toJson(event.role, event.resourceId, event.resourceName))
+			.build();
+		publisher.publishEvent(new AuditLogEvent(auditLog));
+	}
+
+	@EventListener
+	void onUserRoleGrantedByInvitationEvent(UserRoleGrantedByInvitationEvent event) {
+		List<FURMSUser> allUsers = usersDAO.getAllUsers();
+		FURMSUser originator = findUserByEmail(allUsers, event.originatorEmail);
+		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
+		AuditLog auditLog = AuditLog.builder()
+			.resourceId(currentAuthNUser.id.get().id)
+			.originator(originator)
+			.action(Action.GRANT)
+			.operationCategory(Operation.ROLE_ASSIGNMENT)
+			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
+			.operationSubject(currentAuthNUser)
 			.dataJson(toJson(event.role, event.resourceId, event.resourceName))
 			.build();
 		publisher.publishEvent(new AuditLogEvent(auditLog));

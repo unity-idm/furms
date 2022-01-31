@@ -44,12 +44,14 @@ class ResourceAccessAuditLogService {
 	@EventListener
 	void onUserGrantAddedEvent(UserGrantAddedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
+		FURMSUser user = usersDAO.findById(event.grantAccess.fenixUserId).get();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(user.id.get().id)
 			.originator(currentAuthNUser)
 			.action(Action.GRANT)
 			.operationCategory(Operation.PROJECT_RESOURCE_ASSIGNMENT)
 			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
-			.operationSubject(usersDAO.findById(event.grantAccess.fenixUserId).get())
+			.operationSubject(user)
 			.dataJson(toJson(event.grantAccess))
 			.build();
 		publisher.publishEvent(new AuditLogEvent(auditLog));
@@ -58,12 +60,14 @@ class ResourceAccessAuditLogService {
 	@EventListener
 	void onUserGrantRemovedEvent(UserGrantRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
+		FURMSUser user = usersDAO.findById(event.grantAccess.fenixUserId).get();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(user.id.get().id)
 			.originator(currentAuthNUser)
 			.action(Action.REVOKE)
 			.operationCategory(Operation.PROJECT_RESOURCE_ASSIGNMENT)
 			.utcTimestamp(convertToUTCTime(ZonedDateTime.now()))
-			.operationSubject(usersDAO.findById(event.grantAccess.fenixUserId).get())
+			.operationSubject(user)
 			.dataJson(toJson(event.grantAccess))
 			.build();
 		publisher.publishEvent(new AuditLogEvent(auditLog));

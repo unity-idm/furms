@@ -46,6 +46,7 @@ class ResourceTypeAuditLogService {
 	void onResourceTypeCreatedEvent(ResourceTypeCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.resourceType.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.RESOURCE_TYPES_MANAGEMENT)
@@ -60,6 +61,7 @@ class ResourceTypeAuditLogService {
 	void onResourceTypeRemovedEvent(ResourceTypeRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.resourceType.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.RESOURCE_TYPES_MANAGEMENT)
@@ -74,6 +76,7 @@ class ResourceTypeAuditLogService {
 	void onResourceTypeUpdatedEvent(ResourceTypeUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newResourceType.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.RESOURCE_TYPES_MANAGEMENT)

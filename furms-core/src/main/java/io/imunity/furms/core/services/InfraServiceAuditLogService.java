@@ -46,6 +46,7 @@ class InfraServiceAuditLogService {
 	void onCreateServiceEvent(InfraServiceCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.infraService.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.SERVICES_MANAGEMENT)
@@ -60,6 +61,7 @@ class InfraServiceAuditLogService {
 	void onRemoveServiceEvent(InfraServiceRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.infraService.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.SERVICES_MANAGEMENT)
@@ -74,6 +76,7 @@ class InfraServiceAuditLogService {
 	void onUpdateServiceEvent(InfraServiceUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
+			.resourceId(event.newInfraService.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.SERVICES_MANAGEMENT)
@@ -85,8 +88,16 @@ class InfraServiceAuditLogService {
 	}
 
 	private String toJson(InfraService infraService) {
+		Map<String, Object> json = new HashMap<>();
+		json.put("id", infraService.id);
+		json.put("name", infraService.name);
+		json.put("siteId", infraService.siteId);
+		json.put("description", infraService.description);
+		if(infraService.policyId.id != null)
+			json.put("policyId", infraService.policyId.id);
+
 		try {
-			return objectMapper.writeValueAsString(infraService);
+			return objectMapper.writeValueAsString(json);
 		} catch (JsonProcessingException e) {
 			throw new AuditLogException(String.format("Infra service with id %s cannot be parse", infraService.id), e);
 		}
