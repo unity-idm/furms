@@ -15,8 +15,6 @@ import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.resource_access.ProjectUserGrant;
-import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -43,9 +41,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
-import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKED;
-import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKE_PENDING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -77,7 +74,6 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 	private AuditLogRepository auditLogRepository;
 
 	private ResourceAccessService service;
-	private UserAllocationStatusUpdaterImpl updater;
 
 	@BeforeEach
 	void setUp() {
@@ -92,7 +88,6 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 	@BeforeEach
 	void init() {
 		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, userSiteAccessInnerService, policyNotificationService, publisher);
-		updater = new UserAllocationStatusUpdaterImpl(repository, userSiteAccessInnerService, publisher);
 	}
 
 	@Test
@@ -131,11 +126,15 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectRevokeAccess() {
-		CorrelationId correlationId = CorrelationId.randomID();
-
-		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(REVOKE_PENDING));
 		FenixUserId userId = new FenixUserId("userId");
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", userId)));
+		GrantAccess grantAccess = GrantAccess.builder()
+			.siteId(new SiteId("siteId", "externalId"))
+			.projectId("projectId")
+			.allocationId("allocId")
+			.fenixUserId(userId)
+			.build();
+
+		when(repository.findCurrentStatus(userId, "allocId")).thenReturn(GRANTED);
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(
 			FURMSUser.builder()
 				.id(new PersistentId("id"))
@@ -144,7 +143,7 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 				.build()
 		));
 
-		updater.update(correlationId, REVOKED, "msg");
+		service.revokeAccess(grantAccess);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();

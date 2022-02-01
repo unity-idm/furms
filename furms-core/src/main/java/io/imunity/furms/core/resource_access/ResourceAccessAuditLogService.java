@@ -15,7 +15,7 @@ import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
-import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
+import io.imunity.furms.domain.resource_access.UserGrantRemovedCommissionEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.context.ApplicationEventPublisher;
@@ -60,7 +60,7 @@ class ResourceAccessAuditLogService {
 	}
 
 	@EventListener
-	void onUserGrantRemovedEvent(UserGrantRemovedEvent event) {
+	void onUserGrantRemovedCommissionEvent(UserGrantRemovedCommissionEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		FURMSUser user = usersDAO.findById(event.grantAccess.fenixUserId).get();
 		AuditLog auditLog = AuditLog.builder()
@@ -78,7 +78,9 @@ class ResourceAccessAuditLogService {
 	private String toJson(GrantAccess grantAccess) {
 		Map<String, Object> json = new HashMap<>();
 		json.put("siteId", grantAccess.siteId.id);
-		json.put("fenixUserId", grantAccess.fenixUserId);
+		json.put("projectId", grantAccess.projectId);
+		json.put("projectAllocationId", grantAccess.allocationId);
+		json.put("fenixUserId", grantAccess.fenixUserId.id);
 		json.put("status", grantAccess.status);
 
 		try {

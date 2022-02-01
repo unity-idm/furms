@@ -15,6 +15,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
+import io.imunity.furms.domain.resource_access.UserGrantRemovedCommissionEvent;
 import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -155,8 +156,10 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, REVOKE_PENDING));
 		CorrelationId correlationId = CorrelationId.randomID();
 		repository.update(correlationId, grantAccess, REVOKE_PENDING);
-		runAfterCommit(() ->
-			siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess)
+		runAfterCommit(() -> {
+				siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);
+				publisher.publishEvent(new UserGrantRemovedCommissionEvent(grantAccess));
+			}
 		);
 		LOG.info("UserAllocation status with correlation id {} was changed to {}", correlationId.id, REVOKE_PENDING);
 	}

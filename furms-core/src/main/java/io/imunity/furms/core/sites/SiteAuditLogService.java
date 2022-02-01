@@ -95,6 +95,8 @@ class SiteAuditLogService {
 			json.put("sshKeyFromOptionMandatory", site.isSshKeyFromOptionMandatory());
 		if(site.getPolicyId().id != null)
 			json.put("policyId", site.getPolicyId().id);
+		if(site.getOauthClientId() != null)
+			json.put("oauthClientId", site.getOauthClientId());
 
 		try {
 			return objectMapper.writeValueAsString(json);
@@ -115,6 +117,8 @@ class SiteAuditLogService {
 			diffs.put("prohibitToReuseOldSshKeys", newSite.getSshKeyHistoryLength() != 0);
 		if(!Objects.equals(oldSite.getPolicyId(), newSite.getPolicyId()))
 			diffs.put("policyId", newSite.getPolicyId().id);
+		if(!Objects.equals(oldSite.getOauthClientId(), newSite.getOauthClientId()))
+			diffs.put("oauthClientId", newSite.getOauthClientId());
 		if(!Objects.equals(oldSite.getLogo(), newSite.getLogo()))
 			diffs.put("logo", "CHANGED");
 
