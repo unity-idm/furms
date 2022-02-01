@@ -5,8 +5,20 @@
 
 package io.imunity.furms.core.ssh_keys;
 
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
@@ -18,16 +30,6 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyCreatedEvent;
 import io.imunity.furms.domain.ssh_keys.SSHKeyRemovedEvent;
 import io.imunity.furms.domain.ssh_keys.SSHKeyUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Service
 class SSHKeyAuditLogService {
@@ -108,7 +110,7 @@ class SSHKeyAuditLogService {
 		if(!Objects.equals(oldSshKey.name, newSshKey.name))
 			diffs.put("name", newSshKey.name);
 		if(!Objects.equals(oldSshKey.value, newSshKey.value))
-			diffs.put("SSHPublicKey", "CHANGED");
+			diffs.put("SshPublicKey", "CHANGED");
 		if(!Objects.equals(oldSshKey.ownerId, newSshKey.ownerId))
 			diffs.put("ownerId", newSshKey.ownerId);
 		if(!Objects.equals(oldSshKey.sites, newSshKey.sites))
