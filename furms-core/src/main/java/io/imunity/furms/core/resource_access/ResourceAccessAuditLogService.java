@@ -81,7 +81,6 @@ class ResourceAccessAuditLogService {
 		json.put("projectId", grantAccess.projectId);
 		json.put("projectAllocationId", grantAccess.allocationId);
 		json.put("fenixUserId", grantAccess.fenixUserId.id);
-		json.put("status", grantAccess.status);
 
 		try {
 			return objectMapper.writeValueAsString(json);
