@@ -111,6 +111,8 @@ class SiteAuditLogService {
 			diffs.put("connectionInfo", "CHANGED");
 		if(!Objects.equals(oldSite.isSshKeyFromOptionMandatory(), newSite.isSshKeyFromOptionMandatory()))
 			diffs.put("sshKeyFromOptionMandatory", newSite.isSshKeyFromOptionMandatory());
+		if(!Objects.equals(oldSite.getSshKeyHistoryLength(), newSite.getSshKeyHistoryLength()))
+			diffs.put("prohibitToReuseOldSshKeys", newSite.getSshKeyHistoryLength() != 0);
 		if(!Objects.equals(oldSite.getPolicyId(), newSite.getPolicyId()))
 			diffs.put("policyId", newSite.getPolicyId().id);
 		if(!Objects.equals(oldSite.getLogo(), newSite.getLogo()))

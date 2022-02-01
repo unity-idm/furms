@@ -23,6 +23,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -74,8 +76,13 @@ class ResourceAccessAuditLogService {
 	}
 
 	private String toJson(GrantAccess grantAccess) {
+		Map<String, Object> json = new HashMap<>();
+		json.put("siteId", grantAccess.siteId.id);
+		json.put("fenixUserId", grantAccess.fenixUserId);
+		json.put("status", grantAccess.status);
+
 		try {
-			return objectMapper.writeValueAsString(grantAccess);
+			return objectMapper.writeValueAsString(json);
 		} catch (JsonProcessingException e) {
 			throw new AuditLogException(String.format("Grant access for %s with allocation id %s cannot be parse", grantAccess.fenixUserId, grantAccess.allocationId), e);
 		}

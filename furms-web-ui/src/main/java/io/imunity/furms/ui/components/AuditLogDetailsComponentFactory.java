@@ -5,7 +5,11 @@
 
 package io.imunity.furms.ui.components;
 
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.dom.Element;
+import io.imunity.furms.ui.user_context.UIContext;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -13,12 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.dom.Element;
-
-import io.imunity.furms.ui.user_context.UIContext;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 public class AuditLogDetailsComponentFactory {
 	private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -47,7 +46,7 @@ public class AuditLogDetailsComponentFactory {
 					else
 						return value.toString();
 				})
-				.orElse(""));
+				.orElse("unset"));
 			row.appendChild(createdTd, createdTimeTd);
 			tbody.appendChild(row);
 		});
@@ -58,18 +57,14 @@ public class AuditLogDetailsComponentFactory {
 		return div;
 	}
 	
-    private static String toHumanReadableString(String str)
-    {
+    private static String toHumanReadableString(String str) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(Character.toUpperCase(str.charAt(0)));
-		for (int i = 1; i < str.length(); i++)
-		{
+		for (int i = 1; i < str.length(); i++) {
 			char charAt = str.charAt(i);
-			if (Character.isUpperCase(charAt))
-			{
+			if (Character.isUpperCase(charAt)) {
 				sb.append(" " + Character.toLowerCase(charAt));
-			} else
-			{
+			} else {
 				sb.append(charAt);
 			}
 		}

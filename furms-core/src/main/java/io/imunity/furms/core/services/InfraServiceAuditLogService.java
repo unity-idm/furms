@@ -26,6 +26,7 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
@@ -110,7 +111,7 @@ class InfraServiceAuditLogService {
 		if(!Objects.equals(oldService.description, newService.description))
 			diffs.put("description", newService.description);
 		if(!Objects.equals(oldService.policyId, newService.policyId))
-			diffs.put("policyId", newService.policyId);
+			diffs.put("policyId", Optional.ofNullable(newService.policyId).map(policy -> policy.id).orElse(null));
 
 		try {
 			return objectMapper.writeValueAsString(diffs);

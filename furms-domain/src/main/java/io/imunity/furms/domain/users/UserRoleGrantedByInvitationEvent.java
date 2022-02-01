@@ -10,7 +10,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 
 import java.util.Objects;
 
-public class UserRoleGrantedByInvitationEvent {
+public class UserRoleGrantedByInvitationEvent implements UserEvent {
 	public final String originatorEmail;
 	public final PersistentId id;
 	public final ResourceId resourceId;
@@ -23,6 +23,11 @@ public class UserRoleGrantedByInvitationEvent {
 		this.resourceId = resourceId;
 		this.resourceName = resourceName;
 		this.role = role;
+	}
+
+	@Override
+	public PersistentId getId() {
+		return id;
 	}
 
 	@Override
