@@ -1,6 +1,7 @@
 [back](index)
-## [LATEST](ver/4.0.0-rc1/openapi-static.html)
+## [LATEST](ver/4.0.0/openapi-static.html)
 ## All versions
+* [4.0.0](ver/4.0.0/openapi-static.html)
 * [4.0.0-rc1](ver/4.0.0-rc1/openapi-static.html)
 * [3.1.0](ver/3.1.0/openapi-static.html)
 * [3.0.1](ver/3.0.1/openapi-static.html)
