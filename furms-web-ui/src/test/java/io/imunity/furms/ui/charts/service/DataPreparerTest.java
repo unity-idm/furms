@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.charts;
+package io.imunity.furms.ui.charts.service;
 
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
@@ -13,6 +13,7 @@ import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.ui.charts.service.DataPreparer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,12 +34,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class DataMapperTest {
+class DataPreparerTest {
 	@Mock
 	UserService userService;
 
 	@InjectMocks
-	DataMapper dataMapper;
+	DataPreparer dataPreparer;
 
 	@Test
 	void shouldPrepareTimedChunkAmounts() {
@@ -50,7 +51,7 @@ class DataMapperTest {
 			createChunk(date.plusDays(56), BigDecimal.valueOf(1))
 		);
 
-		Map<LocalDate, Double> timedChunkAmounts = dataMapper.prepareTimedChunkAmounts(chunks);
+		Map<LocalDate, Double> timedChunkAmounts = dataPreparer.prepareSumOfChunkValuesByValidToDates(chunks);
 
 		assertThat(timedChunkAmounts).isEqualTo(
 			Map.of(
@@ -71,7 +72,7 @@ class DataMapperTest {
 			createUsage("alloc1", date.plusDays(56), BigDecimal.valueOf(2))
 		);
 
-		Map<LocalDate, Double> timedChunkAmounts = dataMapper.prepareTimedUsageAmounts(allocations);
+		Map<LocalDate, Double> timedChunkAmounts = dataPreparer.prepareUsageValuesByProbedAtDates(allocations);
 
 		assertThat(timedChunkAmounts).isEqualTo(
 			Map.of(
@@ -96,7 +97,7 @@ class DataMapperTest {
 			createUsage("alloc2", date.plusDays(54), BigDecimal.valueOf(2))
 		);
 
-		Collection<Map<LocalDate, Double>> timedChunkAmounts = dataMapper.prepareTimedProjectsUsages(allocations);
+		Collection<Map<LocalDate, Double>> timedChunkAmounts = dataPreparer.prepareAllocationsUsageValuesByProbedAtDates(allocations);
 		assertThat(timedChunkAmounts.size()).isEqualTo(2);
 
 		assertThat(new HashSet<>(timedChunkAmounts)).isEqualTo(
@@ -141,7 +142,7 @@ class DataMapperTest {
 				.build()
 		));
 
-		Map<String, Map<LocalDate, Double>> timedChunkAmounts = dataMapper.prepareTimedUserUsagesGroupedByEmails(allocations);
+		Map<String, Map<LocalDate, Double>> timedChunkAmounts = dataPreparer.prepareGroupedByEmailUsageValuesByProbedAtDate(allocations);
 
 		assertThat(timedChunkAmounts).isEqualTo(
 			Map.of(
@@ -170,7 +171,7 @@ class DataMapperTest {
 			.threshold(7)
 			.build();
 
-		double threshold = dataMapper.prepareThreshold(projectAllocationResolved, Optional.of(alarm));
+		double threshold = dataPreparer.prepareThresholdValue(projectAllocationResolved, Optional.of(alarm));
 
 		assertThat(threshold).isEqualTo(0.7);
 	}
@@ -181,7 +182,7 @@ class DataMapperTest {
 			.amount(BigDecimal.TEN)
 			.build();
 
-		double threshold = dataMapper.prepareThreshold(projectAllocationResolved, Optional.empty());
+		double threshold = dataPreparer.prepareThresholdValue(projectAllocationResolved, Optional.empty());
 
 		assertThat(threshold).isEqualTo(0D);
 	}

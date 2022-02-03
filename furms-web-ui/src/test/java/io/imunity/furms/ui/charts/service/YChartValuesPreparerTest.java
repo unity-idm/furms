@@ -3,7 +3,7 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.charts;
+package io.imunity.furms.ui.charts.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +14,12 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class YSeriesPreparerTest {
-	private YSeriesPreparer ySeriesPreparer;
+class YChartValuesPreparerTest {
+	private YChartValuesPreparer yChartValuesPreparer;
 
 	@BeforeEach
 	void setUp() {
-		ySeriesPreparer = new YSeriesPreparer();
+		yChartValuesPreparer = new YChartValuesPreparer();
 	}
 
 	@Test
@@ -42,7 +42,7 @@ class YSeriesPreparerTest {
 			Map.entry(startDate.plusDays(6), 12D)
 		);
 
-		List<Double> values = ySeriesPreparer.prepareChunkSeries(xTimeAxis, timeToChunksValue);
+		List<Double> values = yChartValuesPreparer.prepareYValuesForAllocationChunkLine(xTimeAxis, timeToChunksValue);
 
 		assertThat(values).isEqualTo(List.of(
 			0D, 0D, 2D, 5D, 5D, 10D, 10D, 12D
@@ -69,7 +69,7 @@ class YSeriesPreparerTest {
 			Map.entry(startDate.plusDays(6), 12D)
 		);
 
-		List<Double> values = ySeriesPreparer.prepareUsagesSeries(xTimeAxis, timeToChunksValue, startDate.plusDays(4), startDate.plusDays(6), startDate.plusDays(5));
+		List<Double> values = yChartValuesPreparer.prepareYValuesForUserUsageLine(xTimeAxis, timeToChunksValue, startDate.plusDays(4), startDate.plusDays(6), startDate.plusDays(5));
 
 		assertThat(values).isEqualTo(List.of(
 			0D, 0D, 2D, 5D, 5D, 10D, 10D
@@ -92,7 +92,7 @@ class YSeriesPreparerTest {
 		Map<LocalDate, Double> timeToChunksValue = Map.ofEntries(
 		);
 
-		List<Double> values = ySeriesPreparer.prepareUsagesSeries(xTimeAxis, timeToChunksValue, null, startDate.plusDays(6), startDate.plusDays(3));
+		List<Double> values = yChartValuesPreparer.prepareYValuesForUserUsageLine(xTimeAxis, timeToChunksValue, null, startDate.plusDays(6), startDate.plusDays(3));
 
 		assertThat(values).isEqualTo(List.of());
 	}
@@ -114,7 +114,7 @@ class YSeriesPreparerTest {
 			Map.entry(startDate.plusDays(1), 2D)
 		);
 
-		List<Double> values = ySeriesPreparer.prepareUsagesSeries(xTimeAxis, timeToChunksValue, startDate.plusDays(1), startDate.plusDays(6), startDate.plusDays(3));
+		List<Double> values = yChartValuesPreparer.prepareYValuesForUserUsageLine(xTimeAxis, timeToChunksValue, startDate.plusDays(1), startDate.plusDays(6), startDate.plusDays(3));
 
 		assertThat(values).isEqualTo(List.of(
 			0D, 0D, 2D, 2D, 2D
@@ -141,7 +141,7 @@ class YSeriesPreparerTest {
 			Map.entry(startDate.plusDays(6), 12D)
 		);
 
-		List<Double> values = ySeriesPreparer.prepareUsagesSeries(xTimeAxis, timeToChunksValue, startDate.plusDays(4), null, startDate.plusDays(6));
+		List<Double> values = yChartValuesPreparer.prepareYValuesForUserUsageLine(xTimeAxis, timeToChunksValue, startDate.plusDays(4), null, startDate.plusDays(6));
 
 		assertThat(values).isEqualTo(List.of(
 			0D, 0D, 2D, 5D, 5D, 10D, 10D, 12D
@@ -168,7 +168,7 @@ class YSeriesPreparerTest {
 			Map.entry(startDate.plusDays(6), 12D)
 		);
 
-		List<Double> values = ySeriesPreparer.prepareUsagesSeries(xTimeAxis, timeToChunksValue, startDate.plusDays(6), startDate.plusDays(4), startDate.plusDays(5));
+		List<Double> values = yChartValuesPreparer.prepareYValuesForUserUsageLine(xTimeAxis, timeToChunksValue, startDate.plusDays(6), startDate.plusDays(4), startDate.plusDays(5));
 
 		assertThat(values).isEqualTo(List.of(
 			0D, 0D, 2D, 5D, 5D, 10D
@@ -189,10 +189,10 @@ class YSeriesPreparerTest {
 			startDate.plusDays(6)
 		);
 
-		List<Double> values = ySeriesPreparer.prepareThresholdSeries(xTimeAxis, 7);
+		List<Double> values = yChartValuesPreparer.prepareYValuesForThresholdLine(xTimeAxis, 7);
 
 		assertThat(values).isEqualTo(List.of(
-			7D, 7D, 7D, 7D, 7D, 7D, 7D, 7D
+			7D, 7D, 7D, 7D, 7D, 7D, 7D, 7D, 7D
 		));
 	}
 
@@ -225,7 +225,7 @@ class YSeriesPreparerTest {
 				)
 		);
 
-		List<Double> values = ySeriesPreparer.prepareProjectsUsageSeries(xTimeAxis, timeToGroupedValues);
+		List<Double> values = yChartValuesPreparer.prepareYValuesForCommunityAllocationUsageLine(xTimeAxis, timeToGroupedValues);
 
 		assertThat(values).isEqualTo(List.of(
 			0D, 0D, 4D, 10D, 10D, 20D, 20D, 24D
@@ -261,14 +261,14 @@ class YSeriesPreparerTest {
 				)
 			);
 
-		List<UserUsage> values = ySeriesPreparer.prepareUserUsagesSeries(xTimeAxis, timeToGroupedValues, startDate.plusDays(5));
+		List<UserUsage> values = yChartValuesPreparer.prepareYValesForUsersUsagesLines(xTimeAxis, timeToGroupedValues, startDate.plusDays(5));
 
-		assertThat(values.get(0).email).isEqualTo("email1");
-		assertThat(values.get(0).usages).isEqualTo(List.of(
+		assertThat(values.get(0).userEmail).isEqualTo("email1");
+		assertThat(values.get(0).yUserUsageValues).isEqualTo(List.of(
 			0D, 0D, 2D, 5D, 5D, 10D, 10D
 		));
-		assertThat(values.get(1).email).isEqualTo("email2");
-		assertThat(values.get(1).usages).isEqualTo(List.of(
+		assertThat(values.get(1).userEmail).isEqualTo("email2");
+		assertThat(values.get(1).yUserUsageValues).isEqualTo(List.of(
 			0D, 0D, 2D, 5D, 5D, 10D, 10D
 		));
 	}

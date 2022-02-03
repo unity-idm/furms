@@ -12,7 +12,7 @@ import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.export.ResourceUsageCSVExporter;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
-import io.imunity.furms.ui.charts.ChartPowerService;
+import io.imunity.furms.ui.charts.service.ChartPowerService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;

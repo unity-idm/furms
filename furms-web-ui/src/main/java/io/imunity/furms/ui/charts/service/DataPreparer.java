@@ -3,14 +3,15 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.charts;
+package io.imunity.furms.ui.charts.service;
 
-import static java.util.Comparator.comparing;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.resource_usage.ResourceUsage;
+import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -20,24 +21,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.stereotype.Component;
-
-import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
-import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
-import io.imunity.furms.domain.resource_usage.ResourceUsage;
-import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import static java.util.Comparator.comparing;
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Component
-class DataMapper {
+class DataPreparer {
 	private final UserService userService;
 
-	DataMapper(UserService userService) {
+	DataPreparer(UserService userService) {
 		this.userService = userService;
 	}
 
-	Map<LocalDate, Double> prepareTimedChunkAmounts(Set<ProjectAllocationChunk> allChunks) {
+	Map<LocalDate, Double> prepareSumOfChunkValuesByValidToDates(Set<ProjectAllocationChunk> allChunks) {
 		List<ProjectAllocationChunk> orderedChunks = allChunks.stream()
 			.sorted(comparing(x -> x.validFrom))
 			.collect(toList());
@@ -51,14 +50,14 @@ class DataMapper {
 		return map;
 	}
 
-	Map<LocalDate, Double> prepareTimedUsageAmounts(Set<ResourceUsage> allResourceUsageHistory) {
+	Map<LocalDate, Double> prepareUsageValuesByProbedAtDates(Set<ResourceUsage> allResourceUsageHistory) {
 		return allResourceUsageHistory.stream()
 			.collect(toMap(usage -> usage.utcProbedAt.toLocalDate(), identity(), (usage, usage1) -> usage.utcProbedAt.isAfter(usage1.utcProbedAt) ? usage : usage1))
 			.entrySet().stream()
 			.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().cumulativeConsumption.doubleValue()));
 	}
 
-	Collection<Map<LocalDate, Double>> prepareTimedProjectsUsages(Set<ResourceUsage> allResourceUsageHistory) {
+	Collection<Map<LocalDate, Double>> prepareAllocationsUsageValuesByProbedAtDates(Set<ResourceUsage> allResourceUsageHistory) {
 		Map<String, Map<LocalDate, Double>> retValue = allResourceUsageHistory.stream()
 			.collect(
 				groupingBy(
@@ -77,7 +76,7 @@ class DataMapper {
 		
 	}
 
-	Map<String, Map<LocalDate, Double>> prepareTimedUserUsagesGroupedByEmails(Set<UserResourceUsage> allUserResourceUsageHistory) {
+	Map<String, Map<LocalDate, Double>> prepareGroupedByEmailUsageValuesByProbedAtDate(Set<UserResourceUsage> allUserResourceUsageHistory) {
 		Map<String, String> userIdsToEmails = getUserIdsToEmails();
 		return allUserResourceUsageHistory.stream()
 			.collect(
@@ -96,7 +95,7 @@ class DataMapper {
 			);
 	}
 
-	double prepareThreshold(ProjectAllocationResolved projectAllocation, Optional<AlarmWithUserEmails> alarm) {
+	double prepareThresholdValue(ProjectAllocationResolved projectAllocation, Optional<AlarmWithUserEmails> alarm) {
 		double amount = projectAllocation.amount.doubleValue();
 		int thresholdPercentage = alarm.map(x -> x.threshold).orElse(0);
 		return thresholdPercentage > 0 ? amount * thresholdPercentage / 100 : 0;

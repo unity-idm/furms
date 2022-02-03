@@ -31,6 +31,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.furms.ui.charts.service.UserUsage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -76,7 +77,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withTitle(TitleSubtitleBuilder.get()
 				.withText(chartData.projectAllocationName)
 				.withAlign(Align.left).build())
-			.withLabels(chartData.getFullTimes().stream()
+			.withLabels(chartData.getAllXArguments().stream()
 				.map(LocalDate::toString)
 				.toArray(String[]::new)
 			)
@@ -111,11 +112,11 @@ public class ResourceAllocationChart extends VerticalLayout {
 		widths.add(5D);
 		widths.add(5D);
 
-		if(!(chartData.threshold < 1 || disableThreshold)) {
+		if(!(chartData.getThresholdValue() < 1 || disableThreshold)) {
 			curves.add(Curve.smooth);
 			widths.add(5D);
 		}
-		for(int i = 0; i < chartData.usersUsages.size(); i++) {
+		for(int i = 0; i < chartData.yUsersUsageLinesValues.size(); i++) {
 			curves.add(Curve.smooth);
 			widths.add(2D);
 		}
@@ -127,13 +128,13 @@ public class ResourceAllocationChart extends VerticalLayout {
 	private Series<?>[] createSeries(ChartData chartData) {
 		List<Series<Object>> series = new ArrayList<>();
 
-		series.add(new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.resourceUsages.toArray()));
-		if(!chartData.chunks.isEmpty())
-			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.chunks.toArray()));
-		if(!(chartData.threshold < 1 || disableThreshold))
-			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.getFullThresholds().toArray()));
-		for(UserUsage userUsage : chartData.usersUsages){
-			series.add(new Series<>(userUsage.email, SeriesType.line, userUsage.usages.toArray()));
+		series.add(new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.yResourceUsageLineValues.toArray()));
+		if(!chartData.yChunkLineValues.isEmpty())
+			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.yChunkLineValues.toArray()));
+		if(!(chartData.getThresholdValue() < 1 || disableThreshold))
+			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.yThresholdLineValues.toArray()));
+		for(UserUsage userUsage : chartData.yUsersUsageLinesValues){
+			series.add(new Series<>(userUsage.userEmail, SeriesType.line, userUsage.yUserUsageValues.toArray()));
 		}
 
 		return series.toArray(Series[]::new);

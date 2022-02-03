@@ -3,23 +3,26 @@
  * See LICENSE file for licensing information.
  */
 
-package io.imunity.furms.ui.charts;
+package io.imunity.furms.ui.charts.service;
 
+import io.imunity.furms.ui.charts.service.XChartArgumentsPreparer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class XSeriesPreparerTest {
-	private XSeriesPreparer xSeriesPreparer;
+class XChartArgumentsPreparerTest {
+	private XChartArgumentsPreparer xChartArgumentsPreparer;
 
 	@BeforeEach
 	void setUp() {
-		xSeriesPreparer = new XSeriesPreparer();
+		xChartArgumentsPreparer = new XChartArgumentsPreparer();
 	}
 
 	@Test
@@ -31,7 +34,7 @@ class XSeriesPreparerTest {
 			Set.of(startTime.plusDays(5), startTime.plusDays(15), startTime.plusDays(25)),
 			Set.of(startTime.plusDays(10), startTime.plusDays(20), startTime.plusDays(30))
 		);
-		List<LocalDate> localDates = xSeriesPreparer.prepareSumOfAllDataTimesForXAxis(startTime, today, lastChunk, dates);
+		List<LocalDate> localDates = xChartArgumentsPreparer.prepareArguments(startTime, today, lastChunk, dates.stream().flatMap(Collection::stream).collect(Collectors.toSet()));
 
 		assertThat(localDates).isEqualTo(List.of(
 			startTime.minusDays(1), startTime, today, startTime.plusDays(5), startTime.plusDays(10), startTime.plusDays(15),
