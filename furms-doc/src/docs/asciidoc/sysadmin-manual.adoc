@@ -300,8 +300,6 @@ NOTE: The redirect URL configured at Central IdP OAuth client side should be set
 |unity.mail
 2+a| Configuration of Unity-IdM mail notifications subsystem, used by FURMS to send invitations, applications, policy acceptance information etc. Mail configuration is optional.
 
-NOTE: The SSL for SMTP connections is enabled by default.
-
 |unity.mail.from
 |string
 |User name which will be used for From: field of the email. It is also used as SMTP envelope return address.
@@ -316,11 +314,11 @@ NOTE: The SSL for SMTP connections is enabled by default.
 
 |unity.mail.smtp.username
 |string
-|User name to authenticate SMTP connection.
+|User name to authenticate SMTP connection. Optional value, when provided Unity-IdM attempts to authenticate the user using the AUTH command.
 
 |unity.mail.smtp.password
 |string
-|Password to authenticate SMTP connection.
+|Password to authenticate SMTP connection. Optional value, must be defined when `unity.mail.smtp.username` is provided.
 
 |unity.mail.smtp.starttls
 |boolean
