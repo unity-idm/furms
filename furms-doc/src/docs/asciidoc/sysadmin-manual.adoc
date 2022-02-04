@@ -322,6 +322,14 @@ NOTE: The SSL for SMTP connections is enabled by default.
 |string
 |Password to authenticate SMTP connection.
 
+|unity.mail.smtp.starttls
+|boolean
+|If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands. Optional parameter that defaults to true.
+
+|unity.mail.smtp.ssl
+|boolean
+|If set to true then SSL is used to connect with server. This parameter is optional with default value set to false.  
+
 
 |unity.msgTemplates
 2+a| Configuration of email templates used by FURMS to send notifications. This configuration is optional, FURMS comes with default config file and default email template files.
