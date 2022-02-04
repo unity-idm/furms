@@ -449,6 +449,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#managing-fenix-administrators">Managing Fenix administrators</a></li>
 <li><a href="#distributing-resources-to-communities">Distributing resources to communities</a></li>
 <li><a href="#resource-usage">Resource usage</a></li>
+<li><a href="#audit-log">Audit log</a></li>
 <li><a href="#rest-api-access-credentials">REST API access credentials</a></li>
 </ul>
 </li>
@@ -563,6 +564,18 @@ Community administrators can also themselves manage administrators of their comm
 </div>
 </div>
 <div class="sect2">
+<h3 id="audit-log"><a class="anchor" href="#audit-log"></a>Audit log</h3>
+<div class="paragraph">
+<p>FURMS records all important changes of state in journal, called audit log. Fenix administrator can access this journal from the "Audit Log" main menu entry.</p>
+</div>
+<div class="paragraph">
+<p>Audit log provides a range of filters allowing to narrow down presented set of log records. It is possible to filter by time, user (who triggered an operation), type of operation, specific action and finally perform a free-text search.</p>
+</div>
+<div class="paragraph">
+<p>Some of the presented records can be expanded to inspect an additional,  operation specific information. For instance in case of <code>PROJECT_ALLOCATION</code> record with <code>Create</code> action, it is possible to check identifiers of the created allocation, project and community allocation basing on which the project allocation was created. Amount and name of the allocation are also provided.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="rest-api-access-credentials"><a class="anchor" href="#rest-api-access-credentials"></a>REST API access credentials</h3>
 <div class="paragraph">
 <p>To access FURMS REST API, administrator has to generate an API key  (secret token) and use it together with its user identifier when authenticating against <a href="./openapi-static.html">FURMS REST API</a> endpoints.</p>
@@ -587,7 +600,7 @@ Community administrators can also themselves manage administrators of their comm
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-01-23 09:58:47 UTC
+Last updated 2022-02-04 06:21:41 UTC
 </div>
 </div>
 <style>
