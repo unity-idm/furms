@@ -48,6 +48,7 @@ import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.TOP_PANEL_
 @JsModule("./styles/shared-styles.js")
 @CssImport("./styles/views/main/main-view.css")
 @CssImport("./styles/custom-lumo-theme.css")
+@CssImport(value = "./styles/components/furms-idle-notification.css")
 @PreserveOnRefresh
 public class FurmsAppLayout
 		extends FlexLayout

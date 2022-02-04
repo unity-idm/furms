@@ -79,6 +79,7 @@ class VaadinConfiguration {
 					RoutesConst.LOGOUT_TRIGGER_URL);
 			idleNotification.setRedirectAtTimeoutUrl(RoutesConst.LOGOUT_TRIGGER_URL);
 			idleNotification.addCloseButton();
+			idleNotification.setCloseNotificationOnOutsideClick(true);
 			idleNotification.setExtendSessionOnOutsideClick(false);
 			initEvent.getUI().add(idleNotification);
 
