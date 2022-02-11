@@ -52,7 +52,6 @@ import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.STRING;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;

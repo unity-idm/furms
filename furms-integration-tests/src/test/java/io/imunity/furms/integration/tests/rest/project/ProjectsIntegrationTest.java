@@ -569,6 +569,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				projectAdmin.getFenixId());
 	}
 
+	@SuppressWarnings("unused")
 	private static class ProjectUpdateRequest {
 
 		public final String name;
@@ -587,6 +588,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static class ProjectCreateRequest {
 		public final String communityId;
 		public final String acronym;
