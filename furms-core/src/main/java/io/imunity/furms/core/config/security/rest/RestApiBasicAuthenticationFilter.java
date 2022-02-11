@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.config.security.rest;
 
-import io.imunity.furms.api.user.api.key.UserApiKeyService;
 import io.imunity.furms.core.users.api.key.AdminApiKeyFinder;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;

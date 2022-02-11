@@ -12,10 +12,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import java.lang.invoke.MethodHandles;
 
+@SuppressWarnings("deprecation")
 public class AfterCommitLauncher {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	@SuppressWarnings("deprecation")
 	//FIXME It will be fix in FU-238
 	public static void runAfterCommit(Runnable agentOperation) {
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
