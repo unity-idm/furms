@@ -14,8 +14,9 @@ import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.MembershipChangerComponent;
@@ -24,12 +25,15 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -47,6 +51,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 	private String breadCrumbParameter;
 
 	private UsersGridComponent grid;
+	private UsersSnapshot usersSnapshot;
 
 	SitesAdminsView(SiteService siteService, UserService userService, AuthzService authzService) {
 		this.siteService = siteService;
@@ -68,9 +73,11 @@ public class SitesAdminsView extends FurmsViewComponent {
 	}
 
 	private void init(String siteId) {
+		usersSnapshot = new UsersSnapshot(() -> siteService.findAllUsersAndSiteAdmins(siteId));
+
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			userService::getAllUsers,
-			() -> siteService.findAllAdministrators(siteId)
+			() -> usersSnapshot.allUsers,
+			() -> usersSnapshot.siteAdmins
 		);
 
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
@@ -84,7 +91,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
-			if (siteService.findAllAdministrators(siteId).size() > 1) {
+			if (siteService.findAllSiteUsers(siteId).size() > 1) {
 				handleExceptions(() -> siteService.removeSiteUser(siteId, currentUserId));
 				gridReload();
 			} else {
@@ -100,6 +107,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			.withRemoveUserAction(userId -> siteService.removeSiteUser(siteId, userId))
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
+				usersSnapshot.reload();
 				inviteUser.reload();
 			})
 			.withRemoveInvitationAction(invitationId -> {
@@ -114,7 +122,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> siteService.findAllAdministrators(siteId),
+			() -> usersSnapshot.siteAdmins,
 			() -> siteService.findSiteAdminInvitations(siteId),
 			userGrid);
 
@@ -133,6 +141,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 				id -> siteService.inviteAdmin(siteId, id),
 				() -> siteService.inviteAdmin(siteId, inviteUserComponent.getEmail())
 			);
+			usersSnapshot.reload();
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			gridReload();
@@ -150,4 +159,24 @@ public class SitesAdminsView extends FurmsViewComponent {
 		grid.reloadGrid();
 	}
 
+	static class UsersSnapshot {
+		private final Supplier<GroupedUsers> allUsersGetter;
+		public final List<FURMSUser> allUsers;
+		public final List<FURMSUser> siteAdmins;
+
+		UsersSnapshot(Supplier<GroupedUsers> allUsersGetter) {
+			GroupedUsers allUsers = allUsersGetter.get();
+			this.allUsersGetter = allUsersGetter;
+			this.allUsers = allUsers.firstUsersGroup;
+			this.siteAdmins = allUsers.secondUsersGroup;
+		}
+
+		public void reload(){
+			GroupedUsers allUsers1 = allUsersGetter.get();
+			allUsers.clear();
+			allUsers.addAll(allUsers1.firstUsersGroup);
+			siteAdmins.clear();
+			siteAdmins.addAll(allUsers1.secondUsersGroup);
+		}
+	}
 }

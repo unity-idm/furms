@@ -9,6 +9,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.unity.client.UnityClient;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
@@ -133,11 +135,19 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 
 
 	@Override
-	public List<FURMSUser> getAllSiteUsers(String siteId, Set<Role> roles) {
+	public List<FURMSUser> getSiteUsers(String siteId, Set<Role> roles) {
 		assertTrue(!isEmpty(siteId),
 				() -> new IllegalArgumentException("Could not get Site Administrators from Unity. Missing Site ID"));
 		String sitePath = getSitePath(siteId);
 		return userService.getAllUsersByRoles(sitePath, roles);
+	}
+
+	@Override
+	public GroupedUsers getAllUsersAndSiteUsers(String siteId, Role role) {
+		assertTrue(!isEmpty(siteId),
+			() -> new IllegalArgumentException("Could not get Site Administrators from Unity. Missing Site ID"));
+		String sitePath = getSitePath(siteId);
+		return userService.getUsersFromGroups(FENIX_PATTERN, null, sitePath, role);
 	}
 
 	@Override

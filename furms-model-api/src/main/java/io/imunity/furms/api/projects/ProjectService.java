@@ -11,6 +11,7 @@ import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.GroupedUsers;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,8 @@ import java.util.Set;
 public interface ProjectService {
 
 	boolean existsById(String id);
+
+	Set<Project> findAll(Set<String> ids);
 
 	Optional<Project> findById(String id);
 
@@ -46,6 +49,8 @@ public interface ProjectService {
 
 	List<FURMSUser> findAllAdmins(String communityId, String projectId);
 
+	GroupedUsers findAllCommunityAndProjectAdmins(String communityId, String projectId);
+
 	boolean isAdmin(String projectId);
 
 	boolean hasAdminRights(String projectId);
@@ -67,6 +72,8 @@ public interface ProjectService {
 	void removeAdmin(String communityId, String projectId, PersistentId userId);
 
 	List<FURMSUser> findAllUsers(String communityId, String projectId);
+
+	List<FURMSUser> findAllProjectAdminsAndUsers(String communityId, String projectId);
 
 	List<FURMSUser> findAllUsers(String projectId);
 

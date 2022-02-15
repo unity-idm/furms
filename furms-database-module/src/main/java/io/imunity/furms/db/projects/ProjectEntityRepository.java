@@ -12,7 +12,9 @@ import java.util.UUID;
 
 interface ProjectEntityRepository extends CrudRepository<ProjectEntity, UUID> {
 
+	Set<ProjectEntity> findAllByIdIn(Set<UUID> ids);
 	Set<ProjectEntity> findAllByCommunityId(UUID communityId);
+	Set<ProjectEntity> findAllByCommunityIdIn(Set<UUID> communityIds);
 	boolean existsByCommunityIdAndName(UUID communityId, String name);
 	boolean existsByCommunityIdAndId(UUID communityId, UUID id);
 }

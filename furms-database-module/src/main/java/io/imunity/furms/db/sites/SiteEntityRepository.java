@@ -15,6 +15,8 @@ import java.util.UUID;
 
 interface SiteEntityRepository extends CrudRepository<SiteEntity, UUID> {
 
+	Set<SiteEntity> findAllByIdIn(Set<UUID> ids);
+
 	boolean existsByName(String name);
 
 	boolean existsByExternalId(String shortId);

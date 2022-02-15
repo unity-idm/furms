@@ -8,10 +8,10 @@ package io.imunity.furms.unity.client.users;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
-import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.users.UnityUserMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -33,12 +33,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
 import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
 import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.GROUP_PATH;
@@ -50,7 +53,6 @@ import static io.imunity.furms.unity.common.UnityConst.PROJECT_ID;
 import static io.imunity.furms.unity.common.UnityConst.PROJECT_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP_PATH;
-import static io.imunity.furms.unity.common.UnityConst.SITE_USERS_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.STRING;
 import static io.imunity.furms.unity.common.UnityPaths.ATTRIBUTE_PATTERN;
 import static io.imunity.furms.unity.common.UnityPaths.ENTITY_ATTRIBUTES;
@@ -329,12 +331,48 @@ public class UserService {
 		return multiGroupMembers.members.values().stream()
 			.flatMap(Collection::stream)
 			.map(x -> UnityUserMapper
-					.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes)
+					.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes, group)
 					.map(y -> new UserPolicyAcceptances(y, getPolicyAcceptances(x.attributes)))
 			)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(toSet());
+	}
+
+	public GroupedUsers getUsersFromGroups(String group1, Role role1, String group2, Role role2) {
+		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, FENIX_GROUP);
+		String path = UriComponentsBuilder.newInstance()
+			.path(GROUP_MEMBERS_MULTI)
+			.pathSegment("{" + ROOT_GROUP_PATH + "}")
+			.buildAndExpand(uriVariables)
+			.encode()
+			.toUriString();
+
+		MultiGroupMembers multiGroupMembers = unityClient.post(path, List.of(FENIX_PATTERN, group1, group2), Map.of(), new ParameterizedTypeReference<>() {});
+
+		Map<Long, Entity> entityMap = multiGroupMembers.entities.stream()
+			.collect(toMap(Entity::getId, Function.identity()));
+
+		List<FURMSUser> users1 = getUsers(entityMap, multiGroupMembers.members.get(group1), group1);
+		if(role1 != null)
+			users1 = users1.stream()
+				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(role1)))
+				.collect(Collectors.toList());
+		List<FURMSUser> users2 = getUsers(entityMap, multiGroupMembers.members.get(group2), group2);
+		if(role2 != null)
+			users2 = users2.stream()
+				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(role2)))
+				.collect(Collectors.toList());
+
+		return new GroupedUsers(users1, users2);
+	}
+
+	private List<FURMSUser> getUsers(Map<Long, Entity> entityMap, List<MultiGroupMembers.EntityGroupAttributes> entityGroupAttributes, String group) {
+		return entityGroupAttributes.stream()
+			.map(x -> UnityUserMapper.map(entityMap.get(x.entityId).getIdentities(), x.attributes, group))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(toList());
 	}
 
 	private List<String> getProjectPaths(String communityId, Set<String> projectIds) {
@@ -359,20 +397,5 @@ public class UserService {
 				.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY)).findAny()
 				.map(Identity::getComparableValue).map(FenixUserId::new).orElse(null);
 
-	}
-
-	public Set<FenixUserId> findAllSiteUsers(SiteId siteId) {
-		return getAllUsersFromGroup(siteUsersPath(siteId)).stream()
-				.map(user -> user.fenixUserId)
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.collect(Collectors.toSet());
-	}
-
-	private String siteUsersPath(SiteId siteId) {
-		return UriComponentsBuilder.newInstance()
-				.path(SITE_USERS_PATTERN)
-				.uriVariables(Map.of(ID, siteId.id))
-				.toUriString();
 	}
 }

@@ -10,6 +10,7 @@ import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.GroupedUsers;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +21,8 @@ public interface SiteService {
 	boolean existsById(String id);
 
 	Optional<Site> findById(String id);
+
+	Set<Site> findAll(Set<String> ids);
 
 	Set<Site> findAll();
 
@@ -39,9 +42,7 @@ public interface SiteService {
 
 	List<FURMSUser> findAllSiteUsers(String id);
 
-	List<FURMSUser> findAllAdministrators(String siteId);
-
-	List<FURMSUser> findAllSupportUsers(String siteId);
+	GroupedUsers findAllUsersAndSiteAdmins(String id);
 
 	Set<Invitation> findSiteAdminInvitations(String siteId);
 

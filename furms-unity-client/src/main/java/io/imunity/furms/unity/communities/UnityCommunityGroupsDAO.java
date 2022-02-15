@@ -10,6 +10,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.unity.client.users.UserService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_GROUP_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityConst.RECURSIVE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
@@ -120,11 +122,28 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
+	public GroupedUsers getAllUsersAndCommunityAdmins(String communityId) {
+		assertTrue(!isEmpty(communityId),
+			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
+		return userService.getUsersFromGroups(FENIX_PATTERN, null, communityPath, COMMUNITY_ADMIN);
+	}
+
+	@Override
 	public List<FURMSUser> getAllUsers(String communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_GROUP_PATTERN);
 		return userService.getAllUsersFromGroup(communityPath, attributeExt -> true);
+	}
+
+	@Override
+	public GroupedUsers getCommunityAdminsAndUsers(String communityId) {
+		assertTrue(!isEmpty(communityId),
+			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+		String communityPath1 = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
+		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_GROUP_PATTERN);
+		return userService.getUsersFromGroups(communityPath1, COMMUNITY_ADMIN, communityPath, null);
 	}
 
 	@Override

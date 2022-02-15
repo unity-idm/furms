@@ -12,6 +12,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -39,23 +40,27 @@ public class CommunityAdminsView extends FurmsViewComponent {
 	private final CommunityService communityService;
 	private final UsersGridComponent grid;
 	private final String communityId;
+	private final UsersSnapshot usersSnapshot;
 
 	public CommunityAdminsView(CommunityService communityService, AuthzService authzService) {
 		this.communityService = communityService;
 		communityId = getCurrentResourceId();
 		PersistentId currentUserId = authzService.getCurrentUserId();
 
-		Supplier<List<FURMSUser>> fetchAdminsAction = () -> communityService.findAllAdmins(communityId);
+		usersSnapshot = new UsersSnapshot(() -> communityService.findAllCommunityAdminsAllUsers(communityId));
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> communityService.findAllUsers(communityId),
-			fetchAdminsAction
+			() -> usersSnapshot.communityUsers,
+			() -> usersSnapshot.communityAdmins
 		);
 
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
 			.redirectOnCurrentUserRemoval()
 			.withRemoveUserAction(userId -> communityService.removeAdmin(communityId, userId))
-			.withPostRemoveUserAction(userId -> inviteUser.reload())
+			.withPostRemoveUserAction(userId -> {
+				usersSnapshot.reload();
+				inviteUser.reload();
+			})
 			.withResendInvitationAction(invitationId -> {
 				communityService.resendInvitation(communityId, invitationId);
 				gridReload();
@@ -66,7 +71,7 @@ public class CommunityAdminsView extends FurmsViewComponent {
 			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(fetchAdminsAction, () -> communityService.findAllInvitations(communityId), userGrid);
+		grid = UsersGridComponent.defaultInit(() -> usersSnapshot.communityAdmins, () -> communityService.findAllInvitations(communityId), userGrid);
 
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
@@ -80,6 +85,7 @@ public class CommunityAdminsView extends FurmsViewComponent {
 				id -> communityService.inviteAdmin(communityId, id),
 				() -> communityService.inviteAdmin(communityId, inviteUserComponent.getEmail())
 			);
+			usersSnapshot.reload();
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
@@ -97,4 +103,24 @@ public class CommunityAdminsView extends FurmsViewComponent {
 		grid.reloadGrid();
 	}
 
+	static class UsersSnapshot {
+		private final Supplier<GroupedUsers> allUsersGetter;
+		public final List<FURMSUser> communityAdmins;
+		public final List<FURMSUser> communityUsers;
+
+		UsersSnapshot(Supplier<GroupedUsers> allUsersGetter) {
+			GroupedUsers allUsers = allUsersGetter.get();
+			this.allUsersGetter = allUsersGetter;
+			this.communityAdmins = allUsers.firstUsersGroup;
+			this.communityUsers = allUsers.secondUsersGroup;
+		}
+
+		public void reload(){
+			GroupedUsers allUsers1 = allUsersGetter.get();
+			communityAdmins.clear();
+			communityAdmins.addAll(allUsers1.firstUsersGroup);
+			communityUsers.clear();
+			communityUsers.addAll(allUsers1.secondUsersGroup);
+		}
+	}
 }

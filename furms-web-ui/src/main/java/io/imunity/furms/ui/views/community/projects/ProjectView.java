@@ -21,7 +21,9 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsTabs;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -43,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -71,6 +74,7 @@ public class ProjectView extends FurmsViewComponent {
 	private Div page1;
 
 	private UsersGridComponent grid;
+	private UsersSnapshot usersSnapshot;
 
 	ProjectView(ProjectService projectService, AuthzService authzService, CommunityService communityService,
 	            ProjectAllocationService projectAllocationService) {
@@ -118,9 +122,10 @@ public class ProjectView extends FurmsViewComponent {
 	}
 
 	private void loadPage1Content(Project project) {
+		usersSnapshot = new UsersSnapshot(() -> projectService.findAllCommunityAndProjectAdmins(project.getCommunityId(), project.getId()));
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> communityService.findAllUsers(project.getCommunityId()),
-			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
+			() -> usersSnapshot.communityAdmins,
+			() -> usersSnapshot.projectAdmins
 		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.community-admin.project.button.join"),
@@ -141,13 +146,14 @@ public class ProjectView extends FurmsViewComponent {
 			})
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
+				usersSnapshot.reload();
 				inviteUser.reload();
 			})
 			.build();
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()),
+			() -> usersSnapshot.projectAdmins,
 			() -> projectService.findAllAdminsInvitations(project.getId()),
 			userGrid
 		);
@@ -181,6 +187,7 @@ public class ProjectView extends FurmsViewComponent {
 				id -> projectService.inviteAdmin(project.getId(), id),
 				() -> projectService.inviteAdmin(project.getId(), inviteUser.getEmail())
 			);
+			usersSnapshot.reload();
 			gridReload();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
@@ -220,5 +227,26 @@ public class ProjectView extends FurmsViewComponent {
 	@Override
 	public Optional<BreadCrumbParameter> getParameter() {
 		return Optional.ofNullable(breadCrumbParameter);
+	}
+
+	static class UsersSnapshot {
+		private final Supplier<GroupedUsers> allUsersGetter;
+		public final List<FURMSUser> communityAdmins;
+		public final List<FURMSUser> projectAdmins;
+
+		UsersSnapshot(Supplier<GroupedUsers> allUsersGetter) {
+			GroupedUsers allUsers = allUsersGetter.get();
+			this.allUsersGetter = allUsersGetter;
+			this.communityAdmins = allUsers.firstUsersGroup;
+			this.projectAdmins = allUsers.secondUsersGroup;
+		}
+
+		public void reload(){
+			GroupedUsers allUsers1 = allUsersGetter.get();
+			communityAdmins.clear();
+			communityAdmins.addAll(allUsers1.firstUsersGroup);
+			projectAdmins.clear();
+			projectAdmins.addAll(allUsers1.secondUsersGroup);
+		}
 	}
 }

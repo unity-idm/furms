@@ -7,9 +7,11 @@ package io.imunity.furms.db.communities;
 
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.Set;
 import java.util.UUID;
 
 interface CommunityEntityRepository extends CrudRepository<CommunityEntity, UUID> {
 
 	boolean existsByName(String name);
+	Set<CommunityEntity> findAllByIdIn(Set<UUID> ids);
 }

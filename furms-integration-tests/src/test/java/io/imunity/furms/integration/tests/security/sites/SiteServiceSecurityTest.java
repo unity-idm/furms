@@ -56,7 +56,7 @@ class SiteServiceSecurityTest extends SecurityTestsBase {
 		.andForMethods(
 				() -> service.findById(site),
 				() -> service.isNamePresentIgnoringRecord("name", site),
-				() -> service.findAllAdministrators(site),
+				() -> service.findAllAdminAndSupportUsers(site),
 				() -> service.findAllSupportUsers(site),
 				() -> service.findAllSiteUsers(site),
 				() -> service.isCurrentUserAdminOf(site),

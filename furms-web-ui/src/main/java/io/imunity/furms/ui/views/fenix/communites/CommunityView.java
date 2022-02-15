@@ -9,17 +9,26 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.QueryParameters;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.GroupedUsers;
+import io.imunity.furms.ui.components.FurmsTabs;
+import io.imunity.furms.ui.components.FurmsViewComponent;
+import io.imunity.furms.ui.components.InviteUserComponent;
+import io.imunity.furms.ui.components.MembershipChangerComponent;
 import io.imunity.furms.ui.components.PageTitle;
-import io.imunity.furms.ui.components.*;
+import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
@@ -30,11 +39,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.*;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ADMINISTRATORS_PARAM;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.ALLOCATIONS_PARAM;
+import static io.imunity.furms.ui.views.fenix.communites.CommunityConst.PARAM_NAME;
 import static java.util.function.Function.identity;
 
 @Route(value = "fenix/admin/community", layout = FenixAdminMenu.class)
@@ -43,7 +59,6 @@ public class CommunityView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final CommunityService communityService;
-	private final UserService userService;
 
 	private Tab defaultTab;
 	private Tabs tabs;
@@ -57,10 +72,10 @@ public class CommunityView extends FurmsViewComponent {
 	private Div page1;
 
 	private UsersGridComponent grid;
+	private UsersSnapshot usersSnapshot;
 
-	CommunityView(CommunityService communityService, AuthzService authzService, UserService userService, CommunityAllocationService allocationService) {
+	CommunityView(CommunityService communityService, AuthzService authzService, CommunityAllocationService allocationService) {
 		this.communityService = communityService;
-		this.userService = userService;
 		this.currentUserId = authzService.getCurrentUserId();
 		this.allocationService = allocationService;
 	}
@@ -104,8 +119,8 @@ public class CommunityView extends FurmsViewComponent {
 
 	private void loadPage1Content(String communityId, String communityName) {
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			userService::getAllUsers,
-			() -> communityService.findAllAdmins(communityId)
+			() -> usersSnapshot.allUsers,
+			() -> usersSnapshot.communityAdmins
 		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.community.button.join"),
@@ -116,6 +131,7 @@ public class CommunityView extends FurmsViewComponent {
 			.withCurrentUserId(currentUserId)
 			.withRemoveUserAction(userId -> communityService.removeAdmin(communityId, userId))
 			.withPostRemoveUserAction(userId -> {
+				usersSnapshot.reload();
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			})
@@ -130,7 +146,7 @@ public class CommunityView extends FurmsViewComponent {
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> communityService.findAllAdmins(communityId),
+			() -> usersSnapshot.communityAdmins,
 			() -> communityService.findAllInvitations(communityId),
 			userGrid
 		);
@@ -163,6 +179,7 @@ public class CommunityView extends FurmsViewComponent {
 				id -> communityService.inviteAdmin(communityId, id),
 				() -> communityService.inviteAdmin(communityId, inviteUser.getEmail())
 			);
+			usersSnapshot.reload();
 			gridReload();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
@@ -196,11 +213,33 @@ public class CommunityView extends FurmsViewComponent {
 		tabs.setSelectedTab(tab);
 		links.forEach(x -> x.setRoute(getClass(), communityId));
 		breadCrumbParameter = new BreadCrumbParameter(community.getId(), community.getName(), param);
+		usersSnapshot = new UsersSnapshot(() -> communityService.findAllAdminsWithAllUsers(communityId));
 		loadPage1Content(communityId, community.getName());
 	}
 
 	@Override
 	public Optional<BreadCrumbParameter> getParameter() {
 		return Optional.ofNullable(breadCrumbParameter);
+	}
+
+	static class UsersSnapshot {
+		private final Supplier<GroupedUsers> allUsersGetter;
+		public final List<FURMSUser> allUsers;
+		public final List<FURMSUser> communityAdmins;
+
+		UsersSnapshot(Supplier<GroupedUsers> allUsersGetter) {
+			GroupedUsers allUsers = allUsersGetter.get();
+			this.allUsersGetter = allUsersGetter;
+			this.allUsers = allUsers.firstUsersGroup;
+			this.communityAdmins = allUsers.secondUsersGroup;
+		}
+
+		public void reload(){
+			GroupedUsers allUsers1 = allUsersGetter.get();
+			allUsers.clear();
+			allUsers.addAll(allUsers1.firstUsersGroup);
+			communityAdmins.clear();
+			communityAdmins.addAll(allUsers1.secondUsersGroup);
+		}
 	}
 }

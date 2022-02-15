@@ -16,6 +16,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -35,7 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
@@ -59,6 +63,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	private PersistentId currentUserId;
 	private MembershipChangerComponent membershipLayout;
 	private UsersGridComponent grid;
+	private UsersSnapshot usersSnapshot;
 
 	UsersView(ProjectService projectService, AuthzService authzService, UserService userService, ProjectApplicationsService projectApplicationsService) {
 		this.projectService = projectService;
@@ -74,11 +79,11 @@ public class UsersView extends FurmsLandingViewComponent {
 		project = projectService.findById(projectId)
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + getCurrentResourceId()));
 		currentUserId = authzService.getCurrentUserId();
+
+		usersSnapshot = new UsersSnapshot(() -> projectService.findAllProjectAdminsAndUsers(project.getCommunityId(), project.getId()));
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()).stream()
-				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
-				.collect(Collectors.toList()),
-			() -> projectService.findAllUsers(project.getCommunityId(), project.getId())
+			() -> usersSnapshot.projectAdmins,
+			() -> usersSnapshot.projectUsers
 		);
 		
 		membershipLayout = new MembershipChangerComponent(
@@ -111,6 +116,7 @@ public class UsersView extends FurmsLandingViewComponent {
 			})
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
+				usersSnapshot.reload();
 				inviteUser.reload();
 			})
 			.addCustomContextMenuItem(
@@ -122,6 +128,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				} catch (ApplicationNotExistingException e) {
 					showErrorNotification(getTranslation("application.already.not.existing"));
 				}
+					usersSnapshot.reload();
 					grid.reloadGrid();
 				},
 				userGridItem -> UserUIStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
@@ -142,7 +149,7 @@ public class UsersView extends FurmsLandingViewComponent {
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
+			() -> usersSnapshot.projectUsers,
 			() -> projectService.findAllUsersInvitations(projectId),
 			() -> projectApplicationsService.findAllApplyingUsers(projectId),
 			userGrid
@@ -150,6 +157,7 @@ public class UsersView extends FurmsLandingViewComponent {
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
 			grid.reloadGrid();
+			usersSnapshot.reload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
@@ -170,6 +178,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				id -> projectService.inviteUser(projectId, id),
 				() -> projectService.inviteUser(projectId, inviteUserComponent.getEmail())
 			);
+			usersSnapshot.reload();
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
@@ -195,5 +204,34 @@ public class UsersView extends FurmsLandingViewComponent {
 		LOG.debug("After navigation on project users view {}", getCurrentResourceId());
 		getContent().removeAll();
 		loadPageContent();
+	}
+
+	static class UsersSnapshot {
+		private final Supplier<List<FURMSUser>> allUsersGetter;
+		public final List<FURMSUser> projectAdmins;
+		public final List<FURMSUser> projectUsers;
+
+		UsersSnapshot(Supplier<List<FURMSUser>> allUsersGetter) {
+			this.allUsersGetter = allUsersGetter;
+			List<FURMSUser> allUsers = allUsersGetter.get();
+			Map<Boolean, List<FURMSUser>> collect = partitioningByRole(allUsers);
+			this.projectAdmins = collect.get(true);
+			this.projectUsers = collect.get(false);
+		}
+
+		private Map<Boolean, List<FURMSUser>> partitioningByRole(List<FURMSUser> allUsers) {
+			return allUsers.stream()
+				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
+				.collect(Collectors.partitioningBy(x -> x.roles.values().stream().anyMatch(y -> y.contains(Role.PROJECT_ADMIN))));
+		}
+
+		public void reload(){
+			List<FURMSUser> allUsers = allUsersGetter.get();
+			Map<Boolean, List<FURMSUser>> collect = partitioningByRole(allUsers);
+			projectAdmins.clear();
+			projectAdmins.addAll(collect.get(true));
+			projectUsers.clear();
+			projectUsers.addAll(collect.get(false));
+		}
 	}
 }

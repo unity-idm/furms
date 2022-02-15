@@ -43,8 +43,9 @@ class FurmsMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSo
 			idSpEl = ",#" + annotation.id();
 		}
 		final String methodName = method.getDeclaringClass() + "::" + method.getName();
-		String furmsSpEl = format("hasCapabilityForResource('%s', '%s', '%s'%s)", methodName, capability.name(),
-				resourceType.name(), idSpEl);
+		String furmsSpEl = annotation.idCollections() ?
+			format("hasCapabilityForResources('%s', '%s', '%s'%s)", methodName, capability.name(), resourceType.name(), idSpEl) :
+			format("hasCapabilityForResource('%s', '%s', '%s'%s)", methodName, capability.name(), resourceType.name(), idSpEl);
 
 		return singletonList(attributeFactory.createPreInvocationAttribute(null, null, furmsSpEl));
 	}

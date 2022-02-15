@@ -5,14 +5,12 @@
 
 package io.imunity.furms.core.config.security.method;
 
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
-
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-import java.util.Set;
-
+import io.imunity.furms.api.authz.FURMSUserProvider;
+import io.imunity.furms.domain.authz.roles.Capability;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.PersistentId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
@@ -20,12 +18,14 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import io.imunity.furms.api.authz.FURMSUserProvider;
-import io.imunity.furms.domain.authz.roles.Capability;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.ResourceType;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.PersistentId;
+import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 
 class FurmsMethodSecurityExpressionRoot
 		extends SecurityExpressionRoot
@@ -42,6 +42,11 @@ class FurmsMethodSecurityExpressionRoot
 
 	public boolean hasCapabilityForResource(String method, Capability capability, ResourceType resourceType) {
 		return hasCapabilityForResource(method, capability, resourceType, null);
+	}
+
+	public boolean hasCapabilityForResources(String method, Capability capability, ResourceType resourceType, Collection<String> ids) {
+		return ids.stream()
+			.allMatch(id -> hasCapabilityForResource(method, capability, resourceType, id));
 	}
 
 	public boolean hasCapabilityForResource(String method, Capability capability, ResourceType resourceType, String id) {

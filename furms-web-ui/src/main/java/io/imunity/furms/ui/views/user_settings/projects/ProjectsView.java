@@ -232,7 +232,7 @@ public class ProjectsView extends FurmsViewComponent {
 
 	private List<ProjectGridModel> loadProjectsViewsModels() {
 		try {
-			return handleExceptions(projectService::findAll)
+			return handleExceptions(() -> projectService.findAll())
 				.orElseGet(Collections::emptySet)
 				.stream()
 				.map(mapper::map)

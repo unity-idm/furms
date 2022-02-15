@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -47,6 +48,14 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	}
 
 	@Override
+	public Set<Project> findAllByCommunityIds(Set<String> communityIds) {
+		return repository.findAllByCommunityIdIn(communityIds.stream().map(UUID::fromString).collect(Collectors.toSet()))
+			.stream()
+			.map(ProjectEntity::toProject)
+			.collect(toSet());
+	}
+
+	@Override
 	public Set<Project> findAllNotExpiredByCommunityId(String communityId) {
 		return repository.findAllByCommunityId(fromString(communityId)).stream()
 				.map(ProjectEntity::toProject)
@@ -62,6 +71,13 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	@Override
 	public Set<Project> findAll() {
 		return stream(repository.findAll().spliterator(), false)
+			.map(ProjectEntity::toProject)
+			.collect(toSet());
+	}
+
+	@Override
+	public Set<Project> findAll(Set<String> ids) {
+		return repository.findAllByIdIn(ids.stream().map(UUID::fromString).collect(toSet())).stream()
 			.map(ProjectEntity::toProject)
 			.collect(toSet());
 	}

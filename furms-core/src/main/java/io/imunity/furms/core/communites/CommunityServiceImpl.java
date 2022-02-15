@@ -19,6 +19,7 @@ import io.imunity.furms.domain.communities.CommunityRemovedEvent;
 import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -77,6 +78,12 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = AUTHENTICATED)
 	public boolean existsById(String id) {
 		return communityRepository.exists(id);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "ids", idCollections = true)
+	public Set<Community> findAll(Set<String> ids) {
+		return communityRepository.findAll(ids);
 	}
 
 	@Override
@@ -144,10 +151,22 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
+	public GroupedUsers findAllCommunityAdminsAllUsers(String id) {
+		return communityGroupsDAO.getCommunityAdminsAndUsers(id);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
 	public List<FURMSUser> findAllUsers(String id) {
 		return communityGroupsDAO.getAllUsers(id).stream()
 			.filter(furmsUser -> furmsUser.fenixUserId.isPresent())
 			.collect(Collectors.toList());
+	}
+
+	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
+	public GroupedUsers findAllAdminsWithAllUsers(String id) {
+		return communityGroupsDAO.getAllUsersAndCommunityAdmins(id);
 	}
 
 	@Override
