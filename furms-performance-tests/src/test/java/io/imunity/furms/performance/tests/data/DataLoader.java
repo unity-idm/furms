@@ -14,13 +14,18 @@ import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
+import io.imunity.furms.spi.communites.CommunityGroupsDAO;
+import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Profile;
 
+import java.lang.invoke.MethodHandles;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -39,15 +44,18 @@ import static java.lang.String.format;
 @SpringBootTest
 @Profile("performance_tests")
 public class DataLoader {
+	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@Autowired private PolicyDocumentService policyDocumentService;
 	@Autowired private ResourceTypeService resourceTypeService;
 	@Autowired private InfraServiceService infraServiceService;
 	@Autowired private SiteService siteService;
+	@Autowired private CommunityGroupsDAO communityGroupsDAO;
 	@Autowired private CommunityService communityService;
 	@Autowired private ProjectService projectService;
 	@Autowired private UnityClient unityClient;
 	@Autowired private UserApiKeyService userApiKeyService;
+	@Autowired private ProjectGroupsDAO projectGroupsDAO;
 
 	private SiteDataLoader siteDataLoader;
 	private CommunityDataLoader communityDataLoader;
@@ -65,8 +73,8 @@ public class DataLoader {
 	void setUp() {
 		siteDataLoader = new SiteDataLoader(policyDocumentService, resourceTypeService, infraServiceService, siteService);
 		communityDataLoader = new CommunityDataLoader(communityService, projectService);
-		userDataLoader = new UserDataLoader(unityClient, userApiKeyService, communityService, projectService);
-		projectMembershipsDataLoader = new ProjectMembershipsDataLoader(projectService);
+		userDataLoader = new UserDataLoader(unityClient, userApiKeyService, communityGroupsDAO, projectGroupsDAO, projectService);
+		projectMembershipsDataLoader = new ProjectMembershipsDataLoader(projectGroupsDAO);
 	}
 
 	/**
@@ -105,36 +113,58 @@ public class DataLoader {
 	private void loadData(Supplier<Set<Data.User>> userLoaderFunction) throws JsonProcessingException {
 		createSecurityUser(Map.of());
 
-		final LocalDateTime startLoading = LocalDateTime.now();
+		LocalDateTime startLoading = LocalDateTime.now();
 
-		final Set<Data.User> users = userLoaderFunction.get();
+		long start = System.currentTimeMillis();
 
-		final Set<Data.Site> sites = siteDataLoader.loadSites(SITES_COUNT);
-		final Data.Community bigCommunity = communityDataLoader.loadCommunities(
+		Set<Data.User> users = userLoaderFunction.get();
+		long userLoadedTime =  System.currentTimeMillis() - start;
+
+		start = System.currentTimeMillis();
+		Set<Data.Site> sites = siteDataLoader.loadSites(SITES_COUNT);
+		long siteLoadedTime =  System.currentTimeMillis() - start;
+
+		start = System.currentTimeMillis();
+		Data.Community bigCommunity = communityDataLoader.loadCommunities(
 				BIG_COMMUNITIES_COUNT,
 				BIG_COMMUNITIES_PROJECTS_COUNT,
 				users).stream().findFirst().get();
-		final Set<Data.Community> communities = communityDataLoader.loadCommunities(
+		long bigCommunityLoadedTime =  System.currentTimeMillis() - start;
+
+		start = System.currentTimeMillis();
+		Set<Data.Community> communities = communityDataLoader.loadCommunities(
 				COMMUNITIES_COUNT,
 				COMMUNITIES_PROJECTS_COUNT,
 				users);
+		long communitiesLoadedTime =  System.currentTimeMillis() - start;
 
-		final Map<Data.User, Set<Data.Project>> projectMemberships = projectMembershipsDataLoader.loadProjectMemberships(
-				users, combineProjects(bigCommunity, communities));
+		start = System.currentTimeMillis();
+		projectMembershipsDataLoader.loadProjectMemberships(
+				users, combineProjects(bigCommunity, communities)
+		);
+		long membershipLoadedTime =  System.currentTimeMillis() - start;
 
-		final Data.User fenixAdmin = userDataLoader.createFenixAdmin();
-		final Set<Data.Community> allCommunities = new HashSet<>();
+		Set<Data.Community> allCommunities = new HashSet<>();
 		allCommunities.add(bigCommunity);
 		allCommunities.addAll(communities);
 
-		final Data.User communitiesAdmin = userDataLoader.createCommunitiesAdmin(allCommunities);
+		start = System.currentTimeMillis();
+		Data.User fenixAdmin = userDataLoader.createFenixAdmin();
+		Data.User communitiesAdmin = userDataLoader.createCommunitiesAdmin(fenixAdmin, allCommunities);
+		Data.User projectsAdmin = userDataLoader.createProjectsAdmin(fenixAdmin, bigCommunity, communities);
+		long specialUserLoadedTime =  System.currentTimeMillis() - start;
 
-		final Data.User projectsAdmin = userDataLoader.createProjectsAdmin(projectMemberships);
-
-		final LocalDateTime endLoading = LocalDateTime.now();
+		LocalDateTime endLoading = LocalDateTime.now();
 
 		prettyPrintResults(startLoading, endLoading,
 				new Data.Results(sites, allCommunities, fenixAdmin, communitiesAdmin, projectsAdmin));
+
+		LOG.info("User loaded in {}", userLoadedTime);
+		LOG.info("Site loaded in {}", siteLoadedTime);
+		LOG.info("Big community loaded in {}", bigCommunityLoadedTime);
+		LOG.info("Many communities loaded in {}", communitiesLoadedTime);
+		LOG.info("Memberships loaded in {}", membershipLoadedTime);
+		LOG.info("Special user loaded in {}", specialUserLoadedTime);
 	}
 
 	private List<Data.Project> combineProjects(Data.Community bigCommunity, Set<Data.Community> communities) {
