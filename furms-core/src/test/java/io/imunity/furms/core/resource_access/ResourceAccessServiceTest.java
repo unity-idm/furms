@@ -5,20 +5,21 @@
 
 package io.imunity.furms.core.resource_access;
 
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.core.policy_documents.PolicyNotificationService;
-import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
-import io.imunity.furms.domain.resource_access.AccessStatus;
-import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
-import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.user_operation.UserStatus;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
-import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
-import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
+import static io.imunity.furms.domain.resource_access.AccessStatus.USER_INSTALLING;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,20 +33,19 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
-import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
-import static io.imunity.furms.domain.resource_access.AccessStatus.USER_INSTALLING;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
+import io.imunity.furms.domain.resource_access.AccessStatus;
+import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceAccessServiceTest {
@@ -146,10 +146,6 @@ class ResourceAccessServiceTest {
 			.projectId("projectId")
 			.fenixUserId(fenixUserId)
 			.build();
-		FURMSUser user = FURMSUser.builder()
-			.fenixUserId(fenixUserId)
-			.email("email")
-			.build();
 
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);
@@ -177,10 +173,6 @@ class ResourceAccessServiceTest {
 			.siteId(siteId)
 			.projectId("projectId")
 			.fenixUserId(fenixUserId)
-			.build();
-		FURMSUser user = FURMSUser.builder()
-			.fenixUserId(fenixUserId)
-			.email("email")
 			.build();
 
 		//when

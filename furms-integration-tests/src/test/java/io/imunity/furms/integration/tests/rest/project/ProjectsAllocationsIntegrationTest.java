@@ -422,6 +422,7 @@ public class ProjectsAllocationsIntegrationTest extends IntegrationTestBase {
 			.build());
 	}
 
+	@SuppressWarnings("unused")
 	private static class ProjectAllocationAddRequest {
 		public final String communityAllocationId;
 		public final String communityId;
