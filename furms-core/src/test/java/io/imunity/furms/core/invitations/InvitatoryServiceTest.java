@@ -278,7 +278,6 @@ class InvitatoryServiceTest {
 	void shouldThrowExceptionWhenEmailIsIncorrect() {
 		Role role = Role.FENIX_ADMIN;
 		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
-		PersistentId persistentId = new PersistentId("id");
 
 		String message = assertThrows(IllegalArgumentException.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"))
 			.getMessage();

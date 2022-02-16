@@ -94,7 +94,6 @@ public class ProjectAndUserRemoveListenerTest {
 	@Test
 	public void shouldProcessUserAfterRemoveProject() {
 
-		UUID projectUUID = UUID.randomUUID();
 		SSHKey key = SSHKey.builder().id("id").name("key").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
