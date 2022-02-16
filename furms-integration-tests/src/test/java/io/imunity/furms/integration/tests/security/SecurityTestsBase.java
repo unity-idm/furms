@@ -106,7 +106,7 @@ public class SecurityTestsBase extends IntegrationTestBase {
 	}
 
 	@AfterEach
-	protected void tearDown() {
+	protected void cleanLoggingSettings() {
 		//return control to Spring about Wiremock logging
 		((LoggerContext) LoggerFactory.getILoggerFactory()).getLogger("wiremock").setLevel(null);
 		((LoggerContext) LoggerFactory.getILoggerFactory()).getLogger("WireMock").setLevel(null);

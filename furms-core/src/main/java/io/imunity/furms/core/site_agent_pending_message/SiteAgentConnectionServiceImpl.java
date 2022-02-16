@@ -5,6 +5,17 @@
 
 package io.imunity.furms.core.site_agent_pending_message;
 
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+
+import java.time.Clock;
+import java.time.ZonedDateTime;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import io.imunity.furms.api.site_agent_pending_message.SiteAgentConnectionService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -19,24 +30,9 @@ import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.site_agent_pending_message.SiteAgentPendingMessageRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.utils.UTCTimeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.invoke.MethodHandles;
-import java.time.Clock;
-import java.time.ZonedDateTime;
-import java.util.Set;
-
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 
 @Service
 class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
-	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	private final SiteAgentPendingMessageRepository repository;
 	private final SiteAgentRetryService siteAgentRetryService;
 	private final SiteAgentStatusService siteAgentStatusService;

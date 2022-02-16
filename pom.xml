@@ -4,7 +4,7 @@
 	<groupId>io.imunity.furms</groupId>
 	<artifactId>furms-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>4.0.0-SNAPSHOT</version>
+	<version>4.1.0-SNAPSHOT</version>
 	<name>FURMS aggregation and parent module</name>
 	<description>FURMS aggregation and parent module</description>
 
@@ -32,7 +32,7 @@
 
 		<unity.version>3.8.0</unity.version>
 
-		<vaadin.version>14.8.1</vaadin.version>
+		<vaadin.version>22.0.4</vaadin.version>
 
 		<qpid-broker.version>8.0.6</qpid-broker.version>
 

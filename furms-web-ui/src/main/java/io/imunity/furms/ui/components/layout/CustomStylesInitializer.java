@@ -4,13 +4,11 @@
  */
 package io.imunity.furms.ui.components.layout;
 
-import static java.lang.String.format;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.nio.charset.Charset;
-import java.util.Optional;
-
+import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.VaadinServiceInitListener;
+import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
+import com.vaadin.flow.server.communication.IndexHtmlResponse;
+import com.vaadin.flow.spring.annotation.SpringComponent;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
@@ -19,11 +17,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StreamUtils;
 
-import com.vaadin.flow.server.BootstrapListener;
-import com.vaadin.flow.server.BootstrapPageResponse;
-import com.vaadin.flow.server.ServiceInitEvent;
-import com.vaadin.flow.server.VaadinServiceInitListener;
-import com.vaadin.flow.spring.annotation.SpringComponent;
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.Charset;
+import java.util.Optional;
+
+import static java.lang.String.format;
 
 @SpringComponent
 class CustomStylesInitializer implements VaadinServiceInitListener
@@ -38,10 +37,10 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 	
 	@Override
 	public void serviceInit(ServiceInitEvent serviceInitEvent) {
-		serviceInitEvent.addBootstrapListener(new CustomStylesInjector(externalCSSResource));
+		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(externalCSSResource));
 	}
 	
-	private static class CustomStylesInjector implements BootstrapListener {
+	private static class CustomStylesInjector implements IndexHtmlRequestListener {
 
 		private final CustomStylesContentProvider contentProvider;
 		
@@ -50,10 +49,9 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 		}
 
 		@Override
-		public void modifyBootstrapPage(BootstrapPageResponse response) {
-			
+		public void modifyIndexHtmlResponse(IndexHtmlResponse indexHtmlResponse) {
 			contentProvider.getCustomStyles().ifPresent(customStyles -> {
-				Document document = response.getDocument();
+				Document document = indexHtmlResponse.getDocument();
 				org.jsoup.nodes.Element head = document.head();
 				head.appendChild(createCustomStyle(document, customStyles));
 			});
