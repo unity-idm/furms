@@ -8,33 +8,33 @@ package io.imunity.furms.ui.charts.service;
 import java.util.List;
 import java.util.Objects;
 
-public class UserUsage {
+public class UserResourceUsage {
 	public final String userEmail;
-	public final List<Double> yUserUsageValues;
+	public final List<Double> yUserCumulativeUsageValues;
 
-	UserUsage(String userEmail, List<Double> yUserUsageValues) {
+	UserResourceUsage(String userEmail, List<Double> yUserCumulativeUsageValues) {
 		this.userEmail = userEmail;
-		this.yUserUsageValues = yUserUsageValues;
+		this.yUserCumulativeUsageValues = yUserCumulativeUsageValues;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		UserUsage userUsage = (UserUsage) o;
-		return Objects.equals(userEmail, userUsage.userEmail) && Objects.equals(yUserUsageValues, userUsage.yUserUsageValues);
+		UserResourceUsage userResourceUsage = (UserResourceUsage) o;
+		return Objects.equals(userEmail, userResourceUsage.userEmail) && Objects.equals(yUserCumulativeUsageValues, userResourceUsage.yUserCumulativeUsageValues);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(userEmail, yUserUsageValues);
+		return Objects.hash(userEmail, yUserCumulativeUsageValues);
 	}
 
 	@Override
 	public String toString() {
 		return "UserUsage{" +
 			"email='" + userEmail + '\'' +
-			", usages=" + yUserUsageValues +
+			", usages=" + yUserCumulativeUsageValues +
 			'}';
 	}
 }

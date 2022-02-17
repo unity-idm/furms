@@ -12,7 +12,7 @@ import io.imunity.furms.api.export.ResourceUsageCSVExporter;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
-import io.imunity.furms.ui.charts.service.ChartPowerService;
+import io.imunity.furms.ui.charts.service.ChartPoweringService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -30,15 +30,15 @@ import static java.util.Optional.ofNullable;
 @PageTitle(key = "view.community-admin.project.resource-allocations.details.page.title")
 public class ProjectAllocationsDetailsView extends FurmsViewComponent {
 	private final ProjectAllocationService projectAllocationService;
-	private final ChartPowerService chartPowerService;
+	private final ChartPoweringService chartPoweringService;
 	private final ResourceUsageJSONExporter jsonExporter;
 	private final ResourceUsageCSVExporter csvExporter;
 	private BreadCrumbParameter breadCrumbParameter;
 
-	ProjectAllocationsDetailsView(ProjectAllocationService projectAllocationService, ChartPowerService chartPowerService,
+	ProjectAllocationsDetailsView(ProjectAllocationService projectAllocationService, ChartPoweringService chartPoweringService,
 	                              ResourceUsageJSONExporter jsonExporter, ResourceUsageCSVExporter csvExporter) {
 		this.projectAllocationService = projectAllocationService;
-		this.chartPowerService = chartPowerService;
+		this.chartPoweringService = chartPoweringService;
 		this.jsonExporter = jsonExporter;
 		this.csvExporter = csvExporter;
 	}
@@ -65,7 +65,7 @@ public class ProjectAllocationsDetailsView extends FurmsViewComponent {
 			);
 
 			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(
-				chartPowerService.getChartDataForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id),
+				chartPoweringService.getChartDataForProjectAlloc(projectAllocation.get().projectId, projectAllocation.get().id),
 				jsonExporter.getJsonForProjectAllocation(projectAllocation.get().projectId, projectAllocation.get().id),
 				csvExporter.getCsvForProjectAllocation(projectAllocation.get().projectId, projectAllocation.get().id),
 				true

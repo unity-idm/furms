@@ -5,10 +5,11 @@
 
 package io.imunity.furms.ui.charts;
 
-import io.imunity.furms.ui.charts.service.UserUsage;
+import io.imunity.furms.ui.charts.service.UserResourceUsage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -20,20 +21,20 @@ public class ChartData {
 	public final List<Double> yResourceUsageLineValues;
 	public final List<Double> yChunkLineValues;
 	public final List<Double> yThresholdLineValues;
-	public final List<UserUsage> yUsersUsageLinesValues;
+	public final List<UserResourceUsage> yUsersUsageLinesValues;
 	public final List<LocalDate> xArguments;
 
 	private ChartData(String unit, String projectAllocationName, LocalDate endTime,
 	                  List<Double> yResourceUsageLineValues, List<Double> yChunkLineValues, List<Double> yThresholdLineValues, List<LocalDate> xArguments,
-	                  List<UserUsage> yUsersUsageLinesValues) {
+	                  List<UserResourceUsage> yUsersUsageLinesValues) {
 		this.unit = unit;
 		this.projectAllocationName = projectAllocationName;
 		this.endTime = endTime;
-		this.yResourceUsageLineValues = yResourceUsageLineValues;
-		this.yChunkLineValues = yChunkLineValues;
-		this.yThresholdLineValues = yThresholdLineValues;
+		this.yResourceUsageLineValues = Collections.unmodifiableList(yResourceUsageLineValues);
+		this.yChunkLineValues = Collections.unmodifiableList(yChunkLineValues);
+		this.yThresholdLineValues = Collections.unmodifiableList(yThresholdLineValues);
+		this.yUsersUsageLinesValues = Collections.unmodifiableList(yUsersUsageLinesValues);
 		this.xArguments = xArguments;
-		this.yUsersUsageLinesValues = yUsersUsageLinesValues;
 	}
 
 	double getThresholdValue() {
@@ -94,7 +95,7 @@ public class ChartData {
 		private List<Double> yResourceUsageLineValues = List.of();
 		private List<Double> yChunkLineValues = List.of();
 		private List<Double> yThresholdLineValues = List.of();
-		public List<UserUsage> yUsersUsagesValues = List.of();
+		private List<UserResourceUsage> yUsersUsagesValues = List.of();
 		private List<LocalDate> xArguments = List.of();
 
 
@@ -136,7 +137,7 @@ public class ChartData {
 			return this;
 		}
 
-		public ChartDataBuilder yUsersUsagesValues(List<UserUsage> usersUsages) {
+		public ChartDataBuilder yUsersUsagesValues(List<UserResourceUsage> usersUsages) {
 			this.yUsersUsagesValues = usersUsages;
 			return this;
 		}

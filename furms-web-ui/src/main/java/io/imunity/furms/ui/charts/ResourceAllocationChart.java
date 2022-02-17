@@ -31,7 +31,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import io.imunity.furms.ui.charts.service.UserUsage;
+import io.imunity.furms.ui.charts.service.UserResourceUsage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -108,18 +108,21 @@ public class ResourceAllocationChart extends VerticalLayout {
 		List<Double> widths = new ArrayList<>();
 
 		curves.add(Curve.smooth);
-		curves.add(Curve.stepline);
 		widths.add(5D);
+
+		curves.add(Curve.stepline);
 		widths.add(5D);
 
 		if(!(chartData.getThresholdValue() < 1 || disableThreshold)) {
 			curves.add(Curve.smooth);
 			widths.add(5D);
 		}
+
 		for(int i = 0; i < chartData.yUsersUsageLinesValues.size(); i++) {
 			curves.add(Curve.smooth);
 			widths.add(2D);
 		}
+
 		MultiStroke multiStroke = new MultiStroke(curves, widths);
 		multiStroke.setColors(COLORS);
 		return multiStroke;
@@ -133,8 +136,8 @@ public class ResourceAllocationChart extends VerticalLayout {
 			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.yChunkLineValues.toArray()));
 		if(!(chartData.getThresholdValue() < 1 || disableThreshold))
 			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.yThresholdLineValues.toArray()));
-		for(UserUsage userUsage : chartData.yUsersUsageLinesValues){
-			series.add(new Series<>(userUsage.userEmail, SeriesType.line, userUsage.yUserUsageValues.toArray()));
+		for(UserResourceUsage userResourceUsage : chartData.yUsersUsageLinesValues){
+			series.add(new Series<>(userResourceUsage.userEmail, SeriesType.line, userResourceUsage.yUserCumulativeUsageValues.toArray()));
 		}
 
 		return series.toArray(Series[]::new);

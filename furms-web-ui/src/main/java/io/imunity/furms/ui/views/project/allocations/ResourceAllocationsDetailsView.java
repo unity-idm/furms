@@ -13,7 +13,7 @@ import io.imunity.furms.api.export.ResourceUsageCSVExporter;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
-import io.imunity.furms.ui.charts.service.ChartPowerService;
+import io.imunity.furms.ui.charts.service.ChartPoweringService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -31,17 +31,17 @@ import static java.util.Optional.ofNullable;
 @PageTitle(key = "view.project-admin.resource-allocations.details.page.title")
 public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 	private final ProjectAllocationService projectAllocationService;
-	private final ChartPowerService chartPowerService;
+	private final ChartPoweringService chartPoweringService;
 	private final ResourceUsageJSONExporter jsonExporter;
 	private final ResourceUsageCSVExporter csvExporter;
 	private final String projectId;
 	private BreadCrumbParameter breadCrumbParameter;
 
 	ResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService,
-	                               ChartPowerService chartPowerService, ResourceUsageJSONExporter jsonExporter,
+	                               ChartPoweringService chartPoweringService, ResourceUsageJSONExporter jsonExporter,
 	                               ResourceUsageCSVExporter csvExporter) {
 		this.projectAllocationService = projectAllocationService;
-		this.chartPowerService = chartPowerService;
+		this.chartPoweringService = chartPoweringService;
 		this.jsonExporter = jsonExporter;
 		this.csvExporter = csvExporter;
 		this.projectId = getCurrentResourceId();
@@ -76,7 +76,7 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 
 	private ResourceAllocationChart getBasicResourceAllocationChart(ProjectAllocation projectAllocation) {
 		return new ResourceAllocationChart(
-			chartPowerService.getChartDataForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
+			chartPoweringService.getChartDataForProjectAlloc(projectAllocation.projectId, projectAllocation.id),
 			jsonExporter.getJsonForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
 			csvExporter.getCsvForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
 		);
@@ -84,7 +84,7 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 
 	private ResourceAllocationChart getResourceAllocationChartWithUsersUsage(ProjectAllocation projectAllocation) {
 		return new ResourceAllocationChart(
-			chartPowerService.getChartDataForProjectAllocWithUserUsages(projectAllocation.projectId, projectAllocation.id),
+			chartPoweringService.getChartDataForProjectAllocWithUserUsages(projectAllocation.projectId, projectAllocation.id),
 			jsonExporter.getJsonForProjectAllocation(projectAllocation.projectId, projectAllocation.id),
 			csvExporter.getCsvForProjectAllocation(projectAllocation.projectId, projectAllocation.id)
 		);

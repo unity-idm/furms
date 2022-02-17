@@ -12,7 +12,7 @@ import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.export.ResourceUsageCSVExporter;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
-import io.imunity.furms.ui.charts.service.ChartPowerService;
+import io.imunity.furms.ui.charts.service.ChartPoweringService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -29,16 +29,16 @@ import static java.util.Optional.ofNullable;
 @PageTitle(key = "view.fenix-admin.community.resource-allocations.details.page.title")
 public class CommunityAllocationsDetailsView extends FurmsViewComponent {
 	private final CommunityAllocationService communityAllocationService;
-	private final ChartPowerService chartPowerService;
+	private final ChartPoweringService chartPoweringService;
 	private final ResourceUsageJSONExporter jsonExporter;
 	private final ResourceUsageCSVExporter csvExporter;
 	private BreadCrumbParameter breadCrumbParameter;
 
 	CommunityAllocationsDetailsView(CommunityAllocationService communityAllocationService,
-	                                ChartPowerService chartPowerService, ResourceUsageJSONExporter jsonExporter,
+	                                ChartPoweringService chartPoweringService, ResourceUsageJSONExporter jsonExporter,
 	                                ResourceUsageCSVExporter csvExporter) {
 		this.communityAllocationService = communityAllocationService;
-		this.chartPowerService = chartPowerService;
+		this.chartPoweringService = chartPoweringService;
 		this.jsonExporter = jsonExporter;
 		this.csvExporter = csvExporter;
 	}
@@ -58,7 +58,7 @@ public class CommunityAllocationsDetailsView extends FurmsViewComponent {
 			);
 
 			ResourceAllocationChart resourceAllocationChart = new ResourceAllocationChart(
-				chartPowerService.getChartDataForCommunityAlloc(communityAllocation.get().communityId, communityAllocation.get().id),
+				chartPoweringService.getChartDataForCommunityAlloc(communityAllocation.get().communityId, communityAllocation.get().id),
 				jsonExporter.getJsonForCommunityAllocation(communityAllocation.get().communityId, communityAllocation.get().id),
 				csvExporter.getCsvForCommunityAllocation(communityAllocation.get().communityId, communityAllocation.get().id),
 				true
