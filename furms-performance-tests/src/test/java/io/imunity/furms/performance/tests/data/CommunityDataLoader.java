@@ -54,7 +54,7 @@ class CommunityDataLoader {
 		if(leaders.isEmpty())
 			throw new IllegalArgumentException("There are no users to choose a Project leader");
 		Random randomLeader = new Random();
-		int leaderSize = leaders.size();
+		int leadersCount = leaders.size();
 
 		return communityService.findAll().stream()
 				.filter(community -> names.contains(community.getName()))
@@ -68,7 +68,7 @@ class CommunityDataLoader {
 										.researchField(UUID.randomUUID().toString())
 										.utcStartTime(LocalDateTime.now())
 										.utcEndTime(LocalDateTime.now().plusYears(1))
-										.leaderId(new PersistentId(leaders.get(randomLeader.nextInt(leaderSize)).persistentId))
+										.leaderId(new PersistentId(leaders.get(randomLeader.nextInt(leadersCount )).persistentId))
 										.build()))
 								.collect(toSet())))
 				.collect(toSet());

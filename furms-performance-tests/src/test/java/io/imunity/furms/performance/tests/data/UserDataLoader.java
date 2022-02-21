@@ -37,6 +37,8 @@ import static java.util.stream.Collectors.toSet;
 
 class UserDataLoader {
 
+	public static final int BIG_COMMUNITY_ADMINS_AMOUNT = 100;
+
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	static class EntityId {
 		@JsonProperty("entityId")
@@ -122,7 +124,7 @@ class UserDataLoader {
 		Random random = new Random();
 
 		String[] objects = bigCommunity.projectIds.toArray(new String[0]);
-		for(int i=0; i < 100; i++){
+		for(int i = 0; i < BIG_COMMUNITY_ADMINS_AMOUNT; i++){
 			communityAndProjectIds.add(Pair.of(bigCommunity.communityId, objects[random.nextInt(bigCommunity.projectIds.size())]));
 		}
 		for(Data.Community community : communities){
