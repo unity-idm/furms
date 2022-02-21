@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.charts.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,7 +15,7 @@ public class UserResourceUsage {
 
 	UserResourceUsage(String userEmail, List<Double> yUserCumulativeUsageValues) {
 		this.userEmail = userEmail;
-		this.yUserCumulativeUsageValues = yUserCumulativeUsageValues;
+		this.yUserCumulativeUsageValues = Collections.unmodifiableList(yUserCumulativeUsageValues);
 	}
 
 	@Override
