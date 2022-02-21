@@ -8,39 +8,36 @@ package io.imunity.furms.performance.tests.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.communites.CommunityGroupsDAO;
+import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.GroupMember;
 
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.performance.tests.SecurityUserUtils.createSecurityUser;
 import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
 import static io.imunity.furms.unity.common.UnityConst.STRING;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 class UserDataLoader {
+
+	public static final int BIG_COMMUNITY_ADMINS_AMOUNT = 100;
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	static class EntityId {
@@ -55,23 +52,27 @@ class UserDataLoader {
 
 	private final UnityClient unityClient;
 	private final UserApiKeyService userApiKeyService;
-	private final CommunityService communityService;
+	private final CommunityGroupsDAO communityDao;
 	private final ProjectService projectService;
+	private final ProjectGroupsDAO projectGroupsDAO;
 
 	UserDataLoader(UnityClient unityClient,
 	               UserApiKeyService userApiKeyService,
-	               CommunityService communityService,
+	               CommunityGroupsDAO communityDao,
+	               ProjectGroupsDAO projectGroupsDAO,
 	               ProjectService projectService) {
 		this.unityClient = unityClient;
 		this.userApiKeyService = userApiKeyService;
-		this.communityService = communityService;
+		this.communityDao = communityDao;
 		this.projectService = projectService;
+		this.projectGroupsDAO = projectGroupsDAO;
 	}
 
 	Set<Data.User> loadUsers(final long usersCount) {
 		return LongStream.range(0, usersCount)
-				.mapToObj(i -> createUser("Regular User"))
-				.collect(toSet());
+			.parallel()
+			.mapToObj(i -> createUser("Regular User"))
+			.collect(toSet());
 	}
 
 	Set<Data.User> findAllUsers() {
@@ -82,9 +83,7 @@ class UserDataLoader {
 				.encode()
 				.toUriString(), new ParameterizedTypeReference<Set<GroupMember>>() {})
 				.stream()
-				.filter(groupMember -> groupMember.getAttributes().stream()
-						.anyMatch(attribute -> attribute.getName().equals("name")
-								&& attribute.getValues().contains("createdInScript")))
+				.filter(groupMember -> hasIdentity(groupMember, "identifier"))
 				.map(groupMember -> new Data.User(
 						getIdentity(groupMember, "persistent"),
 						groupMember.getEntity().getId(),
@@ -112,61 +111,37 @@ class UserDataLoader {
 		return new Data.User(fenixAdmin.persistentId, fenixAdmin.entityId, fenixAdmin.fenixUserId, apiKey);
 	}
 
-	Data.User createCommunitiesAdmin(Set<Data.Community> communities) {
-		final Data.User admin = createUser("Regular User");
-
+	Data.User createCommunitiesAdmin(Data.User admin, Set<Data.Community> communities) {
 		communities.forEach(community -> {
-			communityService.addAdmin(community.communityId, new PersistentId(admin.persistentId));
+			communityDao.addAdmin(community.communityId, new PersistentId(admin.persistentId));
 		});
 
-		final PersistentId persistentId = new PersistentId(admin.persistentId);
-		final String apiKey = UUID.randomUUID().toString();
-		userApiKeyService.save(persistentId, apiKey);
-
-		return new Data.User(admin.persistentId, admin.entityId, admin.fenixUserId, apiKey);
+		return new Data.User(admin.persistentId, admin.entityId, admin.fenixUserId, admin.apiKey);
 	}
 
-	public Data.User createProjectsAdmin(Map<Data.User, Set<Data.Project>> projectMemberships) {
-		final Data.User admin = createUser("Regular User");
+	public Data.User createProjectsAdmin(Data.User admin, Data.Community bigCommunity, Set<Data.Community> communities) {
+		Set<Pair<String,String>> communityAndProjectIds = new HashSet<>();
+		Random random = new Random();
 
-		createSecurityUser(projectMemberships.values().stream()
-				.flatMap(Collection::stream)
-				.map(project -> project.projectId)
-				.distinct()
-				.collect(toMap(
-						projectId -> new ResourceId(projectId, PROJECT),
-						projectId -> Set.of(Role.PROJECT_ADMIN))));
+		String[] objects = bigCommunity.projectIds.toArray(new String[0]);
+		for(int i = 0; i < BIG_COMMUNITY_ADMINS_AMOUNT; i++){
+			communityAndProjectIds.add(Pair.of(bigCommunity.communityId, objects[random.nextInt(bigCommunity.projectIds.size())]));
+		}
+		for(Data.Community community : communities){
+			String[] tempIds = community.projectIds.toArray(new String[0]);
+			communityAndProjectIds.add(Pair.of(community.communityId, tempIds[random.nextInt(community.projectIds.size())]));
+		}
 
-		projectMemberships.values().stream()
-				.flatMap(Collection::stream)
-				.collect(groupingBy(project -> project.communityId))
-				.entrySet().stream()
-				.map(entry -> entry.getValue().stream()
-						.collect(groupingBy(Function.identity(), Collectors.counting())))
-				.map(projects -> {
-					final Long max = projects.values().stream()
-							.mapToLong(x -> x)
-							.max()
-							.orElse(0);
-					return projects.entrySet().stream()
-							.filter(entry -> Objects.equals(entry.getValue(), max))
-							.findAny()
-							.map(Map.Entry::getKey);
-				})
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.forEach(project -> projectService.addAdmin(
-						project.communityId,
-						project.projectId,
-						new PersistentId(admin.persistentId)));
-
-		final PersistentId persistentId = new PersistentId(admin.persistentId);
-		final String apiKey = UUID.randomUUID().toString();
-		userApiKeyService.save(persistentId, apiKey);
-
+		communityAndProjectIds
+				.forEach(id -> projectGroupsDAO.addProjectUser(
+						id.getLeft(),
+						id.getRight(),
+						new PersistentId(admin.persistentId),
+						PROJECT_ADMIN)
+				);
 		createSecurityUser(Map.of());
 
-		return new Data.User(admin.persistentId, admin.entityId, admin.fenixUserId, apiKey);
+		return new Data.User(admin.persistentId, admin.entityId, admin.fenixUserId, admin.apiKey);
 	}
 
 	Data.User createUser(final String role) {
@@ -260,6 +235,11 @@ class UserDataLoader {
 				Map.of("credentialRequirement", "user%20password"),
 				new ParameterizedTypeReference<>() {
 				});
+	}
+
+	private boolean hasIdentity(GroupMember groupMember, String typeId) {
+		return groupMember.getEntity().getIdentities().stream()
+			.anyMatch(identity -> identity.getTypeId().equals(typeId));
 	}
 
 	private String getIdentity(GroupMember groupMember, String typeId) {

@@ -13,7 +13,9 @@ import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.PersistentId;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -47,9 +49,13 @@ class CommunityDataLoader {
 					return name;
 				})
 				.collect(Collectors.toList());
-		final Data.User leader = users.stream()
-				.findAny()
-				.orElseThrow(() -> new IllegalArgumentException("There are no users to choose a Project leader"));
+
+		final List<Data.User> leaders = new ArrayList<>(users);
+		if(leaders.isEmpty())
+			throw new IllegalArgumentException("There are no users to choose a Project leader");
+		Random randomLeader = new Random();
+		int leadersCount = leaders.size();
+
 		return communityService.findAll().stream()
 				.filter(community -> names.contains(community.getName()))
 				.map(community -> new Data.Community(
@@ -62,7 +68,7 @@ class CommunityDataLoader {
 										.researchField(UUID.randomUUID().toString())
 										.utcStartTime(LocalDateTime.now())
 										.utcEndTime(LocalDateTime.now().plusYears(1))
-										.leaderId(new PersistentId(leader.persistentId))
+										.leaderId(new PersistentId(leaders.get(randomLeader.nextInt(leadersCount )).persistentId))
 										.build()))
 								.collect(toSet())))
 				.collect(toSet());
