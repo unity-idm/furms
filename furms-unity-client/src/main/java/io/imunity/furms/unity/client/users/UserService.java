@@ -10,8 +10,8 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.GroupedUsers;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.users.UnityUserMapper;
 import org.springframework.core.ParameterizedTypeReference;
@@ -41,7 +41,6 @@ import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
 import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
 import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
 import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.GROUP_PATH;
@@ -290,10 +289,6 @@ public class UserService {
 		return getAllUsersFromGroup(group, filter);
 	}
 
-	public List<FURMSUser> getAllUsersFromGroup(String group){
-		return getAllUsersFromGroup(group, filter -> true);
-	}
-
 	public List<FURMSUser> getAllUsersFromGroup(String group, Predicate<AttributeExt> filter){
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, group);
 		String path = UriComponentsBuilder.newInstance()
@@ -339,7 +334,7 @@ public class UserService {
 			.collect(toSet());
 	}
 
-	public GroupedUsers getUsersFromGroups(String group1, Role role1, String group2, Role role2) {
+	public GroupedUsers getUsersFromGroupsFilteredByRoles(Map<String, Set<Role>> groupsWithRoles) {
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, FENIX_GROUP);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS_MULTI)
@@ -348,23 +343,25 @@ public class UserService {
 			.encode()
 			.toUriString();
 
-		MultiGroupMembers multiGroupMembers = unityClient.post(path, List.of(FENIX_PATTERN, group1, group2), Map.of(), new ParameterizedTypeReference<>() {});
+		MultiGroupMembers multiGroupMembers = unityClient.post(path, groupsWithRoles.keySet(), Map.of(),
+			new ParameterizedTypeReference<>() {});
 
 		Map<Long, Entity> entityMap = multiGroupMembers.entities.stream()
 			.collect(toMap(Entity::getId, Function.identity()));
 
-		List<FURMSUser> users1 = getUsers(entityMap, multiGroupMembers.members.get(group1), group1);
-		if(role1 != null)
-			users1 = users1.stream()
-				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(role1)))
-				.collect(Collectors.toList());
-		List<FURMSUser> users2 = getUsers(entityMap, multiGroupMembers.members.get(group2), group2);
-		if(role2 != null)
-			users2 = users2.stream()
-				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(role2)))
-				.collect(Collectors.toList());
+		Map<String, List<FURMSUser>> usersByGroups = groupsWithRoles.entrySet().stream()
+			.map(entry -> {
+				List<FURMSUser> users = getUsers(entityMap, multiGroupMembers.members.get(entry.getKey()), entry.getKey());
+				if (!entry.getValue().isEmpty())
+					users = users.stream()
+						.filter(user -> user.roles.values().stream()
+							.flatMap(Collection::stream)
+							.anyMatch(role -> entry.getValue().contains(role)))
+						.collect(toList());
+				return Map.entry(entry.getKey(), users);
+			}).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-		return new GroupedUsers(users1, users2);
+		return new GroupedUsers(usersByGroups);
 	}
 
 	private List<FURMSUser> getUsers(Map<Long, Entity> entityMap, List<MultiGroupMembers.EntityGroupAttributes> entityGroupAttributes, String group) {

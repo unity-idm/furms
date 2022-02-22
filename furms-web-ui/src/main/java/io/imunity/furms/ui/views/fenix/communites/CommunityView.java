@@ -22,7 +22,7 @@ import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.GroupedUsers;
+import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
 import io.imunity.furms.ui.components.FurmsTabs;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
@@ -223,23 +223,23 @@ public class CommunityView extends FurmsViewComponent {
 	}
 
 	static class UsersSnapshot {
-		private final Supplier<GroupedUsers> allUsersGetter;
+		private final Supplier<AllUsersAndCommunityAdmins> allUsersGetter;
 		public final List<FURMSUser> allUsers;
 		public final List<FURMSUser> communityAdmins;
 
-		UsersSnapshot(Supplier<GroupedUsers> allUsersGetter) {
-			GroupedUsers allUsers = allUsersGetter.get();
+		UsersSnapshot(Supplier<AllUsersAndCommunityAdmins> allUsersGetter) {
+			AllUsersAndCommunityAdmins allUsers = allUsersGetter.get();
 			this.allUsersGetter = allUsersGetter;
-			this.allUsers = allUsers.firstUsersGroup;
-			this.communityAdmins = allUsers.secondUsersGroup;
+			this.allUsers = allUsers.allUsers;
+			this.communityAdmins = allUsers.communityAdmins;
 		}
 
 		public void reload(){
-			GroupedUsers allUsers1 = allUsersGetter.get();
+			AllUsersAndCommunityAdmins allUsers1 = allUsersGetter.get();
 			allUsers.clear();
-			allUsers.addAll(allUsers1.firstUsersGroup);
+			allUsers.addAll(allUsers1.allUsers);
 			communityAdmins.clear();
-			communityAdmins.addAll(allUsers1.secondUsersGroup);
+			communityAdmins.addAll(allUsers1.communityAdmins);
 		}
 	}
 }

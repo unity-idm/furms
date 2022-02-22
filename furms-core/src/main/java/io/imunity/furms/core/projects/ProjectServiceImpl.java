@@ -24,6 +24,7 @@ import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.projects.ProjectUpdatedEvent;
+import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
 import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -258,7 +259,7 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public GroupedUsers findAllCommunityAndProjectAdmins(String communityId, String projectId) {
+	public CommunityAdminsAndProjectAdmins findAllCommunityAndProjectAdmins(String communityId, String projectId) {
 		return projectGroupsDAO.getAllCommunityAndProjectAdmins(communityId, projectId);
 	}
 

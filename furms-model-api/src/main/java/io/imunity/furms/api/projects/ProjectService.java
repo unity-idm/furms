@@ -9,6 +9,7 @@ import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.GroupedUsers;
@@ -49,7 +50,7 @@ public interface ProjectService {
 
 	List<FURMSUser> findAllAdmins(String communityId, String projectId);
 
-	GroupedUsers findAllCommunityAndProjectAdmins(String communityId, String projectId);
+	CommunityAdminsAndProjectAdmins findAllCommunityAndProjectAdmins(String communityId, String projectId);
 
 	boolean isAdmin(String projectId);
 

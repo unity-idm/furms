@@ -10,9 +10,9 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.domain.users.CommunityUsersAndCommunityAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -104,23 +104,23 @@ public class CommunityAdminsView extends FurmsViewComponent {
 	}
 
 	static class UsersSnapshot {
-		private final Supplier<GroupedUsers> allUsersGetter;
+		private final Supplier<CommunityUsersAndCommunityAdmins> allUsersGetter;
 		public final List<FURMSUser> communityAdmins;
 		public final List<FURMSUser> communityUsers;
 
-		UsersSnapshot(Supplier<GroupedUsers> allUsersGetter) {
-			GroupedUsers allUsers = allUsersGetter.get();
+		UsersSnapshot(Supplier<CommunityUsersAndCommunityAdmins> allUsersGetter) {
+			CommunityUsersAndCommunityAdmins allUsers = allUsersGetter.get();
 			this.allUsersGetter = allUsersGetter;
-			this.communityAdmins = allUsers.firstUsersGroup;
-			this.communityUsers = allUsers.secondUsersGroup;
+			this.communityAdmins = allUsers.communityAdmins;
+			this.communityUsers = allUsers.communityUsers;
 		}
 
 		public void reload(){
-			GroupedUsers allUsers1 = allUsersGetter.get();
+			CommunityUsersAndCommunityAdmins allUsers1 = allUsersGetter.get();
 			communityAdmins.clear();
-			communityAdmins.addAll(allUsers1.firstUsersGroup);
+			communityAdmins.addAll(allUsers1.communityAdmins);
 			communityUsers.clear();
-			communityUsers.addAll(allUsers1.secondUsersGroup);
+			communityUsers.addAll(allUsers1.communityUsers);
 		}
 	}
 }

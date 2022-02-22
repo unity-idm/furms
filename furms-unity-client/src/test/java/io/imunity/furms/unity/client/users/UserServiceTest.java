@@ -5,12 +5,14 @@
 
 package io.imunity.furms.unity.client.users;
 
+import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import org.junit.jupiter.api.Test;
@@ -20,18 +22,40 @@ import org.mockito.Mock;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.GroupMember;
+import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.unity.common.UnityConst.*;
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
+import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
+import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
+import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.IDENTITY_TYPE;
+import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
+import static io.imunity.furms.unity.common.UnityConst.STRING;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 public class UserServiceTest {
@@ -133,6 +157,70 @@ public class UserServiceTest {
 		assertThat(allUsersFromGroup).isEmpty();
 	}
 
+
+	@Test
+	void shouldReturnUsersInFenixAndCommunityGroups() {
+		String path = "/group-members-multi/%2Ffenix";
+		UUID communityId = UUID.randomUUID();
+		String communityPath = "/fenix/communities/" + communityId + "/users";
+
+		Map<String, Set<Role>> groupWithRoles = Map.of(
+			FENIX_PATTERN,
+			Set.of(),
+			communityPath,
+			Set.of(COMMUNITY_ADMIN)
+		);
+
+		MultiGroupMembers multiGroupMembers = new MultiGroupMembers(
+			List.of(
+				new Entity(List.of(new Identity(PERSISTENT_IDENTITY, "1", 1, "1")), new EntityInformation(1), null),
+				new Entity(List.of(new Identity(PERSISTENT_IDENTITY, "2", 2, "2")), new EntityInformation(2), null),
+				new Entity(List.of(new Identity(PERSISTENT_IDENTITY, "3", 3, "3")), new EntityInformation(3), null)
+			),
+			Map.of(
+				FENIX_PATTERN,
+				List.of(
+					new MultiGroupMembers.EntityGroupAttributes(1, List.of(
+						new AttributeExt(new Attribute("name", null, FENIX_PATTERN, List.of("name")), true, null, null),
+						new AttributeExt(new Attribute("email", "", FENIX_PATTERN, List.of("email")), true, null, null)
+					))
+				),
+				communityPath,
+				List.of(
+					new MultiGroupMembers.EntityGroupAttributes(2, List.of(
+						new AttributeExt(
+							new Attribute(COMMUNITY_ADMIN.unityRoleAttribute, "", communityPath,
+								List.of(COMMUNITY_ADMIN.unityRoleValue)),true, null, null),
+						new AttributeExt(new Attribute("email", "", FENIX_PATTERN, List.of("email2")), true, null, null)
+
+					)),
+					new MultiGroupMembers.EntityGroupAttributes(3, List.of(
+						new AttributeExt(new Attribute(PROJECT_ADMIN.unityRoleAttribute, "", communityPath,
+							List.of(PROJECT_ADMIN.unityRoleValue)), true, null, null),
+						new AttributeExt(new Attribute("email", "", FENIX_PATTERN, List.of("email3")), true, null, null)
+					))
+				)
+			)
+			);
+		when(unityClient.post(path, groupWithRoles.keySet(), Map.of(), new ParameterizedTypeReference<MultiGroupMembers>() {}))
+			.thenReturn(multiGroupMembers);
+		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(groupWithRoles);
+
+		assertThat(groupedUsers.getUsers(FENIX_PATTERN)).isEqualTo(List.of(
+			FURMSUser.builder()
+				.id(new PersistentId("1"))
+				.email("email")
+				.roles(Map.of(new ResourceId((String) null, APP_LEVEL), Set.of()))
+				.build()
+		));
+		assertThat(groupedUsers.getUsers(communityPath)).isEqualTo(List.of(
+			FURMSUser.builder()
+				.id(new PersistentId("2"))
+				.email("email2")
+				.roles(Map.of(new ResourceId(communityId, COMMUNITY), Set.of(COMMUNITY_ADMIN)))
+				.build()
+		));
+	}
 
 	@Test
 	void shouldRemoveUserRole() {

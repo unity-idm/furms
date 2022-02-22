@@ -5,16 +5,20 @@
 
 package io.imunity.furms.domain.users;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class GroupedUsers {
-	public final List<FURMSUser> firstUsersGroup;
-	public final List<FURMSUser> secondUsersGroup;
+	private final Map<String, List<FURMSUser>> usersByGroups;
 
-	public GroupedUsers(List<FURMSUser> firstUsersGroup, List<FURMSUser> secondUsersGroup) {
-		this.firstUsersGroup = firstUsersGroup;
-		this.secondUsersGroup = secondUsersGroup;
+	public GroupedUsers(Map<String, List<FURMSUser>> usersByGroups) {
+		this.usersByGroups = usersByGroups;
+	}
+
+	public List<FURMSUser> getUsers(String group){
+		return usersByGroups.getOrDefault(group, Collections.emptyList());
 	}
 
 	@Override
@@ -22,19 +26,18 @@ public class GroupedUsers {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		GroupedUsers that = (GroupedUsers) o;
-		return Objects.equals(firstUsersGroup, that.firstUsersGroup) && Objects.equals(secondUsersGroup, that.secondUsersGroup);
+		return Objects.equals(usersByGroups, that.usersByGroups);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(firstUsersGroup, secondUsersGroup);
+		return Objects.hash(usersByGroups);
 	}
 
 	@Override
 	public String toString() {
 		return "GroupedUsers{" +
-			"firstUsersGroup=" + firstUsersGroup +
-			", secondUsersGroup=" + secondUsersGroup +
+			"usersByGroups=" + usersByGroups +
 			'}';
 	}
 }

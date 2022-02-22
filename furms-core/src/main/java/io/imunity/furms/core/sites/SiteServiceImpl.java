@@ -28,10 +28,10 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteRemovedEvent;
 import io.imunity.furms.domain.sites.SiteUpdatedEvent;
+import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.UserRoleRevokedEvent;
@@ -313,10 +313,10 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
-	public GroupedUsers findAllUsersAndSiteAdmins(String id) {
+	public AllUsersAndSiteAdmins findAllUsersAndSiteAdmins(String id) {
 		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
 		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
-		return webClient.getAllUsersAndSiteUsers(id, Role.SITE_ADMIN);
+		return webClient.getAllUsersAndSiteAdmins(id);
 	}
 
 	@Override

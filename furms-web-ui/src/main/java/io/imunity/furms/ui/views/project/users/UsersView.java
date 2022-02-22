@@ -70,8 +70,6 @@ public class UsersView extends FurmsLandingViewComponent {
 		this.authzService = authzService;
 		this.userService = userService;
 		this.projectApplicationsService = projectApplicationsService;
-
-		loadPageContent();
 	}
 
 	private void loadPageContent() {

@@ -20,9 +20,9 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteRemovedEvent;
 import io.imunity.furms.domain.sites.SiteUpdatedEvent;
+import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
@@ -409,22 +409,22 @@ class SiteServiceImplTest {
 	void shouldReturnAllSiteAdmins() {
 		//given
 		String siteId = "id";
-		when(webClient.getAllUsersAndSiteUsers(siteId, SITE_ADMIN)).thenReturn(
-			new GroupedUsers(
+		when(webClient.getAllUsersAndSiteAdmins(siteId)).thenReturn(
+			new AllUsersAndSiteAdmins(
+				List.of(),
 				List.of(FURMSUser.builder()
-				.id(new PersistentId("id"))
-				.firstName("firstName")
-				.lastName("lastName")
-				.email("email")
-				.build()),
-				List.of())
+					.id(new PersistentId("id"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build()))
 	);
 
 		//when
-		GroupedUsers allAdmins = service.findAllUsersAndSiteAdmins(siteId);
+		AllUsersAndSiteAdmins allAdmins = service.findAllUsersAndSiteAdmins(siteId);
 
 		//then
-		assertThat(allAdmins.firstUsersGroup).hasSize(1);
+		assertThat(allAdmins.siteAdmins).hasSize(1);
 	}
 
 	@Test

@@ -7,9 +7,9 @@ package io.imunity.furms.spi.projects;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.GroupedUsers;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public interface ProjectGroupsDAO {
 	List<FURMSUser> getAllAdmins(String communityId, String projectId);
 	void removeAdmin(String communityId, String projectId, PersistentId userId);
 
-	GroupedUsers getAllCommunityAndProjectAdmins(String communityId, String projectId);
+	CommunityAdminsAndProjectAdmins getAllCommunityAndProjectAdmins(String communityId, String projectId);
 	List<FURMSUser> getAllUsers(String communityId, String projectId);
 	List<FURMSUser> getAllProjectAdminsAndUsers(String communityId, String projectId);
 	List<FURMSUser> getAllUsers(String communityId);

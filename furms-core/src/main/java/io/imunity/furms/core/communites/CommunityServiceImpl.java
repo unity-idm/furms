@@ -13,16 +13,17 @@ import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.communities.CommunityCreatedEvent;
+import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.communities.CommunityRemovedEvent;
 import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.users.GroupedUsers;
-import io.imunity.furms.domain.users.UserRoleGrantedEvent;
+import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
+import io.imunity.furms.domain.users.CommunityUsersAndCommunityAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -151,7 +152,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
-	public GroupedUsers findAllCommunityAdminsAllUsers(String id) {
+	public CommunityUsersAndCommunityAdmins findAllCommunityAdminsAllUsers(String id) {
 		return communityGroupsDAO.getCommunityAdminsAndUsers(id);
 	}
 
@@ -165,7 +166,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
-	public GroupedUsers findAllAdminsWithAllUsers(String id) {
+	public AllUsersAndCommunityAdmins findAllAdminsWithAllUsers(String id) {
 		return communityGroupsDAO.getAllUsersAndCommunityAdmins(id);
 	}
 

@@ -21,10 +21,9 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.GroupedUsers;
-import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsTabs;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
@@ -34,6 +33,7 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationComponent;
 import org.slf4j.Logger;
@@ -230,23 +230,23 @@ public class ProjectView extends FurmsViewComponent {
 	}
 
 	static class UsersSnapshot {
-		private final Supplier<GroupedUsers> allUsersGetter;
+		private final Supplier<CommunityAdminsAndProjectAdmins> allUsersGetter;
 		public final List<FURMSUser> communityAdmins;
 		public final List<FURMSUser> projectAdmins;
 
-		UsersSnapshot(Supplier<GroupedUsers> allUsersGetter) {
-			GroupedUsers allUsers = allUsersGetter.get();
+		UsersSnapshot(Supplier<CommunityAdminsAndProjectAdmins> allUsersGetter) {
+			CommunityAdminsAndProjectAdmins allUsers = allUsersGetter.get();
 			this.allUsersGetter = allUsersGetter;
-			this.communityAdmins = allUsers.firstUsersGroup;
-			this.projectAdmins = allUsers.secondUsersGroup;
+			this.communityAdmins = allUsers.communityAdmins;
+			this.projectAdmins = allUsers.projectAdmins;
 		}
 
 		public void reload(){
-			GroupedUsers allUsers1 = allUsersGetter.get();
+			CommunityAdminsAndProjectAdmins allUsers = allUsersGetter.get();
 			communityAdmins.clear();
-			communityAdmins.addAll(allUsers1.firstUsersGroup);
+			communityAdmins.addAll(allUsers.communityAdmins);
 			projectAdmins.clear();
-			projectAdmins.addAll(allUsers1.secondUsersGroup);
+			projectAdmins.addAll(allUsers.projectAdmins);
 		}
 	}
 }

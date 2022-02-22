@@ -7,9 +7,9 @@ package io.imunity.furms.spi.sites;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.GroupedUsers;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +27,7 @@ public interface SiteGroupDAO {
 
 	List<FURMSUser> getSiteUsers(String siteId, Set<Role> roles);
 
-	GroupedUsers getAllUsersAndSiteUsers(String siteId, Role role);
+	AllUsersAndSiteAdmins getAllUsersAndSiteAdmins(String siteId);
 
 	void addSiteUser(String siteId, PersistentId userId, Role role);
 

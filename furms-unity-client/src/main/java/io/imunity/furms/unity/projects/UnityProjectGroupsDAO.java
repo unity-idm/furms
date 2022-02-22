@@ -7,9 +7,10 @@ package io.imunity.furms.unity.projects;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.GroupedUsers;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
@@ -29,7 +30,15 @@ import java.util.Set;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
-import static io.imunity.furms.unity.common.UnityConst.*;
+import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_GROUP_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
+import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.ID;
+import static io.imunity.furms.unity.common.UnityConst.PROJECT_GROUP_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.PROJECT_ID;
+import static io.imunity.furms.unity.common.UnityConst.PROJECT_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.RECURSIVE;
+import static io.imunity.furms.unity.common.UnityConst.WITH_PARENTS;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.META;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
@@ -140,12 +149,20 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public GroupedUsers getAllCommunityAndProjectAdmins(String communityId, String projectId) {
+	public CommunityAdminsAndProjectAdmins getAllCommunityAndProjectAdmins(String communityId, String projectId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String communityPath = getPath(getUriVariables(communityId), COMMUNITY_PATTERN);
 		String projectPath = getPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
-		return userService.getUsersFromGroups(communityPath, COMMUNITY_ADMIN, projectPath, PROJECT_ADMIN);
+		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(
+			Map.of(
+				communityPath,
+				Set.of(COMMUNITY_ADMIN),
+				projectPath,
+				Set.of(PROJECT_ADMIN)
+			)
+		);
+		return new CommunityAdminsAndProjectAdmins(groupedUsers.getUsers(communityPath), groupedUsers.getUsers(projectPath));
 	}
 
 	@Override
