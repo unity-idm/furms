@@ -37,7 +37,7 @@ public class FurmsDateTimePicker
 		extends Div
 		implements HasValue<FurmsDateTimePicker, ZonedDateTime>, HasValue.ValueChangeEvent<ZonedDateTime>, HasValidation {
 
-	private static final Locale CLOCK_24_FORMAT_LOCALE = new Locale("DE");
+	private static final Locale EUROPEAN_FORMAT_LOCALE = new Locale("DE");
 
 	private final DatePicker datePicker;
 	private final TimePicker timePicker;
@@ -53,10 +53,11 @@ public class FurmsDateTimePicker
 		this.datePicker = new DatePicker();
 		this.datePicker.setReadOnly(false);
 		this.datePicker.addValueChangeListener(event -> setValueAndFireEventChange());
+		this.datePicker.setLocale(EUROPEAN_FORMAT_LOCALE);
 		this.timePicker = new TimePicker();
 		this.timePicker.setReadOnly(false);
 		this.timePicker.setVisible(false);
-		this.timePicker.setLocale(CLOCK_24_FORMAT_LOCALE);
+		this.timePicker.setLocale(EUROPEAN_FORMAT_LOCALE);
 		this.timePicker.addValueChangeListener(event -> setValueAndFireEventChange());
 
 		this.enableTimeButton = new ToggleButton(getTranslation("component.date-time-picker.toggle-button.label"));
