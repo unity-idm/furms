@@ -13,6 +13,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -73,6 +74,8 @@ public interface ProjectService {
 	Optional<FURMSUser> findProjectLeaderInfoAsInstalledUser(String projectId);
 
 	boolean isUser(String projectId);
+
+	Map<String, Boolean> isUser(Set<String> projectIds);
 
 	void addUser(String communityId, String projectId, PersistentId userId);
 

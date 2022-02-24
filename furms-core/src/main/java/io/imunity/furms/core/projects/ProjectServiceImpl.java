@@ -59,6 +59,7 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -336,6 +337,13 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
 	public boolean isUser(String projectId) {
 		return authzService.isResourceMember(projectId, PROJECT_USER);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
+	public Map<String, Boolean> isUser(Set<String> projectIds) {
+		return projectIds.stream()
+			.collect(toMap(projectId -> projectId, projectId -> authzService.isResourceMember(projectId, PROJECT_USER)));
 	}
 
 	@Override
