@@ -9,7 +9,6 @@ import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,8 +27,7 @@ class ProjectGridModelMapper {
 
 	Set<ProjectGridModel> map(Set<Project> projects){
 		Set<String> projectsIds = projectApplicationsService.findAllAppliedProjectsIdsForCurrentUser();
-		Map<String, Boolean> isUser =
-			projectService.isUser(projects.stream().map(Project::getId).collect(Collectors.toSet()));
+		Set<String> usersProjectIds = projectService.getUsersProjectIds();
 
 		return projects.stream()
 			.map(project -> ProjectGridModel.builder()
@@ -38,7 +36,7 @@ class ProjectGridModelMapper {
 				.name(project.getName())
 				.description(project.getDescription())
 				.status(
-					isUser.getOrDefault(project.getId(), false) ? ACTIVE :
+					usersProjectIds.contains(project.getId()) ? ACTIVE :
 						projectsIds.contains(project.getId()) ? REQUESTED :
 							NOT_ACTIVE
 				)

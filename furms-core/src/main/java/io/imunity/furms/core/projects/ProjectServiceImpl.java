@@ -18,16 +18,16 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
+import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.projects.ProjectUpdatedEvent;
-import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserProjectMembershipRevokedEvent;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.UserRoleRevokedEvent;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -41,9 +41,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
@@ -59,7 +61,6 @@ import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
 import static io.imunity.furms.domain.authz.roles.Role.PROJECT_USER;
-import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -341,9 +342,13 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
-	public Map<String, Boolean> isUser(Set<String> projectIds) {
-		return projectIds.stream()
-			.collect(toMap(projectId -> projectId, projectId -> authzService.isResourceMember(projectId, PROJECT_USER)));
+	public Set<String> getUsersProjectIds() {
+		return authzService.getRoles().entrySet().stream()
+			.filter(entry -> entry.getValue().stream().anyMatch(role -> role.equals(PROJECT_USER)))
+			.map(entry -> entry.getKey().id)
+			.filter(Objects::nonNull)
+			.map(UUID::toString)
+			.collect(Collectors.toSet());
 	}
 
 	@Override

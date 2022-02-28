@@ -7,13 +7,12 @@ package io.imunity.furms.api.projects;
 
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -75,7 +74,7 @@ public interface ProjectService {
 
 	boolean isUser(String projectId);
 
-	Map<String, Boolean> isUser(Set<String> projectIds);
+	Set<String> getUsersProjectIds();
 
 	void addUser(String communityId, String projectId, PersistentId userId);
 
