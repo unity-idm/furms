@@ -7,8 +7,8 @@ package io.imunity.furms.api.projects;
 
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
-import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -73,6 +73,8 @@ public interface ProjectService {
 	Optional<FURMSUser> findProjectLeaderInfoAsInstalledUser(String projectId);
 
 	boolean isUser(String projectId);
+
+	Set<String> getUsersProjectIds();
 
 	void addUser(String communityId, String projectId, PersistentId userId);
 

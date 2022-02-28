@@ -27,6 +27,7 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
+import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -232,10 +233,10 @@ public class ProjectsView extends FurmsViewComponent {
 
 	private List<ProjectGridModel> loadProjectsViewsModels() {
 		try {
-			return handleExceptions(projectService::findAll)
-				.orElseGet(Collections::emptySet)
+			Set<Project> projects = handleExceptions(projectService::findAll)
+				.orElseGet(Collections::emptySet);
+			return mapper.map(projects)
 				.stream()
-				.map(mapper::map)
 				.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 				.filter(project -> currentFilters.contains(project.status))
 				.filter(project -> searchText.isEmpty() || project.matches(searchText))

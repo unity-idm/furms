@@ -10,6 +10,7 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.ACTIVE;
 import static io.imunity.furms.ui.views.user_settings.projects.UserStatus.NOT_ACTIVE;
@@ -24,18 +25,22 @@ class ProjectGridModelMapper {
 		this.projectApplicationsService = projectApplicationsService;
 	}
 
-	ProjectGridModel map(Project project){
+	Set<ProjectGridModel> map(Set<Project> projects){
 		Set<String> projectsIds = projectApplicationsService.findAllAppliedProjectsIdsForCurrentUser();
-		return ProjectGridModel.builder()
-		.id(project.getId())
-		.communityId(project.getCommunityId())
-		.name(project.getName())
-		.description(project.getDescription())
-		.status(
-			projectService.isUser(project.getId()) ? ACTIVE :
-				projectsIds.contains(project.getId()) ? REQUESTED :
-					NOT_ACTIVE
-		)
-		.build();
+		Set<String> usersProjectIds = projectService.getUsersProjectIds();
+
+		return projects.stream()
+			.map(project -> ProjectGridModel.builder()
+				.id(project.getId())
+				.communityId(project.getCommunityId())
+				.name(project.getName())
+				.description(project.getDescription())
+				.status(
+					usersProjectIds.contains(project.getId()) ? ACTIVE :
+						projectsIds.contains(project.getId()) ? REQUESTED :
+							NOT_ACTIVE
+				)
+				.build()
+			).collect(Collectors.toSet());
 	}
 }
