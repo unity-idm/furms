@@ -40,6 +40,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.imunity.furms</groupId>
             <artifactId>furms-server</artifactId>
             <scope>test</scope>

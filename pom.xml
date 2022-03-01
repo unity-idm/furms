@@ -192,7 +192,12 @@
 				<artifactId>commons-validator</artifactId>
 				<version>1.7</version>
 			</dependency>
-
+			<dependency>
+				<groupId>org.awaitility</groupId>
+				<artifactId>awaitility</artifactId>
+				<version>4.1.1</version>
+				<scope>test</scope>
+			</dependency>
 			<dependency>
 				<groupId>io.imunity.furms</groupId>
 				<artifactId>furms-core</artifactId>
