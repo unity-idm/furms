@@ -42,8 +42,10 @@ import org.springframework.context.annotation.Profile;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -62,6 +64,8 @@ import static org.awaitility.Awaitility.await;
 @Profile("performance_tests")
 class MessageHandleSpeedTest {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	public static final int WARM_UP_COUNT = 100;
+	public static final int TESTED_COUNT = 1000;
 
 	@Autowired private CommunityRepository communityRepository;
 	@Autowired private CommunityAllocationRepository communityAllocationRepository;
@@ -92,25 +96,24 @@ class MessageHandleSpeedTest {
 
 		//when
 		//warm-up
-		sendMessages(100, siteId, projectAndAllocationIds);
+		sendMessages(WARM_UP_COUNT, siteId, projectAndAllocationIds);
 		await()
-			.timeout(50, TimeUnit.SECONDS)
-			.pollDelay(POLL_INTERVAL, TimeUnit.SECONDS)
-			.pollInterval(POLL_INTERVAL, TimeUnit.SECONDS)
-			.until(() -> resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocId).size() >= 100);
+			.timeout(Duration.of(50, ChronoUnit.SECONDS))
+			.pollDelay(Duration.of(POLL_INTERVAL, ChronoUnit.SECONDS))
+			.pollInterval(Duration.of(POLL_INTERVAL, ChronoUnit.SECONDS))
+			.until(() -> resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocId).size() >= WARM_UP_COUNT);
 
 		//main test
-		sendMessages(1000, siteId, projectAndAllocationIds);
-
 		Stopwatch stopwatch = Stopwatch.createStarted();
+		sendMessages(TESTED_COUNT, siteId, projectAndAllocationIds);
 		await()
-			.timeout(200, TimeUnit.SECONDS)
-			.pollDelay(POLL_INTERVAL, TimeUnit.SECONDS)
-			.pollInterval(POLL_INTERVAL, TimeUnit.SECONDS)
-			.until(() -> resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocId).size() >= 1100);
+			.timeout(Duration.of(200, ChronoUnit.SECONDS))
+			.pollDelay(Duration.of(POLL_INTERVAL, ChronoUnit.SECONDS))
+			.pollInterval(Duration.of(POLL_INTERVAL, ChronoUnit.SECONDS))
+			.until(() -> resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocId).size() >= WARM_UP_COUNT + TESTED_COUNT);
 
 		//then
-		LOG.info("Handled 1000 messages in time less then: {} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
+		LOG.info("Handled and send 1000 messages in time less then: {} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
 	}
 
 	private String createCommunity() {
