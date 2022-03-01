@@ -42,7 +42,8 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 				() -> service.findAll(),
 				() -> service.findAllByCurrentUserId(),
 				() -> service.findProjectLeaderInfoAsInstalledUser(project),
-				() -> service.isUser(project))
+				() -> service.isUser(project),
+				() -> service.getUsersProjectIds())
 				.accessFor(
 						basicUser(),
 						fenixAdmin(),
