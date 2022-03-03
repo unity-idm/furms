@@ -72,7 +72,7 @@ public class CommunityView extends FurmsViewComponent {
 	private Div page1;
 
 	private UsersGridComponent grid;
-	private UsersSnapshot usersSnapshot;
+	private UsersDAO usersDAO;
 
 	CommunityView(CommunityService communityService, AuthzService authzService, CommunityAllocationService allocationService) {
 		this.communityService = communityService;
@@ -119,8 +119,8 @@ public class CommunityView extends FurmsViewComponent {
 
 	private void loadPage1Content(String communityId, String communityName) {
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> usersSnapshot.allUsers,
-			() -> usersSnapshot.communityAdmins
+			usersDAO::getAllUsers,
+			usersDAO::getCommunityAdmins
 		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.fenix-admin.community.button.join"),
@@ -131,7 +131,7 @@ public class CommunityView extends FurmsViewComponent {
 			.withCurrentUserId(currentUserId)
 			.withRemoveUserAction(userId -> communityService.removeAdmin(communityId, userId))
 			.withPostRemoveUserAction(userId -> {
-				usersSnapshot.reload();
+				usersDAO.reload();
 				membershipLayout.loadAppropriateButton();
 				inviteUser.reload();
 			})
@@ -146,18 +146,20 @@ public class CommunityView extends FurmsViewComponent {
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> usersSnapshot.communityAdmins,
+			usersDAO::getCommunityAdmins,
 			() -> communityService.findAllInvitations(communityId),
 			userGrid
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			communityService.addAdmin(communityId, currentUserId);
+			usersDAO.reload();
 			gridReload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (communityService.findAllAdmins(communityId).size() > 1) {
 				handleExceptions(() -> communityService.removeAdmin(communityId, currentUserId));
+				usersDAO.reload();
 				gridReload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
@@ -179,7 +181,7 @@ public class CommunityView extends FurmsViewComponent {
 				id -> communityService.inviteAdmin(communityId, id),
 				() -> communityService.inviteAdmin(communityId, inviteUser.getEmail())
 			);
-			usersSnapshot.reload();
+			usersDAO.reload();
 			gridReload();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
@@ -213,7 +215,7 @@ public class CommunityView extends FurmsViewComponent {
 		tabs.setSelectedTab(tab);
 		links.forEach(x -> x.setRoute(getClass(), communityId));
 		breadCrumbParameter = new BreadCrumbParameter(community.getId(), community.getName(), param);
-		usersSnapshot = new UsersSnapshot(() -> communityService.findAllAdminsWithAllUsers(communityId));
+		usersDAO = new UsersDAO(() -> communityService.findAllAdminsWithAllUsers(communityId));
 		loadPage1Content(communityId, community.getName());
 	}
 
@@ -222,24 +224,26 @@ public class CommunityView extends FurmsViewComponent {
 		return Optional.ofNullable(breadCrumbParameter);
 	}
 
-	static class UsersSnapshot {
+	private static class UsersDAO {
 		private final Supplier<AllUsersAndCommunityAdmins> allUsersGetter;
-		public final List<FURMSUser> allUsers;
-		public final List<FURMSUser> communityAdmins;
+		private AllUsersAndCommunityAdmins currentSnapshot;
 
-		UsersSnapshot(Supplier<AllUsersAndCommunityAdmins> allUsersGetter) {
-			AllUsersAndCommunityAdmins allUsers = allUsersGetter.get();
+		UsersDAO(Supplier<AllUsersAndCommunityAdmins> allUsersGetter) {
 			this.allUsersGetter = allUsersGetter;
-			this.allUsers = allUsers.allUsers;
-			this.communityAdmins = allUsers.communityAdmins;
+			reload();
 		}
 
-		public void reload(){
-			AllUsersAndCommunityAdmins allUsers1 = allUsersGetter.get();
-			allUsers.clear();
-			allUsers.addAll(allUsers1.allUsers);
-			communityAdmins.clear();
-			communityAdmins.addAll(allUsers1.communityAdmins);
+		void reload(){
+			currentSnapshot = allUsersGetter.get();
 		}
+
+		List<FURMSUser> getCommunityAdmins() {
+			return currentSnapshot.communityAdmins;
+		}
+
+		List<FURMSUser> getAllUsers() {
+			return currentSnapshot.allUsers;
+		}
+
 	}
 }

@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +26,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.imunity.furms.domain.authz.roles.Role.CENTRAL_IDP;
 import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
 import static io.imunity.furms.ui.user_context.ViewMode.COMMUNITY;
 import static io.imunity.furms.ui.user_context.ViewMode.FENIX;
@@ -69,8 +68,9 @@ class RoleTranslatorService implements RoleTranslator {
 		if(roles.isEmpty()){
 			return Map.of(USER, List.of(new FurmsViewUserContext(USER_PROPERTIES_CONTEXT_ID, "User settings", USER)));
 		}
-		return Arrays.stream(Role.values())
-			.filter(role -> !role.equals(CENTRAL_IDP))
+		return roles.values().stream()
+			.flatMap(Collection::stream)
+			.distinct()
 			.flatMap(role -> {
 				Set<String> ids = roles.entrySet().stream()
 					.filter(y -> y.getValue().contains(role))

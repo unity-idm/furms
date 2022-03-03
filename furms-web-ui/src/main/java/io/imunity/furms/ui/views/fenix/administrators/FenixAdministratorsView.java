@@ -42,17 +42,17 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final FenixUserService fenixUserService;
-	private final UsersSnapshot usersSnapshot;
+	private final UsersDAO usersDAO;
 
 	private final UsersGridComponent grid;
 
 	FenixAdministratorsView(UserService userService, FenixUserService fenixUserService, AuthzService authzService) {
 		this.fenixUserService = fenixUserService;
-		this.usersSnapshot = new UsersSnapshot(userService::getAllUsers);
+		this.usersDAO = new UsersDAO(userService::getAllUsers);
 
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> usersSnapshot.allUsers,
-			() -> usersSnapshot.fenixAdmins
+			usersDAO::getAllUsers,
+			usersDAO::getFenixAdmins
 		);
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
@@ -61,7 +61,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			.redirectOnCurrentUserRemoval()
 			.withRemoveUserAction(fenixUserService::removeFenixAdminRole)
 			.withPostRemoveUserAction(userId -> {
-				usersSnapshot.reload();
+				usersDAO.reload();
 				inviteUser.reload();
 			})
 			.withResendInvitationAction(fenixUserService::resendFenixAdminInvitation)
@@ -71,7 +71,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(() -> usersSnapshot.fenixAdmins, fenixUserService::getFenixAdminsInvitations, userGrid);
+		grid = UsersGridComponent.defaultInit(usersDAO::getFenixAdmins, fenixUserService::getFenixAdminsInvitations, userGrid);
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.header"));
 		
@@ -88,7 +88,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				fenixUserService::inviteFenixAdmin,
 				() -> fenixUserService.inviteFenixAdmin(inviteUserComponent.getEmail())
 			);
-			usersSnapshot.reload();
+			usersDAO.reload();
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
@@ -102,28 +102,34 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		}
 	}
 
-	static class UsersSnapshot {
+	private static class UsersDAO {
 		private static final ResourceId resourceId = new ResourceId((String) null, ResourceType.APP_LEVEL);
 		private final Supplier<List<FURMSUser>> allUsersGetter;
-		public final List<FURMSUser> allUsers;
-		public final List<FURMSUser> fenixAdmins;
+		private List<FURMSUser> allUsers;
+		private List<FURMSUser> fenixAdmins;
 
-		UsersSnapshot(Supplier<List<FURMSUser>> allUsersGetter) {
+		UsersDAO(Supplier<List<FURMSUser>> allUsersGetter) {
 			this.allUsersGetter = allUsersGetter;
 			this.allUsers = allUsersGetter.get();
 			this.fenixAdmins = getFenixAdmins(allUsers);
 		}
 
-		public void reload(){
-			allUsers.clear();
-			allUsers.addAll(allUsersGetter.get());
-			fenixAdmins.clear();
-			fenixAdmins.addAll(getFenixAdmins(allUsers));
+		void reload(){
+			allUsers = allUsersGetter.get();
+			fenixAdmins = getFenixAdmins(allUsers);
 		}
 
-		private static List<FURMSUser> getFenixAdmins(List<FURMSUser> allUsers) {
+		List<FURMSUser> getAllUsers() {
+			return allUsers;
+		}
+
+		List<FURMSUser> getFenixAdmins() {
+			return fenixAdmins;
+		}
+
+		static List<FURMSUser> getFenixAdmins(List<FURMSUser> allUsers) {
 			return allUsers.stream()
-				.filter(x -> x.roles.getOrDefault(resourceId, Collections.emptySet()).contains(Role.FENIX_ADMIN))
+				.filter(user -> user.roles.getOrDefault(resourceId, Collections.emptySet()).contains(Role.FENIX_ADMIN))
 				.collect(Collectors.toList());
 		}
 	}

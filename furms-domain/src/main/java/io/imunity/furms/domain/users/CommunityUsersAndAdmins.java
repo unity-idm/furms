@@ -8,20 +8,20 @@ package io.imunity.furms.domain.users;
 import java.util.List;
 import java.util.Objects;
 
-public class CommunityUsersAndCommunityAdmins {
+public class CommunityUsersAndAdmins {
 	public final List<FURMSUser> communityUsers;
 	public final List<FURMSUser> communityAdmins;
 
-	public CommunityUsersAndCommunityAdmins(List<FURMSUser> communityUsers, List<FURMSUser> communityAdmins) {
-		this.communityUsers = communityUsers;
-		this.communityAdmins = communityAdmins;
+	public CommunityUsersAndAdmins(List<FURMSUser> communityUsers, List<FURMSUser> communityAdmins) {
+		this.communityUsers = List.copyOf(communityUsers);
+		this.communityAdmins = List.copyOf(communityAdmins);
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		CommunityUsersAndCommunityAdmins that = (CommunityUsersAndCommunityAdmins) o;
+		CommunityUsersAndAdmins that = (CommunityUsersAndAdmins) o;
 		return Objects.equals(communityUsers, that.communityUsers) && Objects.equals(communityAdmins, that.communityAdmins);
 	}
 

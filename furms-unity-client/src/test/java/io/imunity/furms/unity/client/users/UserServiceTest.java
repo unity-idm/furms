@@ -14,6 +14,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.unity.client.UnityClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -210,6 +211,7 @@ public class UserServiceTest {
 			FURMSUser.builder()
 				.id(new PersistentId("1"))
 				.email("email")
+				.status(UserStatus.ENABLED)
 				.roles(Map.of(new ResourceId((String) null, APP_LEVEL), Set.of()))
 				.build()
 		));
@@ -217,6 +219,7 @@ public class UserServiceTest {
 			FURMSUser.builder()
 				.id(new PersistentId("2"))
 				.email("email2")
+				.status(UserStatus.ENABLED)
 				.roles(Map.of(new ResourceId(communityId, COMMUNITY), Set.of(COMMUNITY_ADMIN)))
 				.build()
 		));

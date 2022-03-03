@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.unity.client.UnityGroupParser.usersGroupPredicate4Attr;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityPaths.ENTITY_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
@@ -65,7 +65,7 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public List<FURMSUser> getAllUsers() {
-		return userService.getAllUsersFromGroup(FENIX_PATTERN, attr -> true);
+		return userService.getAllUsersFromGroup(FENIX_GROUP, attr -> true);
 	}
 
 	@Override

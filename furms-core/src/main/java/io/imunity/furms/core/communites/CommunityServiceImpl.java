@@ -20,7 +20,7 @@ import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
-import io.imunity.furms.domain.users.CommunityUsersAndCommunityAdmins;
+import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserRoleGrantedEvent;
@@ -152,7 +152,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
-	public CommunityUsersAndCommunityAdmins findAllCommunityAdminsAllUsers(String id) {
+	public CommunityUsersAndAdmins findAllCommunityAdminsAllUsers(String id) {
 		return communityGroupsDAO.getCommunityAdminsAndUsers(id);
 	}
 

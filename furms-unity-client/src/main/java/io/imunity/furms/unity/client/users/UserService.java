@@ -321,13 +321,14 @@ public class UserService {
 			.collect(toList());
 
 		MultiGroupMembers multiGroupMembers = unityClient.post(path, groups, Map.of(), new ParameterizedTypeReference<>() {});
-		Map<Long, List<Identity>> collect = multiGroupMembers.entities.stream().collect(toMap(x -> x.getEntityInformation().getId(), Entity::getIdentities));
+		Map<Long, Entity> entitiesById = multiGroupMembers.entities.stream()
+			.collect(toMap(entity -> entity.getEntityInformation().getId(), Function.identity()));
 
 		return multiGroupMembers.members.values().stream()
 			.flatMap(Collection::stream)
-			.map(x -> UnityUserMapper
-					.map(collect.getOrDefault(x.entityId, Collections.emptyList()), x.attributes, group)
-					.map(y -> new UserPolicyAcceptances(y, getPolicyAcceptances(x.attributes)))
+			.map(groupAttributes -> Optional.ofNullable(entitiesById.get(groupAttributes.entityId))
+					.flatMap(entity -> UnityUserMapper.map(entity.getIdentities(), groupAttributes.attributes, entity.getEntityInformation(), group))
+					.map(user -> new UserPolicyAcceptances(user, getPolicyAcceptances(groupAttributes.attributes)))
 			)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -350,23 +351,35 @@ public class UserService {
 			.collect(toMap(Entity::getId, Function.identity()));
 
 		Map<String, List<FURMSUser>> usersByGroups = groupsWithRoles.entrySet().stream()
-			.map(entry -> {
-				List<FURMSUser> users = getUsers(entityMap, multiGroupMembers.members.get(entry.getKey()), entry.getKey());
-				if (!entry.getValue().isEmpty())
-					users = users.stream()
-						.filter(user -> user.roles.values().stream()
-							.flatMap(Collection::stream)
-							.anyMatch(role -> entry.getValue().contains(role)))
-						.collect(toList());
-				return Map.entry(entry.getKey(), users);
-			}).collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+			.map(entry -> getUsersByResourceId(multiGroupMembers, entityMap, entry))
+			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
 		return new GroupedUsers(usersByGroups);
 	}
 
+	private Map.Entry<String, List<FURMSUser>> getUsersByResourceId(MultiGroupMembers multiGroupMembers, Map<Long,
+		Entity> entityMap, Map.Entry<String, Set<Role>> entry) {
+
+		List<FURMSUser> users = getUsers(entityMap, multiGroupMembers.members.get(entry.getKey()), entry.getKey());
+		if (!entry.getValue().isEmpty())
+			users = filerUsersByRoles(entry.getValue(), users);
+		return Map.entry(entry.getKey(), users);
+	}
+
+	private List<FURMSUser> filerUsersByRoles(Set<Role> roles, List<FURMSUser> users) {
+		return users.stream()
+			.filter(user -> user.roles.values().stream()
+				.flatMap(Collection::stream)
+				.anyMatch(roles::contains))
+			.collect(toList());
+	}
+
 	private List<FURMSUser> getUsers(Map<Long, Entity> entityMap, List<MultiGroupMembers.EntityGroupAttributes> entityGroupAttributes, String group) {
 		return entityGroupAttributes.stream()
-			.map(x -> UnityUserMapper.map(entityMap.get(x.entityId).getIdentities(), x.attributes, group))
+			.map(groupAttributes ->
+					Optional.ofNullable(entityMap.get(groupAttributes.entityId))
+							.flatMap(x -> UnityUserMapper.map(x.getIdentities(), groupAttributes.attributes,
+									x.getEntityInformation(), group)))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(toList());

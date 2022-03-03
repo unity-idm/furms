@@ -5,21 +5,19 @@
 
 package io.imunity.furms.ui.view_picker;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
+import com.vaadin.flow.component.UI;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
+import io.imunity.furms.ui.user_context.RoleTranslator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.vaadin.flow.component.UI;
-
-import io.imunity.furms.ui.user_context.FurmsViewUserContext;
-import io.imunity.furms.ui.user_context.RoleTranslator;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 class FurmsRoleSelectService {
 	
@@ -37,6 +35,10 @@ class FurmsRoleSelectService {
 			.flatMap(Stream::distinct)
 			.map(FurmsRolePickerText::new)
 			.collect(toList());
+	}
+
+	FurmsViewUserContext getCurrent() {
+		return savedUserContext;
 	}
 
 	void manageSelectedItemRedirects(FurmsRolePickerText value){

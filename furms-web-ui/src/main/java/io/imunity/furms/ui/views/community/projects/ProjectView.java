@@ -15,7 +15,6 @@ import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
@@ -60,7 +59,6 @@ public class ProjectView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectService projectService;
-	private final CommunityService communityService;
 	private final PersistentId currentUserId;
 	private final ProjectAllocationService projectAllocationService;
 
@@ -74,12 +72,10 @@ public class ProjectView extends FurmsViewComponent {
 	private Div page1;
 
 	private UsersGridComponent grid;
-	private UsersSnapshot usersSnapshot;
+	private UsersDAO usersDAO;
 
-	ProjectView(ProjectService projectService, AuthzService authzService, CommunityService communityService,
-	            ProjectAllocationService projectAllocationService) {
+	ProjectView(ProjectService projectService, AuthzService authzService, ProjectAllocationService projectAllocationService) {
 		this.projectService = projectService;
-		this.communityService = communityService;
 		this.currentUserId = authzService.getCurrentUserId();
 		this.projectAllocationService = projectAllocationService;
 	}
@@ -122,10 +118,10 @@ public class ProjectView extends FurmsViewComponent {
 	}
 
 	private void loadPage1Content(Project project) {
-		usersSnapshot = new UsersSnapshot(() -> projectService.findAllCommunityAndProjectAdmins(project.getCommunityId(), project.getId()));
+		usersDAO = new UsersDAO(() -> projectService.findAllCommunityAndProjectAdmins(project.getCommunityId(), project.getId()));
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> usersSnapshot.communityAdmins,
-			() -> usersSnapshot.projectAdmins
+			usersDAO::getCommunityAdmins,
+			usersDAO::getProjectUsers
 		);
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
 			getTranslation("view.community-admin.project.button.join"),
@@ -146,20 +142,21 @@ public class ProjectView extends FurmsViewComponent {
 			})
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
-				usersSnapshot.reload();
+				usersDAO.reload();
 				inviteUser.reload();
 			})
 			.build();
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> usersSnapshot.projectAdmins,
+			usersDAO::getProjectUsers,
 			() -> projectService.findAllAdminsInvitations(project.getId()),
 			userGrid
 		);
 
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addAdmin(project.getCommunityId(), project.getId(), currentUserId);
+			usersDAO.reload();
 			gridReload();
 			inviteUser.reload();
 		});
@@ -170,6 +167,7 @@ public class ProjectView extends FurmsViewComponent {
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
+			usersDAO.reload();
 			inviteUser.reload();
 			membershipLayout.loadAppropriateButton();
 		});
@@ -187,7 +185,7 @@ public class ProjectView extends FurmsViewComponent {
 				id -> projectService.inviteAdmin(project.getId(), id),
 				() -> projectService.inviteAdmin(project.getId(), inviteUser.getEmail())
 			);
-			usersSnapshot.reload();
+			usersDAO.reload();
 			gridReload();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
@@ -229,24 +227,25 @@ public class ProjectView extends FurmsViewComponent {
 		return Optional.ofNullable(breadCrumbParameter);
 	}
 
-	static class UsersSnapshot {
-		private final Supplier<CommunityAdminsAndProjectAdmins> allUsersGetter;
-		public final List<FURMSUser> communityAdmins;
-		public final List<FURMSUser> projectAdmins;
+	private static class UsersDAO {
+		private final Supplier<CommunityAdminsAndProjectAdmins> communityAdminsAndProjectAdminsSupplier;
+		private CommunityAdminsAndProjectAdmins currentSnapshot;
 
-		UsersSnapshot(Supplier<CommunityAdminsAndProjectAdmins> allUsersGetter) {
-			CommunityAdminsAndProjectAdmins allUsers = allUsersGetter.get();
-			this.allUsersGetter = allUsersGetter;
-			this.communityAdmins = allUsers.communityAdmins;
-			this.projectAdmins = allUsers.projectAdmins;
+		UsersDAO(Supplier<CommunityAdminsAndProjectAdmins> communityAdminsAndProjectAdminsSupplier) {
+			this.communityAdminsAndProjectAdminsSupplier = communityAdminsAndProjectAdminsSupplier;
+			reload();
 		}
 
-		public void reload(){
-			CommunityAdminsAndProjectAdmins allUsers = allUsersGetter.get();
-			communityAdmins.clear();
-			communityAdmins.addAll(allUsers.communityAdmins);
-			projectAdmins.clear();
-			projectAdmins.addAll(allUsers.projectAdmins);
+		void reload() {
+			currentSnapshot = communityAdminsAndProjectAdminsSupplier.get();
+		}
+
+		List<FURMSUser> getCommunityAdmins() {
+			return currentSnapshot.communityAdmins;
+		}
+
+		List<FURMSUser> getProjectUsers() {
+			return currentSnapshot.projectAdmins;
 		}
 	}
 }

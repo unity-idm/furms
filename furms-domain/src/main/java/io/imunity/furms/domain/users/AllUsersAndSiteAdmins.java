@@ -13,8 +13,8 @@ public class AllUsersAndSiteAdmins {
 	public final List<FURMSUser> siteAdmins;
 
 	public AllUsersAndSiteAdmins(List<FURMSUser> allUsers, List<FURMSUser> siteAdmins) {
-		this.allUsers = allUsers;
-		this.siteAdmins = siteAdmins;
+		this.allUsers = List.copyOf(allUsers);
+		this.siteAdmins = List.copyOf(siteAdmins);
 	}
 
 	@Override

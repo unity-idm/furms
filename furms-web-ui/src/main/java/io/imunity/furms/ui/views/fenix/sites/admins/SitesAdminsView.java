@@ -10,7 +10,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.sites.Site;
@@ -46,16 +45,14 @@ public class SitesAdminsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SiteService siteService;
-	private final UserService userService;
 	private final PersistentId currentUserId;
 	private String breadCrumbParameter;
 
 	private UsersGridComponent grid;
-	private UsersSnapshot usersSnapshot;
+	private UsersDAO usersDAO;
 
-	SitesAdminsView(SiteService siteService, UserService userService, AuthzService authzService) {
+	SitesAdminsView(SiteService siteService, AuthzService authzService) {
 		this.siteService = siteService;
-		this.userService = userService;
 		this.currentUserId = authzService.getCurrentUserId();
 	}
 
@@ -73,11 +70,11 @@ public class SitesAdminsView extends FurmsViewComponent {
 	}
 
 	private void init(String siteId) {
-		usersSnapshot = new UsersSnapshot(() -> siteService.findAllUsersAndSiteAdmins(siteId));
+		usersDAO = new UsersDAO(() -> siteService.findAllUsersAndSiteAdmins(siteId));
 
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> usersSnapshot.allUsers,
-			() -> usersSnapshot.siteAdmins
+			usersDAO::getAllUsers,
+			usersDAO::getSiteAdmins
 		);
 
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
@@ -87,12 +84,14 @@ public class SitesAdminsView extends FurmsViewComponent {
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			siteService.addAdmin(siteId, currentUserId);
+			usersDAO.reload();
 			gridReload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			if (siteService.findAllSiteUsers(siteId).size() > 1) {
 				handleExceptions(() -> siteService.removeSiteUser(siteId, currentUserId));
+				usersDAO.reload();
 				gridReload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
@@ -107,7 +106,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			.withRemoveUserAction(userId -> siteService.removeSiteUser(siteId, userId))
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
-				usersSnapshot.reload();
+				usersDAO.reload();
 				inviteUser.reload();
 			})
 			.withRemoveInvitationAction(invitationId -> {
@@ -122,7 +121,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> usersSnapshot.siteAdmins,
+			usersDAO::getSiteAdmins,
 			() -> siteService.findSiteAdminInvitations(siteId),
 			userGrid);
 
@@ -141,7 +140,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 				id -> siteService.inviteAdmin(siteId, id),
 				() -> siteService.inviteAdmin(siteId, inviteUserComponent.getEmail())
 			);
-			usersSnapshot.reload();
+			usersDAO.reload();
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			gridReload();
@@ -159,24 +158,25 @@ public class SitesAdminsView extends FurmsViewComponent {
 		grid.reloadGrid();
 	}
 
-	static class UsersSnapshot {
-		private final Supplier<AllUsersAndSiteAdmins> allUsersGetter;
-		public final List<FURMSUser> allUsers;
-		public final List<FURMSUser> siteAdmins;
+	private static class UsersDAO {
+		private final Supplier<AllUsersAndSiteAdmins> allUsersAndSiteAdminsSupplier;
+		private AllUsersAndSiteAdmins currentSnapshot;
 
-		UsersSnapshot(Supplier<AllUsersAndSiteAdmins> allUsersGetter) {
-			AllUsersAndSiteAdmins allUsers = allUsersGetter.get();
-			this.allUsersGetter = allUsersGetter;
-			this.allUsers = allUsers.allUsers;
-			this.siteAdmins = allUsers.siteAdmins;
+		UsersDAO(Supplier<AllUsersAndSiteAdmins> allUsersAndSiteAdminsSupplier) {
+			this.allUsersAndSiteAdminsSupplier = allUsersAndSiteAdminsSupplier;
+			reload();
 		}
 
-		public void reload(){
-			AllUsersAndSiteAdmins allUsers1 = allUsersGetter.get();
-			allUsers.clear();
-			allUsers.addAll(allUsers1.allUsers);
-			siteAdmins.clear();
-			siteAdmins.addAll(allUsers1.siteAdmins);
+		void reload() {
+			currentSnapshot = allUsersAndSiteAdminsSupplier.get();
+		}
+
+		List<FURMSUser> getSiteAdmins(){
+			return currentSnapshot.siteAdmins;
+		}
+
+		List<FURMSUser> getAllUsers(){
+			return currentSnapshot.allUsers;
 		}
 	}
 }

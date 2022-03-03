@@ -8,6 +8,7 @@ package io.imunity.furms.core.invitations;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
+import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
@@ -17,6 +18,7 @@ import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.spi.applications.ApplicationRepository;
 import io.imunity.furms.spi.invitations.InvitationRepository;
@@ -156,6 +158,28 @@ class InvitatoryServiceTest {
 
 		verify(invitationRepository).create(invitation);
 		verify(userInvitationNotificationService).notifyUserAboutNewRole(persistentId, invitation.role);
+	}
+
+	@Test
+	void shouldNotInviteExistingUserIfUserAlreadyHasRole() {
+		Role role = Role.PROJECT_ADMIN;
+		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.PROJECT);
+		PersistentId persistentId = new PersistentId("id");
+		FenixUserId fenixId = new FenixUserId("fenixId");
+		FURMSUser furmsUser = FURMSUser.builder()
+			.id(persistentId)
+			.fenixUserId(fenixId)
+			.email("email@email.com")
+			.build();
+
+		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
+		when(usersDAO.getUserAttributes(fenixId))
+			.thenReturn(new UserAttributes(Set.of(), Map.of(resourceId,
+				Set.of(new UserAttribute(role.unityRoleAttribute, List.of(role.unityRoleValue, Role.PROJECT_USER.unityRoleValue))))));
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
+
+		assertThrows(UserAlreadyHasRoleError.class, () -> invitatoryService.inviteUser(persistentId,
+			resourceId, role, "projectName"));
 	}
 
 	@Test

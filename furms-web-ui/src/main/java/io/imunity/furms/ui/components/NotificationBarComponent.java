@@ -78,10 +78,10 @@ public class NotificationBarComponent extends Button {
 			label.getStyle().set("margin-top", "-3px");
 			badge.add(label);
 			badge.setVisible(true);
-			setDisabled(false);
+			setEnabled(true);
 		}else {
 			badge.setVisible(false);
-			setDisabled(true);
+			setEnabled(false);
 		}
 	}
 

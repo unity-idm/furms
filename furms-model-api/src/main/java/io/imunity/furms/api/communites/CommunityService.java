@@ -9,7 +9,7 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
-import io.imunity.furms.domain.users.CommunityUsersAndCommunityAdmins;
+import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -36,7 +36,7 @@ public interface CommunityService {
 
 	List<FURMSUser> findAllAdmins(String communityId);
 
-	CommunityUsersAndCommunityAdmins findAllCommunityAdminsAllUsers(String id);
+	CommunityUsersAndAdmins findAllCommunityAdminsAllUsers(String id);
 
 	List<FURMSUser> findAllUsers(String communityId);
 

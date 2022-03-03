@@ -14,7 +14,7 @@ public class GroupedUsers {
 	private final Map<String, List<FURMSUser>> usersByGroups;
 
 	public GroupedUsers(Map<String, List<FURMSUser>> usersByGroups) {
-		this.usersByGroups = usersByGroups;
+		this.usersByGroups = Map.copyOf(usersByGroups);
 	}
 
 	public List<FURMSUser> getUsers(String group){

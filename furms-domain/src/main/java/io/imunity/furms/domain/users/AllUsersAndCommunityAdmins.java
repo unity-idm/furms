@@ -13,8 +13,8 @@ public class AllUsersAndCommunityAdmins {
 	public final List<FURMSUser> communityAdmins;
 
 	public AllUsersAndCommunityAdmins(List<FURMSUser> allUsers, List<FURMSUser> communityAdmins) {
-		this.allUsers = allUsers;
-		this.communityAdmins = communityAdmins;
+		this.allUsers = List.copyOf(allUsers);
+		this.communityAdmins = List.copyOf(communityAdmins);
 	}
 
 	@Override

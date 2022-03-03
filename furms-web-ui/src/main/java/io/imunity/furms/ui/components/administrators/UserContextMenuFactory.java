@@ -81,7 +81,12 @@ public class UserContextMenuFactory {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation(confirmSelfRemovalMessageKey));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			if (allowRemoval(gridSizeLoader)) {
-				getResultOrException(() -> removeUserAction.accept(currentUserId))
+				getResultOrException(() -> {
+					removeUserAction.accept(currentUserId);
+					if (postRemoveUserAction != null) {
+						postRemoveUserAction.accept(currentUserId);
+					}
+				})
 						.getException()
 						.ifPresentOrElse(
 								e -> showErrorNotification(getTranslation(e.getMessage())),

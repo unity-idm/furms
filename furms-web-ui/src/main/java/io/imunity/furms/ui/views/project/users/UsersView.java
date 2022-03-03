@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -63,7 +62,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	private PersistentId currentUserId;
 	private MembershipChangerComponent membershipLayout;
 	private UsersGridComponent grid;
-	private UsersSnapshot usersSnapshot;
+	private UsersDAO usersDAO;
 
 	UsersView(ProjectService projectService, AuthzService authzService, UserService userService, ProjectApplicationsService projectApplicationsService) {
 		this.projectService = projectService;
@@ -78,10 +77,10 @@ public class UsersView extends FurmsLandingViewComponent {
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + getCurrentResourceId()));
 		currentUserId = authzService.getCurrentUserId();
 
-		usersSnapshot = new UsersSnapshot(() -> projectService.findAllProjectAdminsAndUsers(project.getCommunityId(), project.getId()));
+		usersDAO = new UsersDAO(() -> projectService.findAllProjectAdminsAndUsers(project.getCommunityId(), project.getId()));
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> usersSnapshot.projectAdmins,
-			() -> usersSnapshot.projectUsers
+			usersDAO::getProjectAdmins,
+			usersDAO::getProjectUsers
 		);
 		
 		membershipLayout = new MembershipChangerComponent(
@@ -114,7 +113,7 @@ public class UsersView extends FurmsLandingViewComponent {
 			})
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
-				usersSnapshot.reload();
+				usersDAO.reload();
 				inviteUser.reload();
 			})
 			.addCustomContextMenuItem(
@@ -126,7 +125,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				} catch (ApplicationNotExistingException e) {
 					showErrorNotification(getTranslation("application.already.not.existing"));
 				}
-					usersSnapshot.reload();
+					usersDAO.reload();
 					grid.reloadGrid();
 				},
 				userGridItem -> UserUIStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
@@ -147,19 +146,21 @@ public class UsersView extends FurmsLandingViewComponent {
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> usersSnapshot.projectUsers,
+			usersDAO::getProjectUsers,
 			() -> projectService.findAllUsersInvitations(projectId),
 			() -> projectApplicationsService.findAllApplyingUsers(projectId),
 			userGrid
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
+			usersDAO.reload();
 			grid.reloadGrid();
-			usersSnapshot.reload();
+			usersDAO.reload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			projectService.removeUser(project.getCommunityId(), project.getId(), currentUserId);
+			usersDAO.reload();
 			grid.reloadGrid();
 			inviteUser.reload();
 			membershipLayout.loadAppropriateButton();
@@ -176,7 +177,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				id -> projectService.inviteUser(projectId, id),
 				() -> projectService.inviteUser(projectId, inviteUserComponent.getEmail())
 			);
-			usersSnapshot.reload();
+			usersDAO.reload();
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
@@ -204,32 +205,42 @@ public class UsersView extends FurmsLandingViewComponent {
 		loadPageContent();
 	}
 
-	static class UsersSnapshot {
-		private final Supplier<List<FURMSUser>> allUsersGetter;
-		public final List<FURMSUser> projectAdmins;
-		public final List<FURMSUser> projectUsers;
+	private static class UsersDAO {
+		private final Supplier<List<FURMSUser>> allProjectUsersGetter;
+		private List<FURMSUser> projectAdmins;
+		private List<FURMSUser> projectUsers;
 
-		UsersSnapshot(Supplier<List<FURMSUser>> allUsersGetter) {
-			this.allUsersGetter = allUsersGetter;
-			List<FURMSUser> allUsers = allUsersGetter.get();
-			Map<Boolean, List<FURMSUser>> collect = partitioningByRole(allUsers);
-			this.projectAdmins = collect.get(true);
-			this.projectUsers = collect.get(false);
+		UsersDAO(Supplier<List<FURMSUser>> allProjectUsersGetter) {
+			this.allProjectUsersGetter = allProjectUsersGetter;
+			reload();
 		}
 
-		private Map<Boolean, List<FURMSUser>> partitioningByRole(List<FURMSUser> allUsers) {
+		List<FURMSUser> getProjectAdmins() {
+			return projectAdmins;
+		}
+
+		List<FURMSUser> getProjectUsers() {
+			return projectUsers;
+		}
+
+		private List<FURMSUser> getProjectAdmins(List<FURMSUser> allUsers) {
 			return allUsers.stream()
 				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
-				.collect(Collectors.partitioningBy(x -> x.roles.values().stream().anyMatch(y -> y.contains(Role.PROJECT_ADMIN))));
+				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(Role.PROJECT_ADMIN)))
+				.collect(Collectors.toList());
 		}
 
-		public void reload(){
-			List<FURMSUser> allUsers = allUsersGetter.get();
-			Map<Boolean, List<FURMSUser>> collect = partitioningByRole(allUsers);
-			projectAdmins.clear();
-			projectAdmins.addAll(collect.get(true));
-			projectUsers.clear();
-			projectUsers.addAll(collect.get(false));
+		private List<FURMSUser> getProjectUsers(List<FURMSUser> allUsers) {
+			return allUsers.stream()
+				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
+				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(Role.PROJECT_USER)))
+				.collect(Collectors.toList());
+		}
+
+		void reload() {
+			List<FURMSUser> projectUsers = allProjectUsersGetter.get();
+			this.projectAdmins = getProjectAdmins(projectUsers);
+			this.projectUsers = getProjectUsers(projectUsers);
 		}
 	}
 }
