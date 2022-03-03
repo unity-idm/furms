@@ -54,6 +54,9 @@ public class FurmsDateTimePicker
 		this.datePicker.setReadOnly(false);
 		this.datePicker.addValueChangeListener(event -> setValueAndFireEventChange());
 		this.datePicker.setLocale(EUROPEAN_FORMAT_LOCALE);
+		DatePicker.DatePickerI18n i18n = new DatePicker.DatePickerI18n();
+		i18n.setDateFormat("dd-MM-yyyy");
+		this.datePicker.setI18n(i18n);
 		this.timePicker = new TimePicker();
 		this.timePicker.setReadOnly(false);
 		this.timePicker.setVisible(false);
