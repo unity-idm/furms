@@ -12,6 +12,7 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
@@ -56,9 +57,8 @@ class SiteServiceSecurityTest extends SecurityTestsBase {
 		.andForMethods(
 				() -> service.findById(site),
 				() -> service.isNamePresentIgnoringRecord("name", site),
-				() -> service.findAllAdminAndSupportUsers(site),
-				() -> service.findAllSupportUsers(site),
 				() -> service.findAllSiteUsers(site),
+				() -> service.findAll(Set.of(site)),
 				() -> service.isCurrentUserAdminOf(site),
 				() -> service.isCurrentUserSupportOf(site))
 				.accessFor(
@@ -78,6 +78,7 @@ class SiteServiceSecurityTest extends SecurityTestsBase {
 		.andForMethods(
 				() -> service.isNamePresent("name"),
 				() -> service.findAll(),
+				() -> service.findAllUsersAndSiteAdmins(site),
 				() -> service.create(Site.builder().build()),
 				() -> service.delete(site))
 				.accessFor(

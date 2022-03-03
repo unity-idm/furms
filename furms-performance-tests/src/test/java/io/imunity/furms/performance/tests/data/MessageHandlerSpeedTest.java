@@ -62,7 +62,7 @@ import static org.awaitility.Awaitility.await;
 
 @SpringBootTest
 @Profile("performance_tests")
-class MessageHandleSpeedTest {
+class MessageHandlerSpeedTest {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	public static final int WARM_UP_COUNT = 100;
 	public static final int TESTED_COUNT = 1000;
@@ -81,7 +81,7 @@ class MessageHandleSpeedTest {
 	private final static long BIG_COMMUNITIES_PROJECTS_COUNT = 2400;
 	private final static long POLL_INTERVAL = 5;
 
-	MessageHandleSpeedTest() {
+	MessageHandlerSpeedTest() {
 	}
 
 	@Test

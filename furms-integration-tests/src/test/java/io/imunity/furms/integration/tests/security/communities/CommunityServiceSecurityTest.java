@@ -12,6 +12,7 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
@@ -53,6 +54,8 @@ class CommunityServiceSecurityTest extends SecurityTestsBase {
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
 				() -> service.findById(community),
+				() -> service.findAll(Set.of(community)),
+				() -> service.findAllCommunityAdminsAllUsers(community),
 				() -> service.findAllUsers(community),
 				() -> service.findAllAdmins(community),
 				() -> service.isAdmin(community),
@@ -80,6 +83,7 @@ class CommunityServiceSecurityTest extends SecurityTestsBase {
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
 				() -> service.findAll(),
+				() -> service.findAllAdminsWithAllUsers(community),
 				() -> service.create(Community.builder().id(community).build()),
 				() -> service.delete(community))
 				.accessFor(

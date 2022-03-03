@@ -36,6 +36,7 @@ import static io.imunity.furms.unity.client.UnityGroupParser.getResourceId;
 import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
 import static org.springframework.util.StringUtils.hasText;
 import static pl.edu.icm.unity.types.basic.EntityState.onlyLoginPermitted;
 import static pl.edu.icm.unity.types.basic.EntityState.valid;
@@ -88,7 +89,7 @@ public class UnityUserMapper {
 	}
 
 	private static Map<ResourceId, Set<Role>> getRoles(String group, Collection<? extends Attribute> attributeExts) {
-		if(group.equals(FENIX_GROUP))
+		if(group.equals(FENIX_GROUP) || group.equals(ROOT_GROUP))
 			return Map.of();
 		ResourceId resourceId = getResourceId(group);
 		Set<Role> roles = attributeExts.stream()

@@ -14,6 +14,7 @@ import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.integration.tests.security.SecurityTestRulesValidator.forMethods;
@@ -88,6 +89,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
 				() -> service.findById(project),
+				() -> service.findAll(Set.of(project)),
 				() -> service.isProjectInTerminalState(project),
 				() -> service.isProjectExpired(project),
 				() -> service.findAllAdmins(community, project),
@@ -95,6 +97,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 				() -> service.hasAdminRights(project),
 				() -> service.findAllUsers(community, project),
 				() -> service.findAllUsers(project),
+				() -> service.findAllProjectAdminsAndUsers(community, project),
 				() -> service.resignFromMembership(community, project))
 				.accessFor(
 						communityAdmin(community),
@@ -131,6 +134,7 @@ class ProjectServiceSecurityTest extends SecurityTestsBase {
 				() -> service.findAllNotExpiredByCommunityId(community),
 				() -> service.isProjectInTerminalState(community, project),
 				() -> service.create(Project.builder().communityId(community).build()),
+				() -> service.findAllCommunityAndProjectAdmins(community, project),
 				() -> service.delete(project, community))
 				.accessFor(
 						fenixAdmin(),
