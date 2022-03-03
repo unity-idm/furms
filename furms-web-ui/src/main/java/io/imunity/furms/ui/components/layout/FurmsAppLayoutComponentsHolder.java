@@ -15,13 +15,13 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
-
 import com.vaadin.flow.dom.Element;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.LogoutIconFactory;
 import io.imunity.furms.ui.components.MenuComponent;
 import io.imunity.furms.ui.components.TabComponent;
 import io.imunity.furms.ui.components.branding.logo.FurmsLogo;
+import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.view_picker.FurmsRolePicker;
 
 import java.util.List;
@@ -81,6 +81,10 @@ class FurmsAppLayoutComponentsHolder {
 
 	void reloadUserPicker() {
 		furmsSelect.reloadComponent();
+	}
+
+	FurmsViewUserContext getCurrent() {
+		return furmsSelect.getCurrent();
 	}
 
 	void reloadMenuAndBreadCrumb() {

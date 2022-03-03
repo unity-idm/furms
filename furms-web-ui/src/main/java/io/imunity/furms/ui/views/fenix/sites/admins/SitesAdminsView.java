@@ -10,12 +10,12 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.MembershipChangerComponent;
@@ -24,12 +24,15 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
@@ -42,15 +45,14 @@ public class SitesAdminsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final SiteService siteService;
-	private final UserService userService;
 	private final PersistentId currentUserId;
 	private String breadCrumbParameter;
 
 	private UsersGridComponent grid;
+	private UsersDAO usersDAO;
 
-	SitesAdminsView(SiteService siteService, UserService userService, AuthzService authzService) {
+	SitesAdminsView(SiteService siteService, AuthzService authzService) {
 		this.siteService = siteService;
-		this.userService = userService;
 		this.currentUserId = authzService.getCurrentUserId();
 	}
 
@@ -68,9 +70,11 @@ public class SitesAdminsView extends FurmsViewComponent {
 	}
 
 	private void init(String siteId) {
+		usersDAO = new UsersDAO(() -> siteService.findAllUsersAndSiteAdmins(siteId));
+
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			userService::getAllUsers,
-			() -> siteService.findAllAdministrators(siteId)
+			usersDAO::getAllUsers,
+			usersDAO::getSiteAdmins
 		);
 
 		MembershipChangerComponent membershipLayout = new MembershipChangerComponent(
@@ -80,12 +84,14 @@ public class SitesAdminsView extends FurmsViewComponent {
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			siteService.addAdmin(siteId, currentUserId);
+			usersDAO.reload();
 			gridReload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
-			if (siteService.findAllAdministrators(siteId).size() > 1) {
+			if (siteService.findAllSiteUsers(siteId).size() > 1) {
 				handleExceptions(() -> siteService.removeSiteUser(siteId, currentUserId));
+				usersDAO.reload();
 				gridReload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
@@ -100,6 +106,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			.withRemoveUserAction(userId -> siteService.removeSiteUser(siteId, userId))
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
+				usersDAO.reload();
 				inviteUser.reload();
 			})
 			.withRemoveInvitationAction(invitationId -> {
@@ -114,7 +121,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> siteService.findAllAdministrators(siteId),
+			usersDAO::getSiteAdmins,
 			() -> siteService.findSiteAdminInvitations(siteId),
 			userGrid);
 
@@ -133,6 +140,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 				id -> siteService.inviteAdmin(siteId, id),
 				() -> siteService.inviteAdmin(siteId, inviteUserComponent.getEmail())
 			);
+			usersDAO.reload();
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			gridReload();
@@ -150,4 +158,25 @@ public class SitesAdminsView extends FurmsViewComponent {
 		grid.reloadGrid();
 	}
 
+	private static class UsersDAO {
+		private final Supplier<AllUsersAndSiteAdmins> allUsersAndSiteAdminsSupplier;
+		private AllUsersAndSiteAdmins currentSnapshot;
+
+		UsersDAO(Supplier<AllUsersAndSiteAdmins> allUsersAndSiteAdminsSupplier) {
+			this.allUsersAndSiteAdminsSupplier = allUsersAndSiteAdminsSupplier;
+			reload();
+		}
+
+		void reload() {
+			currentSnapshot = allUsersAndSiteAdminsSupplier.get();
+		}
+
+		List<FURMSUser> getSiteAdmins(){
+			return currentSnapshot.siteAdmins;
+		}
+
+		List<FURMSUser> getAllUsers(){
+			return currentSnapshot.allUsers;
+		}
+	}
 }

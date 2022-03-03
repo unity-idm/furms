@@ -16,6 +16,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -35,7 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
@@ -59,14 +62,13 @@ public class UsersView extends FurmsLandingViewComponent {
 	private PersistentId currentUserId;
 	private MembershipChangerComponent membershipLayout;
 	private UsersGridComponent grid;
+	private UsersDAO usersDAO;
 
 	UsersView(ProjectService projectService, AuthzService authzService, UserService userService, ProjectApplicationsService projectApplicationsService) {
 		this.projectService = projectService;
 		this.authzService = authzService;
 		this.userService = userService;
 		this.projectApplicationsService = projectApplicationsService;
-
-		loadPageContent();
 	}
 
 	private void loadPageContent() {
@@ -74,11 +76,11 @@ public class UsersView extends FurmsLandingViewComponent {
 		project = projectService.findById(projectId)
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + getCurrentResourceId()));
 		currentUserId = authzService.getCurrentUserId();
+
+		usersDAO = new UsersDAO(() -> projectService.findAllProjectAdminsAndUsers(project.getCommunityId(), project.getId()));
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()).stream()
-				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
-				.collect(Collectors.toList()),
-			() -> projectService.findAllUsers(project.getCommunityId(), project.getId())
+			usersDAO::getProjectAdmins,
+			usersDAO::getProjectUsers
 		);
 		
 		membershipLayout = new MembershipChangerComponent(
@@ -111,6 +113,7 @@ public class UsersView extends FurmsLandingViewComponent {
 			})
 			.withPostRemoveUserAction(userId -> {
 				membershipLayout.loadAppropriateButton();
+				usersDAO.reload();
 				inviteUser.reload();
 			})
 			.addCustomContextMenuItem(
@@ -122,6 +125,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				} catch (ApplicationNotExistingException e) {
 					showErrorNotification(getTranslation("application.already.not.existing"));
 				}
+					usersDAO.reload();
 					grid.reloadGrid();
 				},
 				userGridItem -> UserUIStatus.ACCESS_REQUESTED.equals(userGridItem.getStatus())
@@ -142,18 +146,21 @@ public class UsersView extends FurmsLandingViewComponent {
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
 		grid = UsersGridComponent.defaultInit(
-			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
+			usersDAO::getProjectUsers,
 			() -> projectService.findAllUsersInvitations(projectId),
 			() -> projectApplicationsService.findAllApplyingUsers(projectId),
 			userGrid
 		);
 		membershipLayout.addJoinButtonListener(event -> {
 			projectService.addUser(project.getCommunityId(), project.getId(), currentUserId);
+			usersDAO.reload();
 			grid.reloadGrid();
+			usersDAO.reload();
 			inviteUser.reload();
 		});
 		membershipLayout.addDemitButtonListener(event -> {
 			projectService.removeUser(project.getCommunityId(), project.getId(), currentUserId);
+			usersDAO.reload();
 			grid.reloadGrid();
 			inviteUser.reload();
 			membershipLayout.loadAppropriateButton();
@@ -170,6 +177,7 @@ public class UsersView extends FurmsLandingViewComponent {
 				id -> projectService.inviteUser(projectId, id),
 				() -> projectService.inviteUser(projectId, inviteUserComponent.getEmail())
 			);
+			usersDAO.reload();
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
@@ -195,5 +203,44 @@ public class UsersView extends FurmsLandingViewComponent {
 		LOG.debug("After navigation on project users view {}", getCurrentResourceId());
 		getContent().removeAll();
 		loadPageContent();
+	}
+
+	private static class UsersDAO {
+		private final Supplier<List<FURMSUser>> allProjectUsersGetter;
+		private List<FURMSUser> projectAdmins;
+		private List<FURMSUser> projectUsers;
+
+		UsersDAO(Supplier<List<FURMSUser>> allProjectUsersGetter) {
+			this.allProjectUsersGetter = allProjectUsersGetter;
+			reload();
+		}
+
+		List<FURMSUser> getProjectAdmins() {
+			return projectAdmins;
+		}
+
+		List<FURMSUser> getProjectUsers() {
+			return projectUsers;
+		}
+
+		private List<FURMSUser> getProjectAdmins(List<FURMSUser> allUsers) {
+			return allUsers.stream()
+				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
+				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(Role.PROJECT_ADMIN)))
+				.collect(Collectors.toList());
+		}
+
+		private List<FURMSUser> getProjectUsers(List<FURMSUser> allUsers) {
+			return allUsers.stream()
+				.filter(IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP)
+				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(Role.PROJECT_USER)))
+				.collect(Collectors.toList());
+		}
+
+		void reload() {
+			List<FURMSUser> projectUsers = allProjectUsersGetter.get();
+			this.projectAdmins = getProjectAdmins(projectUsers);
+			this.projectUsers = getProjectUsers(projectUsers);
+		}
 	}
 }

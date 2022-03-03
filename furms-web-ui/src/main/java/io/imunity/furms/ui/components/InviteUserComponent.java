@@ -18,6 +18,7 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -79,7 +80,7 @@ public class InviteUserComponent extends HorizontalLayout {
 	}
 
 	public List<FurmsViewUserModel> getAvailableUsers() {
-		List<FURMSUser> users = fetchAllUsersAction.get();
+		List<FURMSUser> users = new ArrayList<>(fetchAllUsersAction.get());
 		users.removeAll(fetchCurrentUsersAction.get());
 		return FurmsViewUserModelMapper.mapList(users);
 	}

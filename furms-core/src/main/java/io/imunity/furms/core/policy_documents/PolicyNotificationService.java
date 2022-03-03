@@ -134,7 +134,7 @@ public class PolicyNotificationService {
 			userOperationRepository.findAllUserAdditionsBySiteId(siteId.id).stream()
 				.map(addition -> addition.userId)
 				.map(FenixUserId::new),
-			siteGroupDAO.getAllSiteUsers(siteId.id, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT)).stream()
+			siteGroupDAO.getSiteUsers(siteId.id, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT)).stream()
 				.filter(user -> user.fenixUserId.isPresent())
 				.map(user -> user.fenixUserId.get())
 		)

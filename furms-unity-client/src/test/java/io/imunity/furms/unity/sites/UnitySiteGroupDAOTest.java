@@ -158,7 +158,7 @@ class UnitySiteGroupDAOTest {
 			);
 
 		//when
-		List<FURMSUser> admins = unitySiteWebClient.getAllSiteUsers(siteId, Set.of(SITE_ADMIN));
+		List<FURMSUser> admins = unitySiteWebClient.getSiteUsers(siteId, Set.of(SITE_ADMIN));
 
 		//then
 		assertThat(admins).hasSize(2);

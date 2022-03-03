@@ -233,7 +233,7 @@ public class ProjectsView extends FurmsViewComponent {
 
 	private List<ProjectGridModel> loadProjectsViewsModels() {
 		try {
-			Set<Project> projects = handleExceptions(projectService::findAll)
+			Set<Project> projects = handleExceptions(() -> projectService.findAll())
 				.orElseGet(Collections::emptySet);
 			return mapper.map(projects)
 				.stream()

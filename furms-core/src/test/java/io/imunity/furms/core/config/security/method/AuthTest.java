@@ -234,10 +234,13 @@ class AuthTest {
 			.email("a@a.pl")
 			.roles(roles)
 			.build();
-		Project project = Project.builder().id(projectUUID.toString()).build();
+		Project project = Project.builder()
+			.id(projectUUID.toString())
+			.communityId(communityUUID.toString())
+			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
-		when(projectRepository.findAllByCommunityId(communityUUID.toString())).thenReturn(Set.of(project));
+		when(projectRepository.findAllByCommunityIds(Set.of(communityUUID.toString()))).thenReturn(Set.of(project));
 
 		Throwable throwable = catchThrowable(() -> mockService.getProject(projectUUID.toString()));
 		assertThat(throwable).isNull();

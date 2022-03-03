@@ -9,6 +9,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.MenuButton;
@@ -109,11 +110,12 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 	}
 
 	private List<UserGridItem> loadUsers() {
-		return Stream.of(
-			siteService.findAllAdministrators(siteId).stream().map(user -> new SiteUserGridItem(user, SiteRole.ADMIN)),
-			siteService.findAllSupportUsers(siteId).stream().map(user -> new SiteUserGridItem(user, SiteRole.SUPPORT))
-		)
-			.flatMap(Function.identity())
+		return siteService.findAllSiteUsers(siteId).stream()
+			.map(user -> {
+				if(user.roles.values().stream().anyMatch(roles -> roles.contains(Role.SITE_ADMIN)))
+					return new SiteUserGridItem(user, SiteRole.ADMIN);
+				return new SiteUserGridItem(user, SiteRole.SUPPORT);
+			})
 			.collect(Collectors.toList());
 	}
 

@@ -24,6 +24,9 @@ import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.ProjectGroup;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.projects.ProjectUpdatedEvent;
+import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
+import io.imunity.furms.domain.users.GroupedUsers;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserProjectMembershipRevokedEvent;
@@ -107,6 +110,12 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = AUTHENTICATED)
 	public boolean existsById(String id) {
 		return projectRepository.exists(id);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "ids", idCollections = true)
+	public Set<Project> findAll(Set<String> ids) {
+		return projectRepository.findAll(ids);
 	}
 
 	@Override
@@ -252,6 +261,12 @@ class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
+	public CommunityAdminsAndProjectAdmins findAllCommunityAndProjectAdmins(String communityId, String projectId) {
+		return projectGroupsDAO.getAllCommunityAndProjectAdmins(communityId, projectId);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public boolean isAdmin(String projectId){
 		return authzService.isResourceMember(projectId, PROJECT_ADMIN);
@@ -314,6 +329,12 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public List<FURMSUser> findAllUsers(String communityId, String projectId){
 		return projectGroupsDAO.getAllUsers(communityId, projectId);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
+	public List<FURMSUser> findAllProjectAdminsAndUsers(String communityId, String projectId) {
+		return projectGroupsDAO.getAllProjectAdminsAndUsers(communityId, projectId);
 	}
 
 	@Override

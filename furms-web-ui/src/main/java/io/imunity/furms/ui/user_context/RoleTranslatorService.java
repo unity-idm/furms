@@ -16,10 +16,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.constant.RoutesConst.SITE_SUPPORT_LANDING_PAGE;
@@ -64,9 +68,17 @@ class RoleTranslatorService implements RoleTranslator {
 		if(roles.isEmpty()){
 			return Map.of(USER, List.of(new FurmsViewUserContext(USER_PROPERTIES_CONTEXT_ID, "User settings", USER)));
 		}
-		return roles.entrySet().stream()
-			.flatMap(this::getFurmsUserContextStream)
+		return roles.values().stream()
+			.flatMap(Collection::stream)
 			.distinct()
+			.flatMap(role -> {
+				Set<String> ids = roles.entrySet().stream()
+					.filter(y -> y.getValue().contains(role))
+					.map(Map.Entry::getKey)
+					.map(resourceId -> Optional.ofNullable(resourceId.id).map(UUID::toString).orElse(null))
+					.collect(Collectors.toSet());
+				return getFurmsUserContexts(ids, role);
+			}).distinct()
 			.sorted(comparingInt(user -> user.viewMode.order))
 			.collect(
 				groupingBy(
@@ -76,68 +88,30 @@ class RoleTranslatorService implements RoleTranslator {
 			);
 	}
 
-	private Stream<FurmsViewUserContext> getFurmsUserContextStream(Map.Entry<ResourceId, Set<Role>> roles) {
-		return roles.getValue().stream()
-			.flatMap(role -> getFurmsUserContexts(roles.getKey(), role));
+	private Stream<FurmsViewUserContext> getFurmsUserContexts(Set<String> resourceIds, Role role) {
+		FurmsViewUserContext userSettings = new FurmsViewUserContext(USER_PROPERTIES_CONTEXT_ID, "User settings", USER);
+		Stream<FurmsViewUserContext> furmsViewUserContextStream = getFurmsViewUserContextStream(resourceIds, role);
+		return Stream.concat(furmsViewUserContextStream, Stream.of(userSettings));
 	}
 
-	private Stream<FurmsViewUserContext> getFurmsUserContexts(ResourceId resourceId, Role role) {
-		FurmsViewUserContext userSettings = new FurmsViewUserContext(USER_PROPERTIES_CONTEXT_ID, "User settings", USER);
+	private Stream<FurmsViewUserContext> getFurmsViewUserContextStream(Set<String> resourceIds, Role role) {
 		switch (role) {
 			case FENIX_ADMIN:
-				return Stream.of(new FurmsViewUserContext(FENIX_ADMIN_CONTEXT_ID, "Fenix admin", FENIX), userSettings);
+				return Stream.of(new FurmsViewUserContext(FENIX_ADMIN_CONTEXT_ID, "Fenix admin", FENIX));
 			case SITE_ADMIN:
-				return siteService.findById(resourceId.id.toString())
-					.map(site -> Stream.of(
-						new FurmsViewUserContext(site.getId(), getAdminName(site.getName()), SITE),
-						userSettings)
-					)
-					.orElseGet(() -> {
-						LOG.warn("Wrong resource id {}. Data are not synchronized", resourceId);
-						return Stream.empty();
-					});
+				return siteService.findAll(resourceIds).stream()
+					.map(site -> new FurmsViewUserContext(site.getId(), getAdminName(site.getName()), SITE));
 			case SITE_SUPPORT:
-				return siteService.findById(resourceId.id.toString())
-					.map(site ->
-						Stream.of(
-							new FurmsViewUserContext(site.getId(), getSupportName(site.getName()), SITE, SITE_SUPPORT_LANDING_PAGE),
-							userSettings)
-					)
-					.orElseGet(() -> {
-						LOG.warn("Wrong resource id {}. Data are not synchronized", resourceId);
-						return Stream.empty();
-					});
+				return siteService.findAll(resourceIds).stream()
+					.map(site -> new FurmsViewUserContext(site.getId(), getSupportName(site.getName()), SITE, SITE_SUPPORT_LANDING_PAGE));
 			case COMMUNITY_ADMIN:
-				return communityService.findById(resourceId.id.toString())
-					.map(community ->
-						Stream.of(
-						new FurmsViewUserContext(community.getId(), getAdminName(community.getName()), COMMUNITY),
-						userSettings)
-					)
-					.orElseGet(() -> {
-						LOG.warn("Wrong resource id {}. Data are not synchronized", resourceId);
-						return Stream.empty();
-					});
+				return communityService.findAll(resourceIds).stream()
+					.map(community -> new FurmsViewUserContext(community.getId(), getAdminName(community.getName()), COMMUNITY));
 			case PROJECT_ADMIN:
-				return projectService.findById(resourceId.id.toString())
-					.map(project ->
-						Stream.of(
-							new FurmsViewUserContext(project.getId(), getAdminName(project.getName()), PROJECT),
-							userSettings)
-					)
-					.orElseGet(() -> {
-						LOG.warn("Wrong resource id {}. Data are not synchronized", resourceId);
-						return Stream.empty();
-					});
+				return projectService.findAll(resourceIds).stream()
+					.map(project -> new FurmsViewUserContext(project.getId(), getAdminName(project.getName()), PROJECT));
 			case PROJECT_USER:
-				return projectService.findById(resourceId.id.toString())
-					.map(project ->
-						Stream.of(userSettings)
-					)
-					.orElseGet(() -> {
-						LOG.warn("Wrong resource id {}. Data are not synchronized", resourceId);
-						return Stream.empty();
-					});
+				return Stream.empty();
 			default:
 				throw new IllegalArgumentException("This shouldn't happen, viewMode level should be always declared");
 		}

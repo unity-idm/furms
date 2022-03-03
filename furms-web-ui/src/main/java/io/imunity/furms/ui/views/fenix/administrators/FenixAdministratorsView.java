@@ -11,6 +11,10 @@ import io.imunity.furms.api.users.FenixUserService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -23,6 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
@@ -34,15 +42,17 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final FenixUserService fenixUserService;
+	private final UsersDAO usersDAO;
 
 	private final UsersGridComponent grid;
 
 	FenixAdministratorsView(UserService userService, FenixUserService fenixUserService, AuthzService authzService) {
 		this.fenixUserService = fenixUserService;
+		this.usersDAO = new UsersDAO(userService::getAllUsers);
 
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			userService::getAllUsers,
-			fenixUserService::getFenixAdmins
+			usersDAO::getAllUsers,
+			usersDAO::getFenixAdmins
 		);
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 
@@ -50,7 +60,10 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			.withCurrentUserId(authzService.getCurrentUserId())
 			.redirectOnCurrentUserRemoval()
 			.withRemoveUserAction(fenixUserService::removeFenixAdminRole)
-			.withPostRemoveUserAction(userId -> inviteUser.reload())
+			.withPostRemoveUserAction(userId -> {
+				usersDAO.reload();
+				inviteUser.reload();
+			})
 			.withResendInvitationAction(fenixUserService::resendFenixAdminInvitation)
 			.withRemoveInvitationAction(code -> {
 				fenixUserService.removeFenixAdminInvitation(code);
@@ -58,7 +71,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(fenixUserService::getFenixAdmins, fenixUserService::getFenixAdminsInvitations, userGrid);
+		grid = UsersGridComponent.defaultInit(usersDAO::getFenixAdmins, fenixUserService::getFenixAdminsInvitations, userGrid);
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(getTranslation("view.fenix-admin.header"));
 		
@@ -75,6 +88,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				fenixUserService::inviteFenixAdmin,
 				() -> fenixUserService.inviteFenixAdmin(inviteUserComponent.getEmail())
 			);
+			usersDAO.reload();
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
@@ -88,4 +102,35 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 		}
 	}
 
+	private static class UsersDAO {
+		private static final ResourceId resourceId = new ResourceId((String) null, ResourceType.APP_LEVEL);
+		private final Supplier<List<FURMSUser>> allUsersGetter;
+		private List<FURMSUser> allUsers;
+		private List<FURMSUser> fenixAdmins;
+
+		UsersDAO(Supplier<List<FURMSUser>> allUsersGetter) {
+			this.allUsersGetter = allUsersGetter;
+			this.allUsers = allUsersGetter.get();
+			this.fenixAdmins = getFenixAdmins(allUsers);
+		}
+
+		void reload(){
+			allUsers = allUsersGetter.get();
+			fenixAdmins = getFenixAdmins(allUsers);
+		}
+
+		List<FURMSUser> getAllUsers() {
+			return allUsers;
+		}
+
+		List<FURMSUser> getFenixAdmins() {
+			return fenixAdmins;
+		}
+
+		static List<FURMSUser> getFenixAdmins(List<FURMSUser> allUsers) {
+			return allUsers.stream()
+				.filter(user -> user.roles.getOrDefault(resourceId, Collections.emptySet()).contains(Role.FENIX_ADMIN))
+				.collect(Collectors.toList());
+		}
+	}
 }

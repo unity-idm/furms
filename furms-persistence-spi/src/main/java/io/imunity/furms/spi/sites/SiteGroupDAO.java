@@ -7,6 +7,7 @@ package io.imunity.furms.spi.sites;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -24,7 +25,9 @@ public interface SiteGroupDAO {
 
 	void delete(String id);
 
-	List<FURMSUser> getAllSiteUsers(String siteId, Set<Role> roles);
+	List<FURMSUser> getSiteUsers(String siteId, Set<Role> roles);
+
+	AllUsersAndSiteAdmins getAllUsersAndSiteAdmins(String siteId);
 
 	void addSiteUser(String siteId, PersistentId userId, Role role);
 

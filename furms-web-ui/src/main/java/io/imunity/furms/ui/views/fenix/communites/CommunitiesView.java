@@ -82,7 +82,7 @@ public class CommunitiesView extends FurmsViewComponent {
 	}
 
 	private void loadGridContent() {
-		List<CommunityViewModel> allCommunities = handleExceptions(communityService::findAll)
+		List<CommunityViewModel> allCommunities = handleExceptions(() -> communityService.findAll())
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(CommunityViewModelMapper::map)

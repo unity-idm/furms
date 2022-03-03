@@ -13,6 +13,8 @@ import java.util.Set;
 public interface CommunityRepository {
 	Optional<Community> findById(String id);
 
+	Set<Community> findAll(Set<String> ids);
+
 	Set<Community> findAll();
 
 	String create(Community community);

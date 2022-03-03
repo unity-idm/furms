@@ -10,6 +10,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -33,29 +34,33 @@ import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "community/admin/administrators", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.administrators.page.title")
-public class CommunityAdminsView extends FurmsViewComponent {
+public class CommunityAdminsView<priavte> extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final CommunityService communityService;
 	private final UsersGridComponent grid;
 	private final String communityId;
+	private final UsersDAO usersDAO;
 
 	public CommunityAdminsView(CommunityService communityService, AuthzService authzService) {
 		this.communityService = communityService;
 		communityId = getCurrentResourceId();
 		PersistentId currentUserId = authzService.getCurrentUserId();
 
-		Supplier<List<FURMSUser>> fetchAdminsAction = () -> communityService.findAllAdmins(communityId);
+		usersDAO = new UsersDAO(() -> communityService.findAllCommunityAdminsAllUsers(communityId));
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> communityService.findAllUsers(communityId),
-			fetchAdminsAction
+			usersDAO::getCommunityUsers,
+			usersDAO::getCommunityAdmins
 		);
 
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
 			.redirectOnCurrentUserRemoval()
 			.withRemoveUserAction(userId -> communityService.removeAdmin(communityId, userId))
-			.withPostRemoveUserAction(userId -> inviteUser.reload())
+			.withPostRemoveUserAction(userId -> {
+				usersDAO.reload();
+				inviteUser.reload();
+			})
 			.withResendInvitationAction(invitationId -> {
 				communityService.resendInvitation(communityId, invitationId);
 				gridReload();
@@ -66,7 +71,8 @@ public class CommunityAdminsView extends FurmsViewComponent {
 			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(fetchAdminsAction, () -> communityService.findAllInvitations(communityId), userGrid);
+		grid = UsersGridComponent.defaultInit(usersDAO::getCommunityAdmins,
+			() -> communityService.findAllInvitations(communityId), userGrid);
 
 		inviteUser.addInviteAction(event -> doInviteAction(inviteUser));
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
@@ -80,6 +86,7 @@ public class CommunityAdminsView extends FurmsViewComponent {
 				id -> communityService.inviteAdmin(communityId, id),
 				() -> communityService.inviteAdmin(communityId, inviteUserComponent.getEmail())
 			);
+			usersDAO.reload();
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
@@ -97,4 +104,25 @@ public class CommunityAdminsView extends FurmsViewComponent {
 		grid.reloadGrid();
 	}
 
+	private static class UsersDAO {
+		private final Supplier<CommunityUsersAndAdmins> communityUsersAndAdminsSupplier;
+		private CommunityUsersAndAdmins currentSnapshot;
+
+		UsersDAO(Supplier<CommunityUsersAndAdmins> communityUsersAndAdminsSupplier) {
+			this.communityUsersAndAdminsSupplier = communityUsersAndAdminsSupplier;
+			reload();
+		}
+
+		void reload(){
+			currentSnapshot = communityUsersAndAdminsSupplier.get();
+		}
+
+		List<FURMSUser> getCommunityAdmins() {
+			return currentSnapshot.communityAdmins;
+		}
+
+		List<FURMSUser> getCommunityUsers() {
+			return currentSnapshot.communityUsers;
+		}
+	}
 }

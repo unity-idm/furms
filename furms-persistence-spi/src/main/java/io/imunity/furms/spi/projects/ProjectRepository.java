@@ -15,9 +15,13 @@ public interface ProjectRepository {
 
 	Set<Project> findAllByCommunityId(String communityId);
 
+	Set<Project> findAllByCommunityIds(Set<String> communityIds);
+
 	Set<Project> findAllNotExpiredByCommunityId(String communityId);
 
 	Set<Project> findAll();
+
+	Set<Project> findAll(Set<String> ids);
 
 	String create(Project community);
 

@@ -21,4 +21,5 @@ public @interface FurmsAuthorize {
 	Capability capability();
 	ResourceType resourceType() default APP_LEVEL;
 	String id() default "";
+	boolean idCollections() default false;
 }

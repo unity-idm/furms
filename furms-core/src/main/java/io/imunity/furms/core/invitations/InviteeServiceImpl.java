@@ -104,7 +104,7 @@ class InviteeServiceImpl implements InviteeService {
 				adminsToNotify = fenixUsersDAO.getAdminUsers();
 				break;
 			case SITE:
-				adminsToNotify = siteGroupDAO.getAllSiteUsers(invitation.resourceId.id.toString(), Set.of(Role.SITE_ADMIN));
+				adminsToNotify = siteGroupDAO.getSiteUsers(invitation.resourceId.id.toString(), Set.of(Role.SITE_ADMIN));
 				break;
 			case COMMUNITY:
 				adminsToNotify = communityGroupsDAO.getAllAdmins(invitation.resourceId.id.toString());

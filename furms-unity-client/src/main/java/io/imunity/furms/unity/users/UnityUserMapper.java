@@ -5,6 +5,8 @@
 
 package io.imunity.furms.unity.users;
 
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -21,11 +24,16 @@ import pl.edu.icm.unity.types.basic.Identity;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.users.UserStatus.DISABLED;
 import static io.imunity.furms.domain.users.UserStatus.ENABLED;
+import static io.imunity.furms.unity.client.UnityGroupParser.getResourceId;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 import static org.springframework.util.StringUtils.hasText;
@@ -47,8 +55,9 @@ public class UnityUserMapper {
 		return getFurmsUser(() -> buildUser(getPersistentId(entity.getIdentities()), userId, attributes, entity));
 	}
 
-	public static Optional<FURMSUser> map(List<Identity> identities, Collection<? extends Attribute> attributes){
-		return getFurmsUser(() -> buildUser(identities, attributes));
+	public static Optional<FURMSUser> map(List<Identity> identities, Collection<? extends Attribute> attributes,
+	                                      EntityInformation information, String group) {
+		return getFurmsUser(() -> buildUser(identities, attributes, information, group));
 	}
 
 	private static Optional<FURMSUser> getFurmsUser(Supplier<FURMSUser> userGetter) {
@@ -74,17 +83,37 @@ public class UnityUserMapper {
 			.lastName(getFirstAttributeValue(groupMember, "surname"))
 			.email(getFirstAttributeValue(groupMember, "email"))
 			.status(getStatus(groupMember))
+			.roles(getRoles(groupMember.getGroup(), groupMember.getAttributes()))
 			.build();
 	}
 
-	private static FURMSUser buildUser(List<Identity> identities, Collection<? extends Attribute> attributes) {
+	private static Map<ResourceId, Set<Role>> getRoles(String group, Collection<? extends Attribute> attributeExts) {
+		if(group.equals(FENIX_GROUP))
+			return Map.of();
+		ResourceId resourceId = getResourceId(group);
+		Set<Role> roles = attributeExts.stream()
+			.filter(attribute -> attribute.getName().toUpperCase().contains("ROLE"))
+			.flatMap(attribute -> attribute.getValues().stream()
+				.map(attributeValue -> Role.translateRole(attribute.getName(), attributeValue)))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(Collectors.toSet());
+		return Map.of(resourceId, roles);
+	}
+
+	private static FURMSUser buildUser(
+		List<Identity> identities,
+		Collection<? extends Attribute> attributes,
+		EntityInformation entityInformation,
+		String group) {
 		return FURMSUser.builder()
 			.id(new PersistentId(getId(identities)))
 			.fenixUserId(getFenixId(identities))
 			.firstName(getFirstAttributeValue(attributes, "firstname"))
 			.lastName(getFirstAttributeValue(attributes, "surname"))
 			.email(getFirstAttributeValue(attributes, "email"))
-			.status(getStatus(attributes))
+			.status(getStatus(entityInformation))
+			.roles(getRoles(group, attributes))
 			.build();
 	}
 
@@ -133,8 +162,8 @@ public class UnityUserMapper {
 		return getStatus(groupMember.getEntity().getEntityInformation().getState().name());
 	}
 
-	private static UserStatus getStatus(Collection<? extends Attribute> attributes) {
-		return getStatus(getFirstAttributeValue(attributes, "entityState"));
+	private static UserStatus getStatus(EntityInformation entityInformation) {
+		return getStatus(entityInformation.getState().name());
 	}
 
 	private static UserStatus getStatus(EntityState state) {

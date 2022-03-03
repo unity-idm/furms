@@ -9,13 +9,13 @@ import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
@@ -48,20 +48,21 @@ class UserCapabilityCollector implements CapabilityCollector {
 	 * If so method returns community ResourceId instead of project ResourceId.
 	 */
 	private ResourceId getCommunityResourceIdAssociatedWithProject(Map<ResourceId, Set<Role>> roles, ResourceId projectId) {
-		Map<ResourceId, ResourceId> projectToCommunity = roles.entrySet().stream()
+		Set<String> communityIds = roles.entrySet().stream()
 			.filter(role -> role.getValue().contains(Role.COMMUNITY_ADMIN))
 			.map(Map.Entry::getKey)
 			.filter(rId -> rId.type.equals(COMMUNITY))
-			.flatMap(this::mapProjectToCommunityResourceId)
-			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-		return projectToCommunity.getOrDefault(projectId, projectId);
+			.map(x -> x.id.toString())
+			.collect(Collectors.toSet());
+
+		return mapProjectToCommunityResourceId(communityIds)
+			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue))
+			.getOrDefault(projectId, projectId);
 	}
 
-	private Stream<Map.Entry<ResourceId, ResourceId>> mapProjectToCommunityResourceId(ResourceId communityResourceId) {
-		return projectRepository.findAllByCommunityId(communityResourceId.id.toString()).stream()
-			.map(Project::getId)
-			.map(id -> new ResourceId(id, PROJECT))
-			.map(rId -> Map.entry(rId, communityResourceId));
+	private Stream<Map.Entry<ResourceId, ResourceId>> mapProjectToCommunityResourceId(Set<String> communityResourceIds) {
+		return projectRepository.findAllByCommunityIds(communityResourceIds).stream()
+			.map(project -> Map.entry(new ResourceId(project.getId(), PROJECT), new ResourceId(project.getCommunityId(), COMMUNITY)));
 	}
 
 	private Set<Capability> getGlobalCapabilities(Map<ResourceId, Set<Role>> resourceIdToRoles) {

@@ -37,6 +37,7 @@ import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.ViewMode;
 
 import java.util.List;
+import java.util.Objects;
 
 import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MAIN_VIEW_CONTAINER_ID;
 import static io.imunity.furms.ui.components.layout.FurmsAppLayoutComponentsFactory.MENU_CONTAINER_ID;
@@ -98,6 +99,8 @@ public class FurmsAppLayout
 			userViewContextHandler.setUserViewContext(beforeEnterEvent, viewMode);
 			appLayoutComponents.reloadUserPicker();
 		}
+		else if(!Objects.equals(FurmsViewUserContext.getCurrent(), appLayoutComponents.getCurrent()))
+			appLayoutComponents.reloadUserPicker();
 	}
 
 	@Override

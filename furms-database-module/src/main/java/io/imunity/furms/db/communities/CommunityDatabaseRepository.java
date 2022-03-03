@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
@@ -34,6 +35,13 @@ class CommunityDatabaseRepository implements CommunityRepository {
 		}
 		return repository.findById(fromString(id))
 				.map(CommunityEntity::toCommunity);
+	}
+
+	@Override
+	public Set<Community> findAll(Set<String> ids) {
+		return repository.findAllByIdIn(ids.stream().map(UUID::fromString).collect(Collectors.toSet())).stream()
+			.map(CommunityEntity::toCommunity)
+			.collect(Collectors.toSet());
 	}
 
 	@Override

@@ -6,7 +6,10 @@
 package io.imunity.furms.unity.communities;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
+import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
@@ -19,10 +22,12 @@ import pl.edu.icm.unity.types.basic.Group;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_GROUP_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityConst.RECURSIVE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
@@ -120,11 +125,45 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
+	public AllUsersAndCommunityAdmins getAllUsersAndCommunityAdmins(String communityId) {
+		assertTrue(!isEmpty(communityId),
+			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
+		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(Map.of(
+				FENIX_PATTERN,
+				Set.of(),
+				communityPath,
+				Set.of(COMMUNITY_ADMIN)
+			));
+		return new AllUsersAndCommunityAdmins(groupedUsers.getUsers(FENIX_PATTERN), groupedUsers.getUsers(communityPath));
+	}
+
+	@Override
 	public List<FURMSUser> getAllUsers(String communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_GROUP_PATTERN);
 		return userService.getAllUsersFromGroup(communityPath, attributeExt -> true);
+	}
+
+	@Override
+	public CommunityUsersAndAdmins getCommunityAdminsAndUsers(String communityId) {
+		assertTrue(!isEmpty(communityId),
+			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
+		String communityAdminPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
+		String communityUserPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_GROUP_PATTERN);
+		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(
+			Map.of(
+				communityAdminPath,
+				Set.of(COMMUNITY_ADMIN),
+				communityUserPath,
+				Set.of()
+			)
+		);
+
+		return new CommunityUsersAndAdmins(groupedUsers.getUsers(communityUserPath),
+			groupedUsers.getUsers(communityAdminPath)
+		);
 	}
 
 	@Override

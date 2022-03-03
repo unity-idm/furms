@@ -93,7 +93,7 @@ public class InvitatoryService {
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy(resourceId.id.toString(), user.fenixUserId.get()))
 			throw new UserAlreadyAppliedForMembershipException("User waiting for application approval");
-		if(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()).contains(new UserAttribute(role)))
+		if(containsRole(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()), role))
 			throw new UserAlreadyHasRoleError("User already has this role");
 
 		Invitation invitation = Invitation.builder()
@@ -110,6 +110,12 @@ public class InvitatoryService {
 		LOG.info("Inviting FENIX admin role to {}", userId);
 		userInvitationNotificationService.notifyUserAboutNewRole(user.id.get(), invitation.role);
 		publisher.publishEvent(new InviteUserEvent(user.fenixUserId.get(), user.email, resourceId));
+	}
+
+	private boolean containsRole(Set<UserAttribute> userAttributes, Role role) {
+		return userAttributes.stream()
+			.filter(userAttribute -> userAttribute.name.equals(role.unityRoleAttribute))
+			.anyMatch(userAttribute -> userAttribute.values.contains(role.unityRoleValue));
 	}
 
 	private boolean isSiteAdminRoleCheckExistingAlsoForSupportRole(ResourceId resourceId, Role role, String email) {

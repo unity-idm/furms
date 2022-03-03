@@ -5,28 +5,6 @@
 
 package io.imunity.furms.core.sites;
 
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.utils.ValidationUtils.assertFalse;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
-import static org.springframework.util.ObjectUtils.isEmpty;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.sites.SiteService;
@@ -50,6 +28,7 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteRemovedEvent;
 import io.imunity.furms.domain.sites.SiteUpdatedEvent;
+import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -64,6 +43,27 @@ import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.utils.ValidationUtils.assertFalse;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
@@ -123,6 +123,13 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	public Optional<Site> findById(String id) {
 		LOG.debug("Getting Site with id={}", id);
 		return siteRepository.findById(id);
+	}
+
+	@Override
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "ids", idCollections = true)
+	public Set<Site> findAll(Set<String> ids) {
+		LOG.debug("Getting Site with ids={}", ids);
+		return siteRepository.findAll(ids);
 	}
 
 	@Override
@@ -305,19 +312,11 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
-	public List<FURMSUser> findAllAdministrators(String id) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
+	public AllUsersAndSiteAdmins findAllUsersAndSiteAdmins(String id) {
 		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
 		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
-		return webClient.getAllSiteUsers(id, Set.of(Role.SITE_ADMIN));
-	}
-
-	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
-	public List<FURMSUser> findAllSupportUsers(String id) {
-		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Supports. Missing Site ID."));
-		LOG.debug("Getting Site Support from Unity for Site ID={}", id);
-		return webClient.getAllSiteUsers(id, Set.of(Role.SITE_SUPPORT));
+		return webClient.getAllUsersAndSiteAdmins(id);
 	}
 
 	@Override
@@ -325,7 +324,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	public List<FURMSUser> findAllSiteUsers(String id) {
 		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Supports. Missing Site ID."));
 		LOG.debug("Getting Site Support from Unity for Site ID={}", id);
-		return webClient.getAllSiteUsers(id, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT));
+		return webClient.getSiteUsers(id, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT));
 	}
 
 	@Override

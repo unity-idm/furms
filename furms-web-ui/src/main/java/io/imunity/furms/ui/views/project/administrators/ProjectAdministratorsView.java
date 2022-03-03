@@ -10,7 +10,9 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
@@ -24,6 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
@@ -37,6 +42,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 	private final ProjectService projectService;
 	private final String projectId;
 	private final UsersGridComponent grid;
+	private final UsersDAO usersDAO;
 
 	public ProjectAdministratorsView(ProjectService projectService, AuthzService authzService) {
 		this.projectService = projectService;
@@ -46,9 +52,10 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 		Project project = projectService.findById(projectId)
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + projectId));
 
+		usersDAO = new UsersDAO(() -> projectService.findAllProjectAdminsAndUsers(project.getCommunityId(), project.getId()));
 		InviteUserComponent inviteUser = new InviteUserComponent(
-			() -> projectService.findAllUsers(project.getCommunityId(), project.getId()),
-			() -> projectService.findAllAdmins(project.getCommunityId(), project.getId())
+			usersDAO::getProjectUsers,
+			usersDAO::getProjectAdmins
 		);
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()
 			.withCurrentUserId(currentUserId)
@@ -62,10 +69,14 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 				gridReload();
 			})
 			.withRemoveUserAction(userId -> projectService.removeAdmin(project.getCommunityId(), project.getId(), userId))
-			.withPostRemoveUserAction(userId -> inviteUser.reload())
+			.withPostRemoveUserAction(userId -> {
+				usersDAO.reload();
+				inviteUser.reload();
+			})
 			.build();
 		UserGrid.Builder userGrid = UserGrid.defaultInit(userContextMenuFactory);
-		grid = UsersGridComponent.defaultInit(() -> projectService.findAllAdmins(project.getCommunityId(), project.getId()),
+		grid = UsersGridComponent.defaultInit(
+			usersDAO::getProjectAdmins,
 			() -> projectService.findAllAdminsInvitations(projectId),
 			userGrid);
 
@@ -81,6 +92,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 				id -> projectService.inviteAdmin(projectId, id),
 				() -> projectService.inviteAdmin(projectId, inviteUserComponent.getEmail())
 			);
+			usersDAO.reload();
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
@@ -96,5 +108,42 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 
 	private void gridReload() {
 		grid.reloadGrid();
+	}
+
+	private static class UsersDAO {
+		private final Supplier<List<FURMSUser>> allProjectUsersGetter;
+		public List<FURMSUser> projectAdmins;
+		public List<FURMSUser> projectUsers;
+
+		UsersDAO(Supplier<List<FURMSUser>> allProjectUsersGetter) {
+			this.allProjectUsersGetter = allProjectUsersGetter;
+			reload();
+		}
+
+		List<FURMSUser> getProjectAdmins() {
+			return projectAdmins;
+		}
+
+		List<FURMSUser> getProjectUsers() {
+			return projectUsers;
+		}
+
+		private List<FURMSUser> getProjectAdmins(List<FURMSUser> allUsers) {
+			return allUsers.stream()
+				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(Role.PROJECT_ADMIN)))
+				.collect(Collectors.toList());
+		}
+
+		private List<FURMSUser> getProjectUsers(List<FURMSUser> allUsers) {
+			return allUsers.stream()
+				.filter(user -> user.roles.values().stream().anyMatch(roles -> roles.contains(Role.PROJECT_USER)))
+				.collect(Collectors.toList());
+		}
+
+		void reload() {
+			List<FURMSUser> projectUsers = allProjectUsersGetter.get();
+			this.projectAdmins = getProjectAdmins(projectUsers);
+			this.projectUsers = getProjectUsers(projectUsers);
+		}
 	}
 }

@@ -8,6 +8,8 @@ package io.imunity.furms.api.communites;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
+import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
+import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -17,6 +19,8 @@ import java.util.Set;
 
 public interface CommunityService {
 	boolean existsById(String id);
+
+	Set<Community> findAll(Set<String> ids);
 
 	Optional<Community> findById(String id);
 
@@ -32,7 +36,11 @@ public interface CommunityService {
 
 	List<FURMSUser> findAllAdmins(String communityId);
 
+	CommunityUsersAndAdmins findAllCommunityAdminsAllUsers(String id);
+
 	List<FURMSUser> findAllUsers(String communityId);
+
+	AllUsersAndCommunityAdmins findAllAdminsWithAllUsers(String id);
 
 	Set<Invitation> findAllInvitations(String communityId);
 

@@ -6,6 +6,8 @@
 package io.imunity.furms.spi.communites;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
+import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 
@@ -23,7 +25,11 @@ public interface CommunityGroupsDAO {
 
 	List<FURMSUser> getAllAdmins(String id);
 
+	AllUsersAndCommunityAdmins getAllUsersAndCommunityAdmins(String communityId);
+
 	List<FURMSUser> getAllUsers(String id);
+
+	CommunityUsersAndAdmins getCommunityAdminsAndUsers(String communityId);
 
 	void addAdmin(String communityId, PersistentId userId);
 

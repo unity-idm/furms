@@ -20,6 +20,7 @@ import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteRemovedEvent;
 import io.imunity.furms.domain.sites.SiteUpdatedEvent;
+import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -408,26 +409,29 @@ class SiteServiceImplTest {
 	void shouldReturnAllSiteAdmins() {
 		//given
 		String siteId = "id";
-		when(webClient.getAllSiteUsers(siteId, Set.of(SITE_ADMIN))).thenReturn(List.of(FURMSUser.builder()
-			.id(new PersistentId("id"))
-			.firstName("firstName")
-			.lastName("lastName")
-			.email("email")
-			.build())
+		when(webClient.getAllUsersAndSiteAdmins(siteId)).thenReturn(
+			new AllUsersAndSiteAdmins(
+				List.of(),
+				List.of(FURMSUser.builder()
+					.id(new PersistentId("id"))
+					.firstName("firstName")
+					.lastName("lastName")
+					.email("email")
+					.build()))
 	);
 
 		//when
-		List<FURMSUser> allAdmins = service.findAllAdministrators(siteId);
+		AllUsersAndSiteAdmins allAdmins = service.findAllUsersAndSiteAdmins(siteId);
 
 		//then
-		assertThat(allAdmins).hasSize(1);
+		assertThat(allAdmins.siteAdmins).hasSize(1);
 	}
 
 	@Test
 	void shouldThrowExceptionWhenSiteIdIsEmptyForFindAllAdmins() {
 		//then
-		assertThrows(IllegalArgumentException.class, () -> service.findAllAdministrators(null));
-		assertThrows(IllegalArgumentException.class, () -> service.findAllAdministrators(""));
+		assertThrows(IllegalArgumentException.class, () -> service.findAllUsersAndSiteAdmins(null));
+		assertThrows(IllegalArgumentException.class, () -> service.findAllUsersAndSiteAdmins(""));
 	}
 
 	@Test
