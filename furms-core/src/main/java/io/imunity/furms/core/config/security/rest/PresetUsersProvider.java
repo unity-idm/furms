@@ -4,25 +4,26 @@
  */
 package io.imunity.furms.core.config.security.rest;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import java.util.Collection;
+import java.util.Map;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toUnmodifiableMap;
+
 class PresetUsersProvider extends InMemoryUserDetailsManager {
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	private final Map<String, PresetUser> users;
+	private final Map<UserNameKey, PresetUser> users;
 
-	public PresetUsersProvider(Collection<PresetUser> users) {
-		this.users = users.stream().collect(Collectors.toUnmodifiableMap(User::getUsername, user -> user));
+	PresetUsersProvider(Collection<PresetUser> users) {
+		this.users = users.stream().collect(toUnmodifiableMap(user -> new UserNameKey(user.getUsername()), identity()));
 	}
 
 	@Override
@@ -42,7 +43,7 @@ class PresetUsersProvider extends InMemoryUserDetailsManager {
 	
 	@Override
 	public boolean userExists(String username) {
-		return users.containsKey(username.toLowerCase());
+		return users.containsKey(new UserNameKey(username));
 	}
 
 	@Override
@@ -58,7 +59,7 @@ class PresetUsersProvider extends InMemoryUserDetailsManager {
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
-		PresetUser user = users.get(username.toLowerCase());
+		PresetUser user = users.get(new UserNameKey(username));
 
 		if (user == null) {
 			throw new UsernameNotFoundException(username);
