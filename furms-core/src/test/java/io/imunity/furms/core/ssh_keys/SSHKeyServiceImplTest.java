@@ -8,6 +8,7 @@ package io.imunity.furms.core.ssh_keys;
 import com.google.common.collect.Sets;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
+import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.sites.Site;
@@ -18,6 +19,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
+import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
@@ -29,10 +31,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.lang.reflect.Method;
@@ -51,52 +54,52 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest(classes = SpringBootLauncher.class)
 @ExtendWith(MockitoExtension.class)
 public class SSHKeyServiceImplTest {
 
-	@Mock
+	@Autowired
 	private SSHKeyRepository repository;
 
-	@Mock
+	@Autowired
 	private SiteRepository siteRepository;
 
-	@Mock
+	@Autowired
 	private AuthzService authzService;
 
-	@Mock
+	@Autowired
 	private UsersDAO usersDAO;
 
-	@Mock
+	@Autowired
 	private SSHKeyOperationRepository sshKeyOperationRepository;
 
-	@Mock
+	@Autowired
 	private SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService;
 
-	@Mock
+	@Autowired
 	private SSHKeyHistoryRepository sshKeyHistoryRepository;
 
-	@Mock
+	@Autowired
 	private UserOperationRepository userOperationRepository;
 
-	@Mock
+	@Autowired
 	private InstalledSSHKeyRepository installedSSHKeyRepository;
 
-	@Mock
+	@Autowired
+	private TaskScheduler taskScheduler;
+
+	@Autowired
+	private AuditLogRepository auditLogRepository;
+
+	@Autowired
 	private ApplicationEventPublisher publisher;
 
-
-	private SSHKeyServiceImpl service;
+	@Autowired
+	private SSHKeyService service;
 
 	@BeforeEach
 	void setUp() {
 		TransactionSynchronizationManager.initSynchronization();
-
-		SSHKeyServiceValidator validator = new SSHKeyServiceValidator(repository, authzService, siteRepository,
-			sshKeyOperationRepository, usersDAO, sshKeyHistoryRepository, userOperationRepository);
-		final SSHKeyFromSiteRemover sshKeyFromSiteRemover = new SSHKeyFromSiteRemover(repository, siteRepository,
-				sshKeyOperationRepository, siteAgentSSHKeyInstallationService);
-		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository, sshKeyOperationRepository,
-				siteAgentSSHKeyInstallationService, usersDAO, sshKeyFromSiteRemover, installedSSHKeyRepository, publisher);
 	}
 	
 	@AfterEach
@@ -279,10 +282,6 @@ public class SSHKeyServiceImplTest {
 
 		// when
 		service.update(request);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-				.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		// then
 		verify(sshKeyOperationRepository).deleteBySSHKeyIdAndSiteId("id", "s2");
@@ -318,10 +317,6 @@ public class SSHKeyServiceImplTest {
 
 		// when
 		service.update(request);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-				.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		// then
 		verify(sshKeyOperationRepository).deleteBySSHKeyIdAndSiteId("id", "s2");
@@ -391,10 +386,6 @@ public class SSHKeyServiceImplTest {
 
 		// when
 		service.delete(id);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-				.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 		
 		verify(siteAgentSSHKeyInstallationService, times(1)).removeSSHKey(any(), any());
 	}

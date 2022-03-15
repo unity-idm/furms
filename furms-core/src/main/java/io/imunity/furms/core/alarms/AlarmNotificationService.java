@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.alarms;
 
+import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.notification.UserAlarmListChangedEvent;
@@ -17,6 +18,7 @@ import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -50,8 +51,8 @@ class AlarmNotificationService {
 		this.publisher = publisher;
 	}
 
-
-	void sendNotification(AlarmWithUserIds alarm) {
+	@Transactional
+	public void sendNotification(AlarmWithUserIds alarm) {
 		String projectAllocationName = projectAllocationRepository.findById(alarm.projectAllocationId).get().name;
 		String communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
 		getAlarmUserStream(alarm, communityId)
@@ -81,21 +82,23 @@ class AlarmNotificationService {
 							projectAllocationName, 
 							alarm.name);
 
-				runAfterCommit(() ->
+				publisher.publishEvent(new InvokeAfterCommitEvent(() ->
 					publisher.publishEvent(new UserAlarmListChangedEvent(
 							userNotificationWrapper.user.fenixUserId.get()))
-				);
+				));
 			});
 	}
 
-	void cleanNotification(AlarmWithUserIds alarm) {
+	@Transactional
+	public void cleanNotification(AlarmWithUserIds alarm) {
 		String communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
 		getAlarmUserStream(alarm, communityId)
 			.distinct()
 			.filter(userNotificationWrapper -> userNotificationWrapper.user.fenixUserId.isPresent())
-			.forEach(userNotificationWrapper -> runAfterCommit(() ->
-				publisher.publishEvent(new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get()))
-			));
+			.forEach(userNotificationWrapper ->
+				publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+					publisher.publishEvent(new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get()))
+			)));
 	}
 
 	private Stream<UserNotificationWrapper> getAlarmUserStream(AlarmWithUserIds alarm, String communityId) {

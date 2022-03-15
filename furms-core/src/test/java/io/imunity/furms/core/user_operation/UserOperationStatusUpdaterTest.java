@@ -13,6 +13,7 @@ import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
+import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -22,9 +23,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -42,16 +44,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class UserOperationStatusUpdaterTest {
-	@Mock
+	@Autowired
 	private SiteAgentResourceAccessService siteAgentResourceAccessService;
-	@Mock
+	@Autowired
 	private UserOperationRepository repository;
-	@Mock
+	@Autowired
 	private ResourceAccessRepository resourceAccessRepository;
-
-	private UserOperationStatusUpdaterImpl service;
+	@Autowired
+	private ApplicationEventPublisher publisher;
+	@Autowired
+	private UserOperationStatusUpdater service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
@@ -66,7 +71,6 @@ class UserOperationStatusUpdaterTest {
 
 	@BeforeEach
 	void init() {
-		service = new UserOperationStatusUpdaterImpl(siteAgentResourceAccessService, repository, resourceAccessRepository);
 		orderVerifier = inOrder(repository, resourceAccessRepository, siteAgentResourceAccessService);
 	}
 
@@ -109,10 +113,6 @@ class UserOperationStatusUpdaterTest {
 		));
 
 		service.update(userAddition);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		orderVerifier.verify(repository).update(any(UserAddition.class));
 		orderVerifier.verify(resourceAccessRepository).update(any(), eq(grantAccess), eq(AccessStatus.GRANT_PENDING));

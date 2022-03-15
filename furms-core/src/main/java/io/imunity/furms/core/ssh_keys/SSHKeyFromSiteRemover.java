@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.ssh_keys;
 
+import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
@@ -17,6 +18,7 @@ import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.FAILED;
@@ -39,14 +40,16 @@ class SSHKeyFromSiteRemover {
 	private final SiteRepository siteRepository;
 	private final SSHKeyOperationRepository sshKeyOperationRepository;
 	private final SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService;
+	private final ApplicationEventPublisher publisher;
 
 	SSHKeyFromSiteRemover(SSHKeyRepository sshKeysRepository, SiteRepository siteRepository,
 			SSHKeyOperationRepository sshKeyOperationRepository,
-			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService) {
+			SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService, ApplicationEventPublisher publisher) {
 		this.sshKeysRepository = sshKeysRepository;
 		this.siteRepository = siteRepository;
 		this.sshKeyOperationRepository = sshKeyOperationRepository;
 		this.siteAgentSSHKeyInstallationService = siteAgentSSHKeyInstallationService;
+		this.publisher = publisher;
 	}
 	
 	@Transactional
@@ -86,9 +89,9 @@ class SSHKeyFromSiteRemover {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId).siteId(site.getId())
 				.sshkeyId(sshKey.id).operation(REMOVE).status(SEND).originationTime(LocalDateTime.now())
 				.build());
-		runAfterCommit(() -> siteAgentSSHKeyInstallationService.removeSSHKey(correlationId,
-				SSHKeyRemoval.builder().siteExternalId(site.getExternalId()).publicKey(sshKey.value)
-						.user(userId).build()));
+		publisher.publishEvent(new InvokeAfterCommitEvent(() -> siteAgentSSHKeyInstallationService.removeSSHKey(correlationId,
+			SSHKeyRemoval.builder().siteExternalId(site.getExternalId()).publicKey(sshKey.value)
+				.user(userId).build())));
 
 	}
 

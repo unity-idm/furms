@@ -5,12 +5,8 @@
 
 package io.imunity.furms.core.resource_access;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
-import io.imunity.furms.core.policy_documents.PolicyNotificationService;
-import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
+import io.imunity.furms.core.MockedTransactionManager;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
@@ -20,7 +16,6 @@ import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -31,11 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -48,31 +40,23 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {ResourceAccessAuditLogService.class, AuditLogServiceImplTest.class})
+@SpringBootTest(classes = {ResourceAccessAuditLogServiceLauncher.class, Config.class})
 class ResourceAccessAuditLogServiceIntegrationTest {
-	@MockBean
-	private SiteAgentResourceAccessService siteAgentResourceAccessService;
-	@MockBean
-	private ResourceAccessRepository repository;
-	@MockBean
-	private UserOperationRepository userRepository;
-	@MockBean
-	private PolicyNotificationService policyNotificationService;
-	@MockBean
-	private UserSiteAccessInnerService userSiteAccessInnerService;
-	@MockBean
-	private UsersDAO usersDAO;
 
-	@MockBean
-	private AuthzService authzService;
-	@MockBean
-	private ObjectMapper objectMapper;
+	@Autowired
+	private ResourceAccessRepository repository;
+	@Autowired
+	private UserOperationRepository userRepository;
+	@Autowired
+	private UsersDAO usersDAO;
 	@Autowired
 	private ApplicationEventPublisher publisher;
-	@MockBean
+	@Autowired
 	private AuditLogRepository auditLogRepository;
+	@Autowired
+	private MockedTransactionManager mockedTransactionManager;
 
+	@Autowired
 	private ResourceAccessService service;
 
 	@BeforeEach
@@ -83,11 +67,6 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 	@AfterEach
 	void clear() {
 		TransactionSynchronizationManager.clear();
-	}
-
-	@BeforeEach
-	void init() {
-		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, userSiteAccessInnerService, policyNotificationService, publisher);
 	}
 
 	@Test
@@ -113,10 +92,6 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 		));
 
 		service.grantAccess(grantAccess);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -144,10 +119,6 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 		));
 
 		service.revokeAccess(grantAccess);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());

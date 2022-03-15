@@ -11,6 +11,7 @@ import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationEr
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
+import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
@@ -33,7 +34,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
@@ -125,9 +125,9 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		UUID grantId;
 		if(isUserProvisioned(userAdditionStatus)) {
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
-			runAfterCommit(() ->
+			publisher.publishEvent(new InvokeAfterCommitEvent(() ->
 				siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
-			);
+			));
 		}
 		else {
 			userSiteAccessInnerService.addAccessToSite(grantAccess);
@@ -156,11 +156,11 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, REVOKE_PENDING));
 		CorrelationId correlationId = CorrelationId.randomID();
 		repository.update(correlationId, grantAccess, REVOKE_PENDING);
-		runAfterCommit(() -> {
+		publisher.publishEvent(new InvokeAfterCommitEvent(() -> {
 				siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);
 				publisher.publishEvent(new UserGrantRemovedCommissionEvent(grantAccess));
 			}
-		);
+		));
 		LOG.info("UserAllocation status with correlation id {} was changed to {}", correlationId.id, REVOKE_PENDING);
 	}
 }

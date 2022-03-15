@@ -26,8 +26,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -39,20 +41,24 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest(classes = SpringBootLauncher.class)
 @ExtendWith(MockitoExtension.class)
 class ProjectInstallationServiceTest {
-	@Mock
+	@Autowired
 	private ProjectOperationRepository repository;
-	@Mock
+	@Autowired
 	private SiteAgentProjectOperationService siteAgentProjectOperationService;
-	@Mock
+	@Autowired
 	private UsersDAO usersDAO;
-	@Mock
+	@Autowired
 	private SiteRepository siteRepository;
-	@Mock
+	@Autowired
 	private CommunityRepository communityRepository;
-
+	@Autowired
+	private ApplicationEventPublisher publisher;
+	@Autowired
 	private ProjectInstallationServiceImpl service;
+
 	private InOrder orderVerifier;
 
 	@BeforeEach
@@ -67,7 +73,6 @@ class ProjectInstallationServiceTest {
 
 	@BeforeEach
 	void init() {
-		service = new ProjectInstallationServiceImpl(repository, siteAgentProjectOperationService, usersDAO, siteRepository, communityRepository);
 		orderVerifier = inOrder(repository, siteAgentProjectOperationService);
 	}
 
@@ -113,10 +118,6 @@ class ProjectInstallationServiceTest {
 		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
 
 		service.update(project);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).createOrUpdate(any(ProjectUpdateJob.class));
@@ -153,10 +154,6 @@ class ProjectInstallationServiceTest {
 			.build()));
 
 		service.update(project);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).createOrUpdate(any(ProjectInstallationJob.class));

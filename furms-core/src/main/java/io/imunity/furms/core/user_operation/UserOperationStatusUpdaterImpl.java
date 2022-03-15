@@ -5,11 +5,12 @@
 
 package io.imunity.furms.core.user_operation;
 
+import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -20,14 +21,13 @@ import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
-
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 
 @Service
 class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
@@ -36,11 +36,15 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 	private final SiteAgentResourceAccessService siteAgentResourceAccessService;
 	private final UserOperationRepository repository;
 	private final ResourceAccessRepository resourceAccessRepository;
+	private final ApplicationEventPublisher publisher;
 
-	UserOperationStatusUpdaterImpl(SiteAgentResourceAccessService siteAgentResourceAccessService, UserOperationRepository repository, ResourceAccessRepository resourceAccessRepository) {
+	UserOperationStatusUpdaterImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
+	                               UserOperationRepository repository,
+	                               ResourceAccessRepository resourceAccessRepository, ApplicationEventPublisher publisher) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
 		this.resourceAccessRepository = resourceAccessRepository;
+		this.publisher = publisher;
 	}
 
 	@Transactional
@@ -64,7 +68,7 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 		for (GrantAccess grantAccess : userGrants) {
 			CorrelationId correlationId = CorrelationId.randomID();
 			resourceAccessRepository.update(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
-			runAfterCommit(() -> siteAgentResourceAccessService.grantAccess(correlationId, grantAccess));
+			publisher.publishEvent(new InvokeAfterCommitEvent(() -> siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)));
 			LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
 		}
 	}

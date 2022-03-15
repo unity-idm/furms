@@ -8,6 +8,7 @@ package io.imunity.furms.core.user_site_access;
 import io.imunity.furms.api.user_site_access.UserSiteAccessService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -38,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
@@ -109,7 +109,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 			userSiteAccessRepository.remove(siteId, projectId, userId);
 			userOperationService.createUserRemovals(siteId, projectId, userId);
 		}
-		runAfterCommit(() -> publisher.publishEvent(new UserSiteAccessRevokedEvent(userId)));
+		publisher.publishEvent(new InvokeAfterCommitEvent(() -> publisher.publishEvent(new UserSiteAccessRevokedEvent(userId))));
 	}
 
 	@Override

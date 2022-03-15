@@ -5,6 +5,33 @@
 
 package io.imunity.furms.core.resource_access;
 
+import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.core.MockedTransactionManager;
+import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.domain.resource_access.AccessStatus;
+import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
+import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
+import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.InOrder;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.util.Optional;
+import java.util.UUID;
+
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
 import static io.imunity.furms.domain.resource_access.AccessStatus.USER_INSTALLING;
@@ -17,53 +44,24 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.core.policy_documents.PolicyNotificationService;
-import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
-import io.imunity.furms.domain.resource_access.AccessStatus;
-import io.imunity.furms.domain.resource_access.GrantAccess;
-import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
-import io.imunity.furms.domain.sites.SiteId;
-import io.imunity.furms.domain.user_operation.UserStatus;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
-import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
-import io.imunity.furms.spi.user_operation.UserOperationRepository;
-
+@SpringBootTest(classes = {ResourceAccessLauncher.class, Config.class})
 @ExtendWith(MockitoExtension.class)
 class ResourceAccessServiceTest {
-	@Mock
-	private SiteAgentResourceAccessService siteAgentResourceAccessService;
-	@Mock
-	private ResourceAccessRepository repository;
-	@Mock
-	private UserOperationRepository userRepository;
-	@Mock
-	private AuthzService authzService;
-	@Mock
-	private ApplicationEventPublisher publisher;
-	@Mock
-	private PolicyNotificationService policyNotificationService;
-	@Mock
-	private UserSiteAccessInnerService userSiteAccessInnerService;
 
+	@Autowired
+	private SiteAgentResourceAccessService siteAgentResourceAccessService;
+	@Autowired
+	private ResourceAccessRepository repository;
+	@Autowired
+	private UserOperationRepository userRepository;
+	@Autowired
+	private PolicyNotificationService policyNotificationService;
+	@Autowired
+	private ApplicationEventPublisher publisher;
+	@Autowired
+	private MockedTransactionManager mockedTransactionManager;
+
+	@Autowired
 	private ResourceAccessService service;
 	private InOrder orderVerifier;
 
@@ -79,8 +77,7 @@ class ResourceAccessServiceTest {
 
 	@BeforeEach
 	void init() {
-		service = new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, userSiteAccessInnerService, policyNotificationService, publisher);
-		orderVerifier = inOrder(repository, siteAgentResourceAccessService, policyNotificationService, publisher);
+		orderVerifier = inOrder(repository, siteAgentResourceAccessService, policyNotificationService);
 	}
 
 	@Test
@@ -98,14 +95,9 @@ class ResourceAccessServiceTest {
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDED));
 
 		service.grantAccess(grantAccess);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(GRANT_PENDING));
-		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess));
 	}
@@ -126,14 +118,9 @@ class ResourceAccessServiceTest {
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
 
 		service.grantAccess(grantAccess);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 	}
 
 	@Test
@@ -153,14 +140,9 @@ class ResourceAccessServiceTest {
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
 
 		service.grantAccess(grantAccess);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
@@ -181,14 +163,9 @@ class ResourceAccessServiceTest {
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
 
 		service.grantAccess(grantAccess);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
@@ -206,16 +183,12 @@ class ResourceAccessServiceTest {
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
 		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
+		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
 
 		service.grantAccess(grantAccess);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(publisher).publishEvent(new UserGrantAddedEvent(grantAccess));
 		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
 	}
 
@@ -243,10 +216,6 @@ class ResourceAccessServiceTest {
 		//when
 		when(repository.findCurrentStatus(userId, "id")).thenReturn(status);
 		service.revokeAccess(grantAccess);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).update(any(), eq(grantAccess), eq(AccessStatus.REVOKE_PENDING));

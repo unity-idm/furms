@@ -7,7 +7,6 @@ package io.imunity.furms.core.alarms;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
 import io.imunity.furms.domain.alarms.AlarmId;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
@@ -40,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {AlarmAuditLogService.class, AuditLogServiceImplTest.class})
 class AlarmAuditLogServiceTest {
 	@MockBean
 	private ProjectAllocationRepository projectAllocationRepository;
@@ -65,7 +62,7 @@ class AlarmAuditLogServiceTest {
 	@MockBean
 	private EmailNotificationSender emailNotificationSender;
 	@MockBean
-	private  AlarmNotificationService alarmNotificationService;
+	private AlarmNotificationService alarmNotificationService;
 	@MockBean
 	private ResourceUsageRepository resourceUsageRepository;
 

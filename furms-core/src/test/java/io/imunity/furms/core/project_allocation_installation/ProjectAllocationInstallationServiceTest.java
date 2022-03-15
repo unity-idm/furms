@@ -19,9 +19,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -32,16 +33,20 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest(classes = SpringBootLauncher.class)
 @ExtendWith(MockitoExtension.class)
 class ProjectAllocationInstallationServiceTest {
-	@Mock
+	@Autowired
 	private ProjectAllocationInstallationRepository repository;
-	@Mock
+	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
-	@Mock
+	@Autowired
 	private SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
-
+	@Autowired
+	private ApplicationEventPublisher publisher;
+	@Autowired
 	private ProjectAllocationInstallationService service;
+
 	private InOrder orderVerifier;
 
 	@BeforeEach
@@ -56,7 +61,6 @@ class ProjectAllocationInstallationServiceTest {
 
 	@BeforeEach
 	void init() {
-		service = new ProjectAllocationInstallationService(repository, projectAllocationRepository, siteAgentProjectAllocationInstallationService);
 		orderVerifier = inOrder(repository, siteAgentProjectAllocationInstallationService, projectAllocationRepository);
 	}
 
@@ -93,10 +97,6 @@ class ProjectAllocationInstallationServiceTest {
 
 		//when
 		service.startWaitingAllocations("projectId", "siteId");
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).update(correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
@@ -118,10 +118,7 @@ class ProjectAllocationInstallationServiceTest {
 			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
 			.build());
 		service.createDeallocation(projectAllocationInstallation);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
+
 		//then
 		orderVerifier.verify(repository).create(any(ProjectDeallocation.class));
 		orderVerifier.verify(siteAgentProjectAllocationInstallationService).deallocateProject(any(), any());

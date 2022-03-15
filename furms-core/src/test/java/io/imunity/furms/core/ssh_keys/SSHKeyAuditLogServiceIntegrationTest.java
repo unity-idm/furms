@@ -7,7 +7,7 @@ package io.imunity.furms.core.ssh_keys;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
+import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
@@ -33,9 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -49,48 +47,46 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {SSHKeyAuditLogService.class, AuditLogServiceImplTest.class})
 class SSHKeyAuditLogServiceIntegrationTest {
 
-	@MockBean
+	@Autowired
 	private SSHKeyRepository repository;
-	@MockBean
+	@Autowired
 	private SiteRepository siteRepository;
-	@MockBean
+	@Autowired
 	private UsersDAO usersDAO;
-	@MockBean
+	@Autowired
 	private SSHKeyOperationRepository sshKeyOperationRepository;
-	@MockBean
+	@Autowired
 	private SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService;
-	@MockBean
+	@Autowired
 	private SSHKeyHistoryRepository sshKeyHistoryRepository;
-	@MockBean
+	@Autowired
 	private UserOperationRepository userOperationRepository;
-	@MockBean
+	@Autowired
 	private InstalledSSHKeyRepository installedSSHKeyRepository;
-	@MockBean
+	@Autowired
 	private SSHKeyServiceValidator validator;
-	@MockBean
+	@Autowired
 	private SSHKeyFromSiteRemover sshKeyFromSiteRemover;
-	@MockBean
+	@Autowired
 	private TaskScheduler taskScheduler;
 
-	@MockBean
+	@Autowired
 	private AuthzService authzService;
-	@MockBean
+	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired
 	private ApplicationEventPublisher publisher;
-	@MockBean
+	@Autowired
 	private AuditLogRepository auditLogRepository;
 
-	private SSHKeyServiceImpl service;
+	@Autowired
+	private SSHKeyService service;
 
 	@BeforeEach
 	void setUp() {
 		TransactionSynchronizationManager.initSynchronization();
-		service = new SSHKeyServiceImpl(repository, validator, authzService, siteRepository, sshKeyOperationRepository,
-			siteAgentSSHKeyInstallationService, usersDAO, sshKeyFromSiteRemover, installedSSHKeyRepository, publisher);
 	}
 
 	@AfterEach

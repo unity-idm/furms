@@ -5,35 +5,13 @@
 
 package io.imunity.furms.core.user_operation;
 
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
-import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
-import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
-import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_PENDING;
-import static io.imunity.furms.domain.user_operation.UserStatus.REMOVAL_PENDING;
-import static java.util.Comparator.comparingInt;
-import static java.util.Optional.empty;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.maxBy;
-import static java.util.stream.Collectors.toSet;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
@@ -51,6 +29,29 @@ import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import io.imunity.furms.spi.users.UsersDAO;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
+import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.USERS_MAINTENANCE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
+import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_FAILED;
+import static io.imunity.furms.domain.user_operation.UserStatus.ADDING_PENDING;
+import static io.imunity.furms.domain.user_operation.UserStatus.REMOVAL_PENDING;
+import static java.util.Comparator.comparingInt;
+import static java.util.Optional.empty;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.maxBy;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 public class UserOperationService implements UserAllocationsService {
@@ -63,6 +64,7 @@ public class UserOperationService implements UserAllocationsService {
 	private final SSHKeyService sshKeyService;
 	private final ResourceAccessRepository resourceAccessRepository;
 	private final UserSiteAccessRepository userSiteAccessRepository;
+	private final ApplicationEventPublisher publisher;
 
 	UserOperationService(AuthzService authzService,
 	                     SiteService siteService,
@@ -72,7 +74,8 @@ public class UserOperationService implements UserAllocationsService {
 	                     PolicyDocumentServiceHelper policyService,
 	                     SSHKeyService sshKeyService,
 	                     ResourceAccessRepository resourceAccessRepository,
-	                     UserSiteAccessRepository userSiteAccessRepository) {
+	                     UserSiteAccessRepository userSiteAccessRepository,
+	                     ApplicationEventPublisher publisher) {
 		this.authzService = authzService;
 		this.siteService = siteService;
 		this.repository = repository;
@@ -82,6 +85,7 @@ public class UserOperationService implements UserAllocationsService {
 		this.sshKeyService = sshKeyService;
 		this.resourceAccessRepository = resourceAccessRepository;
 		this.userSiteAccessRepository = userSiteAccessRepository;
+		this.publisher = publisher;
 	}
 
 	@Override
@@ -170,6 +174,7 @@ public class UserOperationService implements UserAllocationsService {
 			).collect(toSet());
 	}
 
+	@Transactional
 	public void createUserAdditions(SiteId siteId, String projectId, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
 		FenixUserId userId = userPolicyAcceptances.user.fenixUserId.get();
 		if(repository.existsByUserIdAndSiteIdAndProjectId(userId, siteId.id, projectId))
@@ -183,11 +188,12 @@ public class UserOperationService implements UserAllocationsService {
 			.status(ADDING_PENDING)
 			.build();
 		repository.create(userAddition);
-		runAfterCommit(() ->
+		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
 			siteAgentUserService.addUser(userAddition, userPolicyAcceptances)
-		);
+		));
 	}
 
+	@Transactional
 	public void createUserRemovals(String projectId, PersistentId userId) {
 		FURMSUser user = usersDAO.findById(userId).get();
 		createUserRemovals(projectId, user);
@@ -233,9 +239,9 @@ public class UserOperationService implements UserAllocationsService {
 			.status(REMOVAL_PENDING)
 			.build();
 		repository.update(addition);
-		runAfterCommit(() ->
+		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
 			siteAgentUserService.removeUser(addition)
-		);
+		));
 	}
 
 }

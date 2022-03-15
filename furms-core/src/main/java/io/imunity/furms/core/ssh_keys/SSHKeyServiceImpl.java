@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
@@ -41,7 +42,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.ADD;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperation.REMOVE;
@@ -217,12 +217,12 @@ class SSHKeyServiceImpl implements SSHKeyService {
 				.siteId(site.getId()).sshkeyId(newKey.id).operation(UPDATE).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
 
-		runAfterCommit(() ->
+		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
 			siteAgentSSHKeyInstallationService.updateSSHKey(correlationId,
 				SSHKeyUpdating.builder().siteExternalId(site.getExternalId())
 					.oldPublicKey(oldKey.value).newPublicKey(newKey.value)
 					.user(userId).build())
-		);
+		));
 	}
 
 	private void updateKeyOnSites(SiteDiff siteDiff, SSHKey oldKey, SSHKey merged) {
@@ -310,11 +310,11 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(ADD).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
-		runAfterCommit(() ->
+		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
 			siteAgentSSHKeyInstallationService.addSSHKey(correlationId, SSHKeyAddition.builder()
 				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build())
 
-		);
+		));
 	}
 	
 	private void createOperation(SSHKeyOperationJob operationJob) {

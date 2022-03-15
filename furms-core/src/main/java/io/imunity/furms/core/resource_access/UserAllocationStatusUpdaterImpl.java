@@ -6,13 +6,14 @@
 package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
+import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
@@ -23,8 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.invoke.MethodHandles;
-
-import static io.imunity.furms.core.utils.AfterCommitLauncher.runAfterCommit;
 
 @Service
 class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
@@ -58,7 +57,7 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 				.fenixUserId(projectUserGrant.userId)
 				.build();
 			userSiteAccessInnerService.revokeAccessToSite(userGrant);
-			runAfterCommit(() -> publisher.publishEvent(new UserGrantRemovedEvent(userGrant)));
+			publisher.publishEvent(new InvokeAfterCommitEvent(() -> publisher.publishEvent(new UserGrantRemovedEvent(userGrant))));
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;
 		}

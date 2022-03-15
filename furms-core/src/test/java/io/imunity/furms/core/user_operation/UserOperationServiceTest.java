@@ -35,9 +35,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -53,31 +54,33 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class UserOperationServiceTest {
-	@Mock
+	@Autowired
 	private UserOperationRepository repository;
-	@Mock
+	@Autowired
 	private SiteAgentUserService siteAgentUserService;
-	@Mock
+	@Autowired
 	private SiteRepository siteRepository;
-	@Mock
+	@Autowired
 	private UsersDAO usersDAO;
-	@Mock
+	@Autowired
 	private AuthzService authzService;
-	@Mock
+	@Autowired
 	private SiteService siteService;
-	@Mock
+	@Autowired
 	private PolicyDocumentServiceHelper policyService;
-	@Mock
+	@Autowired
 	private SSHKeyService sshKeyService;
-	@Mock
+	@Autowired
 	private ResourceAccessRepository resourceAccessRepository;
-	@Mock
+	@Autowired
 	private UserSiteAccessRepository userSiteAccessRepository;
+	@Autowired
+	private ApplicationEventPublisher publisher;
 
-
-
+	@Autowired
 	private UserOperationService service;
 	private InOrder orderVerifier;
 
@@ -93,8 +96,6 @@ class UserOperationServiceTest {
 
 	@BeforeEach
 	void init() {
-		service = new UserOperationService(authzService, siteService, repository, siteAgentUserService, usersDAO,
-				policyService, sshKeyService, resourceAccessRepository, userSiteAccessRepository);
 		orderVerifier = inOrder(repository, siteAgentUserService);
 	}
 
@@ -181,11 +182,6 @@ class UserOperationServiceTest {
 
 		service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of()));
 
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
-
 		//then
 		orderVerifier.verify(repository).create(any(UserAddition.class));
 		orderVerifier.verify(siteAgentUserService).addUser(any(UserAddition.class), eq(userPolicyAcceptancesWithServicePolicies));
@@ -224,10 +220,6 @@ class UserOperationServiceTest {
 			.build()));
 		when(repository.findAllUserAdditions(projectId, userId.id)).thenReturn(Set.of(userAddition));
 		service.createUserRemovals(projectId, userId);
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 
 		//then
 		orderVerifier.verify(repository).update(any(UserAddition.class));

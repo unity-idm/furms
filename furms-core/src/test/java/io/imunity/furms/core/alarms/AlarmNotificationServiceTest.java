@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.alarms;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.notification.UserAlarmListChangedEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
@@ -12,6 +14,8 @@ import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.spi.alarms.AlarmRepository;
+import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.notifications.EmailNotificationSender;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -22,40 +26,58 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SpringBootTest(classes = SpringBootLauncher.class)
 @ExtendWith(MockitoExtension.class)
+@RecordApplicationEvents
 class AlarmNotificationServiceTest {
 
-	@Mock
-	private ProjectGroupsDAO projectGroupsDAO;
-	@Mock
-	private ProjectRepository projectRepository;
-	@Mock
+	@MockBean
 	private ProjectAllocationRepository projectAllocationRepository;
-	@Mock
-	private ResourceUsageRepository resourceUsageRepository;
-	@Mock
-	private EmailNotificationSender emailNotificationSender;
-	@Mock
+	@MockBean
+	private AlarmRepository alarmRepository;
+	@MockBean
+	private FiredAlarmsServiceImpl firedAlarmsService;
+	@MockBean
+	private AuthzService authzService;
+	@MockBean
 	private UsersDAO usersDAO;
-	@Mock
+	@MockBean
+	private ObjectMapper objectMapper;
+	@MockBean
+	private AuditLogRepository auditLogRepository;
+	@MockBean
+	private ProjectGroupsDAO projectGroupsDAO;
+	@MockBean
+	private ProjectRepository projectRepository;
+	@MockBean
+	private EmailNotificationSender emailNotificationSender;
+	@MockBean
+	private ResourceUsageRepository resourceUsageRepository;
+	@Autowired
+	private ApplicationEvents applicationEvents;
+	@Autowired
 	private ApplicationEventPublisher publisher;
-
-	@InjectMocks
+	@Autowired
 	private AlarmNotificationService alarmNotificationService;
 
 	@BeforeEach
@@ -66,13 +88,6 @@ class AlarmNotificationServiceTest {
 	@AfterEach
 	void clear() {
 		TransactionSynchronizationManager.clear();
-	}
-
-	void commit() {
-		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
-			.getSynchronizations()) {
-			transactionSynchronization.afterCommit();
-		}
 	}
 
 	@Test
@@ -142,14 +157,28 @@ class AlarmNotificationServiceTest {
 		));
 
 		alarmNotificationService.sendNotification(alarm);
-		commit();
 
 		verify(emailNotificationSender).notifyProjectAdminAboutResourceUsage(userId, projectId, projectAllocationId, "projectAllocationName", "alarmName");
 		verify(emailNotificationSender).notifyProjectUserAboutResourceUsage(userId1, projectId, projectAllocationId, "projectAllocationName", "alarmName");
 		verify(emailNotificationSender).notifyUserAboutResourceUsage(userId2, projectId, projectAllocationId, "projectAllocationName", "alarmName");
-		verify(publisher).publishEvent(new UserAlarmListChangedEvent(fenixUserId));
-		verify(publisher).publishEvent(new UserAlarmListChangedEvent(fenixUserId1));
-		verify(publisher).publishEvent(new UserAlarmListChangedEvent(fenixUserId2));
+		List<Object> applicationEvents = getApplicationEvents();
+
+		assertEquals(1,
+			applicationEvents.stream().filter(x -> x.equals(new UserAlarmListChangedEvent(fenixUserId))).count()
+		);
+		assertEquals(1,
+			applicationEvents.stream().filter(x -> x.equals(new UserAlarmListChangedEvent(fenixUserId1))).count()
+		);
+		assertEquals(1,
+			applicationEvents.stream().filter(x -> x.equals(new UserAlarmListChangedEvent(fenixUserId2))).count()
+		);
+	}
+
+	private List<Object> getApplicationEvents() {
+		return applicationEvents.stream()
+			.filter(x -> x instanceof PayloadApplicationEvent)
+			.map(x -> ((PayloadApplicationEvent)x).getPayload())
+			.collect(Collectors.toList());
 	}
 
 	@Test
@@ -191,12 +220,17 @@ class AlarmNotificationServiceTest {
 		));
 
 		alarmNotificationService.cleanNotification(alarm);
-		commit();
 
-		verify(publisher).publishEvent(new UserAlarmListChangedEvent(fenixUserId));
-		verify(publisher).publishEvent(new UserAlarmListChangedEvent(fenixUserId1));
-		verify(publisher).publishEvent(new UserAlarmListChangedEvent(fenixUserId2));
+		List<Object> applicationEvents = getApplicationEvents();
 
+		assertEquals(1,
+			applicationEvents.stream().filter(x -> x.equals(new UserAlarmListChangedEvent(fenixUserId))).count()
+		);
+		assertEquals(1,
+			applicationEvents.stream().filter(x -> x.equals(new UserAlarmListChangedEvent(fenixUserId1))).count()
+		);
+		assertEquals(1,
+			applicationEvents.stream().filter(x -> x.equals(new UserAlarmListChangedEvent(fenixUserId2))).count()
+		);
 	}
-
 }
