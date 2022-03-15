@@ -9,6 +9,7 @@ import io.imunity.furms.spi.roles.RoleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -75,8 +76,12 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.logoutSuccessHandler(tokenRevokerHandler)
 
 			// Configure redirect entrypoint
-			.and().exceptionHandling().defaultAuthenticationEntryPointFor(new FurmsEntryPoint(LOGIN_URL), 
-					new NonVaadinXHRRequestMatcher())
+			.and().exceptionHandling()
+				.defaultAuthenticationEntryPointFor(
+					(request, response, accessDeniedException) -> response.setStatus(HttpStatus.UNAUTHORIZED.value()),
+					new VaadinXHRRequestMatcher()
+				)
+				.defaultAuthenticationEntryPointFor(new FurmsEntryPoint(LOGIN_URL), new NonVaadinXHRRequestMatcher())
 
 			// Configure the login page.
 			.and().oauth2Login().loginPage(LOGIN_URL)
@@ -150,4 +155,15 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		}
 	}
 
+	private static class VaadinXHRRequestMatcher implements RequestMatcher {
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			if (request.getDispatcherType() == DispatcherType.REQUEST) {
+				LOG.trace("Checking if request is Vaadin XHR: {}", request.getParameter("v-r") != null);
+				return request.getParameter("v-r") != null;
+			}
+			LOG.trace("Checking if request is Vaadin XHR: false");
+			return false;
+		}
+	}
 }
