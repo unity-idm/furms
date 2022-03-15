@@ -5,36 +5,7 @@
 
 package io.imunity.furms.performance.tests.data;
 
-import static io.imunity.furms.performance.tests.SecurityUserUtils.createSecurityUser;
-import static io.imunity.furms.performance.tests.data.DataLoaderUtils.randomAcronym;
-import static io.imunity.furms.performance.tests.data.DataLoaderUtils.randomName;
-import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
-import static org.awaitility.Awaitility.await;
-
-import java.lang.invoke.MethodHandles;
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
 import com.google.common.base.Stopwatch;
-
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
@@ -60,15 +31,36 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.lang.invoke.MethodHandles;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 /**
  * Environmental prerequisites: The following services needs to be up and running:
- * - Posgress database 
+ * - Posgress database
  * - Rabbitmq broker
  * - Unity-IdM
  */
 @SpringBootTest
-class MessageHandlerSpeedTest {
+class MessageHandlerPerformanceTest {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	public static final int WARM_UP_COUNT = 100;
 	public static final int TESTED_COUNT = 1000;
@@ -87,7 +79,7 @@ class MessageHandlerSpeedTest {
 	private final static long BIG_COMMUNITIES_PROJECTS_COUNT = 2400;
 	private final static long POLL_INTERVAL = 5;
 
-	MessageHandlerSpeedTest() {
+	MessageHandlerPerformanceTest() {
 	}
 
 	@Test
