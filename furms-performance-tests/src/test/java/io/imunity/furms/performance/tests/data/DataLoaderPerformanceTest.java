@@ -42,7 +42,6 @@ import static io.imunity.furms.performance.tests.SecurityUserUtils.createSecurit
 import static java.lang.String.format;
 
 @SpringBootTest
-@Profile("performance_tests")
 public class DataLoaderPerformanceTest {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

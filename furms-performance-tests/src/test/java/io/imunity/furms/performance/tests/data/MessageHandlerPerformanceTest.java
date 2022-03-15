@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
 import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
@@ -61,7 +60,6 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest
-@Profile("performance_tests")
 class MessageHandlerPerformanceTest {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	public static final int WARM_UP_COUNT = 100;
