@@ -33,10 +33,9 @@ import java.util.stream.Collectors;
 import static io.imunity.furms.domain.users.UserStatus.DISABLED;
 import static io.imunity.furms.domain.users.UserStatus.ENABLED;
 import static io.imunity.furms.unity.client.UnityGroupParser.getResourceId;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
-import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
+import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
 import static org.springframework.util.StringUtils.hasText;
 import static pl.edu.icm.unity.types.basic.EntityState.onlyLoginPermitted;
 import static pl.edu.icm.unity.types.basic.EntityState.valid;
@@ -89,7 +88,7 @@ public class UnityUserMapper {
 	}
 
 	private static Map<ResourceId, Set<Role>> getRoles(String group, Collection<? extends Attribute> attributeExts) {
-		if(group.equals(FENIX_GROUP) || group.equals(ROOT_GROUP))
+		if(!isGroupContainingRoles(group))
 			return Map.of();
 		ResourceId resourceId = getResourceId(group);
 		Set<Role> roles = attributeExts.stream()
@@ -100,6 +99,10 @@ public class UnityUserMapper {
 			.map(Optional::get)
 			.collect(Collectors.toSet());
 		return Map.of(resourceId, roles);
+	}
+
+	private static boolean isGroupContainingRoles(String group) {
+		return group.endsWith(USERS_PATTERN);
 	}
 
 	private static FURMSUser buildUser(

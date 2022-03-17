@@ -34,7 +34,7 @@ import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 @Route(value = "community/admin/administrators", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.administrators.page.title")
-public class CommunityAdminsView<priavte> extends FurmsViewComponent {
+public class CommunityAdminsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final CommunityService communityService;

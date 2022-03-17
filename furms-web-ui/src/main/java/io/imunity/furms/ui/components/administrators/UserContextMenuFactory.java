@@ -18,6 +18,7 @@ import io.imunity.furms.ui.views.landing.LandingPageView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -34,7 +35,7 @@ import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 
 public class UserContextMenuFactory {
 	private final Consumer<PersistentId> removeUserAction;
-	private final Consumer<PersistentId> postRemoveUserAction;
+	private final Optional<Consumer<PersistentId>> postRemoveUserAction;
 	private final Consumer<InvitationId> resendInvitationAction;
 	private final Consumer<InvitationId> removeInvitationAction;
 	private final PersistentId currentUserId;
@@ -48,7 +49,7 @@ public class UserContextMenuFactory {
 	private final List<CustomContextMenuItem<? super UserGridItem>> customContextMenuItems;
 
 	UserContextMenuFactory(Consumer<PersistentId> removeUserAction,
-	                       Consumer<PersistentId> postRemoveUserAction,
+	                       Optional<Consumer<PersistentId>> postRemoveUserAction,
 	                       PersistentId currentUserId,
 	                       boolean redirectOnCurrentUserRemoval,
 	                       boolean allowRemovalOfLastUser,
@@ -83,9 +84,7 @@ public class UserContextMenuFactory {
 			if (allowRemoval(gridSizeLoader)) {
 				getResultOrException(() -> {
 					removeUserAction.accept(currentUserId);
-					if (postRemoveUserAction != null) {
-						postRemoveUserAction.accept(currentUserId);
-					}
+					postRemoveUserAction.ifPresent(action -> action.accept(currentUserId));
 				})
 						.getException()
 						.ifPresentOrElse(
@@ -106,9 +105,8 @@ public class UserContextMenuFactory {
 				final PersistentId persistentId = removedItem.getId().orElse(null);
 				handleExceptions(() -> {
 					removeUserAction.accept(persistentId);
-					if (postRemoveUserAction != null) {
-						postRemoveUserAction.accept(persistentId);
-					}
+					postRemoveUserAction.ifPresent(action -> action.accept(currentUserId));
+
 				});
 				gridReloader.run();
 			} else {
@@ -258,7 +256,8 @@ public class UserContextMenuFactory {
 		}
 
 		public UserContextMenuFactory build() {
-			return new UserContextMenuFactory(removeUserAction, postRemoveUserAction, currentUserId,
+			return new UserContextMenuFactory(removeUserAction, Optional.ofNullable(postRemoveUserAction),
+				currentUserId,
 				redirectOnCurrentUserRemoval, allowRemovalOfLastUser, confirmRemovalMessageKey,
 				confirmSelfRemovalMessageKey, removalNotAllowedMessageKey, customContextMenuItems,
 				resendInvitationAction, removeInvitationAction);
