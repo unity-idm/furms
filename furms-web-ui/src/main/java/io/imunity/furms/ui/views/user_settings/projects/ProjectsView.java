@@ -142,6 +142,7 @@ public class ProjectsView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.user-settings.projects.grid.column.4"))
 			.setTextAlign(ColumnTextAlign.END);
 		grid.sort(ImmutableList.of(new GridSortOrder<>(firstColumn, SortDirection.ASCENDING)));
+		grid.setAllRowsVisible(false);
 		return grid;
 	}
 
