@@ -70,8 +70,8 @@ class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.csrf().disable()
 				.authorizeRequests().anyRequest().authenticated().and()
-			.httpBasic()
-			.authenticationEntryPoint(authenticationEntryPoint());
+				.httpBasic()
+				.authenticationEntryPoint(authenticationEntryPoint());
 	}
 
 	private AuthenticationEntryPoint authenticationEntryPoint() {
