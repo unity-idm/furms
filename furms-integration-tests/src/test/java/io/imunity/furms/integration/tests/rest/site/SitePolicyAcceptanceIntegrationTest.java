@@ -260,7 +260,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 					site.getId(), site.getPolicyId().id, ADMIN_USER.getFenixId())
 				.with(basicUser().getHttpBasic()))
 				.andDo(print())
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
