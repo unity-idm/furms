@@ -8,8 +8,8 @@ package io.imunity.furms.core.ssh_keys;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.core.MockedTransactionManager;
-import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
-import io.imunity.furms.core.utils.AfterCommitLauncher;
+import io.imunity.furms.core.audit_log.AuditLogServicePublicator;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -28,7 +28,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
-@SpringBootApplication(scanBasePackageClasses = {SSHKeyAuditLogService.class, AuditLogServiceImplTest.class, AfterCommitLauncher.class})
+@SpringBootApplication(scanBasePackageClasses = {SSHKeyAuditLogService.class, AuditLogServicePublicator.class, PostCommitRunner.class})
 class SpringBootLauncher {
 
 	@MockBean

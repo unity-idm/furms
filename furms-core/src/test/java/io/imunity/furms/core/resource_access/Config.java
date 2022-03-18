@@ -9,6 +9,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.core.MockedTransactionManager;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
@@ -42,11 +43,14 @@ class Config {
 	private AuditLogRepository auditLogRepository;
 	@Autowired
 	private ApplicationEventPublisher publisher;
+	@Autowired
+	private PostCommitRunner postCommitRunner;
 
 	@Bean
 	@Primary
 	ResourceAccessService resourceAccessService() {
-		return new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService, userSiteAccessInnerService, policyNotificationService, publisher);
+		return new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService,
+			userSiteAccessInnerService, policyNotificationService, publisher, postCommitRunner);
 	}
 
 	@Bean

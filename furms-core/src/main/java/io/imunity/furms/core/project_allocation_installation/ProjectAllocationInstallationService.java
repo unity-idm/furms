@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
-import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
@@ -19,7 +19,6 @@ import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,16 +35,16 @@ public class ProjectAllocationInstallationService {
 	private final ProjectAllocationInstallationRepository projectAllocationInstallationRepository;
 	private final ProjectAllocationRepository projectAllocationRepository;
 	private final SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService;
-	private final ApplicationEventPublisher publisher;
+	private final PostCommitRunner postCommitRunner;
 
 	ProjectAllocationInstallationService(ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
 	                                     ProjectAllocationRepository projectAllocationRepository,
 	                                     SiteAgentProjectAllocationInstallationService siteAgentProjectAllocationInstallationService,
-	                                     ApplicationEventPublisher publisher) {
+	                                     PostCommitRunner postCommitRunner) {
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.siteAgentProjectAllocationInstallationService = siteAgentProjectAllocationInstallationService;
-		this.publisher = publisher;
+		this.postCommitRunner = postCommitRunner;
 	}
 
 	public Set<ProjectAllocationInstallation> findAll(String projectId) {
@@ -79,16 +78,19 @@ public class ProjectAllocationInstallationService {
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
 
+	@Transactional
 	public void updateAndStartAllocation(String projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		projectAllocationInstallationRepository.update(projectAllocationId, ProjectAllocationInstallationStatus.UPDATING, correlationId);
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
-		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+		postCommitRunner.runAfterCommit(() ->
 			siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved)
-		));
+		);
+
 		LOG.info("ProjectAllocationInstallation with project allocation {} was update to status UPDATING", projectAllocationId);
 	}
 
+	@Transactional
 	public void createAndStartAllocation(String projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
@@ -99,9 +101,9 @@ public class ProjectAllocationInstallationService {
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build();
 		projectAllocationInstallationRepository.create(projectAllocationInstallation);
-		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
-			siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved)
-		));
+		postCommitRunner.runAfterCommit(
+			() -> siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved)
+		);
 		LOG.info("ProjectAllocationInstallation was updated: {}", projectAllocationInstallation);
 	}
 
@@ -111,14 +113,15 @@ public class ProjectAllocationInstallationService {
 			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId)
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation Id doesn't exist"));
-			publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+			postCommitRunner.runAfterCommit(() ->
 				siteAgentProjectAllocationInstallationService.allocateProject(allocation.correlationId,
 					projectAllocationResolved)
-			));
+			);
 			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING);
 		});
 	}
 
+	@Transactional
 	public void cancelWaitingAllocations(String projectId, ErrorMessage errorMessage) {
 		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
 			projectAllocationInstallationRepository.update(
@@ -147,9 +150,9 @@ public class ProjectAllocationInstallationService {
 			return;
 		}
 		projectAllocationInstallationRepository.create(projectDeallocation);
-		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+		postCommitRunner.runAfterCommit(() ->
 			siteAgentProjectAllocationInstallationService.deallocateProject(correlationId, projectAllocationResolved)
-		));
+		);
 		LOG.info("ProjectDeallocation was created: {}", projectDeallocation);
 	}
 }

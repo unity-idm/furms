@@ -10,7 +10,7 @@ import com.google.common.collect.Sets;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
@@ -70,6 +70,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	private final SSHKeyFromSiteRemover sshKeyRemover;
 	private final InstalledSSHKeyRepository installedSSHKeyRepository;
 	private final ApplicationEventPublisher publisher;
+	private final PostCommitRunner postCommitRunner;
 
 	SSHKeyServiceImpl(SSHKeyRepository sshKeysRepository,
 	                  SSHKeyServiceValidator validator,
@@ -80,7 +81,8 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	                  UsersDAO userDao,
 	                  SSHKeyFromSiteRemover sshKeyRemover,
 	                  InstalledSSHKeyRepository installedSSHKeyRepository,
-	                  ApplicationEventPublisher publisher) {
+	                  ApplicationEventPublisher publisher,
+	                  PostCommitRunner postCommitRunner) {
 		this.userDao = userDao;
 		this.validator = validator;
 		this.authzService = authzService;
@@ -91,6 +93,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		this.sshKeyRemover = sshKeyRemover;
 		this.installedSSHKeyRepository = installedSSHKeyRepository;
 		this.publisher = publisher;
+		this.postCommitRunner = postCommitRunner;
 	}
 
 	@Override
@@ -217,12 +220,12 @@ class SSHKeyServiceImpl implements SSHKeyService {
 				.siteId(site.getId()).sshkeyId(newKey.id).operation(UPDATE).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
 
-		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+		postCommitRunner.runAfterCommit(() ->
 			siteAgentSSHKeyInstallationService.updateSSHKey(correlationId,
 				SSHKeyUpdating.builder().siteExternalId(site.getExternalId())
 					.oldPublicKey(oldKey.value).newPublicKey(newKey.value)
 					.user(userId).build())
-		));
+		);
 	}
 
 	private void updateKeyOnSites(SiteDiff siteDiff, SSHKey oldKey, SSHKey merged) {
@@ -310,11 +313,11 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		createOperation(SSHKeyOperationJob.builder().correlationId(correlationId)
 				.siteId(site.getId()).sshkeyId(sshKey.id).operation(ADD).status(SEND)
 				.originationTime(LocalDateTime.now()).build());
-		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+		postCommitRunner.runAfterCommit(() ->
 			siteAgentSSHKeyInstallationService.addSSHKey(correlationId, SSHKeyAddition.builder()
 				.siteExternalId(site.getExternalId()).publicKey(sshKey.value).user(userId).build())
 
-		));
+		);
 	}
 	
 	private void createOperation(SSHKeyOperationJob operationJob) {

@@ -11,7 +11,7 @@ import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
-import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
@@ -29,7 +29,6 @@ import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,7 +63,7 @@ public class UserOperationService implements UserAllocationsService {
 	private final SSHKeyService sshKeyService;
 	private final ResourceAccessRepository resourceAccessRepository;
 	private final UserSiteAccessRepository userSiteAccessRepository;
-	private final ApplicationEventPublisher publisher;
+	private final PostCommitRunner postCommitRunner;
 
 	UserOperationService(AuthzService authzService,
 	                     SiteService siteService,
@@ -75,7 +74,7 @@ public class UserOperationService implements UserAllocationsService {
 	                     SSHKeyService sshKeyService,
 	                     ResourceAccessRepository resourceAccessRepository,
 	                     UserSiteAccessRepository userSiteAccessRepository,
-	                     ApplicationEventPublisher publisher) {
+	                     PostCommitRunner postCommitRunner) {
 		this.authzService = authzService;
 		this.siteService = siteService;
 		this.repository = repository;
@@ -85,7 +84,7 @@ public class UserOperationService implements UserAllocationsService {
 		this.sshKeyService = sshKeyService;
 		this.resourceAccessRepository = resourceAccessRepository;
 		this.userSiteAccessRepository = userSiteAccessRepository;
-		this.publisher = publisher;
+		this.postCommitRunner = postCommitRunner;
 	}
 
 	@Override
@@ -188,9 +187,9 @@ public class UserOperationService implements UserAllocationsService {
 			.status(ADDING_PENDING)
 			.build();
 		repository.create(userAddition);
-		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+		postCommitRunner.runAfterCommit(() ->
 			siteAgentUserService.addUser(userAddition, userPolicyAcceptances)
-		));
+		);
 	}
 
 	@Transactional
@@ -239,9 +238,9 @@ public class UserOperationService implements UserAllocationsService {
 			.status(REMOVAL_PENDING)
 			.build();
 		repository.update(addition);
-		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+		postCommitRunner.runAfterCommit(() ->
 			siteAgentUserService.removeUser(addition)
-		));
+		);
 	}
 
 }

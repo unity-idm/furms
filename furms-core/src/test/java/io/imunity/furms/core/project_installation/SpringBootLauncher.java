@@ -6,7 +6,7 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.MockedTransactionManager;
-import io.imunity.furms.core.utils.AfterCommitLauncher;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
@@ -15,12 +15,11 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
-@SpringBootApplication(scanBasePackageClasses = AfterCommitLauncher.class)
+@SpringBootApplication(scanBasePackageClasses = PostCommitRunner.class)
 class SpringBootLauncher {
 
 	@MockBean
@@ -34,7 +33,7 @@ class SpringBootLauncher {
 	@MockBean
 	private CommunityRepository communityRepository;
 	@Autowired
-	private ApplicationEventPublisher publisher;
+	private PostCommitRunner postCommitRunner;
 
 	@Bean
 	MockedTransactionManager transactionManager() {
@@ -44,6 +43,6 @@ class SpringBootLauncher {
 	@Bean
 	ProjectInstallationServiceImpl service() {
 		return new ProjectInstallationServiceImpl(repository, siteAgentProjectOperationService, usersDAO,
-			siteRepository, communityRepository, publisher);
+			siteRepository, communityRepository, postCommitRunner);
 	}
 }

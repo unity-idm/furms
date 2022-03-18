@@ -10,8 +10,8 @@ import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
-import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
@@ -57,6 +57,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	private final PolicyNotificationService policyNotificationService;
 	private final UserSiteAccessInnerService userSiteAccessInnerService;
 	private final ApplicationEventPublisher publisher;
+	private final PostCommitRunner postCommitRunner;
 
 	ResourceAccessServiceImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
 	                          ResourceAccessRepository repository,
@@ -64,7 +65,8 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	                          AuthzService authzService,
 	                          UserSiteAccessInnerService userSiteAccessInnerService,
 	                          PolicyNotificationService policyNotificationService,
-	                          ApplicationEventPublisher publisher) {
+	                          ApplicationEventPublisher publisher,
+	                          PostCommitRunner postCommitRunner) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
 		this.userRepository = userRepository;
@@ -72,6 +74,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		this.policyNotificationService = policyNotificationService;
 		this.userSiteAccessInnerService = userSiteAccessInnerService;
 		this.publisher = publisher;
+		this.postCommitRunner = postCommitRunner;
 	}
 
 	@Override
@@ -125,9 +128,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		UUID grantId;
 		if(isUserProvisioned(userAdditionStatus)) {
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
-			publisher.publishEvent(new InvokeAfterCommitEvent(() ->
-				siteAgentResourceAccessService.grantAccess(correlationId, grantAccess)
-			));
+			postCommitRunner.runAfterCommit(() -> siteAgentResourceAccessService.grantAccess(correlationId, grantAccess));
 		}
 		else {
 			userSiteAccessInnerService.addAccessToSite(grantAccess);
@@ -156,11 +157,11 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 			throw new IllegalArgumentException(String.format("Transition between %s and %s states is not allowed", currentStatus, REVOKE_PENDING));
 		CorrelationId correlationId = CorrelationId.randomID();
 		repository.update(correlationId, grantAccess, REVOKE_PENDING);
-		publisher.publishEvent(new InvokeAfterCommitEvent(() -> {
+		postCommitRunner.runAfterCommit(() -> {
 				siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);
 				publisher.publishEvent(new UserGrantRemovedCommissionEvent(grantAccess));
-			}
-		));
+
+		});
 		LOG.info("UserAllocation status with correlation id {} was changed to {}", correlationId.id, REVOKE_PENDING);
 	}
 }

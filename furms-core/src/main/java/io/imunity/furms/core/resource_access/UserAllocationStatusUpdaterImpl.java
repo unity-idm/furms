@@ -5,8 +5,8 @@
 
 package io.imunity.furms.core.resource_access;
 
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
-import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
@@ -19,7 +19,6 @@ import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,12 +30,13 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 
 	private final ResourceAccessRepository repository;
 	private final UserSiteAccessInnerService userSiteAccessInnerService;
-	private final ApplicationEventPublisher publisher;
+	private final PostCommitRunner postCommitRunner;
 
-	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository, UserSiteAccessInnerService userSiteAccessInnerService, ApplicationEventPublisher publisher) {
+	UserAllocationStatusUpdaterImpl(ResourceAccessRepository repository,
+	                                UserSiteAccessInnerService userSiteAccessInnerService, PostCommitRunner postCommitRunner) {
 		this.repository = repository;
 		this.userSiteAccessInnerService = userSiteAccessInnerService;
-		this.publisher = publisher;
+		this.postCommitRunner = postCommitRunner;
 	}
 
 	@Override
@@ -57,7 +57,7 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 				.fenixUserId(projectUserGrant.userId)
 				.build();
 			userSiteAccessInnerService.revokeAccessToSite(userGrant);
-			publisher.publishEvent(new InvokeAfterCommitEvent(() -> publisher.publishEvent(new UserGrantRemovedEvent(userGrant))));
+			postCommitRunner.publishAfterCommit((new UserGrantRemovedEvent(userGrant)));
 			LOG.info("UserAllocation with correlation id {} was removed", correlationId.id);
 			return;
 		}

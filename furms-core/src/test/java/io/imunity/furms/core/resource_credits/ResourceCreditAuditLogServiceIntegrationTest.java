@@ -8,7 +8,7 @@ package io.imunity.furms.core.resource_credits;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
-import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
+import io.imunity.furms.core.audit_log.AuditLogServicePublicator;
 import io.imunity.furms.core.community_allocation.CommunityAllocationServiceHelper;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
@@ -39,7 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {ResourceCreditAuditLogService.class, AuditLogServiceImplTest.class})
+@SpringBootApplication(scanBasePackageClasses = {ResourceCreditAuditLogService.class, AuditLogServicePublicator.class})
 class ResourceCreditAuditLogServiceIntegrationTest {
 	@MockBean
 	private ResourceCreditServiceValidator validator;

@@ -8,7 +8,7 @@ package io.imunity.furms.core.sites;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
-import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
+import io.imunity.furms.core.audit_log.AuditLogServicePublicator;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.core.users.audit_log.RoleAssignmentAuditLogServiceTest;
@@ -46,7 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {SiteAuditLogService.class, AuditLogServiceImplTest.class, RoleAssignmentAuditLogServiceTest.class})
+@SpringBootApplication(scanBasePackageClasses = {SiteAuditLogService.class, AuditLogServicePublicator.class, RoleAssignmentAuditLogServiceTest.class})
 class SiteAuditLogServiceIntegrationTest {
 	@MockBean
 	private SiteRepository repository;

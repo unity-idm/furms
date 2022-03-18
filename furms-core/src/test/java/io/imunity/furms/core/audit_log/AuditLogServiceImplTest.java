@@ -22,7 +22,7 @@ import java.time.ZoneOffset;
 import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
-public class AuditLogServiceImplTest {
+class AuditLogServiceImplTest {
 	@Mock
 	private AuditLogRepository repository;
 

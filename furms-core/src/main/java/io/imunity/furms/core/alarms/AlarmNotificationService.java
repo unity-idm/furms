@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.alarms;
 
-import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.notification.UserAlarmListChangedEvent;
@@ -38,17 +38,19 @@ class AlarmNotificationService {
 	private final EmailNotificationSender emailNotificationSender;
 	private final UsersDAO usersDAO;
 	private final ApplicationEventPublisher publisher;
+	private final PostCommitRunner postCommitRunner;
 
 	AlarmNotificationService(ProjectGroupsDAO projectGroupsDAO,
 	                         ProjectRepository projectRepository, ProjectAllocationRepository projectAllocationRepository,
 	                         EmailNotificationSender emailNotificationSender,
-	                         UsersDAO usersDAO, ApplicationEventPublisher publisher) {
+	                         UsersDAO usersDAO, ApplicationEventPublisher publisher, PostCommitRunner postCommitRunner) {
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.projectRepository = projectRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.emailNotificationSender = emailNotificationSender;
 		this.usersDAO = usersDAO;
 		this.publisher = publisher;
+		this.postCommitRunner = postCommitRunner;
 	}
 
 	@Transactional
@@ -82,10 +84,9 @@ class AlarmNotificationService {
 							projectAllocationName, 
 							alarm.name);
 
-				publisher.publishEvent(new InvokeAfterCommitEvent(() ->
-					publisher.publishEvent(new UserAlarmListChangedEvent(
-							userNotificationWrapper.user.fenixUserId.get()))
-				));
+				postCommitRunner.publishAfterCommit(
+					new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get())
+				);
 			});
 	}
 
@@ -96,9 +97,8 @@ class AlarmNotificationService {
 			.distinct()
 			.filter(userNotificationWrapper -> userNotificationWrapper.user.fenixUserId.isPresent())
 			.forEach(userNotificationWrapper ->
-				publisher.publishEvent(new InvokeAfterCommitEvent(() ->
-					publisher.publishEvent(new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get()))
-			)));
+				postCommitRunner.publishAfterCommit(new UserAlarmListChangedEvent(userNotificationWrapper.user.fenixUserId.get()))
+			);
 	}
 
 	private Stream<UserNotificationWrapper> getAlarmUserStream(AlarmWithUserIds alarm, String communityId) {

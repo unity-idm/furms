@@ -7,7 +7,7 @@ package io.imunity.furms.core.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
+import io.imunity.furms.core.audit_log.AuditLogServicePublicator;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {InfraServiceAuditLogService.class, AuditLogServiceImplTest.class})
+@SpringBootApplication(scanBasePackageClasses = {InfraServiceAuditLogService.class, AuditLogServicePublicator.class})
 class InfraServiceAuditLogServiceIntegrationTest {
 	@MockBean
 	private InfraServiceRepository infraServiceRepository;

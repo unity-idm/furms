@@ -80,6 +80,41 @@ class ProjectAllocationInstallationServiceTest {
 	}
 
 	@Test
+	void shouldUpdateAndStartAllocation() {
+		String projectAllocationId = "allocationId";
+		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder().build();
+
+		when(projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId))
+			.thenReturn(Optional.of(projectAllocationResolved));
+
+		service.updateAndStartAllocation(projectAllocationId);
+
+		orderVerifier.verify(repository).update(eq(projectAllocationId),
+			eq(ProjectAllocationInstallationStatus.UPDATING), any(CorrelationId.class)
+		);
+		orderVerifier.verify(siteAgentProjectAllocationInstallationService).allocateProject(
+			any(), eq(projectAllocationResolved)
+		);
+	}
+
+	@Test
+	void shouldCreateAndStartAllocation() {
+		String projectAllocationId = "allocationId";
+		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
+			.site(Site.builder().build())
+			.build();
+		when(projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId))
+			.thenReturn(Optional.of(projectAllocationResolved));
+
+		service.createAndStartAllocation(projectAllocationId);
+
+		orderVerifier.verify(repository).create(any(ProjectAllocationInstallation.class));
+		orderVerifier.verify(siteAgentProjectAllocationInstallationService).allocateProject(
+			any(), eq(projectAllocationResolved)
+		);
+	}
+
+	@Test
 	void shouldStartProjectAllocationInstallation() {
 		//given
 		CorrelationId correlationId = CorrelationId.randomID();

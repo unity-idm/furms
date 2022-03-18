@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.resource_access;
 
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
@@ -22,7 +23,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -47,7 +47,7 @@ class UserAllocationStatusUpdaterTest {
 	@Mock
 	private ResourceAccessRepository repository;
 	@Mock
-	private ApplicationEventPublisher publisher;
+	private PostCommitRunner postCommitRunner;
 	@Mock
 	private UserSiteAccessInnerService userSiteAccessInnerService;
 
@@ -56,8 +56,8 @@ class UserAllocationStatusUpdaterTest {
 
 	@BeforeEach
 	void init() {
-		service = new UserAllocationStatusUpdaterImpl(repository, userSiteAccessInnerService, publisher);
-		orderVerifier = inOrder(repository, publisher, userSiteAccessInnerService);
+		service = new UserAllocationStatusUpdaterImpl(repository, userSiteAccessInnerService, postCommitRunner);
+		orderVerifier = inOrder(repository, postCommitRunner, userSiteAccessInnerService);
 		TransactionSynchronizationManager.initSynchronization();
 	}
 

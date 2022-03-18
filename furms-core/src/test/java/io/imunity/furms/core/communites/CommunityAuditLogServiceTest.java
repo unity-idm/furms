@@ -8,7 +8,7 @@ package io.imunity.furms.core.communites;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
-import io.imunity.furms.core.audit_log.AuditLogServiceImplTest;
+import io.imunity.furms.core.audit_log.AuditLogServicePublicator;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.users.audit_log.RoleAssignmentAuditLogServiceTest;
 import io.imunity.furms.domain.audit_log.Action;
@@ -39,7 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {CommunityAuditLogService.class, RoleAssignmentAuditLogServiceTest.class, AuditLogServiceImplTest.class})
+@SpringBootApplication(scanBasePackageClasses = {CommunityAuditLogService.class,
+	RoleAssignmentAuditLogServiceTest.class, AuditLogServicePublicator.class})
 class CommunityAuditLogServiceTest {
 	@MockBean
 	private CommunityRepository communityRepository;

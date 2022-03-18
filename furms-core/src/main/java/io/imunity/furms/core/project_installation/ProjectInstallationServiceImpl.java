@@ -5,7 +5,7 @@
 
 package io.imunity.furms.core.project_installation;
 
-import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
@@ -23,7 +23,6 @@ import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,18 +40,19 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	private final UsersDAO usersDAO;
 	private final SiteRepository siteRepository;
 	private final CommunityRepository communityRepository;
-	private final ApplicationEventPublisher publisher;
+	private final PostCommitRunner postCommitRunner;
 
 	ProjectInstallationServiceImpl(ProjectOperationRepository projectOperationRepository,
 	                               SiteAgentProjectOperationService siteAgentProjectOperationService,
 	                               UsersDAO usersDAO, SiteRepository siteRepository,
-	                               CommunityRepository communityRepository, ApplicationEventPublisher publisher) {
+	                               CommunityRepository communityRepository,
+	                               PostCommitRunner postCommitRunner) {
 		this.projectOperationRepository = projectOperationRepository;
 		this.siteAgentProjectOperationService = siteAgentProjectOperationService;
 		this.usersDAO = usersDAO;
 		this.siteRepository = siteRepository;
 		this.communityRepository = communityRepository;
-		this.publisher = publisher;
+		this.postCommitRunner = postCommitRunner;
 	}
 
 	@Override
@@ -82,9 +82,9 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			.build();
 
 		projectOperationRepository.createOrUpdate(projectInstallationJob);
-		publisher.publishEvent(new InvokeAfterCommitEvent(() ->
+		postCommitRunner.runAfterCommit(() ->
 			siteAgentProjectOperationService.installProject(projectInstallationJob.correlationId, projectInstallation)
-		));
+		);
 		LOG.info("ProjectInstallation was created: {}", projectInstallationJob);
 	}
 
@@ -135,12 +135,14 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 				.status(ProjectUpdateStatus.PENDING)
 				.build();
 			projectOperationRepository.createOrUpdate(projectUpdateJob);
-			publisher.publishEvent(new InvokeAfterCommitEvent(() -> siteAgentProjectOperationService.updateProject(
-				projectUpdateJob.correlationId,
-				siteId.externalId,
-				project,
-				usersDAO.findById(project.getLeaderId()).get()
-			)));
+			postCommitRunner.runAfterCommit(() ->
+					siteAgentProjectOperationService.updateProject(
+						projectUpdateJob.correlationId,
+						siteId.externalId,
+						project,
+						usersDAO.findById(project.getLeaderId()).get()
+					)
+			);
 			LOG.info("ProjectUpdateJob was created: {}", projectUpdateJob);
 		});
 	}
