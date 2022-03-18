@@ -45,7 +45,7 @@ public class CentralIdpRestAPIAuthNTest extends TestBeansRegistry {
 		when(userService.getUserStatus(new FenixUserId("F_ID"))).thenReturn(UserStatus.ENABLED);
 		
 		this.mockMvc.perform(get("/rest-api/v1/cidp/user/F_ID/status").with(httpBasic("WRONG", "cidppass")))
-			.andExpect(status().isForbidden());
+			.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class CentralIdpRestAPIAuthNTest extends TestBeansRegistry {
 		when(userService.getUserStatus(new FenixUserId("F_ID"))).thenReturn(UserStatus.ENABLED);
 		
 		this.mockMvc.perform(get("/rest-api/v1/cidp/user/F_ID/status").with(httpBasic("cidp", "WRONG")))
-			.andExpect(status().isForbidden());
+			.andExpect(status().isUnauthorized());
 	}
 
 	@Test

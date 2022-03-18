@@ -80,7 +80,7 @@ class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
 			new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 		DelegatingAuthenticationEntryPoint defaultEntryPoint =
 			new DelegatingAuthenticationEntryPoint(entryPoints);
-		defaultEntryPoint.setDefaultEntryPoint(new FailureAuthHttpStatusEntryPoint());
+		defaultEntryPoint.setDefaultEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 		return defaultEntryPoint;
 	}
 

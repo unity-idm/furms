@@ -72,10 +72,10 @@ public class RestApiSecurityConfigTest extends TestBeansRegistry {
 
 		mockMvc.perform(get("/rest-api/v1/test")
 				.header(HttpHeaders.AUTHORIZATION, convertToAuthHeader(wrongUserId, apiKey)))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isUnauthorized());
 		mockMvc.perform(get("/rest-api/v1/test")
 				.header(HttpHeaders.AUTHORIZATION, convertToAuthHeader(userId, wrongApiKey)))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class RestApiSecurityConfigTest extends TestBeansRegistry {
 
 		mockMvc.perform(get("/rest-api/v1/test")
 				.header(HttpHeaders.AUTHORIZATION, convertToAuthHeader(userId, apiKey)))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class RestApiSecurityConfigTest extends TestBeansRegistry {
 
 		mockMvc.perform(get("/rest-api/v1/cidp/test")
 				.header(HttpHeaders.AUTHORIZATION, convertToAuthHeader(userId, apiKey)))
-				.andExpect(status().isForbidden());
+				.andExpect(status().isUnauthorized());
 	}
 
 	private String convertToAuthHeader(PersistentId username, UUID password) {
