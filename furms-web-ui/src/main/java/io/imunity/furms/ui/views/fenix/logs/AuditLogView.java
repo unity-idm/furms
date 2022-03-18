@@ -158,6 +158,7 @@ public class AuditLogView extends FurmsViewComponent {
 		grid.setItems(
 			data.stream()
 				.filter(model -> rowContains(model, searchLayout.getSearchText(), searchLayout))
+				.collect(Collectors.toList())
 
 		);
 	}

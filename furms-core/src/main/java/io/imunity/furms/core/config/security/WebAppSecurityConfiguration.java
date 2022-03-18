@@ -9,6 +9,7 @@ import io.imunity.furms.spi.roles.RoleLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.invoke.MethodHandles;
+import java.util.function.Predicate;
 
 import static io.imunity.furms.domain.constant.RoutesConst.FRONT;
 import static io.imunity.furms.domain.constant.RoutesConst.LOGIN_ERROR_URL;
@@ -75,8 +78,12 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.logoutSuccessHandler(tokenRevokerHandler)
 
 			// Configure redirect entrypoint
-			.and().exceptionHandling().defaultAuthenticationEntryPointFor(new FurmsEntryPoint(LOGIN_URL), 
-					new NonVaadinXHRRequestMatcher())
+			.and().exceptionHandling()
+				.defaultAuthenticationEntryPointFor(
+					new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+					new VaadinXHRRequestMatcher()
+				)
+				.defaultAuthenticationEntryPointFor(new FurmsEntryPoint(LOGIN_URL), new NonVaadinXHRRequestMatcher())
 
 			// Configure the login page.
 			.and().oauth2Login().loginPage(LOGIN_URL)
@@ -133,7 +140,9 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			return true;
 		}
 	}
-	
+
+	private static final Predicate<HttpServletRequest> isVaadinXHR = request -> request.getParameter("v-r") != null;
+
 	/**
 	 * Basic recognition of Vaadin XHR request. For those we do not want to have a redirect to login page, just a 
 	 * http error when we are unauthorized. 
@@ -142,12 +151,23 @@ public class WebAppSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			if (request.getDispatcherType() == DispatcherType.REQUEST) {
-				LOG.trace("Checking if request is not Vaadin XHR: {}", request.getParameter("v-r") == null);
-				return request.getParameter("v-r") == null;
+				LOG.trace("Checking if request is not Vaadin XHR: {}", !isVaadinXHR.test(request));
+				return !isVaadinXHR.test(request);
 			}
 			LOG.trace("Checking if request is not Vaadin XHR: false");
 			return false;
 		}
 	}
 
+	private static class VaadinXHRRequestMatcher implements RequestMatcher {
+		@Override
+		public boolean matches(HttpServletRequest request) {
+			if (request.getDispatcherType() == DispatcherType.REQUEST) {
+				LOG.trace("Checking if request is Vaadin XHR: {}", isVaadinXHR.test(request));
+				return isVaadinXHR.test(request);
+			}
+			LOG.trace("Checking if request is Vaadin XHR: false");
+			return false;
+		}
+	}
 }

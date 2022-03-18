@@ -42,6 +42,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.CHECK_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.EYE;
@@ -108,7 +109,7 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 
 	private void loadGridContent() {
 		Set<PolicyDocumentExtended> policies = policyDocumentService.findAllByCurrentUser();
-		grid.setItems(policies.stream().sorted(Comparator.comparing(x -> x.name)));
+		grid.setItems(policies.stream().sorted(Comparator.comparing(x -> x.name)).collect(Collectors.toList()));
 	}
 
 	private HorizontalLayout createLastColumnContent(PolicyDocumentExtended policyDocumentExtended) {

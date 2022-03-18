@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
@@ -73,14 +74,14 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.policy-documents.form.layout.name"));
 
-		workflowComboBox.setItems(Arrays.stream(PolicyWorkflow.values()));
+		workflowComboBox.setItems(Arrays.stream(PolicyWorkflow.values()).collect(Collectors.toList()));
 		workflowComboBox.setItemLabelGenerator(workflow -> getTranslation("view.site-admin.policy-documents.form.layout.workflow." + workflow.getPersistentId()));
 		formLayout.addFormItem(workflowComboBox, getTranslation("view.site-admin.policy-documents.form.layout.workflow"));
 
 		formLayout.addFormItem(revision, getTranslation("view.site-admin.policy-documents.form.layout.revision"));
 
 		ComboBox<PolicyContentType> contentTypeComboBox = new ComboBox<>();
-		contentTypeComboBox.setItems(Arrays.stream(PolicyContentType.values()));
+		contentTypeComboBox.setItems(Arrays.stream(PolicyContentType.values()).collect(Collectors.toList()));
 		contentTypeComboBox.setItemLabelGenerator(contentType -> getTranslation("view.site-admin.policy-documents.form.layout.content-type." + contentType.getPersistentId()));
 		formLayout.addFormItem(contentTypeComboBox, getTranslation("view.site-admin.policy-documents.form.layout.content-type"));
 
