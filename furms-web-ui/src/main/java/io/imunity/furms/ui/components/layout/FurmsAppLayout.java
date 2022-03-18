@@ -50,6 +50,7 @@ import static io.imunity.furms.ui.config.FurmsLayoutExtraPanelsConfig.TOP_PANEL_
 @CssImport("./styles/views/main/main-view.css")
 @CssImport("./styles/custom-lumo-theme.css")
 @CssImport(value = "./styles/components/furms-idle-notification.css")
+@CssImport(value = "styles/components/furms-toggle-button.css", themeFor = "vaadin-checkbox")
 @PreserveOnRefresh
 public class FurmsAppLayout
 		extends FlexLayout
