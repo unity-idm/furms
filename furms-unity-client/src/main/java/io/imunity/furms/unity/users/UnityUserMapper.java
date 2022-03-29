@@ -20,6 +20,7 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.SimpleGroupMember;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
@@ -46,6 +47,10 @@ public class UnityUserMapper {
 
 	public static Optional<FURMSUser> map(GroupMember groupMember){
 		return getFurmsUser(() -> buildUser(groupMember));
+	}
+
+	public static Optional<FURMSUser> map(SimpleGroupMember groupMember, String group){
+		return getFurmsUser(() -> buildUser(groupMember, group));
 	}
 
 	public static Optional<FURMSUser> map(PersistentId userId, Entity entity, List<Attribute> attributes){
@@ -85,6 +90,18 @@ public class UnityUserMapper {
 			.email(getFirstAttributeValue(groupMember, "email"))
 			.status(getStatus(groupMember))
 			.roles(getRoles(groupMember.getGroup(), groupMember.getAttributes()))
+			.build();
+	}
+
+	private static FURMSUser buildUser(SimpleGroupMember groupMember, String group) {
+		return FURMSUser.builder()
+			.id(new PersistentId(getId(groupMember.getIdentities())))
+			.fenixUserId(getFenixId(groupMember.getIdentities()))
+			.firstName(getFirstAttributeValue(groupMember.getAttributes(), "firstname"))
+			.lastName(getFirstAttributeValue(groupMember.getAttributes(), "surname"))
+			.email(getFirstAttributeValue(groupMember.getAttributes(), "email"))
+			.status(getStatus(groupMember.getEntityInformation()))
+			.roles(getRoles(group, groupMember.getAttributes()))
 			.build();
 	}
 

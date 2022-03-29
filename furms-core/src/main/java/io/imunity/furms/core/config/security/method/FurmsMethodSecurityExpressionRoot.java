@@ -22,6 +22,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.OWNED_SSH_KEY_MANAGMENT;
@@ -45,8 +46,22 @@ class FurmsMethodSecurityExpressionRoot
 	}
 
 	public boolean hasCapabilityForResources(String method, Capability capability, ResourceType resourceType, Collection<String> ids) {
-		return ids.stream()
-			.allMatch(id -> hasCapabilityForResource(method, capability, resourceType, id));
+		if(!authentication.isAuthenticated() || isAnonymousUser())
+			return false;
+
+		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
+		List<ResourceId> resourceIds = ids.stream().map(x -> new ResourceId(x, resourceType)).collect(Collectors.toList());
+		Set<Capability> userCapabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceIds, resourceType);
+		userCapabilities.addAll(List.of(AUTHENTICATED, PROJECT_LIMITED_READ, OWNED_SSH_KEY_MANAGMENT));
+
+		final boolean hasCapability = userCapabilities.contains(capability);
+
+		if (!hasCapability) {
+			String user = principal.id.map(PersistentId::toString).orElse(principal.email);
+			LOG.warn("Access Denied for user \"{}\" with roles: {} when calling \"{}\" with required capability {} for" +
+				" resource: {}(id={})", user, principal.roles, method, capability, resourceType, ids);
+		}
+		return hasCapability;
 	}
 
 	public boolean hasCapabilityForResource(String method, Capability capability, ResourceType resourceType, String id) {

@@ -5,6 +5,8 @@
 
 package io.imunity.furms.unity.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.util.function.Tuple2;
 
 import java.net.URI;
 import java.util.List;
@@ -23,6 +26,9 @@ import static java.util.stream.Collectors.toMap;
 
 @Component
 public class UnityClient {
+
+	private static final Logger LOG = LoggerFactory.getLogger(UnityClient.class);
+
 
 	private final WebClient webClient;
 
@@ -54,12 +60,19 @@ public class UnityClient {
 	public <T> T get(String path, ParameterizedTypeReference<T> typeReference, Map<String, String> queryParams) {
 		return get(path, typeReference, createStringParams(queryParams));
 	}
-	
+
+	public <T> T get(String path, Map<String, List<String>> queryParams, ParameterizedTypeReference<T> typeReference) {
+		return get(path, typeReference, new LinkedMultiValueMap<>(queryParams));
+	}
+
 	private <T> T get(String path, ParameterizedTypeReference<T> typeReference, MultiValueMap<String, String> params) {
 		return webClient.get()
 			.uri(uriBuilder -> uri(uriBuilder, path, params))
 			.retrieve()
 			.bodyToMono(typeReference)
+			.elapsed()  // map the stream's time into our streams data
+			.doOnNext(tuple -> LOG.info("Path {}, Time {}", path, tuple.getT1()))
+			.map(Tuple2::getT2)
 			.block();
 	}
 
@@ -137,7 +150,7 @@ public class UnityClient {
 				.collect(toMap(Map.Entry::getKey, entry -> List.of(entry.getValue())));
 		return new LinkedMultiValueMap<>(mutatedQueryParams);
 	}
-	
+
 	private URI uri(final UriBuilder uriBuilder, String path) {
 		return uri(uriBuilder, path, null);
 	}

@@ -1,8 +1,9 @@
 version: '3.7'
 
 services:
-  db-postgres:
+  db-furms-postgres:
     image: postgres:11.4
+    container_name: database-furms
     environment:
       POSTGRES_USER: username
       POSTGRES_DB: furms
@@ -11,6 +12,24 @@ services:
       - "5432:5432"
     volumes:
       - postgres:/var/lib/postgresql/data
+  db-unity-postgres:
+    image: postgres:11.4
+    container_name: database-unity
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_DB: unity
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data2
+  pgadmin:
+    image: dpage/pgadmin4:6.7
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root123
+    ports:
+      - "80:80"
 
 volumes:
   postgres:
