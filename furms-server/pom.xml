@@ -74,6 +74,11 @@
 			<artifactId>furms-site-api</artifactId>
 			<groupId>io.imunity.furms</groupId>
 		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns-native-macos</artifactId>
+			<classifier>osx-aarch_64</classifier>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
