@@ -378,8 +378,8 @@ public class UserService {
 		return entityGroupAttributes.stream()
 			.map(groupAttributes ->
 					Optional.ofNullable(entityMap.get(groupAttributes.entityId))
-							.flatMap(x -> UnityUserMapper.map(x.getIdentities(), groupAttributes.attributes,
-									x.getEntityInformation(), group)))
+							.flatMap(entity -> UnityUserMapper.map(entity.getIdentities(), groupAttributes.attributes,
+									entity.getEntityInformation(), group)))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(toList());
