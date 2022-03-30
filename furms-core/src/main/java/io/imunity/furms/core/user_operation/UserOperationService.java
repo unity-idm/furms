@@ -150,6 +150,12 @@ public class UserOperationService implements UserAllocationsService {
 	}
 
 	@Override
+	@FurmsAuthorize(capability = USERS_MAINTENANCE)
+	public Set<UserAddition> findAllBySiteAndFenixUserId(String siteId, FenixUserId fenixUserId) {
+		return repository.findAllUserAdditions(siteId, fenixUserId);
+	}
+
+	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserAddition> findAllBySiteId(String siteId) {
 		return repository.findAllUserAdditionsBySiteId(siteId);

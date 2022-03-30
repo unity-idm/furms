@@ -5,6 +5,8 @@
 
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.rest.user.User;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
@@ -15,8 +17,10 @@ import java.util.UUID;
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
 import static java.math.BigDecimal.ONE;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.in;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -232,6 +236,28 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.[0].fenixUserId").value(in(Set.of("f1", "f2"))))
 				.andExpect(jsonPath("$.[1].policyId").value(in(Set.of(policyId1, policyId2))))
 				.andExpect(jsonPath("$.[1].fenixUserId").value(in(Set.of("f1", "f2"))));
+	}
+
+	@Test
+	void shouldFindSiteUser() throws Exception {
+		//given
+		final String siteId = "siteId";
+		final String userId = "userId";
+
+		User user = new User(FURMSUser.builder()
+			.email("admin@admin.pl")
+			.build());
+		when(sitesRestService.findSiteUserByUserIdAndSiteId(userId, siteId))
+			.thenReturn(new SiteUser(user, "123", Set.of("key"), Set.of("projectId")));
+
+		//when + then
+		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/users/{userId}", siteId, userId)
+				.header(AUTHORIZATION, authKey()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.user.email").value(is(user.email)))
+			.andExpect(jsonPath("$.uid").value((is("123"))))
+			.andExpect(jsonPath("$.sshKeys").value(hasItems("key")))
+			.andExpect(jsonPath("$.projectIds").value(hasItems("projectId")));
 	}
 
 	@Test

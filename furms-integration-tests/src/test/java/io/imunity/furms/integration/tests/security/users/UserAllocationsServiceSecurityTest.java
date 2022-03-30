@@ -48,7 +48,8 @@ class UserAllocationsServiceSecurityTest extends SecurityTestsBase {
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
 				() -> service.findUserSitesInstallations(persistentId),
-				() -> service.findAllByFenixUserId(fenixId))
+				() -> service.findAllByFenixUserId(fenixId),
+				() -> service.findAllBySiteAndFenixUserId(site,fenixId))
 				.accessFor(
 						fenixAdmin())
 				.deniedFor(
