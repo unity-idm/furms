@@ -22,7 +22,7 @@ class PostCommitListener {
 		try {
 			invokeAfterCommitEvent.operation.run();
 		} catch (Exception e) {
-			LOG.error("This error occurred when trying to send message to site agent after transaction commit", e);
+			LOG.error("This error occurred when trying to invoke operation after transaction commit", e);
 		}
 	}
 }

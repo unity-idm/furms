@@ -7,7 +7,7 @@ package io.imunity.furms.core.project_allocation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.audit_log.AuditLogServicePublicator;
+import io.imunity.furms.core.audit_log.AuditLogPackageTestExposer;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.audit_log.Action;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {ProjectAllocationAuditLogService.class, AuditLogServicePublicator.class})
+@SpringBootApplication(scanBasePackageClasses = {ProjectAllocationAuditLogService.class, AuditLogPackageTestExposer.class})
 class ProjectAllocationAuditLogServiceIntegrationTest {
 	@MockBean
 	private ProjectAllocationServiceValidator validator;

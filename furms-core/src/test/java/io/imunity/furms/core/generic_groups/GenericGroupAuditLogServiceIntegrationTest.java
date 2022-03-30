@@ -7,7 +7,7 @@ package io.imunity.furms.core.generic_groups;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
-import io.imunity.furms.core.audit_log.AuditLogServicePublicator;
+import io.imunity.furms.core.audit_log.AuditLogPackageTestExposer;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {GenericGroupAuditLogService.class, AuditLogServicePublicator.class})
+@SpringBootApplication(scanBasePackageClasses = {GenericGroupAuditLogService.class, AuditLogPackageTestExposer.class})
 class GenericGroupAuditLogServiceIntegrationTest {
 	@MockBean
 	private GenericGroupRepository genericGroupRepository;

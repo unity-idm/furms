@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
-import io.imunity.furms.core.audit_log.AuditLogServicePublicator;
+import io.imunity.furms.core.audit_log.AuditLogPackageTestExposer;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.user_operation.UserOperationService;
@@ -46,7 +46,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@SpringBootApplication(scanBasePackageClasses = {ProjectAuditLogService.class, AuditLogServicePublicator.class, RoleAssignmentAuditLogServiceTest.class})
+@SpringBootApplication(scanBasePackageClasses = {ProjectAuditLogService.class, AuditLogPackageTestExposer.class, RoleAssignmentAuditLogServiceTest.class})
 class ProjectAuditLogServiceIntegrationTest {
 	@MockBean
 	private ProjectRepository projectRepository;

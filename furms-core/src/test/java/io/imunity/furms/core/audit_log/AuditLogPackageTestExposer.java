@@ -5,5 +5,5 @@
 
 package io.imunity.furms.core.audit_log;
 
-public class AuditLogServicePublicator {
+public class AuditLogPackageTestExposer {
 }
