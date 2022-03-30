@@ -14,11 +14,13 @@ import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -35,15 +37,18 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 	private final SiteAgentResourceAccessService siteAgentResourceAccessService;
 	private final UserOperationRepository repository;
 	private final ResourceAccessRepository resourceAccessRepository;
+	private final UsersDAO usersDAO;
 	private final PostCommitRunner postCommitRunner;
 
 	UserOperationStatusUpdaterImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
 	                               UserOperationRepository repository,
 	                               ResourceAccessRepository resourceAccessRepository,
+	                               UsersDAO usersDAO,
 	                               PostCommitRunner postCommitRunner) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
 		this.resourceAccessRepository = resourceAccessRepository;
+		this.usersDAO = usersDAO;
 		this.postCommitRunner = postCommitRunner;
 	}
 
@@ -65,10 +70,12 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 
 	private void sendQueuedGrandAccess(String siteId, String projectId, FenixUserId userId) {
 		Set<GrantAccess> userGrants = resourceAccessRepository.findWaitingGrantAccesses(userId, projectId, siteId);
+		Optional<FURMSUser> furmsUser = usersDAO.findById(userId);
 		for (GrantAccess grantAccess : userGrants) {
 			CorrelationId correlationId = CorrelationId.randomID();
 			resourceAccessRepository.update(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
-			postCommitRunner.runAfterCommit(() -> siteAgentResourceAccessService.grantAccess(correlationId, grantAccess));
+			postCommitRunner.runAfterCommit(() -> siteAgentResourceAccessService.grantAccess(correlationId,
+				grantAccess, furmsUser.get()));
 			LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
 		}
 	}

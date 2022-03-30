@@ -9,6 +9,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.rabbitmq.site.models.*;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
@@ -65,11 +66,15 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 	}
 
 	@Override
-	public void grantAccess(CorrelationId correlationId, GrantAccess grantAccess) {
+	public void grantAccess(CorrelationId correlationId, GrantAccess grantAccess, FURMSUser user) {
 		UserAllocationGrantAccessRequest userAllocationGrantAccessRequest =
-			new UserAllocationGrantAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
+			new UserAllocationGrantAccessRequest(grantAccess.allocationId, UserMapper.map(user),
+				grantAccess.projectId);
 		try {
-			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(grantAccess.siteId.externalId), new Payload<>(new Header(VERSION, correlationId.id), userAllocationGrantAccessRequest));
+			rabbitTemplate.convertAndSend(
+				getFurmsPublishQueueName(grantAccess.siteId.externalId),
+				new Payload<>(new Header(VERSION, correlationId.id), userAllocationGrantAccessRequest)
+			);
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}
@@ -79,7 +84,10 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 	public void revokeAccess(CorrelationId correlationId, GrantAccess grantAccess) {
 		UserAllocationBlockAccessRequest userAllocationBlockAccessRequest = new UserAllocationBlockAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
 		try {
-			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(grantAccess.siteId.externalId), new Payload<>(new Header(VERSION, correlationId.id), userAllocationBlockAccessRequest));
+			rabbitTemplate.convertAndSend(
+				getFurmsPublishQueueName(grantAccess.siteId.externalId),
+				new Payload<>(new Header(VERSION, correlationId.id), userAllocationBlockAccessRequest)
+			);
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}

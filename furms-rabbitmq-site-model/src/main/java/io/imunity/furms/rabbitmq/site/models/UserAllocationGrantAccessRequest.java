@@ -13,13 +13,13 @@ import java.util.Objects;
 @JsonTypeName("UserAllocationGrantAccessRequest")
 public class UserAllocationGrantAccessRequest implements Body {
 	public final String allocationIdentifier;
-	public final String fenixUserId;
+	public final AgentUser user;
 	public final String projectIdentifier;
 
 	@JsonCreator
-	public UserAllocationGrantAccessRequest(String allocationIdentifier, String fenixUserId, String projectIdentifier) {
+	public UserAllocationGrantAccessRequest(String allocationIdentifier, AgentUser user, String projectIdentifier) {
 		this.allocationIdentifier = allocationIdentifier;
-		this.fenixUserId = fenixUserId;
+		this.user = user;
 		this.projectIdentifier = projectIdentifier;
 	}
 
@@ -29,20 +29,20 @@ public class UserAllocationGrantAccessRequest implements Body {
 		if (o == null || getClass() != o.getClass()) return false;
 		UserAllocationGrantAccessRequest that = (UserAllocationGrantAccessRequest) o;
 		return Objects.equals(allocationIdentifier, that.allocationIdentifier) &&
-			Objects.equals(fenixUserId, that.fenixUserId) &&
+			Objects.equals(user, that.user) &&
 			Objects.equals(projectIdentifier, that.projectIdentifier);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(allocationIdentifier, fenixUserId, projectIdentifier);
+		return Objects.hash(allocationIdentifier, user, projectIdentifier);
 	}
 
 	@Override
 	public String toString() {
 		return "UserAllocationGrantAccessRequest{" +
 			"allocationIdentifier='" + allocationIdentifier + '\'' +
-			", fenixUserId='" + fenixUserId + '\'' +
+			", user='" + user + '\'' +
 			", projectIdentifier='" + projectIdentifier + '\'' +
 			'}';
 	}

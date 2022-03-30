@@ -67,6 +67,6 @@ class SpringBootLauncher {
 	@Bean
 	UserOperationStatusUpdater userOperationStatusUpdater() {
 		return new UserOperationStatusUpdaterImpl(siteAgentResourceAccessService, repository,
-			resourceAccessRepository, postCommitRunner);
+			resourceAccessRepository, usersDAO, postCommitRunner);
 	}
 }

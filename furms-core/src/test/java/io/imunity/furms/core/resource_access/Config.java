@@ -50,7 +50,7 @@ class Config {
 	@Primary
 	ResourceAccessService resourceAccessService() {
 		return new ResourceAccessServiceImpl(siteAgentResourceAccessService, repository, userRepository, authzService,
-			userSiteAccessInnerService, policyNotificationService, publisher, postCommitRunner);
+			userSiteAccessInnerService, policyNotificationService, publisher, usersDAO, postCommitRunner);
 	}
 
 	@Bean

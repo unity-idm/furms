@@ -9,6 +9,7 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
@@ -33,7 +34,10 @@ class SiteAgentResourceAccessServiceTest extends IntegrationTestBase {
 			.siteId(new SiteId("id", "mock"))
 			.fenixUserId(new FenixUserId("id"))
 			.build();
-		siteAgentResourceAccessService.grantAccess(correlationId, grantAccess);
+		FURMSUser furmsUser = FURMSUser.builder()
+			.email("admin@admin.pl")
+			.build();
+		siteAgentResourceAccessService.grantAccess(correlationId, grantAccess, furmsUser);
 
 		verify(userAllocationStatusUpdater, timeout(10000)).update(
 			correlationId,

@@ -12,10 +12,12 @@ import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,6 +61,8 @@ class ResourceAccessServiceTest {
 	@Autowired
 	private ApplicationEventPublisher publisher;
 	@Autowired
+	private UsersDAO usersDAO;
+	@Autowired
 	private MockedTransactionManager mockedTransactionManager;
 
 	@Autowired
@@ -84,22 +88,29 @@ class ResourceAccessServiceTest {
 	void shouldGrantAccessForInstalledUser() {
 		UUID grantId = UUID.randomUUID();
 		FenixUserId fenixUserId = new FenixUserId("userId");
+		FURMSUser user = FURMSUser.builder()
+			.email("admin@admin.pl")
+			.fenixUserId(fenixUserId)
+			.build();
 		GrantAccess grantAccess = GrantAccess.builder()
 			.siteId(new SiteId("siteId", "externalId"))
 			.projectId("projectId")
 			.fenixUserId(fenixUserId)
 			.build();
 		//when
+		when(usersDAO.findById(fenixUserId)).thenReturn(Optional.of(user));
+		when(repository.create(any(), eq(grantAccess), eq(GRANT_PENDING))).thenReturn(grantId);
 		when(repository.create(any(), eq(grantAccess), eq(GRANT_PENDING))).thenReturn(grantId);
 		when(repository.exists(grantAccess)).thenReturn(false);
-		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDED));
+		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId))
+			.thenReturn(Optional.of(UserStatus.ADDED));
 
 		service.grantAccess(grantAccess);
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(GRANT_PENDING));
 		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
-		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess));
+		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess), eq(user));
 	}
 
 	@Test

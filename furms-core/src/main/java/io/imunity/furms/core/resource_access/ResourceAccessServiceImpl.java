@@ -20,9 +20,11 @@ import io.imunity.furms.domain.resource_access.UserGrantRemovedCommissionEvent;
 import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -57,6 +59,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	private final PolicyNotificationService policyNotificationService;
 	private final UserSiteAccessInnerService userSiteAccessInnerService;
 	private final ApplicationEventPublisher publisher;
+	private final UsersDAO usersDAO;
 	private final PostCommitRunner postCommitRunner;
 
 	ResourceAccessServiceImpl(SiteAgentResourceAccessService siteAgentResourceAccessService,
@@ -66,6 +69,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	                          UserSiteAccessInnerService userSiteAccessInnerService,
 	                          PolicyNotificationService policyNotificationService,
 	                          ApplicationEventPublisher publisher,
+	                          UsersDAO usersDAO,
 	                          PostCommitRunner postCommitRunner) {
 		this.siteAgentResourceAccessService = siteAgentResourceAccessService;
 		this.repository = repository;
@@ -74,6 +78,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		this.policyNotificationService = policyNotificationService;
 		this.userSiteAccessInnerService = userSiteAccessInnerService;
 		this.publisher = publisher;
+		this.usersDAO = usersDAO;
 		this.postCommitRunner = postCommitRunner;
 	}
 
@@ -128,7 +133,9 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 		UUID grantId;
 		if(isUserProvisioned(userAdditionStatus)) {
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
-			postCommitRunner.runAfterCommit(() -> siteAgentResourceAccessService.grantAccess(correlationId, grantAccess));
+			FURMSUser furmsUser = usersDAO.findById(grantAccess.fenixUserId).get();
+			postCommitRunner.runAfterCommit(() -> siteAgentResourceAccessService.grantAccess(correlationId,
+				grantAccess, furmsUser));
 		}
 		else {
 			userSiteAccessInnerService.addAccessToSite(grantAccess);

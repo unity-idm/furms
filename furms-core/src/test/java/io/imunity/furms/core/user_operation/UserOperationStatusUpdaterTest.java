@@ -11,11 +11,13 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
+import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +57,8 @@ class UserOperationStatusUpdaterTest {
 	private ResourceAccessRepository resourceAccessRepository;
 	@Autowired
 	private ApplicationEventPublisher publisher;
+	@Autowired
+	private UsersDAO usersDAO;
 	@Autowired
 	private UserOperationStatusUpdater service;
 	private InOrder orderVerifier;
@@ -98,25 +102,31 @@ class UserOperationStatusUpdaterTest {
 	@EnumSource(value = UserStatus.class, names = {"ADDING_PENDING", "ADDING_ACKNOWLEDGED"})
 	void shouldUpdateUserAdditionToAddedAndStartWaitingGrantAccesses(UserStatus userStatus) {
 		CorrelationId correlationId = CorrelationId.randomID();
+		FenixUserId fenixUserId = new FenixUserId("userId");
 		UserAddition userAddition = UserAddition.builder()
 			.siteId(new SiteId("siteId", "externalId"))
 			.projectId("projectId")
 			.userId("userId")
 			.correlationId(correlationId)
+			.userId(fenixUserId.id)
 			.status(UserStatus.ADDED)
 			.build();
+		FURMSUser user = FURMSUser.builder()
+			.email("admin@admin.pl")
+			.build();
+		when(usersDAO.findById(fenixUserId)).thenReturn(Optional.of(user));
+		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 		when(repository.findAdditionStatusByCorrelationId(correlationId.id)).thenReturn(Optional.of(userStatus));
 		when(repository.findAdditionByCorrelationId(correlationId)).thenReturn(userAddition);
 		GrantAccess grantAccess = GrantAccess.builder().build();
-		when(resourceAccessRepository.findWaitingGrantAccesses(new FenixUserId("userId"), "projectId", "siteId")).thenReturn(Set.of(
-			grantAccess
-		));
+		when(resourceAccessRepository.findWaitingGrantAccesses(new FenixUserId("userId"), "projectId", "siteId"))
+			.thenReturn(Set.of(grantAccess));
 
 		service.update(userAddition);
 
 		orderVerifier.verify(repository).update(any(UserAddition.class));
 		orderVerifier.verify(resourceAccessRepository).update(any(), eq(grantAccess), eq(AccessStatus.GRANT_PENDING));
-		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess));
+		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess), eq(user));
 	}
 
 	@ParameterizedTest
