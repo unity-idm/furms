@@ -88,7 +88,7 @@ public class UnityUserMapper {
 	}
 
 	private static Map<ResourceId, Set<Role>> getRoles(String group, Collection<? extends Attribute> attributeExts) {
-		if(!isGroupContainingRoles(group))
+		if(!isGroupContainingUsersInPath(group))
 			return Map.of();
 		ResourceId resourceId = getResourceId(group);
 		Set<Role> roles = attributeExts.stream()
@@ -101,7 +101,7 @@ public class UnityUserMapper {
 		return Map.of(resourceId, roles);
 	}
 
-	private static boolean isGroupContainingRoles(String group) {
+	private static boolean isGroupContainingUsersInPath(String group) {
 		return group.endsWith(USERS_PATTERN);
 	}
 
