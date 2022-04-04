@@ -70,7 +70,7 @@ public class UnityClient {
 			.uri(uriBuilder -> uri(uriBuilder, path, params))
 			.retrieve()
 			.bodyToMono(typeReference)
-			.elapsed()  // map the stream's time into our streams data
+			.elapsed()
 			.doOnNext(tuple -> LOG.info("Path {}, Time {}", path, tuple.getT1()))
 			.map(Tuple2::getT2)
 			.block();
