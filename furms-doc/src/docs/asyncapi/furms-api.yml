@@ -618,8 +618,8 @@ channels:
                properties:
                   allocationIdentifier:
                      $ref: "#/components/schemas/allocationIdentifier"
-                  fenixUserId:
-                     $ref: "#/components/schemas/fenixUserId"
+                  user:
+                     $ref: "#/components/schemas/userRecord"
                   projectIdentifier:
                      $ref: "#/components/schemas/projectIdentifier"
                   policiesAcceptance:
