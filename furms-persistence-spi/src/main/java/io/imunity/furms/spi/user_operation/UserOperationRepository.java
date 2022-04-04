@@ -22,6 +22,7 @@ public interface UserOperationRepository {
 	Optional<UserAddition> findUserAddition(String siteId, String projectId, String userId);
 	Set<UserAddition> findAllUserAdditions(String projectId);
 	Set<UserAddition> findAllUserAdditions(FenixUserId userId);
+	Set<UserAddition> findAllUserAdditions(String siteId, FenixUserId userId);
 	Set<UserAddition> findAllUserAdditionsBySiteId(String siteId);
 	Set<UserAddition> findAllUserAdditionsByProjectId(String projectId);
 	Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(String userId, String siteId);

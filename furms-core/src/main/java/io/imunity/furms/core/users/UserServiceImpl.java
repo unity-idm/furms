@@ -68,7 +68,7 @@ class UserServiceImpl implements UserService {
 		LOG.info("Setting {} status to {}", fenixUserId, status);
 		try {
 			usersDAO.setUserStatus(fenixUserId, status);
-			userAllocationsService.findAllByFenixUserId(fenixUserId)
+			userAllocationsService.findUserAdditionsByFenixUserId(fenixUserId)
 					.forEach(userAddition -> userAccountStatusUpdater.setStatus(
 							new SiteAgentSetUserAccountStatusRequest(userAddition, status, SECURITY_INCIDENT)));
 		} catch (UnityFailureException e) {

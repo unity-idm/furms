@@ -48,7 +48,8 @@ class UserAllocationsServiceSecurityTest extends SecurityTestsBase {
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
 				() -> service.findUserSitesInstallations(persistentId),
-				() -> service.findAllByFenixUserId(fenixId))
+				() -> service.findUserAdditionsByFenixUserId(fenixId),
+				() -> service.findUserAdditionsBySiteAndFenixUserId(site,fenixId))
 				.accessFor(
 						fenixAdmin())
 				.deniedFor(
@@ -64,7 +65,7 @@ class UserAllocationsServiceSecurityTest extends SecurityTestsBase {
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
-				() -> service.findAllBySiteId(site))
+				() -> service.findUserAdditionsBySiteId(site))
 				.accessFor(
 						fenixAdmin(),
 						siteAdmin(site),
@@ -80,7 +81,7 @@ class UserAllocationsServiceSecurityTest extends SecurityTestsBase {
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
-				() -> service.findAllByProjectId(project))
+				() -> service.findUserAdditionsByProjectId(project))
 				.accessFor(
 						communityAdmin(community),
 						projectAdmin(community, project),

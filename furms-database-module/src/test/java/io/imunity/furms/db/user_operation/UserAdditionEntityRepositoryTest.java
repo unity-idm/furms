@@ -111,6 +111,46 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	@Test
+	void shouldFindAllBySiteIdAndUserId(){
+		UserAdditionSaveEntity userAddition = userAdditionEntityRepository.save(
+			UserAdditionSaveEntity.builder()
+				.siteId(siteId)
+				.projectId(projectId)
+				.userId("userId")
+				.build()
+		);
+		userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
+				.correlationId(UUID.randomUUID())
+				.userAdditionId(userAddition.getId())
+				.status(UserStatus.REMOVAL_PENDING)
+				.build()
+		);
+
+		UserAdditionSaveEntity userAddition2 = userAdditionEntityRepository.save(
+			UserAdditionSaveEntity.builder()
+				.siteId(siteId)
+				.projectId(projectId)
+				.userId("userId2")
+				.build()
+		);
+		userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
+				.correlationId(UUID.randomUUID())
+				.userAdditionId(userAddition2.getId())
+				.status(UserStatus.REMOVAL_PENDING)
+				.build()
+		);
+
+		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllBySiteIdAndUserId(siteId,
+			"userId");
+		assertThat(userAdditions.size()).isEqualTo(1);
+		assertThat(userAdditions.iterator().next().status).isEqualTo(UserStatus.REMOVAL_PENDING.getPersistentId());
+		assertThat(userAdditions.iterator().next().site.getExternalId()).isEqualTo("id");
+		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId);
+	}
+
+	@Test
 	void shouldFindAllBySiteIdAndUserIdWithRelatedSiteProjectInfo(){
 		UserAdditionSaveEntity userAddition = userAdditionEntityRepository.save(
 				UserAdditionSaveEntity.builder()

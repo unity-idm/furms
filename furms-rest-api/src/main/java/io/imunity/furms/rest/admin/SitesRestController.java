@@ -325,8 +325,22 @@ public class SitesRestController {
 			@PathVariable("siteId") String siteId) {
 		return sitesRestService.findAllSiteUsersBySiteId(siteId);
 	}
-	
-	
+
+
+	@Operation(
+		summary = "Retrieve site use",
+		description = "Returns user that have access to the site through at least projects.",
+		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "Successful operation"),
+		@ApiResponse(responseCode = "403", description = "Permission denied"),
+		@ApiResponse(responseCode = "404", description = "Site not found or user not found", content = { @Content }) })
+	@GetMapping("/{siteId}/users/{userId}")
+	public SiteUser getSiteUsers(
+		@PathVariable("siteId") String siteId, @PathVariable("userId") String userId) {
+		return sitesRestService.findSiteUserByUserIdAndSiteId(userId, siteId);
+	}
+
 	/********************************************************************************************
 	 * 
 	 * Site allocations of projects and resource consumption

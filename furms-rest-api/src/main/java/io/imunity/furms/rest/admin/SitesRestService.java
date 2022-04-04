@@ -259,12 +259,18 @@ class SitesRestService {
 
 	List<SiteUser> findAllSiteUsersBySiteId(String siteId) {
 		final Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId,
-				() -> userAllocationsService.findAllBySiteId(siteId));
+				() -> userAllocationsService.findUserAdditionsBySiteId(siteId));
 		return userAdditionsBySite.stream()
 				.collect(groupingBy(userAddition -> userAddition.userId, toSet()))
 				.entrySet().stream()
 				.map(entry -> createSiteUser(entry.getKey(), entry.getValue(), siteId))
 				.collect(toList());
+	}
+
+	SiteUser findSiteUserByUserIdAndSiteId(String userId, String siteId) {
+		Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId,
+			() -> userAllocationsService.findUserAdditionsBySiteAndFenixUserId(siteId, new FenixUserId(userId)));
+		return createSiteUser(userId, userAdditionsBySite, siteId);
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsBySiteId(String siteId) {
