@@ -144,11 +144,11 @@ class UserDataLoader {
 		return new Data.User(admin.persistentId, admin.entityId, admin.fenixUserId, admin.apiKey);
 	}
 
-	Data.User createUser(final String role) {
-		final String userName = UUID.randomUUID().toString();
+	private Data.User createUser(final String role) {
+		String userName = UUID.randomUUID().toString();
 
-		final EntityId id = createIdentityUserName(userName);
-		final String fenixId = assignFenixUserId(id, userName);
+		String fenixId = userName.replace("-", "") + "@fenixId@acc.fenix.eduteams.org";
+		EntityId id = createIdentityFenixId(userName);
 		assignAttributes(id, userName, role);
 		addUserToGroup(id, "/fenix/users");
 
@@ -205,31 +205,13 @@ class UserDataLoader {
 				.toUriString(), attributes, Map.of());
 	}
 
-	private String assignFenixUserId(EntityId id, String userName) {
-		final String fenixId = userName.replace("-", "") + "@fenixId@acc.fenix.eduteams.org";
-		unityClient.post(UriComponentsBuilder.newInstance()
-						.path("/entity/")
-						.pathSegment("{entityId}")
-						.path("/identity/")
-						.pathSegment("{type}", "{value}")
-						.buildAndExpand(Map.of(
-								"entityId", String.valueOf(id.entityId),
-								"type", "identifier",
-								"value", fenixId))
-						.encode()
-						.toUriString(), null, Map.of(),
-				new ParameterizedTypeReference<>() {
-				});
-		return fenixId;
-	}
-
-	private EntityId createIdentityUserName(String userName) {
+	private EntityId createIdentityFenixId(String fenixId) {
 		return unityClient.post(UriComponentsBuilder.newInstance()
 						.path("/entity/identity/")
 						.pathSegment("{type}", "{value}")
 						.buildAndExpand(Map.of(
-								"type", "userName",
-								"value", userName))
+								"type", "identifier",
+								"value", fenixId))
 						.encode()
 						.toUriString(), null,
 				Map.of("credentialRequirement", "user%20password"),

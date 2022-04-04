@@ -22,8 +22,8 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.MultiGroupMembers;
-import pl.edu.icm.unity.types.basic.SimpleGroupMember;
-import pl.edu.icm.unity.types.basic.SimpleMultiGroupMembers;
+import pl.edu.icm.unity.types.rest.RestGroupMemberWithAttributes;
+import pl.edu.icm.unity.types.rest.RestMultiGroupMembersWithAttributes;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -298,7 +298,7 @@ public class UserService {
 			.encode()
 			.toUriString();
 
-		return unityClient.get(path, new ParameterizedTypeReference<List<SimpleGroupMember>>() {}).stream()
+		return unityClient.get(path, new ParameterizedTypeReference<List<RestGroupMemberWithAttributes>>() {}).stream()
 			.filter(groupMember -> groupMember.getAttributes().stream().anyMatch(filter))
 			.map(x -> UnityUserMapper.map(x, group))
 			.filter(Optional::isPresent)
@@ -319,16 +319,10 @@ public class UserService {
 			.flatMap(Collection::stream)
 			.collect(toList());
 
-		SimpleMultiGroupMembers multiGroupMembers = unityClient.get(path, Map.of("additionalGroups", groups),
+		RestMultiGroupMembersWithAttributes multiGroupMembers = unityClient.get(path, Map.of("additionalGroups", groups),
 			new ParameterizedTypeReference<>() {});
-//		Map<Long, Entity> entitiesById = multiGroupMembers.entities.stream()
-//			.collect(toMap(entity -> entity.getEntityInformation().getId(), Function.identity()));
 
 		return multiGroupMembers.members.get(group).stream()
-//			.map(groupAttributes -> Optional.ofNullable(entitiesById.get(groupAttributes.entityId))
-//					.flatMap(entity -> UnityUserMapper.map(entity.getIdentities(), groupAttributes.attributes, entity.getEntityInformation(), group))
-//					.map(user -> new UserPolicyAcceptances(user, getPolicyAcceptances(groupAttributes.attributes)))
-//			)
 			.map(x -> UnityUserMapper.map(x, group)
 				.map(z -> new UserPolicyAcceptances(z, getPolicyAcceptances(x.getAttributes())))
 			)
@@ -345,7 +339,7 @@ public class UserService {
 			.encode()
 			.toUriString();
 
-		SimpleMultiGroupMembers multiGroupMembers = unityClient.get(path, Map.of("groups",
+		RestMultiGroupMembersWithAttributes multiGroupMembers = unityClient.get(path, Map.of("groups",
 				new ArrayList<>(groupsWithRoles.keySet())),
 			new ParameterizedTypeReference<>() {});
 
@@ -362,7 +356,7 @@ public class UserService {
 		return new GroupedUsers(collect);
 	}
 
-	private List<FURMSUser> getUsers(List<SimpleGroupMember> simpleGroupMembers, String group) {
+	private List<FURMSUser> getUsers(List<RestGroupMemberWithAttributes> simpleGroupMembers, String group) {
 		return simpleGroupMembers.stream()
 			.map(u -> UnityUserMapper.map(u, group))
 			.filter(Optional::isPresent)

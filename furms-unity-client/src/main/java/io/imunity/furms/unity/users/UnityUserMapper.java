@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.types.basic.SimpleGroupMember;
+import pl.edu.icm.unity.types.rest.RestGroupMemberWithAttributes;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
@@ -49,7 +49,7 @@ public class UnityUserMapper {
 		return getFurmsUser(() -> buildUser(groupMember));
 	}
 
-	public static Optional<FURMSUser> map(SimpleGroupMember groupMember, String group){
+	public static Optional<FURMSUser> map(RestGroupMemberWithAttributes groupMember, String group){
 		return getFurmsUser(() -> buildUser(groupMember, group));
 	}
 
@@ -93,7 +93,7 @@ public class UnityUserMapper {
 			.build();
 	}
 
-	private static FURMSUser buildUser(SimpleGroupMember groupMember, String group) {
+	private static FURMSUser buildUser(RestGroupMemberWithAttributes groupMember, String group) {
 		return FURMSUser.builder()
 			.id(new PersistentId(getId(groupMember.getIdentities())))
 			.fenixUserId(getFenixId(groupMember.getIdentities()))
