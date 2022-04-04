@@ -328,9 +328,8 @@ public class SitesRestController {
 
 
 	@Operation(
-		summary = "Retrieve selected user that should have access to a site",
-		description = "Returns user that have access to the site through at least "
-			+ "one of their projects. SSH key of user is provided as well.",
+		summary = "Retrieve site use",
+		description = "Returns user that have access to the site through at least projects.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Successful operation"),

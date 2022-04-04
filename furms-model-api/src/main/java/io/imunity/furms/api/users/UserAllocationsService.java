@@ -18,11 +18,11 @@ public interface UserAllocationsService {
 
 	Set<SiteUser> findUserSitesInstallations(PersistentId userId);
 
-	Set<UserAddition> findAllByFenixUserId(FenixUserId userId);
+	Set<UserAddition> findUserAdditionsByFenixUserId(FenixUserId userId);
 
-	Set<UserAddition> findAllBySiteAndFenixUserId(String siteId, FenixUserId fenixUserId);
+	Set<UserAddition> findUserAdditionsBySiteAndFenixUserId(String siteId, FenixUserId fenixUserId);
 
-	Set<UserAddition> findAllBySiteId(String siteId);
+	Set<UserAddition> findUserAdditionsBySiteId(String siteId);
 
-	Set<UserAddition> findAllByProjectId(String projectId);
+	Set<UserAddition> findUserAdditionsByProjectId(String projectId);
 }

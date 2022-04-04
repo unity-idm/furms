@@ -259,7 +259,7 @@ class SitesRestService {
 
 	List<SiteUser> findAllSiteUsersBySiteId(String siteId) {
 		final Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId,
-				() -> userAllocationsService.findAllBySiteId(siteId));
+				() -> userAllocationsService.findUserAdditionsBySiteId(siteId));
 		return userAdditionsBySite.stream()
 				.collect(groupingBy(userAddition -> userAddition.userId, toSet()))
 				.entrySet().stream()
@@ -269,7 +269,7 @@ class SitesRestService {
 
 	SiteUser findSiteUserByUserIdAndSiteId(String userId, String siteId) {
 		Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId,
-			() -> userAllocationsService.findAllBySiteAndFenixUserId(siteId, new FenixUserId(userId)));
+			() -> userAllocationsService.findUserAdditionsBySiteAndFenixUserId(siteId, new FenixUserId(userId)));
 		return createSiteUser(userId, userAdditionsBySite, siteId);
 	}
 
