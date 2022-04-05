@@ -1,0 +1,11 @@
+/.classpath
+/.project
+/.settings
+/target/
+/frontend/
+/node_modules/
+/tsconfig.json
+/types.d.ts
+/webpack.generated.js
+/package-lock.json
+/package.json
