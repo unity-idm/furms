@@ -17,13 +17,13 @@ import io.imunity.furms.unity.users.UnityUserMapper;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
+import pl.edu.icm.unity.model.RestAttributeExt;
+import pl.edu.icm.unity.model.RestGroupMemberWithAttributes;
+import pl.edu.icm.unity.model.RestMultiGroupMembersWithAttributes;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.MultiGroupMembers;
-import pl.edu.icm.unity.types.rest.RestGroupMemberWithAttributes;
-import pl.edu.icm.unity.types.rest.RestMultiGroupMembersWithAttributes;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -196,11 +196,17 @@ public class UserService {
 		return getPolicyAcceptances(getAttributesFromRootGroup(userId));
 	}
 
-	public List<Attribute> getRoleValues(PersistentId userId, String group) {
-		return getAttributesFromGroup(userId, group);
+	public Set<PolicyAcceptance> getPolicyAcceptances(Collection<? extends Attribute> attributes) {
+		return attributes
+			.stream()
+			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE))
+			.flatMap(attribute -> attribute.getValues().stream())
+			.map(PolicyAcceptanceParser::parse)
+			.map(PolicyAcceptanceArgument::toPolicyAcceptance)
+			.collect(toSet());
 	}
 
-	public Set<PolicyAcceptance> getPolicyAcceptances(Collection<? extends Attribute> attributes) {
+	public Set<PolicyAcceptance> getPolicyAcceptancesFromAttributes(Collection<? extends RestAttributeExt> attributes) {
 		return attributes
 			.stream()
 			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE))
@@ -272,14 +278,14 @@ public class UserService {
 	}
 	
 	public List<FURMSUser> getAllUsersByRole(String group, Role role) {
-		Predicate<AttributeExt> filter = attribute ->
+		Predicate<RestAttributeExt> filter = attribute ->
 			attribute.getName().equals(role.unityRoleAttribute) &&
 				attribute.getValues().contains(role.unityRoleValue);
 		return getAllUsersFromGroup(group, filter);
 	}
 
 	public List<FURMSUser> getAllUsersByRoles(String group, Set<Role> roles) {
-		Predicate<AttributeExt> filter = attribute -> {
+		Predicate<RestAttributeExt> filter = attribute -> {
 			for(Role role : roles){
 				if(role.unityRoleAttribute.equals(attribute.getName()) && attribute.getValues().contains(role.unityRoleValue))
 					return true;
@@ -289,7 +295,7 @@ public class UserService {
 		return getAllUsersFromGroup(group, filter);
 	}
 
-	public List<FURMSUser> getAllUsersFromGroup(String group, Predicate<AttributeExt> filter){
+	public List<FURMSUser> getAllUsersFromGroup(String group, Predicate<RestAttributeExt> filter){
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, group);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS)
@@ -324,7 +330,7 @@ public class UserService {
 
 		return multiGroupMembers.members.get(group).stream()
 			.map(x -> UnityUserMapper.map(x, group)
-				.map(z -> new UserPolicyAcceptances(z, getPolicyAcceptances(x.getAttributes())))
+				.map(z -> new UserPolicyAcceptances(z, getPolicyAcceptancesFromAttributes(x.getAttributes())))
 			)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -343,12 +349,6 @@ public class UserService {
 				new ArrayList<>(groupsWithRoles.keySet())),
 			new ParameterizedTypeReference<>() {});
 
-//		Map<Long, Entity> entityMap = multiGroupMembers.entities.stream()
-//			.collect(toMap(Entity::getId, Function.identity()));
-
-//		Map<String, List<FURMSUser>> usersByGroups = groupsWithRoles.entrySet().stream()
-//			.collect(toMap(Map.Entry::getKey, x -> getUsers(x.getValue(), x.getKey())));
-
 		Map<String, List<FURMSUser>> collect = multiGroupMembers.members.entrySet().stream()
 			.collect(toMap(Map.Entry::getKey, x -> getUsers(x.getValue(), x.getKey())));
 
@@ -362,15 +362,6 @@ public class UserService {
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(toList());
-	}
-
-	private Map.Entry<String, List<FURMSUser>> getUsersByResourceId(MultiGroupMembers multiGroupMembers, Map<Long,
-		Entity> entityMap, Map.Entry<String, Set<Role>> entry) {
-
-		List<FURMSUser> users = getUsers(entityMap, multiGroupMembers.members.get(entry.getKey()), entry.getKey());
-		if (!entry.getValue().isEmpty())
-			users = filerUsersByRoles(entry.getValue(), users);
-		return Map.entry(entry.getKey(), users);
 	}
 
 	private List<FURMSUser> filerUsersByRoles(Set<Role> roles, List<FURMSUser> users) {

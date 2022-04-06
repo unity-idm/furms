@@ -33,6 +33,7 @@ class FurmsMethodSecurityExpressionRoot
 		implements MethodSecurityExpressionOperations {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	private static final List<Capability> ELEMENTARY_CAPABILITIES = List.of(AUTHENTICATED, PROJECT_LIMITED_READ, OWNED_SSH_KEY_MANAGMENT);
 
 	private final UserCapabilityCollector userCapabilityCollector;
 
@@ -50,9 +51,9 @@ class FurmsMethodSecurityExpressionRoot
 			return false;
 
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
-		List<ResourceId> resourceIds = ids.stream().map(x -> new ResourceId(x, resourceType)).collect(Collectors.toList());
+		List<ResourceId> resourceIds = ids.stream().map(id -> new ResourceId(id, resourceType)).collect(Collectors.toList());
 		Set<Capability> userCapabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceIds, resourceType);
-		userCapabilities.addAll(List.of(AUTHENTICATED, PROJECT_LIMITED_READ, OWNED_SSH_KEY_MANAGMENT));
+		userCapabilities.addAll(ELEMENTARY_CAPABILITIES);
 
 		final boolean hasCapability = userCapabilities.contains(capability);
 
@@ -71,7 +72,7 @@ class FurmsMethodSecurityExpressionRoot
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
 		ResourceId resourceId = new ResourceId(id, resourceType);
 		Set<Capability> userCapabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceId);
-		userCapabilities.addAll(List.of(AUTHENTICATED, PROJECT_LIMITED_READ, OWNED_SSH_KEY_MANAGMENT));
+		userCapabilities.addAll(ELEMENTARY_CAPABILITIES);
 
 		final boolean hasCapability = userCapabilities.contains(capability);
 
