@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
@@ -49,8 +48,8 @@ class ProjectDatabaseRepository implements ProjectRepository {
 
 	@Override
 	public Set<Project> findAllByCommunityIds(Set<String> communityIds) {
-		return repository.findAllByCommunityIdIn(communityIds.stream().map(UUID::fromString).collect(Collectors.toSet()))
-			.stream()
+		return stream(repository.findAll().spliterator(), false)
+			.filter(x -> communityIds.contains(x.getCommunityId().toString()))
 			.map(ProjectEntity::toProject)
 			.collect(toSet());
 	}

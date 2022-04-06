@@ -17,10 +17,11 @@ import io.imunity.furms.unity.users.UnityUserMapper;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
+import pl.edu.icm.unity.model.RestAttributeExt;
+import pl.edu.icm.unity.model.RestGroupMemberWithAttributes;
+import pl.edu.icm.unity.model.RestMultiGroupMembersWithAttributes;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.MultiGroupMembers;
 
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -196,11 +196,17 @@ public class UserService {
 		return getPolicyAcceptances(getAttributesFromRootGroup(userId));
 	}
 
-	public List<Attribute> getRoleValues(PersistentId userId, String group) {
-		return getAttributesFromGroup(userId, group);
+	public Set<PolicyAcceptance> getPolicyAcceptances(Collection<? extends Attribute> attributes) {
+		return attributes
+			.stream()
+			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE))
+			.flatMap(attribute -> attribute.getValues().stream())
+			.map(PolicyAcceptanceParser::parse)
+			.map(PolicyAcceptanceArgument::toPolicyAcceptance)
+			.collect(toSet());
 	}
 
-	public Set<PolicyAcceptance> getPolicyAcceptances(Collection<? extends Attribute> attributes) {
+	public Set<PolicyAcceptance> getPolicyAcceptancesFromAttributes(Collection<? extends RestAttributeExt> attributes) {
 		return attributes
 			.stream()
 			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE))
@@ -272,14 +278,14 @@ public class UserService {
 	}
 	
 	public List<FURMSUser> getAllUsersByRole(String group, Role role) {
-		Predicate<AttributeExt> filter = attribute ->
+		Predicate<RestAttributeExt> filter = attribute ->
 			attribute.getName().equals(role.unityRoleAttribute) &&
 				attribute.getValues().contains(role.unityRoleValue);
 		return getAllUsersFromGroup(group, filter);
 	}
 
 	public List<FURMSUser> getAllUsersByRoles(String group, Set<Role> roles) {
-		Predicate<AttributeExt> filter = attribute -> {
+		Predicate<RestAttributeExt> filter = attribute -> {
 			for(Role role : roles){
 				if(role.unityRoleAttribute.equals(attribute.getName()) && attribute.getValues().contains(role.unityRoleValue))
 					return true;
@@ -289,7 +295,7 @@ public class UserService {
 		return getAllUsersFromGroup(group, filter);
 	}
 
-	public List<FURMSUser> getAllUsersFromGroup(String group, Predicate<AttributeExt> filter){
+	public List<FURMSUser> getAllUsersFromGroup(String group, Predicate<RestAttributeExt> filter){
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, group);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS)
@@ -298,9 +304,9 @@ public class UserService {
 			.encode()
 			.toUriString();
 
-		return unityClient.get(path, new ParameterizedTypeReference<List<GroupMember>>() {}).stream()
+		return unityClient.get(path, new ParameterizedTypeReference<List<RestGroupMemberWithAttributes>>() {}).stream()
 			.filter(groupMember -> groupMember.getAttributes().stream().anyMatch(filter))
-			.map(UnityUserMapper::map)
+			.map(x -> UnityUserMapper.map(x, group))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(toList());
@@ -310,7 +316,6 @@ public class UserService {
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, group);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS_MULTI)
-			.pathSegment("{" + ROOT_GROUP_PATH + "}")
 			.buildAndExpand(uriVariables)
 			.encode()
 			.toUriString();
@@ -320,15 +325,12 @@ public class UserService {
 			.flatMap(Collection::stream)
 			.collect(toList());
 
-		MultiGroupMembers multiGroupMembers = unityClient.post(path, groups, Map.of(), new ParameterizedTypeReference<>() {});
-		Map<Long, Entity> entitiesById = multiGroupMembers.entities.stream()
-			.collect(toMap(entity -> entity.getEntityInformation().getId(), Function.identity()));
+		RestMultiGroupMembersWithAttributes multiGroupMembers = unityClient.get(path, Map.of("additionalGroups", groups),
+			new ParameterizedTypeReference<>() {});
 
-		return multiGroupMembers.members.values().stream()
-			.flatMap(Collection::stream)
-			.map(groupAttributes -> Optional.ofNullable(entitiesById.get(groupAttributes.entityId))
-					.flatMap(entity -> UnityUserMapper.map(entity.getIdentities(), groupAttributes.attributes, entity.getEntityInformation(), group))
-					.map(user -> new UserPolicyAcceptances(user, getPolicyAcceptances(groupAttributes.attributes)))
+		return multiGroupMembers.members.get(group).stream()
+			.map(x -> UnityUserMapper.map(x, group)
+				.map(z -> new UserPolicyAcceptances(z, getPolicyAcceptancesFromAttributes(x.getAttributes())))
 			)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -339,31 +341,27 @@ public class UserService {
 		Map<String, String> uriVariables = Map.of(ROOT_GROUP_PATH, FENIX_GROUP);
 		String path = UriComponentsBuilder.newInstance()
 			.path(GROUP_MEMBERS_MULTI)
-			.pathSegment("{" + ROOT_GROUP_PATH + "}")
 			.buildAndExpand(uriVariables)
 			.encode()
 			.toUriString();
 
-		MultiGroupMembers multiGroupMembers = unityClient.post(path, groupsWithRoles.keySet(), Map.of(),
+		RestMultiGroupMembersWithAttributes multiGroupMembers = unityClient.get(path, Map.of("groups",
+				new ArrayList<>(groupsWithRoles.keySet())),
 			new ParameterizedTypeReference<>() {});
 
-		Map<Long, Entity> entityMap = multiGroupMembers.entities.stream()
-			.collect(toMap(Entity::getId, Function.identity()));
+		Map<String, List<FURMSUser>> collect = multiGroupMembers.members.entrySet().stream()
+			.collect(toMap(Map.Entry::getKey, x -> getUsers(x.getValue(), x.getKey())));
 
-		Map<String, List<FURMSUser>> usersByGroups = groupsWithRoles.entrySet().stream()
-			.map(entry -> getUsersByResourceId(multiGroupMembers, entityMap, entry))
-			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-		return new GroupedUsers(usersByGroups);
+		return new GroupedUsers(collect);
 	}
 
-	private Map.Entry<String, List<FURMSUser>> getUsersByResourceId(MultiGroupMembers multiGroupMembers, Map<Long,
-		Entity> entityMap, Map.Entry<String, Set<Role>> entry) {
-
-		List<FURMSUser> users = getUsers(entityMap, multiGroupMembers.members.get(entry.getKey()), entry.getKey());
-		if (!entry.getValue().isEmpty())
-			users = filerUsersByRoles(entry.getValue(), users);
-		return Map.entry(entry.getKey(), users);
+	private List<FURMSUser> getUsers(List<RestGroupMemberWithAttributes> simpleGroupMembers, String group) {
+		return simpleGroupMembers.stream()
+			.map(u -> UnityUserMapper.map(u, group))
+			.filter(Optional::isPresent)
+			.map(Optional::get)
+			.collect(toList());
 	}
 
 	private List<FURMSUser> filerUsersByRoles(Set<Role> roles, List<FURMSUser> users) {

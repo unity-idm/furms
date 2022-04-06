@@ -30,7 +30,7 @@
 
 		<spring.boot.version>2.6.2</spring.boot.version>
 
-		<unity.version>3.8.0</unity.version>
+		<unity.version>3.9.0-SNAPSHOT</unity.version>
 
 		<vaadin.version>23.0.1</vaadin.version>
 
