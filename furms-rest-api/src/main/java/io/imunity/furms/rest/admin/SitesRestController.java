@@ -328,8 +328,8 @@ public class SitesRestController {
 
 
 	@Operation(
-		summary = "Retrieve site use",
-		description = "Returns user that have access to the site through at least projects.",
+		summary = "Retrieve site user",
+		description = "Returns a specified user by Fenix id, assuming that this user has access to the site.",
 		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "Successful operation"),
