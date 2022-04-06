@@ -220,6 +220,12 @@ public class TestUser {
 	}
 
 	private void createAttributeMock(WireMockServer wireMockServer) throws JsonProcessingException {
+		wireMockServer.stubFor(get("/unity/entity/"+userId+"/groups/direct/attributes")
+			.willReturn(aResponse().withStatus(200)
+				.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+				.withBody(new ObjectMapper().writeValueAsString(attributes.values().stream()
+					.flatMap(Collection::stream)
+					.collect(Collectors.groupingBy(Attribute::getGroupPath))))));
 		wireMockServer.stubFor(get("/unity/entity/"+userId+"/attributes?group=/")
 				.willReturn(aResponse().withStatus(200)
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)

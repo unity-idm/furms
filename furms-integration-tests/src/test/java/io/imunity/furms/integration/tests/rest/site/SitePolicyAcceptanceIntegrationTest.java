@@ -25,6 +25,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -94,11 +95,18 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		createPolicyAcceptanceBase(site, basicUser);
 		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER, PolicyId.empty());
 
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(sitePath, List.of(
-				new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER),
-				new PolicyUser(site.getPolicyId().id.toString(), basicUser)));
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(darkSitePath, List.of(
-				new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)));
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(
+			Map.of(
+				sitePath,
+				List.of(
+					new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER),
+					new PolicyUser(site.getPolicyId().id.toString(), basicUser)
+				),
+				darkSitePath,
+				List.of(
+					new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)
+				)
+			));
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
@@ -126,11 +134,18 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		createPolicyAcceptanceBase(site, basicUser);
 		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER);
 
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(sitePath, List.of(
-			new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER),
-			new PolicyUser(site.getPolicyId().id.toString(), basicUser)));
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(darkSitePath, List.of(
-			new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)));
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(
+			Map.of(
+				sitePath,
+				List.of(
+					new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER),
+					new PolicyUser(site.getPolicyId().id.toString(), basicUser)
+				),
+				darkSitePath,
+				List.of(
+					new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)
+				)
+			));
 
 		updatePolicyRevision(site.getPolicyId());
 
@@ -169,9 +184,15 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		PolicyId darkPolicyId = createPolicy(site.getId());
 		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER, darkPolicyId);
 
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(sitePath, List.of());
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(darkSitePath, List.of(
-			new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)));
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(
+			Map.of(
+				sitePath,
+				List.of(),
+				darkSitePath,
+				List.of(
+					new PolicyUser(darkSite.getPolicyId().id.toString(), ADMIN_USER)
+				)
+			));
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
@@ -239,8 +260,13 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 				.willReturn(aResponse().withStatus(200)
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)));
 
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(createPolicyAcceptanceBase(site, ADMIN_USER),
-				List.of(new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER)));
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(
+			Map.of(
+				createPolicyAcceptanceBase(site, ADMIN_USER),
+				List.of(
+					new PolicyUser(site.getPolicyId().id.toString(), ADMIN_USER)
+				)
+			));
 
 		//when
 		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",

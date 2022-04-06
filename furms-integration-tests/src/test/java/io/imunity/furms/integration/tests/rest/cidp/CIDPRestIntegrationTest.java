@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -87,8 +88,10 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), data.grantAccess, GRANT_PENDING);
 
 		final String path = "/fenix/communities/"+data.communityId+"/projects/"+data.projectId+"/users";
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(path, List.of(
-				new PolicyAcceptanceMockUtils.PolicyUser(data.policyId, testUser)));
+		policyAcceptanceMockUtils.createPolicyAcceptancesMock(Map.of(
+			path,
+			List.of(new PolicyAcceptanceMockUtils.PolicyUser(data.policyId, testUser))
+		));
 
 		testUser.getAttributes().put(path, Set.of(new Attribute(
 						FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
@@ -148,8 +151,8 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), data.grantAccess, GRANT_PENDING);
 
 		final String path = "/fenix/communities/"+data.communityId+"/projects/"+data.projectId+"/users";
-		policyAcceptanceMockUtils.createPolicyAcceptancesMock(path, List.of(
-				new PolicyAcceptanceMockUtils.PolicyUser(data.policyId, testUser)));
+//		policyAcceptanceMockUtils.createPolicyAcceptancesMock(path, List.of(
+//				new PolicyAcceptanceMockUtils.PolicyUser(data.policyId, testUser)));
 
 		final Optional<PolicyDocument> oldRevision = policyDocumentRepository.findById(new PolicyId(data.policyId));
 		policyDocumentRepository.update(oldRevision.get(), true);

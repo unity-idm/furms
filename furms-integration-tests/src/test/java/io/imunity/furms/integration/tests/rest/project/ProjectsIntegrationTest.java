@@ -272,7 +272,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		final String community = createCommunity();
 		final String project = createProject(community);
 
-		server.stubFor(WireMock.get("/unity/group-members/%2Ffenix%2Fcommunities%2F"+community+"%2Fprojects%2F"+project+"%2Fusers")
+		server.stubFor(WireMock.get("/unity/group-members-attributes/%2Ffenix%2Fcommunities%2F"+community+"%2Fprojects%2F"+project+"%2Fusers")
 				.willReturn(aResponse().withStatus(200)
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBody(new ObjectMapper().writeValueAsString(new String[0]))));

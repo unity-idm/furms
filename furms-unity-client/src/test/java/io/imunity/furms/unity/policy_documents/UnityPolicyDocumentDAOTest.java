@@ -54,7 +54,7 @@ class UnityPolicyDocumentDAOTest {
 		UserPolicyAcceptances userPolicyAcceptances2 = new UserPolicyAcceptances(furmsUser2, Set.of());
 
 		when(siteRepository.findRelatedProjectIds(new SiteId(siteId))).thenReturn(map);
-		when(userService.getAllUsersPolicyAcceptanceFromGroups("/", map)).thenReturn(Set.of(userPolicyAcceptances1, userPolicyAcceptances2));
+		when(userService.getAllUsersPolicyAcceptanceFromGroups(map)).thenReturn(Set.of(userPolicyAcceptances1, userPolicyAcceptances2));
 		when(resourceAccessRepository.findUsersBySiteId(siteId)).thenReturn(Set.of(new FenixUserId(userId)));
 
 

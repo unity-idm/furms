@@ -4,7 +4,7 @@
  */
 package io.imunity.furms.unity.common;
 
-import pl.edu.icm.unity.model.RestAttributeExt;
+import io.imunity.rest.api.RestAttributeExt;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 

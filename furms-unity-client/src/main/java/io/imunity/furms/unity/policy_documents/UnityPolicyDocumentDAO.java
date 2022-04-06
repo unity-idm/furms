@@ -46,7 +46,7 @@ class UnityPolicyDocumentDAO implements PolicyDocumentDAO {
 			return Set.of();
 
 		Set<FenixUserId> userIds = resourceAccessRepository.findUsersBySiteId(siteId);
-		return userService.getAllUsersPolicyAcceptanceFromGroups("/", relatedCommunityAndProjectIds).stream()
+		return userService.getAllUsersPolicyAcceptanceFromGroups(relatedCommunityAndProjectIds).stream()
 			.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
 			.filter(userPolicyAcceptances -> userIds.contains(userPolicyAcceptances.user.fenixUserId.get()))
 			.collect(Collectors.toSet());
