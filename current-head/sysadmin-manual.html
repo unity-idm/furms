@@ -1074,18 +1074,6 @@ The redirect URL configured at Central IdP OAuth client side should be set to ht
 <td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail</p></td>
 <td class="tableblock halign-left valign-top" colspan="2"><div class="content"><div class="paragraph">
 <p>Configuration of Unity-IdM mail notifications subsystem, used by FURMS to send invitations, applications, policy acceptance information etc. Mail configuration is optional.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-The SSL for SMTP connections is enabled by default.
-</td>
-</tr>
-</table>
 </div></div></td>
 </tr>
 <tr>
@@ -1106,12 +1094,22 @@ The SSL for SMTP connections is enabled by default.
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.smtp.username</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">User name to authenticate SMTP connection.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">User name to authenticate SMTP connection. Optional value, when provided Unity-IdM attempts to authenticate the user using the AUTH command.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.smtp.password</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">string</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Password to authenticate SMTP connection.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Password to authenticate SMTP connection. Optional value, must be defined when <code>unity.mail.smtp.username</code> is provided.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.smtp.starttls</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If true, enables the use of the STARTTLS command (if supported by the server) to switch the connection to a TLS-protected connection before issuing any login commands. Optional parameter that defaults to true.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">unity.mail.smtp.ssl</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">boolean</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If set to true then SSL is used to connect with server. This parameter is optional with default value set to false.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">unity.msgTemplates</p></td>
@@ -2243,7 +2241,7 @@ FURMS devops tooling comes with handy Ansible Playbooks to perform backup and re
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-02-04 06:21:41 UTC
+Last updated 2022-04-06 17:48:47 UTC
 </div>
 </div>
 <style>
