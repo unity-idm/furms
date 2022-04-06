@@ -8,6 +8,7 @@ package io.imunity.furms.core.post_commit;
 import io.imunity.furms.core.utils.InvokeAfterCommitEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -17,6 +18,7 @@ import java.lang.invoke.MethodHandles;
 class PostCommitListener {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+	@Async
 	@TransactionalEventListener
 	void onInvokeAfterCommitEvent(InvokeAfterCommitEvent invokeAfterCommitEvent) {
 		try {
