@@ -1,16 +1,31 @@
 version: '3.7'
 
 services:
+
   db-furms-postgres:
     image: postgres:11.4
+    user: postgres
     environment:
       POSTGRES_USER: username
-      POSTGRES_DB: furms
+      POSTGRES_DB: postgres
       POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres-furms:/var/lib/postgresql/data
+
+  db-unity-postgres:
+    image: postgres:11.4
+    user: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-unity:/var/lib/postgresql/data
 
 volumes:
-  postgres:
+  postgres-furms:
+  postgres-unity:
