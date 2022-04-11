@@ -831,7 +831,7 @@ This section describes the FURMS 3.0 release installation steps basing on 2.0 re
 
 == Upgrade from 3.0 to 3.1 release
 
-This section describes the FURMS 3.1 release installation steps basing on 3.0 release configuration. This release does not introduce any new Ansible configuration, so the installation straight forward.
+This section describes the FURMS 3.1 release installation steps basing on 3.0 release configuration. This release does not introduce any new Ansible configuration, so the installation is straight forward.
 
 * Make a backup of PostgreSQL database used by Unity-IdM instance.
 * Make a backup of PostgreSQL database used by FURMS service instance.
@@ -873,6 +873,20 @@ This section describes the FURMS 4.0 release installation steps basing on 3.x re
 * <<Install FURMS stack>>.
 * Make sure that RabbitMQ broker is up and running.
 * <<Starting FURMS stack,Start FURMS stack>>.
+
+
+== Upgrade from 4.0 to 4.1 release
+
+This section describes the FURMS 4.1 release installation steps basing on 4.0 release configuration. This release does not introduce any new Ansible configuration, so the installation is straight forward.
+
+* Make a backup of FURMS system, follow steps in <<Backup>> section.
+* Update the FURMS Ansible scripts to the latest version, execute `./install_furms_devops_tooling.py` in the directory where tooling was installed.
+* <<Stopping FURMS stack,Stop FURMS stack>>.
+* Update your existing `groups_var/all.yml` Ansible configuration file and change the version of furmsVersion to `4.1.0`
+* <<Install FURMS stack>>.
+* Make sure that RabbitMQ broker is up and running.
+* <<Starting FURMS stack,Start FURMS stack>>.
+
 
 == Operating the system
 
@@ -940,8 +954,8 @@ NOTE: FURMS devops tooling comes with handy Ansible Playbooks to perform backup 
 
 The `backup-furms.yml` Ansible Playbook performs the FURMS backup which is placed under subdirectory of `backupDir`. The subdirectory name consists of date, time and FURMS version e.g. `2022-01-19_10:33:27_v4.0.0`. The backup consists of the following files:
 
-* Compressed FURMS database dump file named: `<furmsServer.db.dbName>.dump.tar.gz`,
-* Compressed Unity-IdM database dump file named: `<unity.db.dbName>.dump.tar.gz`,
+* Compressed FURMS database dump file named: `furmsDb.dump.tar.gz`,
+* Compressed Unity-IdM database dump file named: `unityDb.dump.tar.gz`,
 * Compressed Ansible configuration file named: `ansible_config.tar.gz`. The archive consists of `inventory` and `group_vars` directory, as well as FURMS configuration files e.g. email templates, truststore etc.
 
 In order to perform backup execute the following on Ansible management host:
