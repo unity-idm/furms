@@ -1,8 +1,3 @@
-[part="items"] ::slotted(#vaadin-menu-button)::before {
+[part="checkmark"] {
     display: none;
-}
-
-:host(.vaadin-menu-list-box) [part="items"] ::slotted(#vaadin-menu-button) {
-    padding-left: 0;
-    padding-right: 0;
 }

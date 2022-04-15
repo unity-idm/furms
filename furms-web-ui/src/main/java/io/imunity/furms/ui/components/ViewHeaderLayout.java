@@ -40,6 +40,6 @@ public class ViewHeaderLayout extends HorizontalLayout {
 
 	private void setDefault() {
 		addClassName("view-header");
-		setSizeFull();
+		setWidthFull();
 	}
 }

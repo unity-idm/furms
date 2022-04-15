@@ -55,4 +55,10 @@ vaadin-tab[selected] {
 vaadin-context-menu-item {
 	padding-top: 0;
 	padding-bottom: 0;
+	padding-right: 0.5em;
+	padding-left: 0.5em;
+}
+
+#scroller {
+	bottom: unset;
 }

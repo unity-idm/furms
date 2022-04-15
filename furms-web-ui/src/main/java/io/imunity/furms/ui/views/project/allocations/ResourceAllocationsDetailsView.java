@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.project.allocations;
 
 import com.vaadin.componentfactory.ToggleButton;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
@@ -62,15 +63,20 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 			);
 
 			ToggleButton toggle = new ToggleButton("Show per-user breakdown");
+			HorizontalLayout toggleLayout = new HorizontalLayout(toggle);
+			toggleLayout.getStyle().set("padding-bottom", "0");
+			toggleLayout.getStyle().set("margin-left", "0.45em");
+
+			toggleLayout.setPadding(true);
 			toggle.addValueChangeListener(evt -> {
 				getContent().removeAll();
 				if(evt.getValue())
-					getContent().add(toggle, getResourceAllocationChartWithUsersUsage(projectAllocation.get()));
+					getContent().add(toggleLayout, getResourceAllocationChartWithUsersUsage(projectAllocation.get()));
 				else
-					getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
+					getContent().add(toggleLayout, getBasicResourceAllocationChart(projectAllocation.get()));
 
 			});
-			getContent().add(toggle, getBasicResourceAllocationChart(projectAllocation.get()));
+			getContent().add(toggleLayout, getBasicResourceAllocationChart(projectAllocation.get()));
 		}
 	}
 

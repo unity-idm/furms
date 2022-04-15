@@ -1,0 +1,8 @@
+:host(.menu-chart-button) {
+	background-color: inherit;
+	padding: 0;
+}
+
+:host(.menu-chart-button)::before, :host(.menu-chart-button)::after {
+	background-color: inherit;
+}
