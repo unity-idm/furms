@@ -86,8 +86,6 @@ public class ProjectsView extends FurmsViewComponent {
 		Button addButton = createAddButton();
 		loadGridContent();
 
-//		Div horizontalLayout = new Div(grid);
-//		horizontalLayout.setHeightFull();
 		getContent().add(createHeaderLayout(addButton), createSearchFilterLayout(grid, addButton), grid);
 	}
 
