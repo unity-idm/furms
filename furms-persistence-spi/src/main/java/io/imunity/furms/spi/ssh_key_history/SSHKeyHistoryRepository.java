@@ -5,17 +5,18 @@
 
 package io.imunity.furms.spi.ssh_key_history;
 
-import java.util.List;
-
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
+
+import java.util.List;
 
 public interface SSHKeyHistoryRepository {
 	
-	List<SSHKeyHistory> findBySiteIdAndOwnerIdLimitTo(String siteId, String ownerId, int limit);
+	List<SSHKeyHistory> findBySiteIdAndOwnerIdLimitTo(SiteId siteId, String ownerId, int limit);
 
 	String create(SSHKeyHistory sshKeyHistory);
 	
-	void deleteOldestLeaveOnly(String siteId, String ownerId, int leave);
+	void deleteOldestLeaveOnly(SiteId siteId, String ownerId, int leave);
 
-	void deleteLatest(String siteId, String ownerId);
+	void deleteLatest(SiteId siteId, String ownerId);
 }

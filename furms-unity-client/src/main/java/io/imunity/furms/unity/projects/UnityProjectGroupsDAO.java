@@ -6,7 +6,9 @@
 package io.imunity.furms.unity.projects;
 
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.GroupedUsers;
@@ -58,7 +60,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public Optional<ProjectGroup> get(String communityId, String projectId) {
+	public Optional<ProjectGroup> get(CommunityId communityId, ProjectId projectId) {
 		if (isEmpty(communityId) || isEmpty(projectId)) {
 			throw new IllegalArgumentException("Could not get Project from Unity. Missing Community or Project ID");
 		}
@@ -117,7 +119,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public void delete(String communityId, String projectId) {
+	public void delete(CommunityId communityId, ProjectId projectId) {
 		if (isEmpty(communityId) || isEmpty(projectId)) {
 			throw new IllegalArgumentException("Missing Community or Project ID");
 		}
@@ -132,16 +134,16 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 		LOG.debug("Project group {} under Community group {} was deleted", projectId, communityId);
 	}
 
-	private Map<String, Object> getUriVariables(String communityId, String projectId) {
-		return Map.of(COMMUNITY_ID, communityId, PROJECT_ID, projectId);
+	private Map<String, Object> getUriVariables(CommunityId communityId, ProjectId projectId) {
+		return Map.of(COMMUNITY_ID, communityId.id.toString(), PROJECT_ID, projectId.id.toString());
 	}
 
-	private Map<String, Object> getUriVariables(String communityId) {
-		return Map.of(ID, communityId);
+	private Map<String, Object> getUriVariables(CommunityId communityId) {
+		return Map.of(ID, communityId.id.toString());
 	}
 
 	@Override
-	public List<FURMSUser> getAllAdmins(String communityId, String projectId) {
+	public List<FURMSUser> getAllAdmins(CommunityId communityId, ProjectId projectId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Admin from Unity. Missing Project or Community ID"));
 		String communityPath = getPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
@@ -149,7 +151,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public CommunityAdminsAndProjectAdmins getAllCommunityAndProjectAdmins(String communityId, String projectId) {
+	public CommunityAdminsAndProjectAdmins getAllCommunityAndProjectAdmins(CommunityId communityId, ProjectId projectId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String communityPath = getPath(getUriVariables(communityId), COMMUNITY_PATTERN);
@@ -166,7 +168,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public List<FURMSUser> getAllUsers(String communityId, String projectId) {
+	public List<FURMSUser> getAllUsers(CommunityId communityId, ProjectId projectId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String communityPath = getPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
@@ -174,7 +176,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public List<FURMSUser> getAllProjectAdminsAndUsers(String communityId, String projectId) {
+	public List<FURMSUser> getAllProjectAdminsAndUsers(CommunityId communityId, ProjectId projectId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String projectPath = getPath(getUriVariables(communityId, projectId), PROJECT_PATTERN);
@@ -182,7 +184,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public List<FURMSUser> getAllUsers(String communityId) {
+	public List<FURMSUser> getAllUsers(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Project Users from Unity. Missing Project or Community ID"));
 		String communityPath = getPath(getUriVariables(communityId), COMMUNITY_GROUP_PATTERN);
@@ -190,7 +192,7 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public void addProjectUser(String communityId, String projectId, PersistentId userId, Role role) {
+	public void addProjectUser(CommunityId communityId, ProjectId projectId, PersistentId userId, Role role) {
 		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not add Project Admin in Unity. Missing Project ID or User ID or Community "));
 
@@ -200,16 +202,16 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 	}
 
 	@Override
-	public void removeAdmin(String communityId, String projectId, PersistentId userId) {
+	public void removeAdmin(CommunityId communityId, ProjectId projectId, PersistentId userId) {
 		removeRole(PROJECT_ADMIN, communityId, projectId, userId);
 	}
 
 	@Override
-	public void removeUser(String communityId, String projectId, PersistentId userId) {
+	public void removeUser(CommunityId communityId, ProjectId projectId, PersistentId userId) {
 		removeRole(PROJECT_USER, communityId, projectId, userId);
 	}
 	
-	private void removeRole(Role role, String communityId, String projectId, PersistentId userId) {
+	private void removeRole(Role role, CommunityId communityId, ProjectId projectId, PersistentId userId) {
 		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not remove " + role.name() 
 					+ " in Unity. Missing Project ID or User ID or Community "));

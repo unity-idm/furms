@@ -97,7 +97,9 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	public void installProject(CorrelationId correlationId, ProjectInstallation installation) {
 		AgentProjectInstallationRequest request = ProjectInstallationMapper.map(installation);
 		try {
-			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(installation.siteExternalId), new Payload<>(new Header(VERSION, correlationId.id), request));
+			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(installation.siteId.externalId),
+				new Payload<>(new Header(VERSION,
+				correlationId.id), request));
 		}catch (AmqpConnectException e){
 			throw new SiteAgentException("Queue is unavailable", e);
 		}

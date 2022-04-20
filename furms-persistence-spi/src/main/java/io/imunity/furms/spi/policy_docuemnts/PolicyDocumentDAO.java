@@ -7,6 +7,7 @@ package io.imunity.furms.spi.policy_docuemnts;
 
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Set;
@@ -14,5 +15,5 @@ import java.util.Set;
 public interface PolicyDocumentDAO {
 	void addUserPolicyAcceptance(FenixUserId userId, PolicyAcceptance policyAcceptance);
 	Set<PolicyAcceptance> getPolicyAcceptances(FenixUserId userId);
-	Set<UserPolicyAcceptances> getUserPolicyAcceptances(String siteId);
+	Set<UserPolicyAcceptances> getUserPolicyAcceptances(SiteId siteId);
 }

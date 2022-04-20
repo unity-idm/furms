@@ -5,6 +5,7 @@
 
 package io.imunity.furms.spi.sites;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -15,15 +16,15 @@ import java.util.Set;
 
 public interface SiteRepository {
 
-	Optional<Site> findById(String id);
+	Optional<Site> findById(SiteId id);
 
-	Set<Site> findAll(Set<String> ids);
+	Set<Site> findAll(Set<SiteId> ids);
 
-	SiteExternalId findByIdExternalId(String id);
+	SiteExternalId findByIdExternalId(SiteId id);
 
 	SiteId findByExternalId(SiteExternalId externalId);
 
-	Set<SiteId> findByProjectId(String id);
+	Set<SiteId> findByProjectId(ProjectId id);
 
 	Map<String, Set<String>> findRelatedProjectIds(SiteId siteId);
 
@@ -33,7 +34,7 @@ public interface SiteRepository {
 
 	String update(Site site);
 
-	boolean exists(String id);
+	boolean exists(SiteId id);
 
 	boolean existsByExternalId(SiteExternalId siteExternalId);
 
@@ -41,7 +42,7 @@ public interface SiteRepository {
 
 	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
 
-	void delete(String id);
+	void delete(SiteId id);
 	
 	void deleteAll();
 }

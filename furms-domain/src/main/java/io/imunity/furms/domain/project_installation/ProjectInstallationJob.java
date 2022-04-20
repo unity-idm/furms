@@ -5,19 +5,21 @@
 
 package io.imunity.furms.domain.project_installation;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 
 public class ProjectInstallationJob {
-	public final String id;
-	public final String siteId;
-	public final String projectId;
+	public final ProjectInstallationId id;
+	public final SiteId siteId;
+	public final ProjectId projectId;
 	public final CorrelationId correlationId;
 	public final ProjectInstallationStatus status;
 	public final String gid;
 
-	ProjectInstallationJob(String id, String siteId, String projectId, CorrelationId correlationId,
+	ProjectInstallationJob(ProjectInstallationId id, SiteId siteId, ProjectId projectId, CorrelationId correlationId,
 	                       ProjectInstallationStatus status, String gid) {
 		this.id = id;
 		this.siteId = siteId;
@@ -62,9 +64,9 @@ public class ProjectInstallationJob {
 	}
 
 	public static final class ProjectInstallationJobBuilder {
-		private String id;
-		private String siteId;
-		private String projectId;
+		private ProjectInstallationId id;
+		private SiteId siteId;
+		private ProjectId projectId;
 		private CorrelationId correlationId;
 		private ProjectInstallationStatus status;
 		private String gid;
@@ -73,17 +75,17 @@ public class ProjectInstallationJob {
 		}
 
 		public ProjectInstallationJobBuilder id(String id) {
-			this.id = id;
+			this.id = new ProjectInstallationId(id);
 			return this;
 		}
 
 		public ProjectInstallationJobBuilder siteId(String siteId) {
-			this.siteId = siteId;
+			this.siteId = new SiteId(siteId);
 			return this;
 		}
 
 		public ProjectInstallationJobBuilder projectId(String projectId) {
-			this.projectId = projectId;
+			this.projectId = new ProjectId(projectId);
 			return this;
 		}
 

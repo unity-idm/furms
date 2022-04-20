@@ -5,20 +5,24 @@
 
 package io.imunity.furms.domain.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class ProjectDeallocation {
-	public final String id;
+	public final ProjectDeallocationId id;
 	public final CorrelationId correlationId;
-	public final String siteId;
-	public final String projectAllocationId;
+	public final SiteId siteId;
+	public final ProjectAllocationId projectAllocationId;
 	public final ProjectDeallocationStatus status;
 	public final Optional<ErrorMessage> errorMessage;
 
-	ProjectDeallocation(String id, CorrelationId correlationId, String siteId, String projectAllocationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
+	ProjectDeallocation(ProjectDeallocationId id, CorrelationId correlationId, SiteId siteId,
+	                    ProjectAllocationId projectAllocationId, ProjectDeallocationStatus status,
+	                    Optional<ErrorMessage> errorMessage) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -62,10 +66,10 @@ public class ProjectDeallocation {
 	}
 
 	public static final class ProjectAllocationInstallationBuilder {
-		public String id;
+		public ProjectDeallocationId id;
 		public CorrelationId correlationId;
-		public String siteId;
-		public String projectAllocationId;
+		public SiteId siteId;
+		public ProjectAllocationId projectAllocationId;
 		public ProjectDeallocationStatus status;
 		public Optional<ErrorMessage> errorStatus = Optional.empty();
 
@@ -73,7 +77,7 @@ public class ProjectDeallocation {
 		}
 
 		public ProjectAllocationInstallationBuilder id(String id) {
-			this.id = id;
+			this.id = new ProjectDeallocationId(id);
 			return this;
 		}
 
@@ -83,12 +87,12 @@ public class ProjectDeallocation {
 		}
 
 		public ProjectAllocationInstallationBuilder siteId(String siteId) {
-			this.siteId = siteId;
+			this.siteId = new SiteId(siteId);
 			return this;
 		}
 
 		public ProjectAllocationInstallationBuilder projectAllocationId(String projectAllocationId) {
-			this.projectAllocationId = projectAllocationId;
+			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
 			return this;
 		}
 

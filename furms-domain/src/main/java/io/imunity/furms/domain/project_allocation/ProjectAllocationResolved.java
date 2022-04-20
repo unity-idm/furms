@@ -6,6 +6,7 @@
 package io.imunity.furms.domain.project_allocation;
 
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.sites.Site;
@@ -16,20 +17,20 @@ import java.util.Objects;
 
 public class ProjectAllocationResolved {
 
-	public final String id;
+	public final ProjectAllocationId id;
 	public final Site site;
 	public final ResourceType resourceType;
 	public final ResourceCredit resourceCredit;
 	public final CommunityAllocation communityAllocation;
-	public final String projectId;
+	public final ProjectId projectId;
 	public final String projectName;
 	public final String name;
 	public final BigDecimal amount;
 	public final BigDecimal consumed;
 	public final LocalDateTime creationTime;
 
-	ProjectAllocationResolved(String id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
-	                          CommunityAllocation communityAllocation, String projectId, String projectName, String name,
+	ProjectAllocationResolved(ProjectAllocationId id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
+	                          CommunityAllocation communityAllocation, ProjectId projectId, String projectName, String name,
 	                          BigDecimal amount, BigDecimal consumed, LocalDateTime creationTime) {
 		this.id = id;
 		this.site = site;
@@ -89,12 +90,12 @@ public class ProjectAllocationResolved {
 	}
 
 	public static final class CommunityAllocationResolvedBuilder {
-		private String id;
+		private ProjectAllocationId id;
 		private Site site;
 		private ResourceType resourceType;
 		private ResourceCredit resourceCredit;
 		private CommunityAllocation communityAllocation;
-		private String projectId;
+		private ProjectId projectId;
 		private String projectName;
 		private String name;
 		private BigDecimal amount;
@@ -130,12 +131,12 @@ public class ProjectAllocationResolved {
 		}
 
 		public CommunityAllocationResolvedBuilder id(String id) {
-			this.id = id;
+			this.id = new ProjectAllocationId(id);
 			return this;
 		}
 
 		public CommunityAllocationResolvedBuilder projectId(String projectId) {
-			this.projectId = projectId;
+			this.projectId = new ProjectId(projectId);
 			return this;
 		}
 

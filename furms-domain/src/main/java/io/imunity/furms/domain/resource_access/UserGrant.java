@@ -5,16 +5,19 @@
 
 package io.imunity.furms.domain.resource_access;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.users.FenixUserId;
+
 import java.util.Objects;
 import java.util.Optional;
 
 public class UserGrant {
-	public final String projectAllocationId;
-	public final String userId;
+	public final ProjectAllocationId projectAllocationId;
+	public final FenixUserId userId;
 	public final AccessStatus status;
 	public final Optional<ErrorAccessMessage> errorMessage;
 
-	UserGrant(String projectAllocationId, String userId, AccessStatus status, Optional<ErrorAccessMessage> errorMessage) {
+	UserGrant(ProjectAllocationId projectAllocationId, FenixUserId userId, AccessStatus status, Optional<ErrorAccessMessage> errorMessage) {
 		this.projectAllocationId = projectAllocationId;
 		this.userId = userId;
 		this.status = status;
@@ -52,8 +55,8 @@ public class UserGrant {
 	}
 
 	public static final class UserGrantBuilder {
-		public String projectAllocationId;
-		public String userId;
+		public ProjectAllocationId projectAllocationId;
+		public FenixUserId userId;
 		public AccessStatus status;
 		public Optional<ErrorAccessMessage> errorMessage = Optional.empty();
 
@@ -61,12 +64,12 @@ public class UserGrant {
 		}
 
 		public UserGrantBuilder projectAllocationId(String projectAllocationId) {
-			this.projectAllocationId = projectAllocationId;
+			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
 			return this;
 		}
 
 		public UserGrantBuilder userId(String userId) {
-			this.userId = userId;
+			this.userId = new FenixUserId(userId);
 			return this;
 		}
 

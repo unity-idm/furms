@@ -7,6 +7,9 @@ package io.imunity.furms.db.resource_credits;
 
 
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import org.springframework.stereotype.Repository;
 
@@ -31,24 +34,24 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public Optional<ResourceCredit> findById(String id) {
+	public Optional<ResourceCredit> findById(ResourceCreditId id) {
 		if (isEmpty(id)) {
 			return empty();
 		}
-		return repository.findById(UUID.fromString(id))
+		return repository.findById(id.id)
 			.map(ResourceCreditEntity::toResourceCredit);
 	}
 
 	@Override
-	public Set<ResourceCredit> findAll(String siteId) {
-		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
+	public Set<ResourceCredit> findAll(SiteId siteId) {
+		return repository.findAllBySiteId(siteId.id).stream()
 			.map(ResourceCreditEntity::toResourceCredit)
 			.collect(toSet());
 	}
 
 	@Override
-	public Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId) {
-		return repository.findAllByResourceTypeId(UUID.fromString(resourceTypeId)).stream()
+	public Set<ResourceCredit> findAllNotExpiredByResourceTypeId(ResourceTypeId resourceTypeId) {
+		return repository.findAllByResourceTypeId(resourceTypeId.id).stream()
 				.map(ResourceCreditEntity::toResourceCredit)
 				.filter(not(ResourceCredit::isExpired))
 				.collect(toSet());
@@ -77,17 +80,17 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public String create(ResourceCredit credit) {
+	public String create(ResourceCredit resourceCredit) {
 		ResourceCreditEntity savedResourceCredit = repository.save(
 			ResourceCreditEntity.builder()
-				.siteId(UUID.fromString(credit.siteId))
-				.resourceTypeId(UUID.fromString(credit.resourceTypeId))
-				.name(credit.name)
-				.split(credit.splittable)
-				.amount(credit.amount)
-				.createTime(credit.utcCreateTime)
-				.startTime(credit.utcStartTime)
-				.endTime(credit.utcEndTime)
+				.siteId(resourceCredit.siteId.id)
+				.resourceTypeId(resourceCredit.resourceTypeId.id)
+				.name(resourceCredit.name)
+				.split(resourceCredit.splittable)
+				.amount(resourceCredit.amount)
+				.createTime(resourceCredit.utcCreateTime)
+				.startTime(resourceCredit.utcStartTime)
+				.endTime(resourceCredit.utcEndTime)
 				.build()
 		);
 		return savedResourceCredit.getId().toString();
@@ -95,11 +98,11 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 
 	@Override
 	public void update(ResourceCredit credit) {
-		repository.findById(UUID.fromString(credit.id))
+		repository.findById(credit.id.id)
 			.map(oldResourceCredit -> ResourceCreditEntity.builder()
 				.id(oldResourceCredit.getId())
-				.siteId(UUID.fromString(credit.siteId))
-				.resourceTypeId(UUID.fromString(credit.resourceTypeId))
+				.siteId(credit.siteId.id)
+				.resourceTypeId(credit.resourceTypeId.id)
 				.name(credit.name)
 				.split(credit.splittable)
 				.amount(credit.amount)
@@ -115,48 +118,48 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(ResourceCreditId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsById(UUID.fromString(id));
+		return repository.existsById(id.id);
 	}
 
 	@Override
-	public boolean existsBySiteId(String id) {
+	public boolean existsBySiteId(SiteId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsBySiteId(UUID.fromString(id));
+		return repository.existsBySiteId(id.id);
 	}
 
 	@Override
-	public boolean existsByResourceTypeId(String id) {
+	public boolean existsByResourceTypeId(ResourceTypeId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsByResourceTypeId(UUID.fromString(id));
+		return repository.existsByResourceTypeId(id.id);
 	}
 
 	@Override
-	public boolean existsByResourceTypeIdIn(Collection<String> ids) {
+	public boolean existsByResourceTypeIdIn(Collection<ResourceTypeId> ids) {
 		if (ids.isEmpty()) {
 			return false;
 		}
 		return repository.existsByResourceTypeIdIn(ids.stream()
-			.map(UUID::fromString)
+			.map(resourceTypeId -> resourceTypeId.id)
 			.collect(toList())
 		);
 	}
 
 	@Override
-	public boolean isNamePresent(String name, String siteId) {
-		return repository.existsByNameAndSiteId(name, UUID.fromString(siteId));
+	public boolean isNamePresent(String name, SiteId siteId) {
+		return repository.existsByNameAndSiteId(name, siteId.id);
 	}
 
 	@Override
-	public void delete(String id) {
-		repository.deleteById(UUID.fromString(id));
+	public void delete(ResourceCreditId id) {
+		repository.deleteById(id.id);
 	}
 
 	@Override

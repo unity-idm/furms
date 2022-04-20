@@ -6,21 +6,22 @@
 package io.imunity.furms.domain.resource_access;
 
 import com.google.common.collect.ImmutableList;
+import io.imunity.furms.domain.projects.ProjectId;
 
 import java.util.List;
 import java.util.Objects;
 
 public class UsersWithProjectAccess {
 
-	private final String projectId;
+	private final ProjectId projectId;
 	private final List<String> userIds;
 
-	public UsersWithProjectAccess(String projectId, List<String> userIds) {
+	public UsersWithProjectAccess(ProjectId projectId, List<String> userIds) {
 		this.projectId = projectId;
 		this.userIds = ImmutableList.copyOf(userIds);
 	}
 
-	public String getProjectId() {
+	public ProjectId getProjectId() {
 		return projectId;
 	}
 
@@ -54,14 +55,14 @@ public class UsersWithProjectAccess {
 	}
 
 	public static final class ProjectUsersBuilder {
-		private String projectId;
+		private ProjectId projectId;
 		private List<String> userIds;
 
 		private ProjectUsersBuilder() {
 		}
 
 		public ProjectUsersBuilder projectId(String projectId) {
-			this.projectId = projectId;
+			this.projectId = new ProjectId(projectId);
 			return this;
 		}
 

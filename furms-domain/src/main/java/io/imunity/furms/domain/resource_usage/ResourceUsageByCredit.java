@@ -5,14 +5,16 @@
 
 package io.imunity.furms.domain.resource_usage;
 
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 
 public class ResourceUsageByCredit {
-	private final Map<String, BigDecimal> idToSum;
+	private final Map<ResourceCreditId, BigDecimal> idToSum;
 
-	public ResourceUsageByCredit(Map<String, BigDecimal> idToSum) {
+	public ResourceUsageByCredit(Map<ResourceCreditId, BigDecimal> idToSum) {
 		this.idToSum = Map.copyOf(idToSum);
 	}
 

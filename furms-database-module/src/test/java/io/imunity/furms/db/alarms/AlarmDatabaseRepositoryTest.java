@@ -14,7 +14,9 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
@@ -72,12 +74,12 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private AlarmDatabaseRepository databaseRepository;
 
-	private UUID projectId;
-	private UUID projectId2;
+	private ProjectId projectId;
+	private ProjectId projectId2;
 
-	private UUID projectAllocationId;
-	private UUID projectAllocationId1;
-	private UUID projectAllocationId2;
+	private ProjectAllocationId projectAllocationId;
+	private ProjectAllocationId projectAllocationId1;
+	private ProjectAllocationId projectAllocationId2;
 
 	@BeforeEach
 	void init() {
@@ -454,7 +456,7 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		alarmEntityRepository.save(alarm);
 
-		Optional<AlarmWithUserIds> alarmWithUserIds = databaseRepository.find(projectAllocationId.toString());
+		Optional<AlarmWithUserIds> alarmWithUserIds = databaseRepository.find(projectAllocationId);
 
 		assertThat(alarmWithUserIds).isPresent();
 		assertThat(alarmWithUserIds.get().projectId).isEqualTo(projectId.toString());

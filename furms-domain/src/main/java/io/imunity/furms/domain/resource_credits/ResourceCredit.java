@@ -5,30 +5,32 @@
 
 package io.imunity.furms.domain.resource_credits;
 
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.utils.UTCTimeUtils;
-
-import static java.time.Clock.systemUTC;
-import static java.util.Optional.ofNullable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import static java.time.Clock.systemUTC;
+import static java.util.Optional.ofNullable;
+
 public class ResourceCredit {
-	public final String id;
+	public final ResourceCreditId id;
 	public final String name;
-	public final String siteId;
-	public final String resourceTypeId;
+	public final SiteId siteId;
+	public final ResourceTypeId resourceTypeId;
 	public final boolean splittable;
 	public final BigDecimal amount;
 	public final LocalDateTime utcCreateTime;
 	public final LocalDateTime utcStartTime;
 	public final LocalDateTime utcEndTime;
 
-	private ResourceCredit(String id,
+	private ResourceCredit(ResourceCreditId id,
 			String name,
-			String siteId,
-			String resourceTypeId,
+			SiteId siteId,
+			ResourceTypeId resourceTypeId,
 			boolean splittable,
 			BigDecimal amount,
 			LocalDateTime utcCreateTime,
@@ -87,10 +89,10 @@ public class ResourceCredit {
 	}
 
 	public static final class ResourceCreditBuilder {
-		private String id;
+		private ResourceCreditId id;
 		private String name;
-		private String siteId;
-		private String resourceTypeId;
+		private SiteId siteId;
+		private ResourceTypeId resourceTypeId;
 		private boolean splittable = true;
 		private BigDecimal amount;
 		private LocalDateTime utcCreateTime;
@@ -101,7 +103,7 @@ public class ResourceCredit {
 		}
 
 		public ResourceCreditBuilder id(String id) {
-			this.id = id;
+			this.id = new ResourceCreditId(id);
 			return this;
 		}
 
@@ -111,12 +113,12 @@ public class ResourceCredit {
 		}
 
 		public ResourceCreditBuilder siteId(String siteId) {
-			this.siteId = siteId;
+			this.siteId = new SiteId(siteId);
 			return this;
 		}
 
 		public ResourceCreditBuilder resourceTypeId(String resourceTypeId) {
-			this.resourceTypeId = resourceTypeId;
+			this.resourceTypeId = new ResourceTypeId(resourceTypeId);
 			return this;
 		}
 

@@ -6,6 +6,7 @@
 package io.imunity.furms.unity.communities;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
 import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -49,7 +50,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public Optional<CommunityGroup> get(String id) {
+	public Optional<CommunityGroup> get(CommunityId id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Could not get Community from Unity. Missing Community ID");
 		}
@@ -102,7 +103,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public void delete(String id) {
+	public void delete(CommunityId id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Missing Community ID");
 		}
@@ -117,7 +118,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public List<FURMSUser> getAllAdmins(String communityId) {
+	public List<FURMSUser> getAllAdmins(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
@@ -125,7 +126,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public AllUsersAndCommunityAdmins getAllUsersAndCommunityAdmins(String communityId) {
+	public AllUsersAndCommunityAdmins getAllUsersAndCommunityAdmins(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
@@ -139,7 +140,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public List<FURMSUser> getAllUsers(String communityId) {
+	public List<FURMSUser> getAllUsers(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_GROUP_PATTERN);
@@ -147,7 +148,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public CommunityUsersAndAdmins getCommunityAdminsAndUsers(String communityId) {
+	public CommunityUsersAndAdmins getCommunityAdminsAndUsers(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityAdminPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
@@ -167,7 +168,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public void addAdmin(String communityId, PersistentId userId) {
+	public void addAdmin(CommunityId communityId, PersistentId userId) {
 		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not add Community Admin in Unity. Missing Community ID or User ID"));
 
@@ -177,7 +178,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	}
 
 	@Override
-	public void removeAdmin(String communityId, PersistentId userId) {
+	public void removeAdmin(CommunityId communityId, PersistentId userId) {
 		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not remove Community Admin in Unity. Missing Community ID or User ID"));
 
@@ -192,8 +193,8 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		return uriVariables(community.getId());
 	}
 
-	private Map<String, Object> uriVariables(String id) {
-		return Map.of(ID, id);
+	private Map<String, Object> uriVariables(CommunityId id) {
+		return Map.of(ID, id.id.toString());
 	}
 
 	private String getCommunityPath(Map<String, Object> uriVariables, String pattern) {

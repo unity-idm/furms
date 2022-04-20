@@ -5,9 +5,12 @@
 
 package io.imunity.furms.spi.ssh_key_installation;
 
-import java.util.List;
-
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
+import io.imunity.furms.domain.ssh_keys.InstalledSSHKeyId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
+
+import java.util.List;
 
 public interface InstalledSSHKeyRepository {
 
@@ -15,15 +18,15 @@ public interface InstalledSSHKeyRepository {
 
 	List<InstalledSSHKey> findAll();
 
-	List<InstalledSSHKey> findBySSHKeyId(String sshkeyId);
+	List<InstalledSSHKey> findBySSHKeyId(SSHKeyId sshkeyId);
 
-	void delete(String id);
+	void delete(InstalledSSHKeyId id);
 
 	void deleteAll();
 
-	void deleteBySSHKeyIdAndSiteId(String sshkeyId, String siteId);
+	void deleteBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId);
 	
-	void deleteBySSHKey(String sshkeyId);
+	void deleteBySSHKey(SSHKeyId sshkeyId);
 
-	void update(String siteId, String id, String value);
+	void update(SiteId siteId, SSHKeyId id, String value);
 }

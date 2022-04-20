@@ -6,7 +6,10 @@
 package io.imunity.furms.spi.ssh_key_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJobId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 
 import java.time.LocalDateTime;
@@ -16,19 +19,19 @@ import java.util.Optional;
 public interface SSHKeyOperationRepository {
 	SSHKeyOperationJob findByCorrelationId(CorrelationId id);
 	
-	SSHKeyOperationJob findBySSHKeyIdAndSiteId(String sshkeyId, String siteId);
+	SSHKeyOperationJob findBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId);
 
 	String create(SSHKeyOperationJob projectInstallationJob);
 
-	void update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime operationTime);
+	void update(SSHKeyOperationJobId id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime operationTime);
 
-	void delete(String id);
+	void delete(SSHKeyOperationJobId id);
 
 	void deleteAll();
 
-	void deleteBySSHKeyIdAndSiteId(String sshkeyId, String siteId);
+	void deleteBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId);
 
-	List<SSHKeyOperationJob> findBySSHKey(String sshkeyId);
+	List<SSHKeyOperationJob> findBySSHKey(SSHKeyId sshkeyId);
 
 	List<SSHKeyOperationJob> findAll();
 	

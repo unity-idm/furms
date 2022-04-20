@@ -7,6 +7,7 @@ package io.imunity.furms.unity.sites;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.GroupedUsers;
@@ -50,7 +51,7 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 	}
 
 	@Override
-	public Optional<Site> get(String id) {
+	public Optional<Site> get(SiteId id) {
 		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Could not get Site from Unity. Missing Site ID"));
 		Map<String, Object> uriVariables = uriVariables(id);
 		String path = UriComponentsBuilder.newInstance()
@@ -62,7 +63,7 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 		try {
 			Group group = unityClient.get(path, Group.class);
 			return Optional.ofNullable(Site.builder()
-					.id(id)
+					.id(id.id.toString())
 					.name(group.getDisplayedName().getDefaultValue())
 					.build());
 		} catch (WebClientResponseException e) {
@@ -118,7 +119,7 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 	}
 
 	@Override
-	public void delete(String id) {
+	public void delete(SiteId id) {
 		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Could not delete Site from Unity. Missing Site ID"));
 		Map<String, Object> uriVariables = uriVariables(id);
 		Map<String, String> queryParams = Map.of(RECURSIVE_PARAM, TRUE.toString());
@@ -136,7 +137,7 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 
 
 	@Override
-	public List<FURMSUser> getSiteUsers(String siteId, Set<Role> roles) {
+	public List<FURMSUser> getSiteUsers(SiteId siteId, Set<Role> roles) {
 		assertTrue(!isEmpty(siteId),
 				() -> new IllegalArgumentException("Could not get Site Administrators from Unity. Missing Site ID"));
 		String sitePath = getSitePath(siteId);
@@ -144,7 +145,7 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 	}
 
 	@Override
-	public AllUsersAndSiteAdmins getAllUsersAndSiteAdmins(String siteId) {
+	public AllUsersAndSiteAdmins getAllUsersAndSiteAdmins(SiteId siteId) {
 		assertTrue(!isEmpty(siteId),
 			() -> new IllegalArgumentException("Could not get Site Administrators from Unity. Missing Site ID"));
 		String sitePath = getSitePath(siteId);
@@ -159,7 +160,7 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 	}
 
 	@Override
-	public void addSiteUser(String siteId, PersistentId userId, Role role) {
+	public void addSiteUser(SiteId siteId, PersistentId userId, Role role) {
 		assertTrue(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site role in Unity. Missing Site ID or User ID"));
 
@@ -169,11 +170,11 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 	}
 
 	@Override
-	public void removeSiteUser(String siteId, PersistentId userId) {
+	public void removeSiteUser(SiteId siteId, PersistentId userId) {
 		removeSiteRole(siteId, userId);
 	}
 
-	private void removeSiteRole(String siteId, PersistentId userId) {
+	private void removeSiteRole(SiteId siteId, PersistentId userId) {
 		assertTrue(!isEmpty(siteId) && !isEmpty(userId),
 				() -> new IllegalArgumentException("Could not remove Site role in Unity. Missing Site ID or User ID"));
 
@@ -186,15 +187,15 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 		return uriVariables(site.getId());
 	}
 
-	private Map<String, Object> uriVariables(String id) {
-		return Map.of(ID, id);
+	private Map<String, Object> uriVariables(SiteId id) {
+		return Map.of(ID, id.id.toString());
 	}
 
-	private String getSitePath(String siteId) {
+	private String getSitePath(SiteId siteId) {
 		return UriComponentsBuilder.newInstance()
 				.path(SITE_PATTERN)
 				.path(USERS_PATTERN)
-				.buildAndExpand(Map.of(ID, siteId))
+				.buildAndExpand(Map.of(ID, siteId.id.toString()))
 				.encode().toUriString();
 	}
 }

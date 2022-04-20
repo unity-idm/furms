@@ -5,21 +5,24 @@
 
 package io.imunity.furms.domain.user_operation;
 
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.users.FenixUserId;
+
 import java.util.Objects;
 
 public class UserAdditionWithProject {
 
 	private final String siteName;
-	private final String projectId;
+	private final ProjectId projectId;
 	private final String projectName;
-	private final String userId;
+	private final FenixUserId userId;
 	private final UserStatus status;
 	private final UserAdditionErrorMessage errorMessage;
 
 	public UserAdditionWithProject(String siteName,
-	                               String projectId,
+	                               ProjectId projectId,
 	                               String projectName,
-	                               String userId,
+	                               FenixUserId userId,
 	                               UserStatus status,
 	                               UserAdditionErrorMessage errorMessage) {
 		this.siteName = siteName;
@@ -34,7 +37,7 @@ public class UserAdditionWithProject {
 		return siteName;
 	}
 
-	public String getProjectId() {
+	public ProjectId getProjectId() {
 		return projectId;
 	}
 
@@ -42,7 +45,7 @@ public class UserAdditionWithProject {
 		return projectName;
 	}
 
-	public String getUserId() {
+	public FenixUserId getUserId() {
 		return userId;
 	}
 
@@ -90,9 +93,9 @@ public class UserAdditionWithProject {
 
 	public static final class UserAdditionWithProjectBuilder {
 		private String siteName;
-		private String projectId;
+		private ProjectId projectId;
 		private String projectName;
-		private String userId;
+		private FenixUserId userId;
 		private UserStatus status;
 		private UserAdditionErrorMessage errorMessage;
 
@@ -110,12 +113,12 @@ public class UserAdditionWithProject {
 		}
 
 		public UserAdditionWithProjectBuilder projectId(String projectId) {
-			this.projectId = projectId;
+			this.projectId = new ProjectId(projectId);
 			return this;
 		}
 
 		public UserAdditionWithProjectBuilder userId(String userId) {
-			this.userId = userId;
+			this.userId = new FenixUserId(userId);
 			return this;
 		}
 

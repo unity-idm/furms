@@ -14,6 +14,7 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -180,7 +181,8 @@ public class UserOperationService implements UserAllocationsService {
 	}
 
 	@Transactional
-	public void createUserAdditions(SiteId siteId, String projectId, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
+	public void createUserAdditions(SiteId siteId, ProjectId projectId,
+	                                UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
 		FenixUserId userId = userPolicyAcceptances.user.fenixUserId.get();
 		if(repository.existsByUserIdAndSiteIdAndProjectId(userId, siteId.id, projectId))
 			throw new IllegalArgumentException(String.format("User %s is already added to project %s", userId, projectId));

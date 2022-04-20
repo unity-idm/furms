@@ -6,6 +6,7 @@
 package io.imunity.furms.spi.communites;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
 import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -15,23 +16,23 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommunityGroupsDAO {
-	Optional<CommunityGroup> get(String id);
+	Optional<CommunityGroup> get(CommunityId id);
 
 	void create(CommunityGroup community);
 
 	void update(CommunityGroup community);
 
-	void delete(String id);
+	void delete(CommunityId id);
 
-	List<FURMSUser> getAllAdmins(String id);
+	List<FURMSUser> getAllAdmins(CommunityId id);
 
-	AllUsersAndCommunityAdmins getAllUsersAndCommunityAdmins(String communityId);
+	AllUsersAndCommunityAdmins getAllUsersAndCommunityAdmins(CommunityId communityId);
 
-	List<FURMSUser> getAllUsers(String id);
+	List<FURMSUser> getAllUsers(CommunityId id);
 
-	CommunityUsersAndAdmins getCommunityAdminsAndUsers(String communityId);
+	CommunityUsersAndAdmins getCommunityAdminsAndUsers(CommunityId communityId);
 
-	void addAdmin(String communityId, PersistentId userId);
+	void addAdmin(CommunityId communityId, PersistentId userId);
 
-	void removeAdmin(String communityId, PersistentId userId);
+	void removeAdmin(CommunityId communityId, PersistentId userId);
 }

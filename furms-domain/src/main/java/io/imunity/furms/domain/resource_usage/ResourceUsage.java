@@ -5,17 +5,20 @@
 
 package io.imunity.furms.domain.resource_usage;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ResourceUsage {
-	public final String projectId;
-	public final String projectAllocationId;
+	public final ProjectId projectId;
+	public final ProjectAllocationId projectAllocationId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime utcProbedAt;
 
-	ResourceUsage(String projectId, String projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime utcProbedAt) {
+	ResourceUsage(ProjectId projectId, ProjectAllocationId projectAllocationId, BigDecimal cumulativeConsumption, LocalDateTime utcProbedAt) {
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.cumulativeConsumption = cumulativeConsumption;
@@ -53,8 +56,8 @@ public class ResourceUsage {
 	}
 
 	public static final class ResourceUsageBuilder {
-		private String projectId;
-		private String projectAllocationId;
+		private ProjectId projectId;
+		private ProjectAllocationId projectAllocationId;
 		private BigDecimal cumulativeConsumption;
 		private LocalDateTime probedAt;
 
@@ -62,12 +65,12 @@ public class ResourceUsage {
 		}
 
 		public ResourceUsageBuilder projectId(String projectId) {
-			this.projectId = projectId;
+			this.projectId = new ProjectId(projectId);
 			return this;
 		}
 
 		public ResourceUsageBuilder projectAllocationId(String projectAllocationId) {
-			this.projectAllocationId = projectAllocationId;
+			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
 			return this;
 		}
 

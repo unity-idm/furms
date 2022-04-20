@@ -5,19 +5,22 @@
 
 package io.imunity.furms.domain.community_allocation;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class CommunityAllocation {
 
-	public final String id;
-	public final String communityId;
-	public final String resourceCreditId;
+	public final CommunityAllocationId id;
+	public final CommunityId communityId;
+	public final ResourceCreditId resourceCreditId;
 	public final String name;
 	public final BigDecimal amount;
 
-	private CommunityAllocation(String id, String communityId,
-	                            String resourceCreditId, String name, BigDecimal amount) {
+	private CommunityAllocation(CommunityAllocationId id, CommunityId communityId,
+	                            ResourceCreditId resourceCreditId, String name, BigDecimal amount) {
 		this.id = id;
 		this.communityId = communityId;
 		this.resourceCreditId = resourceCreditId;
@@ -58,22 +61,22 @@ public class CommunityAllocation {
 	}
 
 	public static final class CommunityAllocationBuilder {
-		protected String id;
-		public String communityId;
-		public String resourceCreditId;
-		public String name;
-		public BigDecimal amount;
+		private CommunityAllocationId id;
+		private CommunityId communityId;
+		private ResourceCreditId resourceCreditId;
+		private String name;
+		private BigDecimal amount;
 
 		private CommunityAllocationBuilder() {
 		}
 
 		public CommunityAllocationBuilder communityId(String communityId) {
-			this.communityId = communityId;
+			this.communityId = new CommunityId(communityId);
 			return this;
 		}
 
 		public CommunityAllocationBuilder resourceCreditId(String resourceCreditId) {
-			this.resourceCreditId = resourceCreditId;
+			this.resourceCreditId = new ResourceCreditId(resourceCreditId);
 			return this;
 		}
 
@@ -83,7 +86,7 @@ public class CommunityAllocation {
 		}
 
 		public CommunityAllocationBuilder id(String id) {
-			this.id = id;
+			this.id = new CommunityAllocationId(id);
 			return this;
 		}
 

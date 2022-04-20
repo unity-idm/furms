@@ -5,19 +5,24 @@
 
 package io.imunity.furms.domain.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ProjectAllocationInstallationResult {
-	public final String projectIdentifier;
-	public final String allocationIdentifier;
-	public final String allocationChunkIdentifier;
+	public final ProjectId projectIdentifier;
+	public final ProjectAllocationId allocationIdentifier;
+	public final ChunkId allocationChunkIdentifier;
 	public final String resourceType;
 	public final double amount;
 	public final LocalDateTime validFrom;
 	public final LocalDateTime validTo;
 
-	ProjectAllocationInstallationResult(String projectIdentifier, String allocationIdentifier, String allocationChunkIdentifier, String resourceType, double amount, LocalDateTime validFrom, LocalDateTime validTo) {
+	ProjectAllocationInstallationResult(ProjectId projectIdentifier, ProjectAllocationId allocationIdentifier,
+	                                    ChunkId allocationChunkIdentifier, String resourceType, double amount,
+	                                    LocalDateTime validFrom, LocalDateTime validTo) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.allocationChunkIdentifier = allocationChunkIdentifier;
@@ -64,9 +69,9 @@ public class ProjectAllocationInstallationResult {
 	}
 
 	public static final class ProjectAllocationInstallationResultBuilder {
-		public String projectIdentifier;
-		public String allocationIdentifier;
-		public String allocationChunkIdentifier;
+		public ProjectId projectIdentifier;
+		public ProjectAllocationId allocationIdentifier;
+		public ChunkId allocationChunkIdentifier;
 		public String resourceType;
 		public double amount;
 		public LocalDateTime validFrom;
@@ -76,17 +81,17 @@ public class ProjectAllocationInstallationResult {
 		}
 
 		public ProjectAllocationInstallationResultBuilder projectIdentifier(String projectIdentifier) {
-			this.projectIdentifier = projectIdentifier;
+			this.projectIdentifier = new ProjectId(projectIdentifier);
 			return this;
 		}
 
 		public ProjectAllocationInstallationResultBuilder allocationIdentifier(String allocationIdentifier) {
-			this.allocationIdentifier = allocationIdentifier;
+			this.allocationIdentifier = new ProjectAllocationId(allocationIdentifier);
 			return this;
 		}
 
 		public ProjectAllocationInstallationResultBuilder allocationChunkIdentifier(String allocationChunkIdentifier) {
-			this.allocationChunkIdentifier = allocationChunkIdentifier;
+			this.allocationChunkIdentifier = new ChunkId(allocationChunkIdentifier);
 			return this;
 		}
 

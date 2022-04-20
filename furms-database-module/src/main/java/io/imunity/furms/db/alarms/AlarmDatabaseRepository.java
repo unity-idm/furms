@@ -8,6 +8,8 @@ package io.imunity.furms.db.alarms;
 import io.imunity.furms.domain.alarms.AlarmId;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.alarms.FiredAlarm;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.alarms.AlarmRepository;
 import org.springframework.stereotype.Repository;
@@ -28,20 +30,23 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	}
 
 	@Override
-	public Set<AlarmWithUserIds> findAll(String projectId) {
-		return repository.findAllByProjectId(UUID.fromString(projectId)).stream()
+	public Set<AlarmWithUserIds> findAll(ProjectId projectId) {
+		return repository.findAllByProjectId(projectId.id).stream()
 			.map(this::map)
 			.collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<FiredAlarm> findAll(List<UUID> projectIds, FenixUserId userId) {
+	public Set<FiredAlarm> findAll(List<ProjectId> projectIds, FenixUserId userId) {
 		Set<ExtendedAlarmEntity> relatedAlarms;
 		if(projectIds.isEmpty())
 			relatedAlarms = repository.findAllFiredByUserId(userId.id);
-		else
-			relatedAlarms = repository.findAllFiredByProjectIdsOrUserId(projectIds, userId.id);
-
+		else {
+			List<UUID> ids = projectIds.stream()
+				.map(projectId -> projectId.id)
+				.collect(Collectors.toList());
+			relatedAlarms = repository.findAllFiredByProjectIdsOrUserId(ids, userId.id);
+		}
 		return relatedAlarms.stream()
 			.map(this::map)
 			.collect(Collectors.toSet());
@@ -54,8 +59,8 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	}
 
 	@Override
-	public Optional<AlarmWithUserIds> find(String projectAllocationId) {
-		return repository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+	public Optional<AlarmWithUserIds> find(ProjectAllocationId projectAllocationId) {
+		return repository.findByProjectAllocationId(projectAllocationId.id)
 			.map(this::map);
 	}
 
@@ -144,12 +149,12 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	}
 
 	@Override
-	public boolean exist(String projectId, AlarmId id) {
-		return repository.existsByIdAndProjectId(id.id, UUID.fromString(projectId));
+	public boolean exist(ProjectId projectId, AlarmId id) {
+		return repository.existsByIdAndProjectId(id.id, projectId.id);
 	}
 
 	@Override
-	public boolean exist(String projectId, String name) {
-		return repository.existsByProjectIdAndName(UUID.fromString(projectId), name);
+	public boolean exist(ProjectId projectId, String name) {
+		return repository.existsByProjectIdAndName(projectId.id, name);
 	}
 }

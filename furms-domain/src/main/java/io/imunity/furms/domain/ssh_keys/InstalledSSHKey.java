@@ -5,13 +5,15 @@
 
 package io.imunity.furms.domain.ssh_keys;
 
+import io.imunity.furms.domain.sites.SiteId;
+
 public class InstalledSSHKey {
-	public final String id;
-	public final String siteId;
-	public final String sshkeyId;
+	public final InstalledSSHKeyId id;
+	public final SiteId siteId;
+	public final SSHKeyId sshkeyId;
 	public final String value;
 
-	InstalledSSHKey(String id, String siteId, String sshkeyId, String value) {
+	InstalledSSHKey(InstalledSSHKeyId id, SiteId siteId, SSHKeyId sshkeyId, String value) {
 
 		this.id = id;
 		this.siteId = siteId;
@@ -30,26 +32,26 @@ public class InstalledSSHKey {
 	}
 
 	public static final class Builder {
-		private String id;
-		private String siteId;
-		private String sshkeyId;
+		private InstalledSSHKeyId id;
+		private SiteId siteId;
+		private SSHKeyId sshkeyId;
 		private String value;
 
 		private Builder() {
 		}
 
 		public Builder id(String id) {
-			this.id = id;
+			this.id = new InstalledSSHKeyId(id);
 			return this;
 		}
 
 		public Builder siteId(String siteId) {
-			this.siteId = siteId;
+			this.siteId = new SiteId(siteId);
 			return this;
 		}
 
 		public Builder sshkeyId(String sshkeyId) {
-			this.sshkeyId = sshkeyId;
+			this.sshkeyId = new SSHKeyId(sshkeyId);
 			return this;
 		}
 

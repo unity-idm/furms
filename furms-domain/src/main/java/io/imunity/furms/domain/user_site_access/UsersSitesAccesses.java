@@ -5,6 +5,7 @@
 
 package io.imunity.furms.domain.user_site_access;
 
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -21,18 +22,25 @@ import static java.util.stream.Collectors.toMap;
 
 public class UsersSitesAccesses {
 	private final List<FURMSUser> users;
-	private final Map<String, Set<FenixUserId>> userSiteAccesses;
-	private final Map<String, Map<FenixUserId, UserSiteAccessStatusWithMessage>> userInstallationBySite;
+	private final Map<SiteId, Set<FenixUserId>> userSiteAccesses;
+	private final Map<SiteId, Map<FenixUserId, UserSiteAccessStatusWithMessage>> userInstallationBySite;
 
-	public UsersSitesAccesses(List<FURMSUser> allUsers, Map<String, Set<FenixUserId>> allUserGroupedBySiteId, Set<UserAddition> userAdditions) {
+	public UsersSitesAccesses(List<FURMSUser> allUsers, Map<SiteId, Set<FenixUserId>> allUserGroupedBySiteId, Set<UserAddition> userAdditions) {
 		this.users = allUsers.stream()
 			.filter(usr -> usr.fenixUserId.isPresent())
 			.collect(Collectors.toList());
 		this.userSiteAccesses = Map.copyOf(allUserGroupedBySiteId);
 
 		this.userInstallationBySite = userAdditions.stream()
-			.collect(groupingBy(x -> x.siteId.id,
-				toMap(x -> new FenixUserId(x.userId), x -> new UserSiteAccessStatusWithMessage(x.errorMessage.map(z -> z.message).orElse(null), getStatus(x.status))))
+			.collect(groupingBy(x -> x.siteId,
+				toMap(
+					userAddition -> userAddition.userId,
+					userAddition -> new UserSiteAccessStatusWithMessage(
+						userAddition.errorMessage.map(errorMessage -> errorMessage.message)
+							.orElse(null),
+						getStatus(userAddition.status))
+				)
+				)
 			);
 	}
 

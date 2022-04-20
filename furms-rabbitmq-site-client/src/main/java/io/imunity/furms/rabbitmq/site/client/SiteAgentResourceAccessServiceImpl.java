@@ -68,8 +68,8 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 	@Override
 	public void grantAccess(CorrelationId correlationId, GrantAccess grantAccess, FURMSUser user) {
 		UserAllocationGrantAccessRequest userAllocationGrantAccessRequest =
-			new UserAllocationGrantAccessRequest(grantAccess.allocationId, UserMapper.map(user),
-				grantAccess.projectId);
+			new UserAllocationGrantAccessRequest(grantAccess.allocationId.id.toString(), UserMapper.map(user),
+				grantAccess.projectId.id.toString());
 		try {
 			rabbitTemplate.convertAndSend(
 				getFurmsPublishQueueName(grantAccess.siteId.externalId),
@@ -82,7 +82,9 @@ class SiteAgentResourceAccessServiceImpl implements SiteAgentResourceAccessServi
 
 	@Override
 	public void revokeAccess(CorrelationId correlationId, GrantAccess grantAccess) {
-		UserAllocationBlockAccessRequest userAllocationBlockAccessRequest = new UserAllocationBlockAccessRequest(grantAccess.allocationId, grantAccess.fenixUserId.id, grantAccess.projectId);
+		UserAllocationBlockAccessRequest userAllocationBlockAccessRequest = new UserAllocationBlockAccessRequest(
+			grantAccess.allocationId.id.toString(), grantAccess.fenixUserId.id, grantAccess.projectId.id.toString()
+		);
 		try {
 			rabbitTemplate.convertAndSend(
 				getFurmsPublishQueueName(grantAccess.siteId.externalId),

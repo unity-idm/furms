@@ -5,15 +5,16 @@
 
 package io.imunity.furms.spi.ssh_keys;
 
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
+import io.imunity.furms.domain.users.PersistentId;
+
 import java.util.Optional;
 import java.util.Set;
 
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.users.PersistentId;
-
 public interface SSHKeyRepository {
 
-	Optional<SSHKey> findById(String id);
+	Optional<SSHKey> findById(SSHKeyId id);
 	
 	Set<SSHKey> findAll();
 	
@@ -23,9 +24,9 @@ public interface SSHKeyRepository {
 
 	String update(SSHKey sshKey);
 
-	boolean exists(String id);
+	boolean exists(SSHKeyId id);
 
-	void delete(String id);
+	void delete(SSHKeyId id);
 
 	void deleteAll();
 

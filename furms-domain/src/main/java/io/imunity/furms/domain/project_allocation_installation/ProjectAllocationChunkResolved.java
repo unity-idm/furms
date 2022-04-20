@@ -12,16 +12,16 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ProjectAllocationChunkResolved {
-	public final String id;
-	public final String chunkId;
+	public final ProjectAllocationInstallationId id;
+	public final ChunkId chunkId;
 	public final ProjectAllocationResolved projectAllocation;
 	public final BigDecimal amount;
 	public final LocalDateTime validFrom;
 	public final LocalDateTime validTo;
 	public final LocalDateTime receivedTime;
 
-	public ProjectAllocationChunkResolved(String id,
-	                                      String chunkId,
+	public ProjectAllocationChunkResolved(ProjectAllocationInstallationId id,
+	                                      ChunkId chunkId,
 	                                      ProjectAllocationResolved projectAllocation,
 	                                      BigDecimal amount,
 	                                      LocalDateTime validFrom,
@@ -73,8 +73,8 @@ public class ProjectAllocationChunkResolved {
 	}
 
 	public static final class ProjectAllocationChunkResolvedBuilder {
-		public String id;
-		public String chunkId;
+		public ProjectAllocationInstallationId id;
+		public ChunkId chunkId;
 		public ProjectAllocationResolved projectAllocation;
 		public BigDecimal amount;
 		public LocalDateTime validFrom;
@@ -85,12 +85,12 @@ public class ProjectAllocationChunkResolved {
 		}
 
 		public ProjectAllocationChunkResolvedBuilder id(String id) {
-			this.id = id;
+			this.id = new ProjectAllocationInstallationId(id);
 			return this;
 		}
 
 		public ProjectAllocationChunkResolvedBuilder chunkId(String chunkId) {
-			this.chunkId = chunkId;
+			this.chunkId = new ChunkId(chunkId);
 			return this;
 		}
 

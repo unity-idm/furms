@@ -6,17 +6,23 @@
 package io.imunity.furms.db.project_installation;
 
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.project_installation.ProjectInstallationId;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
 import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.project_installation.ProjectUpdateId;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
 import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
 import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Gid;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -68,10 +74,10 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public ProjectInstallation findProjectInstallation(String projectAllocationId,
-			Function<PersistentId, Optional<FURMSUser>> userGetter) {
+	public ProjectInstallation findProjectInstallation(ProjectAllocationId projectAllocationId,
+	                                                   Function<PersistentId, Optional<FURMSUser>> userGetter) {
 		ProjectInstallationEntity allocation = installationRepository
-				.findByProjectAllocationId(UUID.fromString(projectAllocationId));
+				.findByProjectAllocationId(projectAllocationId.id);
 		final FURMSUser leader = allocation.leaderId != null
 				? userGetter.apply(new PersistentId(allocation.leaderId)).orElse(null)
 				: null;
@@ -93,14 +99,16 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 
 	@Override
 	public String createOrUpdate(ProjectInstallationJob projectInstallationJob) {
-		UUID id = installationRepository.findBySiteIdAndProjectId(UUID.fromString(projectInstallationJob.siteId), UUID.fromString(projectInstallationJob.projectId))
+		UUID id = installationRepository.findBySiteIdAndProjectId(
+			projectInstallationJob.siteId.id, projectInstallationJob.projectId.id
+			)
 			.map(UUIDIdentifiable::getId)
 			.orElse(null);
 		ProjectInstallationJobEntity projectInstallationJobEntity = ProjectInstallationJobEntity.builder()
 			.id(id)
 			.correlationId(UUID.fromString(projectInstallationJob.correlationId.id))
-			.siteId(UUID.fromString(projectInstallationJob.siteId))
-			.projectId(UUID.fromString(projectInstallationJob.projectId))
+			.siteId(projectInstallationJob.siteId.id)
+			.projectId(projectInstallationJob.projectId.id)
 			.status(projectInstallationJob.status)
 			.build();
 		ProjectInstallationJobEntity job = installationRepository.save(projectInstallationJobEntity);
@@ -109,14 +117,14 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 
 	@Override
 	public String createOrUpdate(ProjectUpdateJob projectUpdateJob) {
-		UUID id = updateRepository.findByProjectIdAndSiteId(UUID.fromString(projectUpdateJob.projectId), UUID.fromString(projectUpdateJob.siteId))
+		UUID id = updateRepository.findByProjectIdAndSiteId(projectUpdateJob.projectId.id, projectUpdateJob.siteId.id)
 			.map(UUIDIdentifiable::getId)
 			.orElse(null);
 		ProjectUpdateJobEntity projectUpdateJobEntity = ProjectUpdateJobEntity.builder()
 			.id(id)
 			.correlationId(UUID.fromString(projectUpdateJob.correlationId.id))
-			.siteId(UUID.fromString(projectUpdateJob.siteId))
-			.projectId(UUID.fromString(projectUpdateJob.projectId))
+			.siteId(projectUpdateJob.siteId.id)
+			.projectId(projectUpdateJob.projectId.id)
 			.status(projectUpdateJob.status)
 			.build();
 		ProjectUpdateJobEntity job = updateRepository.save(projectUpdateJobEntity);
@@ -124,8 +132,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public void update(String id, ProjectInstallationResult result) {
-		installationRepository.findById(UUID.fromString(id))
+	public void update(ProjectInstallationId id, ProjectInstallationResult result) {
+		installationRepository.findById(id.id)
 			.map(job -> ProjectInstallationJobEntity.builder()
 				.id(job.getId())
 				.correlationId(job.correlationId)
@@ -140,8 +148,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public void update(String id, ProjectUpdateResult result) {
-		updateRepository.findById(UUID.fromString(id))
+	public void update(ProjectUpdateId id, ProjectUpdateResult result) {
+		updateRepository.findById(id.id)
 			.map(job -> ProjectUpdateJobEntity.builder()
 				.id(job.getId())
 				.correlationId(job.correlationId)
@@ -155,33 +163,33 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public boolean installedProjectExistsBySiteIdAndProjectId(String siteId, String projectId) {
+	public boolean installedProjectExistsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId) {
 		return installationRepository.existsBySiteIdAndProjectIdAndStatus(
-			UUID.fromString(siteId),
-			UUID.fromString(projectId),
+			siteId.id,
+			projectId.id,
 			ProjectInstallationStatus.INSTALLED.getPersistentId()
 		);
 	}
 
 	@Override
-	public boolean areAllProjectOperationInTerminateState(String projectId) {
+	public boolean areAllProjectOperationInTerminateState(ProjectId projectId) {
 		return !(installationRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(
-			UUID.fromString(projectId),
+			projectId.id,
 			ProjectInstallationStatus.PENDING.getPersistentId(),
-			UUID.fromString(projectId),
+			projectId.id,
 			ProjectInstallationStatus.ACKNOWLEDGED.getPersistentId()
 		) ||
 		updateRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(
-			UUID.fromString(projectId),
+			projectId.id,
 			ProjectUpdateStatus.PENDING.getPersistentId(),
-			UUID.fromString(projectId),
+			projectId.id,
 			ProjectUpdateStatus.ACKNOWLEDGED.getPersistentId()
 		));
 	}
 
 	@Override
-	public Set<ProjectInstallationJobStatus> findAllBySiteId(String siteId) {
-		return installationRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
+	public Set<ProjectInstallationJobStatus> findAllBySiteId(SiteId siteId) {
+		return installationRepository.findAllBySiteId(siteId.id).stream()
 				.map(job -> ProjectInstallationJobStatus.builder()
 						.siteId(job.siteId.toString())
 						.siteName(job.siteName)
@@ -193,8 +201,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId) {
-		return installationRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+	public Set<ProjectInstallationJobStatus> findAllByCommunityId(CommunityId communityId) {
+		return installationRepository.findAllByCommunityId(communityId.id).stream()
 			.map(job -> ProjectInstallationJobStatus.builder()
 				.siteId(job.siteId.toString())
 				.siteName(job.siteName)
@@ -207,8 +215,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public Set<ProjectUpdateJobStatus> findAllUpdatesByCommunityId(String communityId) {
-		return updateRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+	public Set<ProjectUpdateJobStatus> findAllUpdatesByCommunityId(CommunityId communityId) {
+		return updateRepository.findAllByCommunityId(communityId.id).stream()
 			.map(job -> ProjectUpdateJobStatus.builder()
 				.siteId(job.siteId.toString())
 				.projectId(job.projectId.toString())
@@ -220,8 +228,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public Set<ProjectInstallationJobStatus> findAllByProjectId(String projectId) {
-		return installationRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+	public Set<ProjectInstallationJobStatus> findAllByProjectId(ProjectId projectId) {
+		return installationRepository.findAllByProjectId(projectId.id).stream()
 			.map(job -> ProjectInstallationJobStatus.builder()
 				.siteId(job.siteId.toString())
 				.siteName(job.siteName)
@@ -234,8 +242,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public Set<ProjectUpdateJobStatus> findAllUpdatesByProjectId(String projectId) {
-		return updateRepository.findByProjectId(UUID.fromString(projectId)).stream()
+	public Set<ProjectUpdateJobStatus> findAllUpdatesByProjectId(ProjectId projectId) {
+		return updateRepository.findByProjectId(projectId.id).stream()
 			.map(job -> ProjectUpdateJobStatus.builder()
 				.projectId(job.projectId.toString())
 				.siteId(job.siteId.toString())
@@ -247,8 +255,8 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public Set<ProjectInstallationJob> findProjectInstallation(String projectId) {
-		return installationRepository.findByProjectId(UUID.fromString(projectId)).stream()
+	public Set<ProjectInstallationJob> findProjectInstallation(ProjectId projectId) {
+		return installationRepository.findByProjectId(projectId.id).stream()
 			.map(installation -> ProjectInstallationJob.builder()
 				.id(installation.getId().toString())
 				.projectId(installation.projectId.toString())
@@ -261,29 +269,29 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public Set<ProjectUpdateStatus> findProjectUpdateStatues(String projectId) {
-		return updateRepository.findByProjectId(UUID.fromString(projectId)).stream()
+	public Set<ProjectUpdateStatus> findProjectUpdateStatues(ProjectId projectId) {
+		return updateRepository.findByProjectId(projectId.id).stream()
 			.map(x -> ProjectUpdateStatus.valueOf(x.status))
 			.collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(String siteId) {
-		return installationRepository.findAllInstalledBySiteId(UUID.fromString(siteId)).stream()
+	public Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(SiteId siteId) {
+		return installationRepository.findAllInstalledBySiteId(siteId.id).stream()
 				.map(this::convertToSiteInstalledProject)
 				.collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId) {
-		return installationRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+	public Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(ProjectId projectId) {
+		return installationRepository.findAllByProjectId(projectId.id).stream()
 				.map(this::convertToSiteInstalledProject)
 				.collect(Collectors.toSet());
 	}
 
 	@Override
-	public void deleteById(String id) {
-		installationRepository.deleteById(UUID.fromString(id));
+	public void deleteById(ProjectInstallationId id) {
+		installationRepository.deleteById(id.id);
 	}
 
 	@Override

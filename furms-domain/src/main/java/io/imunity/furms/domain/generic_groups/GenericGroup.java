@@ -5,16 +5,18 @@
 
 package io.imunity.furms.domain.generic_groups;
 
+import io.imunity.furms.domain.communities.CommunityId;
+
 import java.util.Objects;
 import java.util.UUID;
 
 public class GenericGroup {
 	public final GenericGroupId id;
-	public final String communityId;
+	public final CommunityId communityId;
 	public final String name;
 	public final String description;
 
-	GenericGroup(GenericGroupId id, String communityId, String name, String description) {
+	GenericGroup(GenericGroupId id, CommunityId communityId, String name, String description) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -53,7 +55,7 @@ public class GenericGroup {
 
 	public static final class GenericGroupBuilder {
 		private GenericGroupId id;
-		private String communityId;
+		private CommunityId communityId;
 		private String name;
 		private String description;
 
@@ -70,8 +72,8 @@ public class GenericGroup {
 			return this;
 		}
 
-		public GenericGroupBuilder communityId(String communityId) {
-			this.communityId = communityId;
+		public GenericGroupBuilder communityId(UUID communityId) {
+			this.communityId = new CommunityId(communityId);
 			return this;
 		}
 

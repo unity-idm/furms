@@ -5,18 +5,20 @@
 
 package io.imunity.furms.domain.project_installation;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.FURMSUser;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import io.imunity.furms.domain.users.FURMSUser;
-
 public class ProjectInstallation {
-	public final String id;
-	public final String siteId;
-	public final String siteExternalId;
+	public final ProjectInstallationId id;
+	public final SiteId siteId;
 	public final String name;
 	public final String description;
-	public final String communityId;
+	public final CommunityId communityId;
 	public final String communityName;
 	public final String acronym;
 	public final String researchField;
@@ -24,12 +26,11 @@ public class ProjectInstallation {
 	public final LocalDateTime validityEnd;
 	public final FURMSUser leader;
 
-	ProjectInstallation(String id,
-			String siteId,
-			String siteExternalId,
+	ProjectInstallation(ProjectInstallationId id,
+			SiteId siteId,
 			String name,
 			String description,
-			String communityId,
+			CommunityId communityId,
 			String communityName,
 			String acronym,
 			String researchField,
@@ -38,7 +39,6 @@ public class ProjectInstallation {
 			FURMSUser leader) {
 		this.id = id;
 		this.siteId = siteId;
-		this.siteExternalId = siteExternalId;
 		this.name = name;
 		this.description = description;
 		this.communityId = communityId;
@@ -57,7 +57,6 @@ public class ProjectInstallation {
 		ProjectInstallation that = (ProjectInstallation) o;
 		return Objects.equals(id, that.id) &&
 			Objects.equals(siteId, that.siteId) &&
-			Objects.equals(siteExternalId, that.siteExternalId) &&
 			Objects.equals(name, that.name) &&
 			Objects.equals(description, that.description) &&
 			Objects.equals(communityId, that.communityId) &&
@@ -71,7 +70,7 @@ public class ProjectInstallation {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, siteExternalId, name, description, communityId, communityName, acronym,
+		return Objects.hash(id, siteId, name, description, communityId, communityName, acronym,
 				researchField, validityStart, validityEnd, leader);
 	}
 
@@ -80,7 +79,6 @@ public class ProjectInstallation {
 		return "ProjectInstallation{" +
 			"id='" + id + '\'' +
 			", siteId='" + siteId + '\'' +
-			", siteExternalId='" + siteExternalId + '\'' +
 			", name='" + name + '\'' +
 			", description='" + description + '\'' +
 			", communityId='" + communityId + '\'' +
@@ -98,12 +96,12 @@ public class ProjectInstallation {
 	}
 
 	public static final class ProjectInstallationBuilder {
-		private String id;
+		private ProjectInstallationId id;
 		private String siteId;
-		private String siteExternalId;
+		private SiteExternalId siteExternalId;
 		private String name;
 		private String description;
-		private String communityId;
+		private CommunityId communityId;
 		private String communityName;
 		private String acronym;
 		private String researchField;
@@ -115,7 +113,7 @@ public class ProjectInstallation {
 		}
 
 		public ProjectInstallationBuilder id(String id) {
-			this.id = id;
+			this.id = new ProjectInstallationId(id);
 			return this;
 		}
 
@@ -125,7 +123,7 @@ public class ProjectInstallation {
 		}
 
 		public ProjectInstallationBuilder siteExternalId(String siteExternalId) {
-			this.siteExternalId = siteExternalId;
+			this.siteExternalId = new SiteExternalId(siteExternalId);
 			return this;
 		}
 
@@ -140,7 +138,7 @@ public class ProjectInstallation {
 		}
 
 		public ProjectInstallationBuilder communityId(String communityId) {
-			this.communityId = communityId;
+			this.communityId = new CommunityId(communityId);
 			return this;
 		}
 
@@ -175,7 +173,8 @@ public class ProjectInstallation {
 		}
 
 		public ProjectInstallation build() {
-			return new ProjectInstallation(id, siteId, siteExternalId, name, description, communityId, communityName,
+			return new ProjectInstallation(id, new SiteId(siteId, siteExternalId), name, description, communityId,
+				communityName,
 					acronym, researchField, validityStart, validityEnd, leader);
 		}
 	}

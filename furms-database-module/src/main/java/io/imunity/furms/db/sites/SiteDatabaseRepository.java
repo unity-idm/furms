@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.sites;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -34,27 +35,27 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public Optional<Site> findById(String id) {
+	public Optional<Site> findById(SiteId id) {
 		if (isEmpty(id)) {
 			return Optional.empty();
 		}
-		return repository.findById(fromString(id))
+		return repository.findById(id.id)
 				.map(SiteEntity::toSite);
 	}
 
 	@Override
-	public Set<Site> findAll(Set<String> ids) {
-		return repository.findAllByIdIn(ids.stream().map(UUID::fromString).collect(toSet())).stream()
+	public Set<Site> findAll(Set<SiteId> ids) {
+		return repository.findAllByIdIn(ids.stream().map(siteId -> siteId.id).collect(toSet())).stream()
 			.map(SiteEntity::toSite)
 			.collect(toSet());
 	}
 
 	@Override
-	public SiteExternalId findByIdExternalId(String id) {
+	public SiteExternalId findByIdExternalId(SiteId id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Id should not be null");
 		}
-		return repository.findExternalId(fromString(id))
+		return repository.findExternalId(id.id)
 			.map(SiteExternalId::new)
 			.orElseThrow(() -> new IllegalArgumentException("External Id doesn't exist"));
 	}
@@ -70,11 +71,11 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public Set<SiteId> findByProjectId(String id) {
+	public Set<SiteId> findByProjectId(ProjectId id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Id should not be null");
 		}
-		return repository.findRelatedSites(fromString(id)).stream()
+		return repository.findRelatedSites(id.id).stream()
 			.map(site -> new SiteId(site.getId().toString(), new SiteExternalId(site.getExternalId())))
 			.collect(toSet());
 	}
@@ -84,7 +85,7 @@ class SiteDatabaseRepository implements SiteRepository {
 		if (isEmpty(siteId)) {
 			throw new IllegalArgumentException("Id should not be null");
 		}
-		return repository.findRelatedProjectIds(fromString(siteId.id)).stream()
+		return repository.findRelatedProjectIds(siteId.id).stream()
 			.collect(groupingBy(x -> x.communityId.toString(), mapping(x -> x.projectId.toString(), toSet())));
 	}
 
@@ -133,11 +134,11 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(SiteId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsById(fromString(id));
+		return repository.existsById(id.id);
 	}
 
 	@Override
@@ -159,10 +160,10 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public void delete(String id) {
+	public void delete(SiteId id) {
 		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete Site input: ID is empty"));
 
-		repository.deleteById(fromString(id));
+		repository.deleteById(id.id);
 	}
 
 	@Override

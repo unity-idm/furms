@@ -5,20 +5,20 @@
 
 package io.imunity.furms.db.ssh_keys;
 
+import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.users.PersistentId;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
+
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import org.springframework.data.annotation.PersistenceConstructor;
-import org.springframework.data.relational.core.mapping.MappedCollection;
-import org.springframework.data.relational.core.mapping.Table;
-
-import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.users.PersistentId;
 
 @Table("sshkey")
 class SSHKeyEntity extends UUIDIdentifiable {
@@ -154,9 +154,9 @@ class SSHKeyEntity extends UUIDIdentifiable {
 			return this;
 		}
 
-		public SSHKeyEntity.SSHKeyEntityBuilder sites(Set<String> sites) {
+		public SSHKeyEntity.SSHKeyEntityBuilder sites(Set<SiteId> sites) {
 			this.sites = sites != null
-					? sites.stream().map(s -> new SSHKeySiteReference(UUID.fromString(s))).collect(
+					? sites.stream().map(s -> new SSHKeySiteReference(s.id)).collect(
 							Collectors.toSet())
 					: Collections.emptySet();
 			return this;

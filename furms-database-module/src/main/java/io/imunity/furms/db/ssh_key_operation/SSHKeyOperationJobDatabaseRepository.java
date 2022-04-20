@@ -6,7 +6,10 @@
 package io.imunity.furms.db.ssh_key_operation;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJobId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import org.springframework.stereotype.Repository;
@@ -60,9 +63,9 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 	}
 
 	@Override
-	public SSHKeyOperationJob findBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
-		SSHKeyOperationJobEntity job = repository.findBySshkeyIdAndSiteId(UUID.fromString(sshkeyId),
-				UUID.fromString(siteId));
+	public SSHKeyOperationJob findBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId) {
+		SSHKeyOperationJobEntity job = repository.findBySshkeyIdAndSiteId(sshkeyId.id,
+				siteId.id);
 		return SSHKeyOperationJob.builder().id(job.getId().toString())
 				.correlationId(new CorrelationId(job.correlationId.toString()))
 				.siteId(job.siteId.toString()).sshkeyId(job.sshkeyId.toString())
@@ -74,8 +77,8 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 	public String create(SSHKeyOperationJob sshkeyOperationJob) {
 		SSHKeyOperationJobEntity sshkeyInstallationJobEntity = SSHKeyOperationJobEntity.builder()
 				.correlationId(UUID.fromString(sshkeyOperationJob.correlationId.id))
-				.siteId(UUID.fromString(sshkeyOperationJob.siteId))
-				.sshkeyId(UUID.fromString(sshkeyOperationJob.sshkeyId))
+				.siteId(sshkeyOperationJob.siteId.id)
+				.sshkeyId(sshkeyOperationJob.sshkeyId.id)
 				.status(sshkeyOperationJob.status).operation(sshkeyOperationJob.operation)
 				.error(sshkeyOperationJob.error).originationTime(sshkeyOperationJob.originationTime)
 				.build();
@@ -84,8 +87,9 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 	}
 
 	@Override
-	public void update(String id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime originationTime) {
-		repository.findById(UUID.fromString(id))
+	public void update(SSHKeyOperationJobId id, SSHKeyOperationStatus status, Optional<String> error,
+	                   LocalDateTime originationTime) {
+		repository.findById(id.id)
 				.map(job -> SSHKeyOperationJobEntity.builder().id(job.getId())
 						.correlationId(job.correlationId).siteId(job.siteId)
 						.sshkeyId(job.sshkeyId).operation(job.operation).status(status)
@@ -96,8 +100,8 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 	}
 
 	@Override
-	public void delete(String id) {
-		repository.deleteById(UUID.fromString(id));
+	public void delete(SSHKeyOperationJobId id) {
+		repository.deleteById(id.id);
 	}
 
 	@Override
@@ -106,14 +110,14 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 	}
 
 	@Override
-	public void deleteBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
-		repository.deleteBySshKeyIdAndSiteId(UUID.fromString(sshkeyId), UUID.fromString(siteId));
+	public void deleteBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId) {
+		repository.deleteBySshKeyIdAndSiteId(sshkeyId.id, siteId.id);
 
 	}
 
 	@Override
-	public List<SSHKeyOperationJob> findBySSHKey(String sshkeyId) {
-		return repository.findBySshkeyId(UUID.fromString(sshkeyId)).stream()
+	public List<SSHKeyOperationJob> findBySSHKey(SSHKeyId sshkeyId) {
+		return repository.findBySshkeyId(sshkeyId.id).stream()
 				.map(job -> SSHKeyOperationJob.builder().id(job.getId().toString())
 						.correlationId(new CorrelationId(job.correlationId.toString()))
 						.siteId(job.siteId.toString()).sshkeyId(job.sshkeyId.toString())

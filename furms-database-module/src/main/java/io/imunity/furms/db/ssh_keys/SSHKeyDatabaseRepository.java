@@ -5,7 +5,9 @@
 
 package io.imunity.furms.db.ssh_keys;
 
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
@@ -44,8 +46,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 						sshKey.updateTime,
 						(sshKey.sites != null
 								? sshKey.sites.stream()
-										.map(s -> new SSHKeySiteReference(
-												UUID.fromString(s)))
+										.map(siteId -> new SSHKeySiteReference(siteId.id))
 										.collect(toSet())
 								: Collections.emptySet())))
 				.getId().toString();
@@ -57,11 +58,11 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	}
 
 	@Override
-	public Optional<SSHKey> findById(String id) {
+	public Optional<SSHKey> findById(SSHKeyId id) {
 		if (isEmpty(id)) {
 			return empty();
 		}
-		return repository.findById(UUID.fromString(id)).map(SSHKeyEntity::toSSHKey);
+		return repository.findById(id.id).map(SSHKeyEntity::toSSHKey);
 	}
 
 	@Override
@@ -81,7 +82,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 		validateKeyValue(sshKey);
 		validateSites(sshKey);
 
-		return repository.findById(fromString(sshKey.id))
+		return repository.findById(sshKey.id.id)
 				.map(oldEntity -> SSHKeyEntity.builder().id(oldEntity.getId()).name(sshKey.name)
 						.value(sshKey.value).createTime(sshKey.createTime)
 						.updateTime(sshKey.updateTime).ownerId(sshKey.ownerId.id)
@@ -93,11 +94,11 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(SSHKeyId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsById(fromString(id));
+		return repository.existsById(id.id);
 	}
 
 	@Override
@@ -111,10 +112,10 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	}
 
 	@Override
-	public void delete(String id) {
+	public void delete(SSHKeyId id) {
 		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete SSH key input: ID is empty"));
 
-		repository.deleteById(fromString(id));
+		repository.deleteById(id.id);
 	}
 
 	@Override
@@ -131,7 +132,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	private void validateKeyId(final SSHKey sshKey) {
 		assertTrue(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
 		assertTrue(!isEmpty(sshKey.id), () -> new IllegalArgumentException("Incorrect SSH key ID: ID is empty."));
-		assertTrue(repository.existsById(fromString(sshKey.id)),
+		assertTrue(repository.existsById(sshKey.id.id),
 				() -> new IllegalArgumentException("Incorrect SSH key ID: ID not exists in DB."));
 	}
 
@@ -145,7 +146,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 		if (sshKey.sites == null) {
 			return;
 		}
-		for (String site : sshKey.sites) {
+		for (SiteId site : sshKey.sites) {
 			assertTrue(siteRepository.exists(site),
 					() -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
 		}

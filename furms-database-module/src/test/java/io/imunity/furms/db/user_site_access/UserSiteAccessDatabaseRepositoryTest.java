@@ -11,6 +11,7 @@ import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -119,7 +120,8 @@ class UserSiteAccessDatabaseRepositoryTest extends DBIntegrationTest {
 		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1, projectId, userId1.id));
 		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1, projectId1, userId1.id));
 
-		Map<String, Set<FenixUserId>> allUserGroupedBySiteId = userSiteAccessDatabaseRepository.findAllUserGroupedBySiteId(projectId.toString());
+		Map<SiteId, Set<FenixUserId>> allUserGroupedBySiteId =
+			userSiteAccessDatabaseRepository.findAllUserGroupedBySiteId(projectId.toString());
 
 		assertEquals(Set.of(siteId.toString(), siteId1.toString()), allUserGroupedBySiteId.keySet());
 		assertEquals(Set.of(userId), allUserGroupedBySiteId.get(siteId.toString()));

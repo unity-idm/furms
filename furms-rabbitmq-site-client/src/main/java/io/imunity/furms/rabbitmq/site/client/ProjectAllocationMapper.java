@@ -14,9 +14,9 @@ import java.time.ZoneOffset;
 class ProjectAllocationMapper {
 	static AgentProjectAllocationInstallationRequest mapAllocation(ProjectAllocationResolved projectAllocation){
 		return AgentProjectAllocationInstallationRequest.builder()
-			.projectIdentifier(projectAllocation.projectId)
-			.allocationIdentifier(projectAllocation.id)
-			.resourceCreditIdentifier(projectAllocation.resourceCredit.id)
+			.projectIdentifier(projectAllocation.projectId.id.toString())
+			.allocationIdentifier(projectAllocation.id.id.toString())
+			.resourceCreditIdentifier(projectAllocation.resourceCredit.id.id.toString())
 			.resourceType(projectAllocation.resourceType.name)
 			.amount(projectAllocation.amount)
 			.validFrom(projectAllocation.resourceCredit.utcStartTime.atOffset(ZoneOffset.UTC))
@@ -26,9 +26,9 @@ class ProjectAllocationMapper {
 
 	static AgentProjectDeallocationRequest mapDeallocation(ProjectAllocationResolved projectAllocation){
 		return AgentProjectDeallocationRequest.builder()
-			.projectIdentifier(projectAllocation.projectId)
-			.allocationIdentifier(projectAllocation.id)
-			.resourceCreditIdentifier(projectAllocation.resourceCredit.id)
+			.projectIdentifier(projectAllocation.projectId.id.toString())
+			.allocationIdentifier(projectAllocation.id.id.toString())
+			.resourceCreditIdentifier(projectAllocation.resourceCredit.id.id.toString())
 			.resourceType(projectAllocation.resourceType.name)
 			.build();
 	}

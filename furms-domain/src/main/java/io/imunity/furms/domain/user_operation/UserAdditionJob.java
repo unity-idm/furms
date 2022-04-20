@@ -11,13 +11,13 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class UserAdditionJob {
-	public final String id;
-	public final String userAdditionId;
+	public final UserAdditionJobId id;
+	public final UserAdditionId userAdditionId;
 	public final CorrelationId correlationId;
 	public final UserStatus status;
 	public final Optional<UserAdditionErrorMessage> errorMessage;
 
-	UserAdditionJob(String id, String userAdditionId, CorrelationId correlationId, UserStatus status, Optional<UserAdditionErrorMessage> errorMessage) {
+	UserAdditionJob(UserAdditionJobId id, UserAdditionId userAdditionId, CorrelationId correlationId, UserStatus status, Optional<UserAdditionErrorMessage> errorMessage) {
 		this.id = id;
 		this.userAdditionId = userAdditionId;
 		this.correlationId = correlationId;
@@ -57,8 +57,8 @@ public class UserAdditionJob {
 	}
 
 	public static final class UserRemovalBuilder {
-		private String id;
-		private String userAdditionId;
+		private UserAdditionJobId id;
+		private UserAdditionId userAdditionId;
 		private CorrelationId correlationId;
 		private UserStatus status;
 		private Optional<UserAdditionErrorMessage> errorMessage = Optional.empty();
@@ -67,7 +67,7 @@ public class UserAdditionJob {
 		}
 
 		public UserRemovalBuilder id(String id) {
-			this.id = id;
+			this.id = new UserAdditionJobId(id);
 			return this;
 		}
 
@@ -77,7 +77,7 @@ public class UserAdditionJob {
 		}
 
 		public UserRemovalBuilder userAdditionId(String userAdditionId) {
-			this.userAdditionId = userAdditionId;
+			this.userAdditionId = new UserAdditionId(userAdditionId);
 			return this;
 		}
 

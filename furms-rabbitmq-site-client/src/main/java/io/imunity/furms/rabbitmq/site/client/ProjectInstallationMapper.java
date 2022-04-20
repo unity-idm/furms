@@ -19,10 +19,10 @@ class ProjectInstallationMapper {
 	static AgentProjectInstallationRequest map(ProjectInstallation projectInstallation){
 		FURMSUser user = projectInstallation.leader;
 		return AgentProjectInstallationRequest.builder()
-			.identifier(projectInstallation.id)
+			.identifier(projectInstallation.id.id.toString())
 			.name(projectInstallation.name)
 			.description(projectInstallation.description)
-			.communityId(projectInstallation.communityId)
+			.communityId(projectInstallation.communityId.id.toString())
 			.community(projectInstallation.communityName)
 			.acronym(projectInstallation.acronym)
 			.researchField(projectInstallation.researchField)

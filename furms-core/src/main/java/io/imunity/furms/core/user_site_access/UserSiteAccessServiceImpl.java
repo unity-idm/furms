@@ -149,16 +149,17 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 	@Override
 	public void addAccessToSite(GrantAccess grantAccess) {
-		if(!userSiteAccessRepository.exists(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId))
-			userSiteAccessRepository.add(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
+		if(!userSiteAccessRepository.exists(grantAccess.siteId.id, grantAccess.projectId.id.toString(), grantAccess.fenixUserId))
+			userSiteAccessRepository.add(grantAccess.siteId.id, grantAccess.projectId.id.toString(), grantAccess.fenixUserId);
 
-		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
+		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id,
+			grantAccess.projectId.id.toString(), grantAccess.fenixUserId);
 		if (userAdditionStatus.isEmpty() &&
 			hasUserSitePolicyAcceptanceOrSiteHasntPolicy(grantAccess.siteId.id, grantAccess.fenixUserId)
 		) {
 			userOperationService.createUserAdditions(
 				grantAccess.siteId,
-				grantAccess.projectId,
+				grantAccess.projectId.id.toString(),
 				policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(grantAccess.siteId.id, grantAccess.fenixUserId)
 			);
 		}

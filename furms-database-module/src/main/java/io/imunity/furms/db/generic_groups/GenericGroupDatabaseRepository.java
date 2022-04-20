@@ -5,9 +5,10 @@
 
 package io.imunity.furms.db.generic_groups;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
-import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
+import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignmentAmount;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignments;
 import io.imunity.furms.domain.generic_groups.GroupAccess;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -39,23 +39,23 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	@Override
 	public Optional<GenericGroup> findBy(GenericGroupId genericGroupId) {
 		return genericGroupEntityRepository.findById(genericGroupId.id)
-			.map(x -> GenericGroup.builder()
-				.id(x.getId())
-				.communityId(x.communityId.toString())
-				.name(x.name)
-				.description(x.description)
+			.map(genericGroup -> GenericGroup.builder()
+				.id(genericGroup.getId())
+				.communityId(genericGroup.communityId)
+				.name(genericGroup.name)
+				.description(genericGroup.description)
 				.build()
 			);
 	}
 
 	@Override
-	public Optional<GenericGroupWithAssignments> findGroupWithAssignments(String communityId, GenericGroupId genericGroupId) {
-		return genericGroupEntityRepository.findAllAssignments(UUID.fromString(communityId), genericGroupId.id).stream()
+	public Optional<GenericGroupWithAssignments> findGroupWithAssignments(CommunityId communityId, GenericGroupId genericGroupId) {
+		return genericGroupEntityRepository.findAllAssignments(communityId.id, genericGroupId.id).stream()
 				.filter(Objects::nonNull)
 				.collect(groupingBy(
 					groupWithAssignments -> GenericGroup.builder()
 							.id(groupWithAssignments.getId())
-							.communityId(groupWithAssignments.communityId.toString())
+							.communityId(groupWithAssignments.communityId)
 							.name(groupWithAssignments.name)
 							.description(groupWithAssignments.description)
 							.build(),
@@ -80,25 +80,25 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	}
 
 	@Override
-	public Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(String communityId) {
-		return genericGroupEntityRepository.findAllWithAssignmentAmount(UUID.fromString(communityId)).stream()
-			.map(x -> new GenericGroupWithAssignmentAmount(
+	public Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(CommunityId communityId) {
+		return genericGroupEntityRepository.findAllWithAssignmentAmount(communityId.id).stream()
+			.map(entity -> new GenericGroupWithAssignmentAmount(
 				GenericGroup.builder()
-					.id(x.getId())
-					.communityId(x.communityId.toString())
-					.name(x.name)
-					.description(x.description)
+					.id(entity.getId())
+					.communityId(entity.communityId)
+					.name(entity.name)
+					.description(entity.description)
 					.build(),
-				x.membershipAmount
+				entity.membershipAmount
 			)).collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<GenericGroup> findAllBy(String communityId) {
-		return genericGroupEntityRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+	public Set<GenericGroup> findAllBy(CommunityId communityId) {
+		return genericGroupEntityRepository.findAllByCommunityId(communityId.id).stream()
 			.map(entity -> GenericGroup.builder()
 				.id(entity.getId())
-				.communityId(entity.communityId.toString())
+				.communityId(entity.communityId)
 				.name(entity.name)
 				.description(entity.description)
 				.build()
@@ -129,7 +129,7 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	public GenericGroupId create(GenericGroup group) {
 		GenericGroupEntity genericGroupEntity = genericGroupEntityRepository.save(
 			GenericGroupEntity.builder()
-				.communityId(UUID.fromString(group.communityId))
+				.communityId(group.communityId.id)
 				.name(group.name)
 				.description(group.description)
 				.build()
@@ -171,8 +171,8 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	}
 
 	@Override
-	public boolean existsBy(String communityId, GenericGroupId groupId) {
-		return genericGroupEntityRepository.existsByCommunityIdAndId(UUID.fromString(communityId), groupId.id);
+	public boolean existsBy(CommunityId communityId, GenericGroupId groupId) {
+		return genericGroupEntityRepository.existsByCommunityIdAndId(communityId.id, groupId.id);
 	}
 
 	@Override
@@ -181,8 +181,8 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 	}
 
 	@Override
-	public boolean existsBy(String communityId, String name) {
-		return genericGroupEntityRepository.existsByCommunityIdAndName(UUID.fromString(communityId), name);
+	public boolean existsBy(CommunityId communityId, String name) {
+		return genericGroupEntityRepository.existsByCommunityIdAndName(communityId.id, name);
 	}
 }
 

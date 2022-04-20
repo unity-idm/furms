@@ -5,11 +5,14 @@
 
 package io.imunity.furms.spi.resource_access;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Optional;
@@ -18,21 +21,21 @@ import java.util.UUID;
 
 public interface ResourceAccessRepository {
 	Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId);
-	Set<FenixUserId> findUsersBySiteId(String siteId);
-	Set<UserGrant> findUsersGrantsByProjectId(String projectId);
-	Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId);
-	boolean existsBySiteIdAndProjectIdAndFenixUserId(String siteId, String projectId, FenixUserId fenixUserId);
+	Set<FenixUserId> findUsersBySiteId(SiteId siteId);
+	Set<UserGrant> findUsersGrantsByProjectId(ProjectId projectId);
+	Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(ProjectId projectId, FenixUserId fenixUserId);
+	boolean existsBySiteIdAndProjectIdAndFenixUserId(SiteId siteId, ProjectId projectId, FenixUserId fenixUserId);
 	UUID create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status);
 	void update(CorrelationId correlationId, AccessStatus status, String msg);
 	boolean exists(GrantAccess grantAccess);
-	AccessStatus findCurrentStatus(FenixUserId userId, String allocationId);
-	Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String projectId, String siteId);
-	Set<GrantAccess> findGrantAccessesBy(String siteId, String projectAllocationId);
+	AccessStatus findCurrentStatus(FenixUserId userId, ProjectAllocationId allocationId);
+	Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, ProjectId projectId, SiteId siteId);
+	Set<GrantAccess> findGrantAccessesBy(SiteId siteId, ProjectAllocationId projectAllocationId);
 	Optional<AccessStatus> findCurrentStatus(CorrelationId correlationId);
 	void deleteByCorrelationId(CorrelationId correlationId);
 	void deleteByUserAndAllocationId(FenixUserId userId, String allocationId);
-	void deleteByUserAndProjectId(FenixUserId userId, String projectId);
-	void deleteByUserAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId);
+	void deleteByUserAndProjectId(FenixUserId userId, ProjectId projectId);
+	void deleteByUserAndSiteIdAndProjectId(FenixUserId userId, SiteId siteId, ProjectId projectId);
 	void deleteAll();
 }

@@ -5,17 +5,19 @@
 
 package io.imunity.furms.spi.user_site_access;
 
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Map;
 import java.util.Set;
 
 public interface UserSiteAccessRepository {
-	Set<String> findAllUserProjectIds(String siteId, FenixUserId userId);
-	Map<String, Set<FenixUserId>> findAllUserGroupedBySiteId(String projectId);
-	void add(String siteId, String projectId, FenixUserId userId);
-	void remove(String siteId, String projectId, FenixUserId userId);
-	void remove(String projectId, FenixUserId userId);
-	boolean exists(String siteId, String projectId, FenixUserId userId);
+	Set<String> findAllUserProjectIds(SiteId siteId, FenixUserId userId);
+	Map<SiteId, Set<FenixUserId>> findAllUserGroupedBySiteId(ProjectId projectId);
+	void add(SiteId siteId, ProjectId projectId, FenixUserId userId);
+	void remove(SiteId siteId, ProjectId projectId, FenixUserId userId);
+	void remove(ProjectId projectId, FenixUserId userId);
+	boolean exists(SiteId siteId, ProjectId projectId, FenixUserId userId);
 	void deleteAll();
 }

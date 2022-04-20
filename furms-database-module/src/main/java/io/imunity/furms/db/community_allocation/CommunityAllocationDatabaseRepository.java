@@ -5,8 +5,11 @@
 
 package io.imunity.furms.db.community_allocation;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import org.springframework.stereotype.Repository;
 
@@ -39,65 +42,65 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public Optional<CommunityAllocation> findById(String id) {
+	public Optional<CommunityAllocation> findById(CommunityAllocationId id) {
 		if (isEmpty(id)) {
 			return empty();
 		}
-		return repository.findById(UUID.fromString(id))
+		return repository.findById(id.id)
 			.map(CommunityAllocationEntity::toCommunityAllocation);
 	}
 
 	@Override
-	public Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(String id) {
+	public Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(CommunityAllocationId id) {
 		if (isEmpty(id)) {
 			return empty();
 		}
-		return readRepository.findById(UUID.fromString(id))
+		return readRepository.findById(id.id)
 			.map(communityAllocationConverter::toCommunityAllocationResolved);
 	}
 
 	@Override
-	public Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(String communityId) {
-		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+	public Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(CommunityId communityId) {
+		return readRepository.findAllByCommunityId(communityId.id).stream()
 			.map(communityAllocationConverter::toCommunityAllocationResolved)
 			.collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<CommunityAllocation> findAllByCommunityId(String communityId) {
-		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+	public Set<CommunityAllocation> findAllByCommunityId(CommunityId communityId) {
+		return readRepository.findAllByCommunityId(communityId.id).stream()
 				.map(communityAllocationConverter::toCommunityAllocation)
 				.collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId) {
-		return readRepository.findAllByCommunityId(UUID.fromString(communityId)).stream()
+	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(CommunityId communityId) {
+		return readRepository.findAllByCommunityId(communityId.id).stream()
 				.filter(not(CommunityAllocationReadEntity::isExpired))
 				.map(communityAllocationConverter::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
+	public Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(CommunityId communityId,
 	                                                                                                String name) {
-		return readRepository.findAllByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
+		return readRepository.findAllByCommunityIdAndNameOrSiteName(communityId.id, name).stream()
 				.map(communityAllocationConverter::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
+	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(CommunityId communityId,
 	                                                                                                          String name) {
-		return readRepository.findAllByCommunityIdAndNameOrSiteName(UUID.fromString(communityId), name).stream()
+		return readRepository.findAllByCommunityIdAndNameOrSiteName(communityId.id, name).stream()
 				.filter(not(CommunityAllocationReadEntity::isExpired))
 				.map(communityAllocationConverter::toCommunityAllocationResolved)
 				.collect(Collectors.toSet());
 	}
 
 	@Override
-	public BigDecimal getAvailableAmount(String resourceCreditId) {
-		return readRepository.calculateAvailableAmount(UUID.fromString(resourceCreditId)).getAmount();
+	public BigDecimal getAvailableAmount(ResourceCreditId resourceCreditId) {
+		return readRepository.calculateAvailableAmount(resourceCreditId.id).getAmount();
 	}
 
 	@Override
@@ -108,26 +111,26 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public String create(CommunityAllocation allocation) {
+	public CommunityAllocationId create(CommunityAllocation allocation) {
 		CommunityAllocationEntity savedCommunityAllocation = repository.save(
 			CommunityAllocationEntity.builder()
-				.communityId(UUID.fromString(allocation.communityId))
-				.resourceCreditId(UUID.fromString(allocation.resourceCreditId))
+				.communityId(allocation.communityId.id)
+				.resourceCreditId(allocation.resourceCreditId.id)
 				.name(allocation.name)
 				.amount(allocation.amount)
 				.creationTime(convertToUTCTime(ZonedDateTime.now()))
 				.build()
 		);
-		return savedCommunityAllocation.getId().toString();
+		return new CommunityAllocationId(savedCommunityAllocation.getId());
 	}
 
 	@Override
 	public void update(CommunityAllocation allocation) {
-		repository.findById(UUID.fromString(allocation.id))
+		repository.findById(allocation.id.id)
 			.map(oldCommunityAllocation -> CommunityAllocationEntity.builder()
 				.id(oldCommunityAllocation.getId())
-				.communityId(UUID.fromString(allocation.communityId))
-				.resourceCreditId(UUID.fromString(allocation.resourceCreditId))
+				.communityId(allocation.communityId.id)
+				.resourceCreditId(allocation.resourceCreditId.id)
 				.name(allocation.name)
 				.amount(allocation.amount)
 				.creationTime(oldCommunityAllocation.creationTime)
@@ -140,19 +143,19 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(CommunityAllocationId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsById(UUID.fromString(id));
+		return repository.existsById(id.id);
 	}
 
 	@Override
-	public boolean existsByResourceCreditId(String id) {
+	public boolean existsByResourceCreditId(ResourceCreditId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsByResourceCreditId(UUID.fromString(id));
+		return repository.existsByResourceCreditId(id.id);
 	}
 
 	@Override
@@ -161,8 +164,8 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	}
 
 	@Override
-	public void delete(String id) {
-		repository.deleteById(UUID.fromString(id));
+	public void delete(CommunityAllocationId id) {
+		repository.deleteById(id.id);
 	}
 
 	@Override

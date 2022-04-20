@@ -6,6 +6,8 @@
 package io.imunity.furms.db.services;
 
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import org.springframework.stereotype.Repository;
 
@@ -27,17 +29,17 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 	}
 
 	@Override
-	public Optional<InfraService> findById(String id) {
+	public Optional<InfraService> findById(InfraServiceId id) {
 		if (isEmpty(id)) {
 			return empty();
 		}
-		return repository.findById(UUID.fromString(id))
+		return repository.findById(id.id)
 			.map(InfraServiceEntity::toService);
 	}
 
 	@Override
-	public Set<InfraService> findAll(String siteId) {
-		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
+	public Set<InfraService> findAll(SiteId siteId) {
+		return repository.findAllBySiteId(siteId.id).stream()
 			.map(InfraServiceEntity::toService)
 			.collect(toSet());
 	}
@@ -80,21 +82,21 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(InfraServiceId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsById(UUID.fromString(id));
+		return repository.existsById(id.id);
 	}
 
 	@Override
-	public boolean isNamePresent(String name, String siteId) {
-		return repository.existsByNameAndSiteId(name, UUID.fromString(siteId));
+	public boolean isNamePresent(String name, SiteId siteId) {
+		return repository.existsByNameAndSiteId(name, siteId.id);
 	}
 	
 	@Override
-	public void delete(String id) {
-		repository.deleteById(UUID.fromString(id));
+	public void delete(InfraServiceId id) {
+		repository.deleteById(id.id);
 	}
 
 	@Override

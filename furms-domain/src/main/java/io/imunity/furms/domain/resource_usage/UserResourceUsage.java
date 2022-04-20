@@ -5,6 +5,8 @@
 
 package io.imunity.furms.domain.resource_usage;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.math.BigDecimal;
@@ -12,13 +14,13 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class UserResourceUsage {
-	public final String projectId;
-	public final String projectAllocationId;
+	public final ProjectId projectId;
+	public final ProjectAllocationId projectAllocationId;
 	public final FenixUserId fenixUserId;
 	public final BigDecimal cumulativeConsumption;
 	public final LocalDateTime utcConsumedUntil;
 
-	UserResourceUsage(String projectId, String projectAllocationId, FenixUserId fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime utcConsumedUntil) {
+	UserResourceUsage(ProjectId projectId, ProjectAllocationId projectAllocationId, FenixUserId fenixUserId, BigDecimal cumulativeConsumption, LocalDateTime utcConsumedUntil) {
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
 		this.fenixUserId = fenixUserId;
@@ -59,8 +61,8 @@ public class UserResourceUsage {
 	}
 
 	public static final class UserResourceUsageBuilder {
-		private String projectId;
-		private String projectAllocationId;
+		private ProjectId projectId;
+		private ProjectAllocationId projectAllocationId;
 		private FenixUserId fenixUserId;
 		private BigDecimal cumulativeConsumption;
 		private LocalDateTime consumedUntil;
@@ -69,12 +71,12 @@ public class UserResourceUsage {
 		}
 
 		public UserResourceUsageBuilder projectId(String projectId) {
-			this.projectId = projectId;
+			this.projectId = new ProjectId(projectId);
 			return this;
 		}
 
 		public UserResourceUsageBuilder projectAllocationId(String projectAllocationId) {
-			this.projectAllocationId = projectAllocationId;
+			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
 			return this;
 		}
 

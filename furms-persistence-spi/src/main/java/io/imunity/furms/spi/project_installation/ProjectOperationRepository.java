@@ -5,8 +5,12 @@
 
 package io.imunity.furms.spi.project_installation;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_installation.*;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteInstalledProject;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -20,39 +24,40 @@ public interface ProjectOperationRepository {
 
 	Optional<ProjectUpdateJob> findUpdateJobByCorrelationId(CorrelationId id);
 
-	ProjectInstallation findProjectInstallation(String projectAllocationId, Function<PersistentId, Optional<FURMSUser>> userGetter);
+	ProjectInstallation findProjectInstallation(ProjectAllocationId projectAllocationId,
+	                                            Function<PersistentId, Optional<FURMSUser>> userGetter);
 
 	String createOrUpdate(ProjectInstallationJob projectInstallationJob);
 
 	String createOrUpdate(ProjectUpdateJob projectUpdateJob);
 
-	void update(String id, ProjectInstallationResult result);
+	void update(ProjectInstallationId id, ProjectInstallationResult result);
 
-	void update(String id, ProjectUpdateResult result);
+	void update(ProjectUpdateId id, ProjectUpdateResult result);
 
-	boolean installedProjectExistsBySiteIdAndProjectId(String siteId, String projectId);
+	boolean installedProjectExistsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId);
 
-	boolean areAllProjectOperationInTerminateState(String projectId);
+	boolean areAllProjectOperationInTerminateState(ProjectId projectId);
 
-	Set<ProjectInstallationJobStatus> findAllBySiteId(String siteId);
+	Set<ProjectInstallationJobStatus> findAllBySiteId(SiteId siteId);
 
-	Set<ProjectInstallationJobStatus> findAllByCommunityId(String communityId);
+	Set<ProjectInstallationJobStatus> findAllByCommunityId(CommunityId communityId);
 
-	Set<ProjectUpdateJobStatus> findAllUpdatesByCommunityId(String communityId);
+	Set<ProjectUpdateJobStatus> findAllUpdatesByCommunityId(CommunityId communityId);
 
-	Set<ProjectInstallationJobStatus> findAllByProjectId(String projectId);
+	Set<ProjectInstallationJobStatus> findAllByProjectId(ProjectId projectId);
 
-	Set<ProjectUpdateJobStatus> findAllUpdatesByProjectId(String projectId);
+	Set<ProjectUpdateJobStatus> findAllUpdatesByProjectId(ProjectId projectId);
 
-	Set<ProjectInstallationJob> findProjectInstallation(String projectId);
+	Set<ProjectInstallationJob> findProjectInstallation(ProjectId projectId);
 
-	Set<ProjectUpdateStatus> findProjectUpdateStatues(String projectId);
+	Set<ProjectUpdateStatus> findProjectUpdateStatues(ProjectId projectId);
 
-	Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(String siteId);
+	Set<SiteInstalledProject> findAllSiteInstalledProjectsBySiteId(SiteId siteId);
 
-	Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(String projectId);
+	Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(ProjectId projectId);
 
-	void deleteById(String id);
+	void deleteById(ProjectInstallationId id);
 
 	void deleteAll();
 
