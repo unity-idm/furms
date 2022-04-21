@@ -75,7 +75,7 @@ public class ProjectsView extends FurmsViewComponent {
 
 		CheckboxGroup<UserStatus> checkboxGroup = createCheckboxLayout();
 		loadGridContent();
-		getContent().add(createHeaderLayout(checkboxGroup), createSearchFilterLayout(), new HorizontalLayout(grid));
+		getContent().add(createHeaderLayout(checkboxGroup), createSearchFilterLayout(), grid);
 	}
 
 	private CheckboxGroup<UserStatus> createCheckboxLayout() {

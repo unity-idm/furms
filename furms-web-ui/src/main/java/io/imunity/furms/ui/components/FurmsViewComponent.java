@@ -4,8 +4,6 @@
  */
 package io.imunity.furms.ui.components;
 
-import java.util.Optional;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Shortcuts;
@@ -17,11 +15,14 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 
+import java.util.Optional;
+
 
 public abstract class FurmsViewComponent extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle {
 
 	public FurmsViewComponent() {
 		getContent().setClassName("furms-view");
+		getContent().setHeightFull();
 	}
 
 	public Optional<BreadCrumbParameter> getParameter(){

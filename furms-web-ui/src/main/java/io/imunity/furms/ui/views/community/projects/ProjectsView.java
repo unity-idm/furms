@@ -86,7 +86,7 @@ public class ProjectsView extends FurmsViewComponent {
 		Button addButton = createAddButton();
 		loadGridContent();
 
-		getContent().add(createHeaderLayout(addButton), createSearchFilterLayout(grid, addButton), new HorizontalLayout(grid));
+		getContent().add(createHeaderLayout(addButton), createSearchFilterLayout(grid, addButton), grid);
 	}
 
 	private HorizontalLayout createHeaderLayout(Button addButton) {
@@ -149,11 +149,7 @@ public class ProjectsView extends FurmsViewComponent {
 		textField.setClearButtonVisible(true);
 		textField.addValueChangeListener(event -> {
 			String value = textField.getValue().toLowerCase();
-			List<ProjectViewGridModel> filteredUsers = projectsViewDataSnapshot.projectViewGridModels.stream()
-				.filter(project -> project.matches(value))
-				.collect(toList());
-			grid.setItems(filteredUsers);
-			//TODO This is a work around to fix disappearing text cursor
+			loadGridContent(value);
 			addButton.focus();
 			textField.focus();
 		});
@@ -231,6 +227,18 @@ public class ProjectsView extends FurmsViewComponent {
 			.collect(Collectors.toSet());
 		projectsViewDataSnapshot = new ProjectsViewDataSnapshot();
 		grid.setItems(projectsViewDataSnapshot.projectViewGridModels, key -> projectsViewDataSnapshot.getProjectStatuses(key.projectId));
+		grid.expand(currentExpandedItems);
+	}
+
+	private void loadGridContent(String value) {
+		List<ProjectViewGridModel> filteredUsers = projectsViewDataSnapshot.projectViewGridModels.stream()
+			.filter(project -> project.matches(value))
+			.collect(toList());
+		Set<ProjectViewGridModel> currentExpandedItems = filteredUsers.stream()
+			.filter(grid::isExpanded)
+			.collect(Collectors.toSet());
+		projectsViewDataSnapshot = new ProjectsViewDataSnapshot();
+		grid.setItems(filteredUsers, key -> projectsViewDataSnapshot.getProjectStatuses(key.projectId));
 		grid.expand(currentExpandedItems);
 	}
 

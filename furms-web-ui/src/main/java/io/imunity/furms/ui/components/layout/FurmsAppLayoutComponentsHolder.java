@@ -55,6 +55,7 @@ class FurmsAppLayoutComponentsHolder {
 		this.menuTabs = createMenuTabs(menuContent);
 		this.logoMenuContainer = createLogoMenuContainer(menuTabs);
 		this.viewContainer = new Div();
+		viewContainer.setHeightFull();
 	}
 
 	VerticalLayout getLogoMenuContainer() {

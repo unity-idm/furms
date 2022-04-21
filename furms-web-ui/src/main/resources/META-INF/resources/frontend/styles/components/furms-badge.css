@@ -1,0 +1,17 @@
+/*
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ *  See LICENSE file for licensing information.
+ */
+
+.furms-badge {
+	color: rgb(255, 255, 255);
+    background-color: rgb(255, 70, 55);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0.2em 0.2em 0.2em 0.1em;
+    min-width: calc(var(--lumo-line-height-xs) * 1em + 0.45em);
+    font-size: var(--lumo-font-size-xs);
+    border-radius: 1em;
+}

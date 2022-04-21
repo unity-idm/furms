@@ -25,6 +25,8 @@
 	padding-right: 1rem;
 	padding-left: 1rem;
 	font-family: var(--lumo-font-family);
+	display: flex;
+	flex-direction: column;
 }
 
 .furms-view h4 {
@@ -103,7 +105,6 @@ vaadin-form-item > div {
 }
 
 #furms-layout-main {
-	height: 100%;
 	overflow: hidden;
 	flex: auto;
 	align-items: stretch;

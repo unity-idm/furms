@@ -13,7 +13,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dependency.CssImport;
-import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Label;
@@ -39,8 +38,7 @@ import java.util.Set;
 import static com.vaadin.flow.component.icon.VaadinIcon.BELL;
 
 @CssImport("./styles/components/notification-bar.css")
-@CssImport(value = "./styles/custom-lumo-theme.css", include = "lumo-badge")
-@JsModule("@vaadin/vaadin-lumo-styles/badge.js")
+@CssImport("./styles/components/furms-badge.css")
 public class NotificationBarComponent extends Button {
 	private final VaadinBroadcaster vaadinBroadcaster;
 	private final UINotificationService notificationService;
@@ -58,7 +56,7 @@ public class NotificationBarComponent extends Button {
 		this.currentUser = currentUser;
 
 		badge = new Span();
-		badge.getElement().setAttribute("theme","badge error primary small pill");
+		badge.setClassName("furms-badge");
 		contextMenu = new ContextMenu();
 		contextMenu.setOpenOnClick(true);
 		contextMenu.setTarget(this);
@@ -75,7 +73,7 @@ public class NotificationBarComponent extends Button {
 		badge.removeAll();
 		if(number > 0) {
 			Label label = new Label(String.valueOf(number));
-			label.getStyle().set("margin-top", "-3px");
+			label.getStyle().set("margin-top", "-2px");
 			badge.add(label);
 			badge.setVisible(true);
 			setEnabled(true);

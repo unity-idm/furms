@@ -19,15 +19,14 @@ import java.util.function.Supplier;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@CssImport(value="./styles/components/menu-button-item.css", themeFor="vaadin-context-menu-list-box")
-@CssImport(value="./styles/components/menu-button-item-color.css", themeFor="vaadin-button")
+@CssImport(value="./styles/components/menu-chart-button.css", themeFor="vaadin-button")
 class ChartContextMenu extends Div {
 
 	ChartContextMenu(ChartData chartData, Supplier<String> jsonGetter, Supplier<String> csvGetter) {
 		ResourceAllocationChart.ChartGridActionMenu contextMenu = new ResourceAllocationChart.ChartGridActionMenu();
 
 		Button jsonButton = new Button(getTranslation("chart.export.json"));
-		jsonButton.setClassName("menu-button-color");
+		jsonButton.setClassName("menu-chart-button");
 		Anchor jsonAnchor = new Anchor("", jsonButton);
 		jsonAnchor.getElement().setAttribute("download", true);
 		jsonAnchor.setHref(VaadinSession.getCurrent()
@@ -38,7 +37,7 @@ class ChartContextMenu extends Div {
 		);
 
 		Button csvButton = new Button((getTranslation("chart.export.csv")));
-		csvButton.setClassName("menu-button-color");
+		csvButton.setClassName("menu-chart-button");
 		Anchor csvAnchor = new Anchor( "" , csvButton);
 		csvAnchor.getElement().setAttribute("download", true);
 		csvAnchor.setHref(VaadinSession.getCurrent()
