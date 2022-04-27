@@ -6,6 +6,7 @@
 package io.imunity.furms.unity.sites;
 
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -56,10 +57,10 @@ class UnitySiteGroupDAOTest {
 	@Test
 	void shouldGetMetaInfoAboutSite() {
 		//given
-		String id = UUID.randomUUID().toString();
+		SiteId id = new SiteId(UUID.randomUUID());
 		Group group = new Group("/path/"+id);
 		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(id), eq(Group.class))).thenReturn(group);
+		when(unityClient.get(contains(id.id.toString()), eq(Group.class))).thenReturn(group);
 
 		//when
 		Optional<Site> site = unitySiteWebClient.get(id);
@@ -74,7 +75,7 @@ class UnitySiteGroupDAOTest {
 	void shouldCreateSite() {
 		//given
 		Site site = Site.builder()
-				.id(UUID.randomUUID().toString())
+				.id(new SiteId(UUID.randomUUID()))
 				.name("test")
 				.build();
 
@@ -97,36 +98,36 @@ class UnitySiteGroupDAOTest {
 		doThrow(webException).when(unityClient).delete(anyString(), any());
 
 		//when + then
-		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.get("id"));
-		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.create(Site.builder().id("id").build()));
-		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.update(Site.builder().id("id").build()));
-		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.delete("id"));
+		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.get(new SiteId(UUID.randomUUID())));
+		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.create(Site.builder().id(new SiteId(UUID.randomUUID())).build()));
+		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.update(Site.builder().id(new SiteId(UUID.randomUUID())).build()));
+		assertThrows(UnityFailureException.class, () -> unitySiteWebClient.delete(new SiteId(UUID.randomUUID())));
 	}
 
 	@Test
 	void shouldUpdateSite() {
 		//given
 		Site site = Site.builder()
-				.id(UUID.randomUUID().toString())
+				.id(new SiteId(UUID.randomUUID()))
 				.name("test")
 				.build();
 		Group group = new Group("/path/"+site.getId());
 		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(site.getId()), eq(Group.class))).thenReturn(group);
+		when(unityClient.get(contains(site.getId().id.toString()), eq(Group.class))).thenReturn(group);
 
 		//when
 		unitySiteWebClient.update(site);
 
 		//then
-		verify(unityClient, times(1)).get(eq("/group/%2Ffenix%2Fsites%2F" + site.getId() + "/meta"), eq(Group.class));
+		verify(unityClient, times(1)).get(eq("/group/%2Ffenix%2Fsites%2F" + site.getId().id + "/meta"), eq(Group.class));
 		verify(unityClient, times(1)).put(anyString(), any());
 	}
 
 	@Test
 	void shouldRemoveSite() {
 		//given
-		String id = UUID.randomUUID().toString();
-		doNothing().when(unityClient).delete(contains(id), anyMap());
+		SiteId id = new SiteId(UUID.randomUUID());
+		doNothing().when(unityClient).delete(contains(id.id.toString()), anyMap());
 
 		//when
 		unitySiteWebClient.delete(id);
@@ -138,8 +139,8 @@ class UnitySiteGroupDAOTest {
 	@Test
 	void shouldGetSiteAdministrators() {
 		//given
-		String siteId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/sites/"+ siteId +"/users";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		String groupPath = "/fenix/sites/"+ siteId.id +"/users";
 		when(userService.getAllUsersByRoles(groupPath, Set.of(SITE_ADMIN)))
 			.thenReturn(List.of(
 				FURMSUser.builder()
@@ -169,9 +170,9 @@ class UnitySiteGroupDAOTest {
 	@Test
 	void shouldAddAdminToSite() {
 		//given
-		String siteId = "siteId";
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
-		String groupPath = "/fenix/sites/"+ siteId +"/users";
+		String groupPath = "/fenix/sites/"+ siteId.id +"/users";
 		//when
 		unitySiteWebClient.addSiteUser(siteId, userId, SITE_ADMIN);
 
@@ -183,9 +184,9 @@ class UnitySiteGroupDAOTest {
 	@Test
 	void shouldRemoveSiteRoleFromGroup() {
 		//given
-		String siteId = "siteId";
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
-		String groupPath = "/fenix/sites/"+ siteId +"/users";
+		String groupPath = "/fenix/sites/"+ siteId.id +"/users";
 
 		//when
 		unitySiteWebClient.removeSiteUser(siteId, userId);
@@ -197,9 +198,9 @@ class UnitySiteGroupDAOTest {
 	@Test
 	void shouldRemoveAdminRole() {
 		//given
-		String siteId = "siteId";
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
-		String groupPath = "/fenix/sites/"+ siteId +"/users";
+		String groupPath = "/fenix/sites/"+ siteId.id +"/users";
 
 		unitySiteWebClient.removeSiteUser(siteId, userId);
 

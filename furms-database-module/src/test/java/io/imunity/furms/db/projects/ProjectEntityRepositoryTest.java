@@ -8,15 +8,16 @@ package io.imunity.furms.db.projects;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.spi.communites.CommunityRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,8 +30,8 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectEntityRepository projectRepository;
 
-	private UUID communityId;
-	private UUID communityId2;
+	private CommunityId communityId;
+	private CommunityId communityId2;
 
 	private final LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
 	private final LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
@@ -54,8 +55,8 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 			.description("description2")
 			.logo(imgTestFile2, "jpg")
 			.build();
-		communityId = UUID.fromString(communityRepository.create(community));
-		communityId2 = UUID.fromString(communityRepository.create(community2));
+		communityId = communityRepository.create(community);
+		communityId2 = communityRepository.create(community2);
 	}
 
 	@Test
@@ -63,7 +64,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		ProjectEntity entityToSave = ProjectEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.logo(imgTestFile2, "jpg")
 			.acronym("acronym")
@@ -79,7 +80,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(projectRepository.findAll()).hasSize(1);
 		Optional<ProjectEntity> byId = projectRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().getCommunityId()).isEqualTo(communityId);
+		assertThat(byId.get().getCommunityId()).isEqualTo(communityId.id);
 		assertThat(byId.get().getName()).isEqualTo("name");
 		assertThat(byId.get().getAcronym()).isEqualTo("acronym");
 		assertThat(byId.get().getResearchField()).isEqualTo("researchField");
@@ -95,7 +96,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		ProjectEntity old = ProjectEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -106,7 +107,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		projectRepository.save(old);
 		ProjectEntity toUpdate = ProjectEntity.builder()
 			.name("new_name")
-			.communityId(communityId2)
+			.communityId(communityId2.id)
 			.description("new_description")
 			.logo(imgTestFile2, "jpg")
 			.acronym("new_acronym")
@@ -121,7 +122,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		//then
 		Optional<ProjectEntity> byId = projectRepository.findById(toUpdate.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().getCommunityId()).isEqualTo(communityId2);
+		assertThat(byId.get().getCommunityId()).isEqualTo(communityId2.id);
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 		assertThat(byId.get().getAcronym()).isEqualTo("new_acronym");
 		assertThat(byId.get().getResearchField()).isEqualTo("new_researchField");
@@ -137,7 +138,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		ProjectEntity toFind = ProjectEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -159,7 +160,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		projectRepository.save(ProjectEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -170,7 +171,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		);
 		projectRepository.save(ProjectEntity.builder()
 			.name("new_name")
-			.communityId(communityId2)
+			.communityId(communityId2.id)
 			.description("new_description")
 			.logo(imgTestFile2, "jpg")
 			.acronym("new_acronym")
@@ -191,7 +192,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 	void savedProjectExistsByProjectId() {
 		//given
 		ProjectEntity site = projectRepository.save(ProjectEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.logo(imgTestFile, "jpg")
@@ -211,7 +212,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		ProjectEntity site = projectRepository.save(ProjectEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -221,8 +222,8 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean exists = projectRepository.existsByCommunityIdAndName(communityId, site.getName());
-		boolean nonExists = projectRepository.existsByCommunityIdAndName(communityId, "wrong_name");
+		boolean exists = projectRepository.existsByCommunityIdAndName(communityId.id, site.getName());
+		boolean nonExists = projectRepository.existsByCommunityIdAndName(communityId.id, "wrong_name");
 
 		//then
 		assertThat(exists).isTrue();
@@ -234,7 +235,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		ProjectEntity entityToRemove = projectRepository.save(ProjectEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -255,7 +256,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		projectRepository.save(ProjectEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.logo(imgTestFile, "jpg")
 			.acronym("acronym")
@@ -265,7 +266,7 @@ class ProjectEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 		projectRepository.save(ProjectEntity.builder()
 			.name("new_name")
-			.communityId(communityId2)
+			.communityId(communityId2.id)
 			.description("new_description")
 			.logo(imgTestFile2, "jpg")
 			.acronym("new_acronym")

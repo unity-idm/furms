@@ -6,6 +6,7 @@
 package io.imunity.furms.db.resource_types;
 
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +27,7 @@ public class ResourceTypeConverter {
 				.type(entity.type)
 				.unit(entity.unit)
 				.accessibleForAllProjectMembers(entity.accessible);
-		infraServiceRepository.findById(entity.serviceId.toString())
+		infraServiceRepository.findById(new InfraServiceId(entity.serviceId))
 				.ifPresent(infraService -> builder
 						.serviceId(infraService.id)
 						.serviceName(infraService.name));

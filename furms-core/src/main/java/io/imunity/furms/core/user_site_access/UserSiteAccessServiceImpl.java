@@ -15,6 +15,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationEvent;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
@@ -80,8 +81,8 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
-	public void addAccess(String siteId, String projectId, FenixUserId userId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId.id")
+	public void addAccess(SiteId siteId, ProjectId projectId, FenixUserId userId) {
 		if(!userSiteAccessRepository.exists(siteId, projectId, userId)) {
 			Site site = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Site id %s doesn't exist", siteId)));
@@ -90,7 +91,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 			if(hasUserSitePolicyAcceptanceOrSiteHasntPolicy(siteId, userId))
 				userOperationService.createUserAdditions(
-					new SiteId(siteId, site.getExternalId()),
+					new SiteId(siteId.id.toString(), site.getExternalId()),
 					projectId, policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(siteId, userId)
 				);
 			else
@@ -102,8 +103,8 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
-	public void removeAccess(String siteId, String projectId, FenixUserId userId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId.id")
+	public void removeAccess(SiteId siteId, ProjectId projectId, FenixUserId userId) {
 		LOG.info("Manual removing user {} access to project {} on site {}", userId, projectId, siteId);
 		if(userSiteAccessRepository.exists(siteId, projectId, userId)) {
 			userSiteAccessRepository.remove(siteId, projectId, userId);
@@ -114,8 +115,8 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public UsersSitesAccesses getUsersSitesAccesses(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	public UsersSitesAccesses getUsersSitesAccesses(ProjectId projectId) {
 		Project project = projectRepository.findById(projectId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Project id %s doesn't exist", projectId)));
 		return new UsersSitesAccesses(
@@ -139,7 +140,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 				.filter(projectId -> userRepository.findAdditionStatus(site.getId(), projectId, userId).isEmpty())
 				.forEach(projectId ->
 					userOperationService.createUserAdditions(
-						new SiteId(site.getId(), site.getExternalId()),
+						new SiteId(site.getId().id.toString(), site.getExternalId()),
 						projectId,
 						policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(site.getId(), userId)
 					)
@@ -149,18 +150,18 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 	@Override
 	public void addAccessToSite(GrantAccess grantAccess) {
-		if(!userSiteAccessRepository.exists(grantAccess.siteId.id, grantAccess.projectId.id.toString(), grantAccess.fenixUserId))
-			userSiteAccessRepository.add(grantAccess.siteId.id, grantAccess.projectId.id.toString(), grantAccess.fenixUserId);
+		if(!userSiteAccessRepository.exists(grantAccess.siteId, grantAccess.projectId, grantAccess.fenixUserId))
+			userSiteAccessRepository.add(grantAccess.siteId, grantAccess.projectId, grantAccess.fenixUserId);
 
-		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id,
-			grantAccess.projectId.id.toString(), grantAccess.fenixUserId);
+		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId,
+			grantAccess.projectId, grantAccess.fenixUserId);
 		if (userAdditionStatus.isEmpty() &&
-			hasUserSitePolicyAcceptanceOrSiteHasntPolicy(grantAccess.siteId.id, grantAccess.fenixUserId)
+			hasUserSitePolicyAcceptanceOrSiteHasntPolicy(grantAccess.siteId, grantAccess.fenixUserId)
 		) {
 			userOperationService.createUserAdditions(
 				grantAccess.siteId,
-				grantAccess.projectId.id.toString(),
-				policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(grantAccess.siteId.id, grantAccess.fenixUserId)
+				grantAccess.projectId,
+				policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(grantAccess.siteId, grantAccess.fenixUserId)
 			);
 		}
 	}
@@ -176,15 +177,15 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 	}
 
 	private void removeAccess(GrantAccess grantAccess) {
-		if(!resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId) &&
-			projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId).stream()
+		if(!resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(grantAccess.siteId, grantAccess.projectId, grantAccess.fenixUserId) &&
+			projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId, grantAccess.projectId).stream()
 				.noneMatch(projectAllocation -> projectAllocation.resourceType.accessibleForAllProjectMembers)
 		) {
-			removeAccess(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
+			removeAccess(grantAccess.siteId, grantAccess.projectId, grantAccess.fenixUserId);
 		}
 	}
 
-	private boolean hasUserSitePolicyAcceptanceOrSiteHasntPolicy(String siteId, FenixUserId userId) {
+	private boolean hasUserSitePolicyAcceptanceOrSiteHasntPolicy(SiteId siteId, FenixUserId userId) {
 		return policyDocumentService.hasUserSitePolicyAcceptance(userId, siteId)
 			|| !policyDocumentService.hasSitePolicy(siteId);
 	}

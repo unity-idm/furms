@@ -50,8 +50,18 @@ public class InstalledSSHKey {
 			return this;
 		}
 
+		public Builder siteId(SiteId siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public Builder sshkeyId(String sshkeyId) {
 			this.sshkeyId = new SSHKeyId(sshkeyId);
+			return this;
+		}
+
+		public Builder sshkeyId(SSHKeyId sshkeyId) {
+			this.sshkeyId = sshkeyId;
 			return this;
 		}
 

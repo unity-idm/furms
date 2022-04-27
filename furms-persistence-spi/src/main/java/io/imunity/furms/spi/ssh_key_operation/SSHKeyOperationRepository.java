@@ -21,7 +21,7 @@ public interface SSHKeyOperationRepository {
 	
 	SSHKeyOperationJob findBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId);
 
-	String create(SSHKeyOperationJob projectInstallationJob);
+	SSHKeyOperationJobId create(SSHKeyOperationJob projectInstallationJob);
 
 	void update(SSHKeyOperationJobId id, SSHKeyOperationStatus status, Optional<String> error, LocalDateTime operationTime);
 

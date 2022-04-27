@@ -14,14 +14,14 @@ import java.util.Set;
 
 public class SiteUser {
 
-	public final String siteId;
+	public final SiteId siteId;
 	public final String siteOauthClientId;
 	public final Set<ProjectMembershipOnSite> projectMemberships;
 	public final PolicyAcceptanceAtSite sitePolicyAcceptance;
 	public final Set<PolicyAcceptanceAtSite> servicesPolicyAcceptance;
 	public final SiteSSHKeys siteSSHKeys;
 
-	public SiteUser(String siteId,
+	public SiteUser(SiteId siteId,
 	                String siteOauthClientId,
 	                Set<ProjectMembershipOnSite> projectMemberships,
 	                PolicyAcceptanceAtSite sitePolicyAcceptance,
@@ -71,7 +71,7 @@ public class SiteUser {
 
 
 	public static final class SiteUserBuilder {
-		private String siteId;
+		private SiteId siteId;
 		private String siteOauthClientId;
 		private Set<ProjectMembershipOnSite> projectMemberships;
 		private PolicyAcceptanceAtSite sitePolicyAcceptance;
@@ -81,7 +81,7 @@ public class SiteUser {
 		private SiteUserBuilder() {
 		}
 
-		public SiteUserBuilder siteId(String siteId) {
+		public SiteUserBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

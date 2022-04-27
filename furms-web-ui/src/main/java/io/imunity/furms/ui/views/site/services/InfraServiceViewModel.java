@@ -6,17 +6,20 @@
 package io.imunity.furms.ui.views.site.services;
 
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
+import java.util.UUID;
 
 class InfraServiceViewModel {
-	private final String id;
-	private final String siteId;
+	private final InfraServiceId id;
+	private final SiteId siteId;
 	private String name;
 	private String description;
 	private PolicyId policyId;
 
-	private InfraServiceViewModel(String id, String siteId, String name, String description, PolicyId policyId) {
+	private InfraServiceViewModel(InfraServiceId id, SiteId siteId, String name, String description, PolicyId policyId) {
 		this.id = id;
 		this.siteId = siteId;
 		this.name = name;
@@ -24,17 +27,17 @@ class InfraServiceViewModel {
 		this.policyId = policyId;
 	}
 
-	InfraServiceViewModel(String siteId) {
-		this.id = null;
+	InfraServiceViewModel(SiteId siteId) {
+		this.id = new InfraServiceId((UUID) null);
 		this.siteId = siteId;
 		this.policyId = PolicyId.empty();
 	}
 
-	public String getId() {
+	public InfraServiceId getId() {
 		return id;
 	}
 
-	public String getSiteId() {
+	public SiteId getSiteId() {
 		return siteId;
 	}
 
@@ -95,8 +98,8 @@ class InfraServiceViewModel {
 	}
 
 	public static final class ServiceViewModelBuilder {
-		private String id;
-		private String siteId;
+		private InfraServiceId id;
+		private SiteId siteId;
 		private String name;
 		private String description;
 		private PolicyId policyId = PolicyId.empty();
@@ -104,7 +107,7 @@ class InfraServiceViewModel {
 		private ServiceViewModelBuilder() {
 		}
 
-		public ServiceViewModelBuilder id(String id) {
+		public ServiceViewModelBuilder id(InfraServiceId id) {
 			this.id = id;
 			return this;
 		}
@@ -114,7 +117,7 @@ class InfraServiceViewModel {
 			return this;
 		}
 
-		public ServiceViewModelBuilder siteId(String siteId) {
+		public ServiceViewModelBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

@@ -14,7 +14,9 @@ import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutSitesError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -77,7 +79,7 @@ public class SSHKeyServiceValidator {
 		validateOpenOperation(sshKey);
 	}
 
-	void validateDelete(String id) {
+	void validateDelete(SSHKeyId id) {
 		validateId(id);
 
 		final SSHKey findById = sshKeysRepository.findById(id)
@@ -101,7 +103,7 @@ public class SSHKeyServiceValidator {
 		return id.get();
 	}
 
-	private void validateId(String id) {
+	private void validateId(SSHKeyId id) {
 		notNull(id, "SSH key ID has to be declared.");
 		assertTrue(sshKeysRepository.exists(id),
 				() -> new IdNotFoundValidationError("SSH key with declared ID is not exists."));
@@ -125,7 +127,7 @@ public class SSHKeyServiceValidator {
 		
 	}
 
-	void validateIsNamePresentIgnoringRecord(String name, String recordToIgnore) {
+	void validateIsNamePresentIgnoringRecord(String name, SSHKeyId recordToIgnore) {
 		notNull(recordToIgnore, "SSH key id has to be declared.");
 		notNull(name, "Invalid SSH key name: SSH key name is empty.");
 		assertTrue(!sshKeysRepository.isNamePresentIgnoringRecord(name, recordToIgnore),
@@ -137,7 +139,7 @@ public class SSHKeyServiceValidator {
 		if (key.sites == null) {
 			return;
 		}
-		for (String site : key.sites) {
+		for (SiteId site : key.sites) {
 			assertTrue(siteRepository.exists(site),
 					() -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
 		}
@@ -150,6 +152,7 @@ public class SSHKeyServiceValidator {
 			assertTrue(sites.isEmpty(),
 					() -> new IllegalArgumentException("Incorrect Sites: "
 							+ sites.stream().map(Site::getId)
+									.map(x -> x.id.toString())
 									.collect(Collectors.joining(", "))
 							+ " requires ssh key \"from\""));
 		}
@@ -181,15 +184,15 @@ public class SSHKeyServiceValidator {
 		FenixUserId fenixId = validateFenixId(userId);
 		
 		assertTrue(siteRepository.findAll().stream()
-				.anyMatch(site -> userOperationRepository.isUserAdded(site.getId(), fenixId.id)),
+				.anyMatch(site -> userOperationRepository.isUserAdded(site.getId(), fenixId)),
 				() -> new UserWithoutSitesError("User with id" + userId.id
 						+ " don't have access to any site to install SSH keys"));
 
 	}
 	
-	void assertUserIsInstalledOnSites(Set<String> sitesIds, FenixUserId userId) {
-		for (String siteId : sitesIds) {
-			if (!userOperationRepository.isUserAdded(siteId, userId.id))
+	void assertUserIsInstalledOnSites(Set<SiteId> sitesIds, FenixUserId userId) {
+		for (SiteId siteId : sitesIds) {
+			if (!userOperationRepository.isUserAdded(siteId, userId))
 			{
 				throw new UninstalledUserError("User " + userId.id + " is not installed on site " + siteId, siteId);
 			}

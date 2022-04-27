@@ -6,12 +6,14 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -35,6 +37,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -79,9 +82,13 @@ class ProjectInstallationServiceTest {
 	@Test
 	void shouldCreateProjectInstallation() {
 		//given
-		ProjectInstallation projectInstallation = ProjectInstallation.builder().build();
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectInstallation projectInstallation = ProjectInstallation.builder()
+			.id(projectId)
+			.siteId(new SiteId(UUID.randomUUID()))
+			.build();
 
-		service.createOrUpdate("projectId", projectInstallation);
+		service.createOrUpdate(projectId, projectInstallation);
 		for (TransactionSynchronization transactionSynchronization : TransactionSynchronizationManager
 			.getSynchronizations()) {
 			transactionSynchronization.afterCommit();
@@ -95,9 +102,11 @@ class ProjectInstallationServiceTest {
 	@Test
 	void shouldCreateProjectUpdate() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		Project project = Project.builder()
-			.id("id")
+			.id(projectId)
 			.leaderId(userId)
 			.build();
 		FURMSUser user = FURMSUser.builder()
@@ -107,15 +116,16 @@ class ProjectInstallationServiceTest {
 
 		//when
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
-		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
+		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
 		when(repository.findProjectInstallation(project.getId())).thenReturn(Set.of(
 			ProjectInstallationJob.builder()
-				.siteId("siteId")
+				.siteId(siteId)
+				.projectId(projectId)
 				.status(ProjectInstallationStatus.INSTALLED)
 				.build()
 		));
 		when(repository.findProjectUpdateStatues(project.getId())).thenReturn(Set.of());
-		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
+		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
 
 		service.update(project);
 
@@ -128,10 +138,13 @@ class ProjectInstallationServiceTest {
 	@Test
 	void shouldCreateProjectInstallationInsteadOfUpdate() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		Project project = Project.builder()
-			.id("id")
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.leaderId(userId)
 			.build();
 		FURMSUser user = FURMSUser.builder()
@@ -141,15 +154,17 @@ class ProjectInstallationServiceTest {
 
 		//when
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
-		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
+		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
 		when(repository.findProjectInstallation(project.getId())).thenReturn(Set.of(
 			ProjectInstallationJob.builder()
-				.siteId("siteId")
+				.siteId(siteId)
+				.projectId(projectId)
 				.status(ProjectInstallationStatus.FAILED)
 				.build()
 		));
-		when(siteRepository.findByProjectId("id")).thenReturn(Set.of(new SiteId("siteId", new SiteExternalId("id"))));
-		when(communityRepository.findById("id")).thenReturn(Optional.of(Community.builder()
+		when(siteRepository.findByProjectId(projectId)).thenReturn(Set.of(siteId));
+		when(communityRepository.findById(communityId)).thenReturn(Optional.of(Community.builder()
+			.id(communityId)
 			.name("name")
 			.build()));
 
@@ -165,14 +180,14 @@ class ProjectInstallationServiceTest {
 		//given
 		PersistentId userId = new PersistentId("userId");
 		Project project = Project.builder()
-			.id("id")
+			.id(new ProjectId(UUID.randomUUID()))
 			.leaderId(userId)
 			.build();
 
 		//when
 		when(repository.findProjectInstallation(project.getId())).thenReturn(Set.of(
 			ProjectInstallationJob.builder()
-				.siteId("siteId")
+				.siteId(new SiteId(UUID.randomUUID()))
 				.status(ProjectInstallationStatus.INSTALLED)
 				.build()
 		));

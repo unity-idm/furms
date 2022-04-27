@@ -7,10 +7,13 @@ package io.imunity.furms.db.user_site_access;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -22,7 +25,6 @@ import org.springframework.data.relational.core.conversion.DbActionExecutionExce
 
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,11 +43,11 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectRepository projectRepository;
 
-	private UUID siteId;
-	private UUID projectId;
+	private SiteId siteId;
+	private ProjectId projectId;
 
-	private UUID siteId1;
-	private UUID projectId1;
+	private SiteId siteId1;
+	private ProjectId projectId1;
 
 	@BeforeEach
 	void setUp() {
@@ -55,16 +57,16 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -73,22 +75,22 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 
 		Site site1 = Site.builder()
 			.name("name1")
 			.build();
 
-		siteId1 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id1")));
+		siteId1 = siteRepository.create(site1, new SiteExternalId("id1"));
 
 		Community community1 = Community.builder()
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId1 = UUID.fromString(communityRepository.create(community1));
+		CommunityId communityId1 = communityRepository.create(community1);
 
 		Project project1 = Project.builder()
-			.communityId(communityId1.toString())
+			.communityId(communityId1)
 			.name("name1")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -97,12 +99,12 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
-		projectId1 = UUID.fromString(projectRepository.create(project1));
+		projectId1 = projectRepository.create(project1);
 	}
 
 	@Test
 	void shouldCreate(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		UserSiteAccessEntity saved = userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
 		assertEquals(saved, userSiteAccessEntityRepository.findById(saved.getId()).get());
@@ -110,7 +112,7 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldDeleteById(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		UserSiteAccessEntity saved = userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
 		userSiteAccessEntityRepository.deleteById(userSiteAccessEntity.getId());
@@ -120,22 +122,22 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldDeleteBySiteIdAndProjectIdAndUserId(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		UserSiteAccessEntity saved = userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
-		userSiteAccessEntityRepository.deleteBy(siteId, projectId, "userId");
+		userSiteAccessEntityRepository.deleteBy(siteId.id, projectId.id, "userId");
 
 		assertTrue(userSiteAccessEntityRepository.findById(saved.getId()).isEmpty());
 	}
 
 	@Test
 	void shouldDeleteByProjectIdAndUserId(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		UserSiteAccessEntity saved = userSiteAccessEntityRepository.save(userSiteAccessEntity);
-		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId1, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId1.id, projectId.id, "userId");
 		UserSiteAccessEntity saved1 = userSiteAccessEntityRepository.save(userSiteAccessEntity1);
 
-		userSiteAccessEntityRepository.deleteBy(projectId, "userId");
+		userSiteAccessEntityRepository.deleteBy(projectId.id, "userId");
 
 		assertTrue(userSiteAccessEntityRepository.findById(saved.getId()).isEmpty());
 		assertTrue(userSiteAccessEntityRepository.findById(saved1.getId()).isEmpty());
@@ -143,76 +145,76 @@ class UserSiteAccessEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldFindAllBySiteIdAndUserId(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		UserSiteAccessEntity saved = userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
-		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId, projectId1, "userId");
+		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId.id, projectId1.id, "userId");
 		UserSiteAccessEntity saved1 = userSiteAccessEntityRepository.save(userSiteAccessEntity1);
 
-		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1, projectId1, "userId");
+		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1.id, projectId1.id, "userId");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity2);
 
-		Set<UserSiteAccessEntity> entities = userSiteAccessEntityRepository.findAllBySiteIdAndUserId(siteId, "userId");
+		Set<UserSiteAccessEntity> entities = userSiteAccessEntityRepository.findAllBySiteIdAndUserId(siteId.id, "userId");
 
 		assertEquals(Set.of(saved, saved1), entities);
 	}
 
 	@Test
 	void shouldFindAllByProjectId(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
-		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId, projectId1, "userId");
+		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId.id, projectId1.id, "userId");
 		UserSiteAccessEntity saved1 = userSiteAccessEntityRepository.save(userSiteAccessEntity1);
 
-		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1, projectId1, "userId");
+		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1.id, projectId1.id, "userId");
 		UserSiteAccessEntity saved2 = userSiteAccessEntityRepository.save(userSiteAccessEntity2);
 
-		Set<UserSiteAccessEntity> entities = userSiteAccessEntityRepository.findAllByProjectId(projectId1);
+		Set<UserSiteAccessEntity> entities = userSiteAccessEntityRepository.findAllByProjectId(projectId1.id);
 
 		assertEquals(Set.of(saved1, saved2), entities);
 	}
 
 	@Test
 	void shouldExistsBySiteIdAndProjectIdAndUserId(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
-		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId, projectId1, "userId");
+		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId.id, projectId1.id, "userId");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity1);
 
-		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1, projectId1, "userId");
+		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1.id, projectId1.id, "userId");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity2);
 
-		boolean exists = userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId, projectId1, "userId");
+		boolean exists = userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId.id, projectId1.id, "userId");
 
 		assertTrue(exists);
 	}
 
 	@Test
 	void shouldNotExistsBySiteIdAndProjectIdAndUserId(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
-		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId, projectId1, "userId1");
+		UserSiteAccessEntity userSiteAccessEntity1 = new UserSiteAccessEntity(siteId.id, projectId1.id, "userId1");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity1);
 
-		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1, projectId1, "userId");
+		UserSiteAccessEntity userSiteAccessEntity2 = new UserSiteAccessEntity(siteId1.id, projectId1.id, "userId");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity2);
 
-		boolean exists = userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId, projectId1, "userId");
+		boolean exists = userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId.id, projectId1.id, "userId");
 
 		assertFalse(exists);
 	}
 
 	@Test
 	void shouldNotDuplicateSiteIdAndProjectIdAndUserId(){
-		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId, projectId, "userId");
+		UserSiteAccessEntity userSiteAccessEntity = new UserSiteAccessEntity(siteId.id, projectId.id, "userId");
 		userSiteAccessEntityRepository.save(userSiteAccessEntity);
 
 		assertThrows(
 			DbActionExecutionException.class,
-			() -> userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId, projectId, "userId"))
+			() -> userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId.id, projectId.id, "userId"))
 		);
 	}
 }

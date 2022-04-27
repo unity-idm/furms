@@ -12,6 +12,7 @@ import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.generic_groups.GenericGroupService;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyIsInGroupError;
 import io.imunity.furms.api.validation.exceptions.UserNotPresentException;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -50,7 +51,7 @@ public class GroupMembersView extends FurmsViewComponent {
 
 	private final GenericGroupService genericGroupService;
 	private final CommunityService communityService;
-	private final String communityId;
+	private final CommunityId communityId;
 	private final ZoneId browserZoneId;
 
 	private BreadCrumbParameter breadCrumbParameter;
@@ -59,7 +60,7 @@ public class GroupMembersView extends FurmsViewComponent {
 	protected GroupMembersView(GenericGroupService genericGroupService, CommunityService communityService) {
 		this.genericGroupService = genericGroupService;
 		this.communityService = communityService;
-		this.communityId = getCurrentResourceId();
+		this.communityId = new CommunityId(getCurrentResourceId());
 		this.browserZoneId = UIContext.getCurrent().getZone();
 	}
 
@@ -78,7 +79,7 @@ public class GroupMembersView extends FurmsViewComponent {
 		}
 	}
 
-	private void fillPage(String communityId, GenericGroupId groupId, String groupName) {
+	private void fillPage(CommunityId communityId, GenericGroupId groupId, String groupName) {
 		getContent().removeAll();
 		ViewHeaderLayout viewHeaderLayout = new ViewHeaderLayout(groupName + " " + getTranslation("view.community-admin.groups.members.half.header"));
 

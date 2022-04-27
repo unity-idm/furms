@@ -11,11 +11,14 @@ import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.core.community_allocation.CommunityAllocationServiceHelper;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.resource_credits.ResourceCreditCreatedEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_credits.ResourceCreditRemovedEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_credits.ResourceCreditUpdatedEvent;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import org.slf4j.Logger;
@@ -59,8 +62,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Optional<ResourceCreditWithAllocations> findWithAllocationsByIdAndSiteId(String id, String siteId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Optional<ResourceCreditWithAllocations> findWithAllocationsByIdAndSiteId(ResourceCreditId id, SiteId siteId) {
 		ResourceUsageByCredit resourceUsageSum = resourceUsageRepository.findResourceUsagesSumsBySiteId(siteId);
 		return resourceCreditRepository.findById(id).map(credit ->
 			ResourceCreditWithAllocations.builder()
@@ -82,8 +85,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<ResourceCreditWithAllocations> findAllWithAllocations(String siteId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<ResourceCreditWithAllocations> findAllWithAllocations(SiteId siteId) {
 		ResourceUsageByCredit resourceUsageSum = resourceUsageRepository.findResourceUsagesSumsBySiteId(siteId);
 		return resourceCreditRepository.findAll(siteId).stream().map(credit ->
 			ResourceCreditWithAllocations.builder()
@@ -106,7 +109,7 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
-	public Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId) {
+	public Set<ResourceCredit> findAllNotExpiredByResourceTypeId(ResourceTypeId resourceTypeId) {
 		return resourceCreditRepository.findAllNotExpiredByResourceTypeId(resourceTypeId);
 	}
 
@@ -143,17 +146,17 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.siteId")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.siteId.id")
 	public void create(ResourceCredit resourceCredit) {
 		validator.validateCreate(resourceCredit);
-		String id = resourceCreditRepository.create(resourceCredit);
+		ResourceCreditId id = resourceCreditRepository.create(resourceCredit);
 		ResourceCredit created = resourceCreditRepository.findById(id).get();
 		publisher.publishEvent(new ResourceCreditCreatedEvent(authzService.getCurrentUserId(), created));
 		LOG.info("ResourceCredit with given ID: {} was created: {}", id, resourceCredit);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.siteId")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceCredit.siteId.id")
 	public void update(ResourceCredit resourceCredit) {
 		validator.validateUpdate(resourceCredit);
 		ResourceCredit oldResourceCredit = resourceCreditRepository.findById(resourceCredit.id).get();
@@ -163,8 +166,8 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
-	public void delete(String id, String siteId) {
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId.id")
+	public void delete(ResourceCreditId id, SiteId siteId) {
 		validator.validateDelete(id);
 		ResourceCredit resourceCredit = resourceCreditRepository.findById(id).get();
 		resourceCreditRepository.delete(id);
@@ -173,14 +176,14 @@ class ResourceCreditServiceImpl implements ResourceCreditService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
-	public boolean hasCommunityAllocations(String id, String siteId) {
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId.id")
+	public boolean hasCommunityAllocations(ResourceCreditId id, SiteId siteId) {
 		return communityAllocationServiceHelper.existsByResourceCreditId(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
-	public Set<String> getOccupiedNames(String siteId) {
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId.id")
+	public Set<String> getOccupiedNames(SiteId siteId) {
 		return resourceCreditRepository.findAll(siteId).stream()
 			.map(credit -> credit.name)
 			.collect(toSet());

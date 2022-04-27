@@ -29,7 +29,7 @@ class ProjectCumulativeResourceConsumption {
 	}
 
 	public ProjectCumulativeResourceConsumption(ProjectAllocationResolved allocation) {
-		this(allocation.id, allocation.site.getId(), allocation.resourceType.id,
+		this(allocation.id.id.toString(), allocation.site.getId().id.toString(), allocation.resourceType.id.id.toString(),
 				allocation.consumed, convertToUTCZoned(allocation.resourceCredit.utcEndTime));
 	}
 

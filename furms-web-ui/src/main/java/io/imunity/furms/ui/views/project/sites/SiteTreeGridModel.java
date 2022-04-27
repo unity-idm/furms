@@ -5,13 +5,14 @@
 
 package io.imunity.furms.ui.views.project.sites;
 
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_site_access.UserSiteAccessStatusWithMessage;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 
 class SiteTreeGridModel {
-	public final String siteId;
+	public final SiteId siteId;
 	public final String siteName;
 	public final String status;
 	public final String message;
@@ -20,7 +21,7 @@ class SiteTreeGridModel {
 	public final String userEmail;
 	public final UserSiteAccessStatusWithMessage userAccessStatus;
 
-	SiteTreeGridModel(String siteId, String siteName, String status, String message, FenixUserId userId, String userName,
+	SiteTreeGridModel(SiteId siteId, String siteName, String status, String message, FenixUserId userId, String userName,
 	                  String userEmail, UserSiteAccessStatusWithMessage userAccessStatus) {
 		this.siteId = siteId;
 		this.siteName = siteName;
@@ -65,7 +66,7 @@ class SiteTreeGridModel {
 	}
 
 	public static final class SiteTreeGridModelBuilder {
-		private String siteId;
+		private SiteId siteId;
 		private String siteName;
 		private String status;
 		private String message;
@@ -77,7 +78,7 @@ class SiteTreeGridModel {
 		private SiteTreeGridModelBuilder() {
 		}
 
-		public SiteTreeGridModelBuilder siteId(String siteId) {
+		public SiteTreeGridModelBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

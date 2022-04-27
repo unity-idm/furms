@@ -18,10 +18,12 @@ import io.imunity.furms.ui.components.IdFormItem;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.TOP;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static java.util.Optional.ofNullable;
 
 public class CommunityFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -99,7 +101,11 @@ public class CommunityFormComponent extends Composite<Div> {
 	public void setFormPools(CommunityViewModel communityViewModel) {
 		binder.setBean(communityViewModel);
 		upload.setValue(communityViewModel.getLogoImage());
-		idFormItem.setIdAndShow(communityViewModel.getId());
+		idFormItem.setIdAndShow(ofNullable(communityViewModel.getId())
+			.flatMap(id -> ofNullable(id.id))
+			.map(UUID::toString)
+			.orElse(null)
+		);
 	}
 
 	public FurmsImageUpload getUpload() {

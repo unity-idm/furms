@@ -12,8 +12,9 @@ import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.export.ResourceUsageCSVExporter;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
-import io.imunity.furms.ui.charts.service.ChartPoweringService;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
+import io.imunity.furms.ui.charts.service.ChartPoweringService;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
@@ -46,6 +47,7 @@ public class CommunityAllocationsDetailsView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		Optional<CommunityAllocation> communityAllocation = ofNullable(parameter)
+			.map(CommunityAllocationId::new)
 			.flatMap(id -> handleExceptions(() -> communityAllocationService.findById(id)))
 			.flatMap(Function.identity());
 

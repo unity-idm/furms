@@ -91,8 +91,18 @@ public class UserAddition {
 			return this;
 		}
 
+		public UserAdditionBuilder id(UserAdditionId id) {
+			this.id = id;
+			return this;
+		}
+
 		public UserAdditionBuilder projectId(String projectId) {
 			this.projectId = new ProjectId(projectId);
+			return this;
+		}
+
+		public UserAdditionBuilder projectId(ProjectId projectId) {
+			this.projectId = projectId;
 			return this;
 		}
 
@@ -103,6 +113,11 @@ public class UserAddition {
 
 		public UserAdditionBuilder userId(String userId) {
 			this.userId = new FenixUserId(userId);
+			return this;
+		}
+
+		public UserAdditionBuilder userId(FenixUserId userId) {
+			this.userId = userId;
 			return this;
 		}
 

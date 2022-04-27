@@ -7,6 +7,7 @@ package io.imunity.furms.domain.resource_access;
 
 import com.google.common.collect.ImmutableList;
 import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,9 +15,9 @@ import java.util.Objects;
 public class UsersWithProjectAccess {
 
 	private final ProjectId projectId;
-	private final List<String> userIds;
+	private final List<FenixUserId> userIds;
 
-	public UsersWithProjectAccess(ProjectId projectId, List<String> userIds) {
+	public UsersWithProjectAccess(ProjectId projectId, List<FenixUserId> userIds) {
 		this.projectId = projectId;
 		this.userIds = ImmutableList.copyOf(userIds);
 	}
@@ -25,7 +26,7 @@ public class UsersWithProjectAccess {
 		return projectId;
 	}
 
-	public List<String> getUserIds() {
+	public List<FenixUserId> getUserIds() {
 		return userIds;
 	}
 
@@ -56,17 +57,17 @@ public class UsersWithProjectAccess {
 
 	public static final class ProjectUsersBuilder {
 		private ProjectId projectId;
-		private List<String> userIds;
+		private List<FenixUserId> userIds;
 
 		private ProjectUsersBuilder() {
 		}
 
-		public ProjectUsersBuilder projectId(String projectId) {
-			this.projectId = new ProjectId(projectId);
+		public ProjectUsersBuilder projectId(ProjectId projectId) {
+			this.projectId = projectId;
 			return this;
 		}
 
-		public ProjectUsersBuilder userIds(List<String> userIds) {
+		public ProjectUsersBuilder userIds(List<FenixUserId> userIds) {
 			this.userIds = userIds;
 			return this;
 		}

@@ -5,24 +5,23 @@
 
 package io.imunity.furms.db.ssh_keys;
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static java.time.Clock.systemUTC;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
+import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.SiteExternalId;
-import io.imunity.furms.spi.sites.SiteRepository;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.Set;
+
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static java.time.Clock.systemUTC;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 public class SSHKeyRepositoryTest {
@@ -31,17 +30,17 @@ public class SSHKeyRepositoryTest {
 	@Autowired
 	private SiteRepository siteRep;
 
-	private UUID site1Id;
-	private UUID site2Id;
+	private SiteId site1Id;
+	private SiteId site2Id;
 
 	@BeforeEach
 	void setUp() {
 		sshKeyEntityRepository.deleteAll();
 		siteRep.deleteAll();
-		site1Id = UUID.fromString(siteRep.create(Site.builder().name("s1").connectionInfo("alala").build(),
-				new SiteExternalId("s1")));
-		site2Id = UUID.fromString(siteRep.create(Site.builder().name("s2").connectionInfo("alala").build(),
-				new SiteExternalId("s2")));
+		site1Id = siteRep.create(Site.builder().name("s1").connectionInfo("alala").build(),
+				new SiteExternalId("s1"));
+		site2Id = siteRep.create(Site.builder().name("s2").connectionInfo("alala").build(),
+				new SiteExternalId("s2"));
 	}
 
 	@Test
@@ -50,7 +49,7 @@ public class SSHKeyRepositoryTest {
 		// given
 		SSHKeyEntity entityToSave = SSHKeyEntity.builder().name("name").value("v").ownerId("o1")
 				.createTime(LocalDateTime.now())
-				.sites(Sets.newSet(site1Id.toString(), site2Id.toString())).build();
+				.sites(Sets.newSet(site1Id, site2Id)).build();
 
 		// when
 		SSHKeyEntity saved = sshKeyEntityRepository.save(entityToSave);
@@ -59,7 +58,7 @@ public class SSHKeyRepositoryTest {
 		assertThat(sshKeyEntityRepository.findAll()).hasSize(1);
 		assertThat(sshKeyEntityRepository.findById(saved.getId())).isPresent();
 		assertThat(sshKeyEntityRepository.findById(saved.getId()).get().getSites()).hasSameElementsAs(
-				Sets.newSet(new SSHKeySiteReference(site1Id), new SSHKeySiteReference(site2Id)));
+				Sets.newSet(new SSHKeySiteReference(site1Id.id), new SSHKeySiteReference(site2Id.id)));
 	}
 
 	@Test
@@ -97,7 +96,7 @@ public class SSHKeyRepositoryTest {
 		// given
 		SSHKeyEntity toFind = sshKeyEntityRepository.save(SSHKeyEntity.builder().name("name").value("v")
 				.ownerId("o1").createTime(LocalDateTime.now(systemUTC()))
-				.sites(Sets.newSet(site1Id.toString(), site2Id.toString())).build());
+				.sites(Sets.newSet(site1Id, site2Id)).build());
 
 		// when
 		Set<SSHKeyEntity> byOwner = sshKeyEntityRepository.findAllByOwnerId("o1");
@@ -165,7 +164,7 @@ public class SSHKeyRepositoryTest {
 		// given
 		SSHKeyEntity entityToSave = SSHKeyEntity.builder().name("name").value("v").ownerId("o1")
 				.createTime(LocalDateTime.now())
-				.sites(Sets.newSet(site1Id.toString(), site2Id.toString())).build();
+				.sites(Sets.newSet(site1Id, site2Id)).build();
 
 		// when
 		SSHKeyEntity saved = sshKeyEntityRepository.save(entityToSave);
@@ -174,13 +173,13 @@ public class SSHKeyRepositoryTest {
 		assertThat(sshKeyEntityRepository.findById(saved.getId()).get().getSites()).hasSize(2);
 
 		// when
-		siteRep.delete(site1Id.toString());
+		siteRep.delete(site1Id);
 
 		// then
 		assertThat(sshKeyEntityRepository.findAll()).hasSize(1);
 		assertThat(sshKeyEntityRepository.findById(saved.getId())).isPresent();
 		assertThat(sshKeyEntityRepository.findById(saved.getId()).get().getSites()).hasSameElementsAs(
-				Sets.newSet(new SSHKeySiteReference(UUID.fromString(site2Id.toString()))));
+				Sets.newSet(new SSHKeySiteReference(site2Id.id)));
 	}
 
 	@Test

@@ -5,18 +5,19 @@
 
 package io.imunity.furms.ui.views.community.groups;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 
 import java.util.Objects;
 
 class GroupGridModel {
 	public final GenericGroupId id;
-	public final String communityId;
+	public final CommunityId communityId;
 	public final String name;
 	public final String description;
 	public final int membersAmount;
 
-	GroupGridModel(GenericGroupId id, String communityId, String name, String description, int membersAmount) {
+	GroupGridModel(GenericGroupId id, CommunityId communityId, String name, String description, int membersAmount) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;

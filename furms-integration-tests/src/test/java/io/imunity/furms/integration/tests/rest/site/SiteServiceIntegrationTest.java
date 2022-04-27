@@ -6,8 +6,10 @@
 package io.imunity.furms.integration.tests.rest.site;
 
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,29 +43,28 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
 		Site.SiteBuilder darkSiteBuilder = defaultSite()
-				.name("Dark Site")
-				.externalId(new SiteExternalId("dsid"));
+				.name("Dark Site");
 		darkSite = darkSiteBuilder
-				.id(siteRepository.create(darkSiteBuilder.build(), darkSiteBuilder.build().getExternalId()))
+				.id(siteRepository.create(darkSiteBuilder.build(), new SiteExternalId("dsid")))
 				.build();
 	}
 
 	@Test
 	void shouldFindAllSiteServicesForSpecificSite() throws Exception {
 		//given
-		final String service1 = createInfraService(site.getId(), "Test 1");
-		final String service2 = createInfraService(site.getId(),"Test 2");
+		final InfraServiceId service1 = createInfraService(site.getId(), "Test 1");
+		final InfraServiceId service2 = createInfraService(site.getId(),"Test 2");
 		createInfraService(darkSite.getId(),"Test 3");
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].serviceId", in(Set.of(service1, service2))))
+				.andExpect(jsonPath("$.[0].serviceId", in(Set.of(service1.id.toString(), service2.id.toString()))))
 				.andExpect(jsonPath("$.[0].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[0].policyId", notNullValue()))
-				.andExpect(jsonPath("$.[1].serviceId", in(Set.of(service1, service2))))
+				.andExpect(jsonPath("$.[1].serviceId", in(Set.of(service1.id.toString(), service2.id.toString()))))
 				.andExpect(jsonPath("$.[1].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[1].policyId", notNullValue()));
 	}
@@ -79,7 +80,7 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnEmptyArrayWhenThereAreNoBelongsServices() throws Exception {
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$").isArray())
@@ -95,7 +96,7 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/services", darkSite.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/services", darkSite.getId().id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -104,14 +105,14 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindSiteServiceThatBelongsToSite() throws Exception {
 		//given
-		final String service = createInfraService(site.getId(), "Test 1");
+		final InfraServiceId service = createInfraService(site.getId(), "Test 1");
 		createInfraService(darkSite.getId(),"Test 2");
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", site.getId(), service))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", site.getId().id, service.id))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.serviceId", equalTo(service)))
+				.andExpect(jsonPath("$.serviceId", equalTo(service.id.toString())))
 				.andExpect(jsonPath("$.name", equalTo("Test 1")))
 				.andExpect(jsonPath("$.policyId", notNullValue()));
 	}
@@ -119,11 +120,11 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnForbiddenIfSiteServiceNotBelongsToSite() throws Exception {
 		//given
-		final String service = createInfraService(site.getId(), "Test 1");
+		final InfraServiceId service = createInfraService(site.getId(), "Test 1");
 		createInfraService(darkSite.getId(),"Test 2");
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", darkSite.getId(), service))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", darkSite.getId().id, service.id))
 				.andDo(print())
 				.andExpect(status().isForbidden());
 	}
@@ -132,21 +133,21 @@ public class SiteServiceIntegrationTest extends IntegrationTestBase {
 	void shouldReturnNotFoundIfSiteServiceDoesNotExistsWhileGettingSiteService() throws Exception {
 		final String service = UUID.randomUUID().toString();
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", site.getId(), service))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", site.getId().id, service))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingSiteService() throws Exception {
-		final String service = createInfraService(site.getId(), "Test 1");
+		final InfraServiceId service = createInfraService(site.getId(), "Test 1");
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", UUID.randomUUID().toString(), service))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/services/{serviceId}", UUID.randomUUID().toString(), service.id))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}
 
-	private String createInfraService(String siteId, String name) {
+	private InfraServiceId createInfraService(SiteId siteId, String name) {
 		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
 				.siteId(siteId)
 				.build());

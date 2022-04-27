@@ -31,6 +31,11 @@ public class SiteId {
 		this.externalId = null;
 	}
 
+	public SiteId(UUID id) {
+		this.id = id;
+		this.externalId = null;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -41,7 +46,7 @@ public class SiteId {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, externalId);
+		return Objects.hash(id);
 	}
 
 	@Override

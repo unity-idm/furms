@@ -21,6 +21,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.generic_groups.GenericGroupService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
@@ -52,13 +53,13 @@ public class GroupFormView extends FurmsViewComponent {
 	private final Binder<GroupFormModel> binder = new BeanValidationBinder<>(GroupFormModel.class);
 	private final Div buttonLayout = new Div();
 	private final ComboBox<PolicyWorkflow> workflowComboBox = new ComboBox<>();
-	private final String communityId;
+	private final CommunityId communityId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	GroupFormView(GenericGroupService genericGroupService) {
 		this.genericGroupService = genericGroupService;
-		this.communityId = getCurrentResourceId();
+		this.communityId = new CommunityId(getCurrentResourceId());
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();

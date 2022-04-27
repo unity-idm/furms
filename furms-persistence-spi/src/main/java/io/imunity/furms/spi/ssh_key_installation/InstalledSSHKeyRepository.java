@@ -14,7 +14,7 @@ import java.util.List;
 
 public interface InstalledSSHKeyRepository {
 
-	String create(InstalledSSHKey installedSSHKey);
+	InstalledSSHKeyId create(InstalledSSHKey installedSSHKey);
 
 	List<InstalledSSHKey> findAll();
 

@@ -15,7 +15,7 @@ import java.util.Set;
 public interface ApplicationRepository {
 	Set<FenixUserId> findAllApplyingUsers(ProjectId projectId);
 	Set<ProjectApplication> findAllApplyingUsers(List<ProjectId> projectIds);
-	Set<String> findAllAppliedProjectsIds(FenixUserId userId);
+	Set<ProjectId> findAllAppliedProjectsIds(FenixUserId userId);
 	void create(ProjectId projectId, FenixUserId userId);
 	void remove(ProjectId projectId, FenixUserId id);
 	boolean existsBy(ProjectId projectId, FenixUserId id);

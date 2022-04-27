@@ -8,7 +8,9 @@ package io.imunity.furms.core.ssh_keys;
 import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.site.api.ssh_keys.SSHKeyRemoval;
@@ -53,7 +55,7 @@ class SSHKeyFromSiteRemover {
 	}
 	
 	@Transactional
-	public void removeKeyFromSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
+	public void removeKeyFromSites(SSHKey sshKey, Set<SiteId> sitesIds, FenixUserId userId) {
 		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
 				.collect(Collectors.toSet());
 		LOG.debug("Removing SSHKey {} from sites {}", sshKey, sites);
@@ -103,7 +105,7 @@ class SSHKeyFromSiteRemover {
 		LOG.info("SSHKeyOperationJob was created: {}", operationJob);
 	}
 
-	private void deleteOperationBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
+	private void deleteOperationBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId) {
 		sshKeyOperationRepository.deleteBySSHKeyIdAndSiteId(sshkeyId, siteId);
 		LOG.info("SSHKeyOperationJob for key={} and site={} was deleted", sshkeyId, siteId);
 	}

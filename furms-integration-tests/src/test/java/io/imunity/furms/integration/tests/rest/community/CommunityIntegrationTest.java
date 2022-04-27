@@ -5,11 +5,18 @@
 
 package io.imunity.furms.integration.tests.rest.community;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
@@ -65,11 +72,11 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindAllCommunitiesThatBelongsToUser() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String community1 = createCommunity();
-		final String community2 = createCommunity();
-		final String communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
-		final String communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final CommunityId community1 = createCommunity();
+		final CommunityId community2 = createCommunity();
+		final CommunityAllocationId communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
+		final CommunityAllocationId communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
 		createCommunityAllocation(community2, resourceCredit);
 
 		final TestUser user = basicUser();
@@ -83,11 +90,11 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(1)))
-				.andExpect(jsonPath("$.[0].id", equalTo(community1)))
+				.andExpect(jsonPath("$.[0].id", equalTo(community1.id.toString())))
 				.andExpect(jsonPath("$.[0].name", notNullValue()))
 				.andExpect(jsonPath("$.[0].allocations", hasSize(2)))
 				.andExpect(jsonPath("$.[0].allocations").value(anyOf(
-						containsInAnyOrder(communityAllocation1, communityAllocation2))));
+						containsInAnyOrder(communityAllocation1.id.toString(), communityAllocation2.id.toString()))));
 	}
 
 	@Test
@@ -108,37 +115,37 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindCommunityById() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String community1 = createCommunity();
-		final String community2 = createCommunity();
-		final String communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
-		final String communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final CommunityId community1 = createCommunity();
+		final CommunityId community2 = createCommunity();
+		final CommunityAllocationId communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
+		final CommunityAllocationId communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
 		createCommunityAllocation(community2, resourceCredit);
 
 		communityAdmin.addCommunityAdmin(community1);
 		setupUser(communityAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/communities/{communityId}", community1)
+		mockMvc.perform(get("/rest-api/v1/communities/{communityId}", community1.id)
 				.with(communityAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id", equalTo(community1)))
+				.andExpect(jsonPath("$.id", equalTo(community1.id.toString())))
 				.andExpect(jsonPath("$.name", notNullValue()))
 				.andExpect(jsonPath("$.allocations", hasSize(2)))
 				.andExpect(jsonPath("$.allocations").value(anyOf(
-						containsInAnyOrder(communityAllocation1, communityAllocation2))));
+						containsInAnyOrder(communityAllocation1.id.toString(), communityAllocation2.id.toString()))));
 	}
 
 	@Test
 	void shouldNotFoundCommunityByIdDueToLackOfRights() throws Exception {
 		//given
-		final String community1 = createCommunity();
+		final CommunityId community1 = createCommunity();
 
 		setupUser(communityAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/communities/{communityId}", community1)
+		mockMvc.perform(get("/rest-api/v1/communities/{communityId}", community1.id)
 				.with(communityAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -159,26 +166,26 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindAllProjectsByCommunityId() throws Exception {
 		//given
-		final String community1 = createCommunity();
-		final String community2 = createCommunity();
-		final String project1 = createProject(community1);
-		final String project2 = createProject(community1);
+		final CommunityId community1 = createCommunity();
+		final CommunityId community2 = createCommunity();
+		final ProjectId project1 = createProject(community1);
+		final ProjectId project2 = createProject(community1);
 		createProject(community2);
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/projects", community1))
+		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/projects", community1.id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].id", in(Set.of(project1, project2))))
-				.andExpect(jsonPath("$.[0].communityId", equalTo(community1)));
+				.andExpect(jsonPath("$.[0].id", in(Set.of(project1.id.toString(), project2.id.toString()))))
+				.andExpect(jsonPath("$.[0].communityId", equalTo(community1.id.toString())));
 	}
 
 	@Test
 	void shouldNotFindAllProjectsByCommunityIdDueToLackOfCorrectRights() throws Exception {
 		//given
-		final String community1 = createCommunity();
-		final String community2 = createCommunity();
+		final CommunityId community1 = createCommunity();
+		final CommunityId community2 = createCommunity();
 		createProject(community1);
 		createProject(community1);
 		createProject(community2);
@@ -187,7 +194,7 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		setupUser(communityAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/communities/{communityId}/projects", community1)
+		mockMvc.perform(get("/rest-api/v1/communities/{communityId}/projects", community1.id)
 				.with(communityAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -208,47 +215,49 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 				.siteId(site.getId())
 				.build());
 		final String serviceName = UUID.randomUUID().toString();
-		final String serviceId = infraServiceRepository.create(defaultService()
+		final InfraServiceId serviceId = infraServiceRepository.create(defaultService()
 				.siteId(site.getId())
 				.name(serviceName)
 				.policyId(policyId)
 				.build());
-		final String resourceType = resourceTypeRepository.create(defaultResourceType()
+		final ResourceTypeId resourceType = resourceTypeRepository.create(defaultResourceType()
 				.siteId(site.getId())
 				.serviceId(serviceId)
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String resourceCredit = resourceCreditRepository.create(defaultResourceCredit()
+		final ResourceCreditId resourceCredit = resourceCreditRepository.create(defaultResourceCredit()
 				.siteId(site.getId())
 				.resourceTypeId(resourceType)
 				.name("RC 1")
 				.amount(BigDecimal.TEN)
 				.build());
-		final String community1 = createCommunity();
-		final String community2 = createCommunity();
-		final String communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
-		final String communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
+		final CommunityId community1 = createCommunity();
+		final CommunityId community2 = createCommunity();
+		final CommunityAllocationId communityAllocation1 = createCommunityAllocation(community1, resourceCredit);
+		final CommunityAllocationId communityAllocation2 = createCommunityAllocation(community1, resourceCredit);
 		createCommunityAllocation(community2, resourceCredit);
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/allocations", community1))
+		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/allocations", community1.id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].id", in(Set.of(communityAllocation1, communityAllocation2))))
-				.andExpect(jsonPath("$.[0].creditId", equalTo(resourceCredit)))
+				.andExpect(jsonPath("$.[0].id", in(Set.of(communityAllocation1.id.toString(),
+					communityAllocation2.id.toString()))))
+				.andExpect(jsonPath("$.[0].creditId", equalTo(resourceCredit.id.toString())))
 				.andExpect(jsonPath("$.[0].resourceUnit", equalTo("GB")))
-				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId().id.toString())))
 				.andExpect(jsonPath("$.[0].siteName", equalTo(site.getName())))
-				.andExpect(jsonPath("$.[0].serviceId", equalTo(serviceId)))
+				.andExpect(jsonPath("$.[0].serviceId", equalTo(serviceId.id.toString())))
 				.andExpect(jsonPath("$.[0].serviceName", equalTo(serviceName)))
 				.andExpect(jsonPath("$.[0].amount", equalTo(10)))
-				.andExpect(jsonPath("$.[1].id", in(Set.of(communityAllocation1, communityAllocation2))))
-				.andExpect(jsonPath("$.[1].creditId", equalTo(resourceCredit)))
+				.andExpect(jsonPath("$.[1].id", in(Set.of(communityAllocation1.id.toString(),
+					communityAllocation2.id.toString()))))
+				.andExpect(jsonPath("$.[1].creditId", equalTo(resourceCredit.id.toString())))
 				.andExpect(jsonPath("$.[1].resourceUnit", equalTo("GB")))
-				.andExpect(jsonPath("$.[1].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[1].siteId", equalTo(site.getId().id.toString())))
 				.andExpect(jsonPath("$.[1].siteName", equalTo(site.getName())))
-				.andExpect(jsonPath("$.[1].serviceId", equalTo(serviceId)))
+				.andExpect(jsonPath("$.[1].serviceId", equalTo(serviceId.id.toString())))
 				.andExpect(jsonPath("$.[1].serviceName", equalTo(serviceName)))
 				.andExpect(jsonPath("$.[1].amount", equalTo(10)));
 	}
@@ -256,9 +265,9 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotFindAllAllocationsByCommunityIdDueToLackOfCorrectRights() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String community1 = createCommunity();
-		final String community2 = createCommunity();
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final CommunityId community1 = createCommunity();
+		final CommunityId community2 = createCommunity();
 		createCommunityAllocation(community1, resourceCredit);
 		createCommunityAllocation(community1, resourceCredit);
 		createCommunityAllocation(community2, resourceCredit);
@@ -266,7 +275,7 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 		setupUser(communityAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/communities/{communityId}/allocations", community1)
+		mockMvc.perform(get("/rest-api/v1/communities/{communityId}/allocations", community1.id)
 				.with(communityAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -283,20 +292,20 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindAllocationByIdAndCommunityId() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String community = createCommunity();
-		final String communityAllocation1 = createCommunityAllocation(community, resourceCredit);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final CommunityId community = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(community, resourceCredit);
 		createCommunityAllocation(community, resourceCredit);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/allocations/{communityAllocationId}",
-					community, communityAllocation1))
+					community.id, communityAllocation.id))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id", equalTo(communityAllocation1)))
-				.andExpect(jsonPath("$.creditId", equalTo(resourceCredit)))
+				.andExpect(jsonPath("$.id", equalTo(communityAllocation.id.toString())))
+				.andExpect(jsonPath("$.creditId", equalTo(resourceCredit.id.toString())))
 				.andExpect(jsonPath("$.resourceUnit", equalTo("GB")))
-				.andExpect(jsonPath("$.siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.siteId", equalTo(site.getId().id.toString())))
 				.andExpect(jsonPath("$.siteName", equalTo(site.getName())))
 				.andExpect(jsonPath("$.serviceId").isNotEmpty())
 				.andExpect(jsonPath("$.serviceName").isNotEmpty())
@@ -306,15 +315,15 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotFindFindAllocationByIdAndCommunityIdDueToLackOfCorrectRights() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String community = createCommunity();
-		final String communityAllocation = createCommunityAllocation(community, resourceCredit);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final CommunityId community = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(community, resourceCredit);
 
 		setupUser(communityAdmin);
 
 		//when
 		mockMvc.perform(get("/rest-api/v1/communities/{communityId}/allocations/{communityAllocationId}",
-				community, communityAllocation)
+				community.id, communityAllocation.id)
 				.with(communityAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -323,18 +332,18 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotFindFindAllocationByIdAndCommunityIdWhenIdOrCommunityIdIsWrong() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String community = createCommunity();
-		final String communityAllocation = createCommunityAllocation(community, resourceCredit);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final CommunityId community = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(community, resourceCredit);
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/allocations/{communityAllocationId}",
-				UUID.randomUUID().toString(), communityAllocation))
+				UUID.randomUUID().toString(), communityAllocation.id))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 
 		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/allocations/{communityAllocationId}",
-				community, UUID.randomUUID().toString()))
+				community.id, UUID.randomUUID().toString()))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}
@@ -342,13 +351,14 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldAddCommunityAllocationToCommunity() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String community = createCommunity();
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final CommunityId community = createCommunity();
 
-		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest(resourceCredit, "Test 1", ONE);
+		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest(resourceCredit.id.toString(), "Test 1",
+			ONE);
 
 		//when
-		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", community)
+		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", community.id)
 				.contentType(APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request))
 				.with(ADMIN_USER.getHttpBasic()))
@@ -364,19 +374,19 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindGroups() throws Exception {
 		//given
-		String community = createCommunity();
-		String group1 = createGroup(community);
-		String group2 = createGroup(community);
+		CommunityId community = createCommunity();
+		GenericGroupId group1 = createGroup(community);
+		GenericGroupId group2 = createGroup(community);
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups", community))
+		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups", community.id))
 			.andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$", hasSize(2)))
-			.andExpect(jsonPath("$.[0].id", in(Set.of(group1, group2))))
+			.andExpect(jsonPath("$.[0].id", in(Set.of(group1.id.toString(), group2.id.toString()))))
 			.andExpect(jsonPath("$.[0].name", equalTo("name")))
 			.andExpect(jsonPath("$.[0].description", equalTo("description")))
-			.andExpect(jsonPath("$.[1].id", in(Set.of(group1, group2))))
+			.andExpect(jsonPath("$.[1].id", in(Set.of(group1.id.toString(), group2.id.toString()))))
 			.andExpect(jsonPath("$.[1].name", equalTo("name")))
 			.andExpect(jsonPath("$.[1].description", equalTo("description")));
 	}
@@ -384,15 +394,15 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindGroupWithMembers() throws Exception {
 		//given
-		String community = createCommunity();
-		String group = createGroup(community);
+		CommunityId community = createCommunity();
+		GenericGroupId group = createGroup(community);
 		createGroupMember(group, communityAdmin.getFenixId());
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups/{groupId}", community, group))
+		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups/{groupId}", community.id, group.id))
 			.andDo(print())
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.id", equalTo(group)))
+			.andExpect(jsonPath("$.id", equalTo(group.id.toString())))
 			.andExpect(jsonPath("$.name", equalTo("name")))
 			.andExpect(jsonPath("$.description", equalTo("description")))
 			.andExpect(jsonPath("$.memberFenixUserIds", equalTo(List.of(communityAdmin.getFenixId()))));
@@ -401,14 +411,14 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindGroupWithMembersEvenWhenThereAreNoMembers() throws Exception {
 		//given
-		String community = createCommunity();
-		String group = createGroup(community);
+		CommunityId community = createCommunity();
+		GenericGroupId group = createGroup(community);
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups/{groupId}", community, group))
+		mockMvc.perform(adminGET("/rest-api/v1/communities/{communityId}/groups/{groupId}", community.id, group.id))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id", equalTo(group)))
+				.andExpect(jsonPath("$.id", equalTo(group.id.toString())))
 				.andExpect(jsonPath("$.name", equalTo("name")))
 				.andExpect(jsonPath("$.description", equalTo("description")))
 				.andExpect(jsonPath("$.memberFenixUserIds").isEmpty());
@@ -417,12 +427,12 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldAddGenericGroupToCommunity() throws Exception {
 		//given
-		String community = createCommunity();
+		CommunityId community = createCommunity();
 
 		GroupDefinitionRequest request = new GroupDefinitionRequest("name", "description");
 
 		//when
-		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/groups", community)
+		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/groups", community.id)
 			.contentType(APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(request))
 			.with(ADMIN_USER.getHttpBasic()))
@@ -436,11 +446,11 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldDeleteGenericGroupToCommunity() throws Exception {
 		//given
-		String community = createCommunity();
-		String group = createGroup(community);
+		CommunityId community = createCommunity();
+		GenericGroupId group = createGroup(community);
 
 		//when
-		mockMvc.perform(delete("/rest-api/v1/communities/{communityId}/groups/{groupId}", community, group)
+		mockMvc.perform(delete("/rest-api/v1/communities/{communityId}/groups/{groupId}", community.id, group.id)
 			.with(ADMIN_USER.getHttpBasic()))
 			.andDo(print())
 			.andExpect(status().isOk());
@@ -449,19 +459,19 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldUpdateGenericGroupToCommunity() throws Exception {
 		//given
-		String community = createCommunity();
-		String group = createGroup(community);
+		CommunityId community = createCommunity();
+		GenericGroupId group = createGroup(community);
 
 		GroupDefinitionRequest request = new GroupDefinitionRequest("name2", "description2");
 
 		//when
-		mockMvc.perform(put("/rest-api/v1/communities/{communityId}/groups/{groupId}", community, group)
+		mockMvc.perform(put("/rest-api/v1/communities/{communityId}/groups/{groupId}", community.id, group.id)
 			.contentType(APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(request))
 			.with(ADMIN_USER.getHttpBasic()))
 			.andDo(print())
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.id", equalTo(group)))
+			.andExpect(jsonPath("$.id", equalTo(group.id.toString())))
 			.andExpect(jsonPath("$.name", equalTo(request.name)))
 			.andExpect(jsonPath("$.description", equalTo(request.description)));
 	}
@@ -469,15 +479,16 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToAddCommunityAllocationToCommunityDueToLackOfCorrectRights() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
-		final String community = createCommunity();
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final CommunityId community = createCommunity();
 
 		setupUser(communityAdmin);
 
-		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest(resourceCredit, "Test 1", ONE);
+		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest(resourceCredit.id.toString(), "Test 1",
+			ONE);
 
 		//when
-		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", community)
+		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", community.id)
 				.contentType(APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request))
 				.with(communityAdmin.getHttpBasic()))
@@ -488,19 +499,19 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToAddCommunityAllocationToCommunityAndReturnBadRequestForWrongOrEmptyRequest() throws Exception {
 		//given
-		final String community = createCommunity();
+		final CommunityId community = createCommunity();
 
 		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest(null, "Test 1", ONE);
 
 		//when
-		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", community)
+		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", community.id)
 				.contentType(APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request))
 				.with(ADMIN_USER.getHttpBasic()))
 				.andDo(print())
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isNotFound());
 
-		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", community)
+		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", community.id)
 				.contentType(APPLICATION_JSON)
 				.with(ADMIN_USER.getHttpBasic()))
 				.andDo(print())
@@ -510,9 +521,10 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToAddCommunityAllocationToCommunityWhenCommunityDoesNotExists() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC 1", BigDecimal.TEN);
 
-		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest(resourceCredit, "Test 1", ONE);
+		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest(resourceCredit.id.toString(), "Test 1",
+			ONE);
 
 		//when
 		mockMvc.perform(post("/rest-api/v1/communities/{communityId}/allocations", UUID.randomUUID().toString())
@@ -524,33 +536,33 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 	}
 
 
-	private String createCommunity() {
+	private CommunityId createCommunity() {
 		return communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
 	}
 
-	private String createGroup(String communityId) {
+	private GenericGroupId createGroup(CommunityId communityId) {
 		return genericGroupRepository.create(
 			GenericGroup.builder()
 				.name("name")
 				.communityId(communityId)
 				.description("description")
 				.build()
-		).id.toString();
+		);
 	}
 
-	private void createGroupMember(String genericGroupId, String userId) {
+	private void createGroupMember(GenericGroupId genericGroupId, String userId) {
 		genericGroupRepository.createMembership(
 			GenericGroupMembership.builder()
 				.fenixUserId(userId)
-				.genericGroupId(new GenericGroupId(genericGroupId))
+				.genericGroupId(genericGroupId)
 				.utcMemberSince(LocalDate.now().atStartOfDay())
 				.build()
 		);
 	}
 
-	private String createProject(String communityId) {
+	private ProjectId createProject(CommunityId communityId) {
 		return projectRepository.create(defaultProject()
 				.communityId(communityId)
 				.name(UUID.randomUUID().toString())
@@ -558,7 +570,7 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private String createCommunityAllocation(String communityId, String resourceCredit) {
+	private CommunityAllocationId createCommunityAllocation(CommunityId communityId, ResourceCreditId resourceCredit) {
 		return communityAllocationRepository.create(defaultCommunityAllocation()
 				.communityId(communityId)
 				.resourceCreditId(resourceCredit)
@@ -567,16 +579,16 @@ public class CommunityIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private String createResourceCredit(String siteId, String name, BigDecimal amount) {
+	private ResourceCreditId createResourceCredit(SiteId siteId, String name, BigDecimal amount) {
 		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
 				.siteId(siteId)
 				.build());
-		final String serviceId = infraServiceRepository.create(defaultService()
+		final InfraServiceId serviceId = infraServiceRepository.create(defaultService()
 				.siteId(siteId)
 				.name(UUID.randomUUID().toString())
 				.policyId(policyId)
 				.build());
-		final String resourceType = resourceTypeRepository.create(defaultResourceType()
+		final ResourceTypeId resourceType = resourceTypeRepository.create(defaultResourceType()
 				.siteId(siteId)
 				.serviceId(serviceId)
 				.name(UUID.randomUUID().toString())

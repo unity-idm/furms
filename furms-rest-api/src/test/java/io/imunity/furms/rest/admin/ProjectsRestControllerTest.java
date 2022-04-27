@@ -5,6 +5,15 @@
 
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.math.BigDecimal.ONE;
 import static org.hamcrest.Matchers.hasSize;
@@ -19,13 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.List;
-import java.util.Set;
-
-import org.junit.jupiter.api.Test;
-
-import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
 
 class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 
@@ -48,8 +50,8 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldFindProjectByProjectId() throws Exception {
 		//given
-		final String projectId = "projectId";
-		when(projectsRestService.findOneById(projectId)).thenReturn(createProjectWithUsers(projectId));
+		final String projectId = UUID.randomUUID().toString();
+		when(projectsRestService.findOneById(new ProjectId(projectId))).thenReturn(createProjectWithUsers(projectId));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_PROJECTS+"/{projectId}", projectId)
@@ -84,8 +86,8 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldReturn404IfProjectNotFound() throws Exception {
 		//given
-		final String projectId = "projectId";
-		when(projectsRestService.findOneById(projectId)).thenThrow(new ProjectRestNotFoundException("message"));
+		final String projectId = UUID.randomUUID().toString();
+		when(projectsRestService.findOneById(new ProjectId(projectId))).thenThrow(new ProjectRestNotFoundException("message"));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_PROJECTS+"/{projectId}", projectId)
@@ -96,22 +98,22 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldCallDeleteProject() throws Exception {
 		//given
-		final String projectId = "projectId";
-		when(projectsRestService.findOneById(projectId)).thenReturn(createProjectWithUsers(projectId));
+		final String projectId = UUID.randomUUID().toString();
+		when(projectsRestService.findOneById(new ProjectId(projectId))).thenReturn(createProjectWithUsers(projectId));
 
 		//when + then
 		mockMvc.perform(delete(BASE_URL_PROJECTS+"/{projectId}", projectId)
 				.header(AUTHORIZATION, authKey()))
 				.andExpect(status().isOk());
 
-		verify(projectsRestService, times(1)).delete(projectId);
+		verify(projectsRestService, times(1)).delete(new ProjectId(projectId));
 	}
 
 	@Test
 	void shouldReturn404IfProjectNotFoundDuringDelete() throws Exception {
 		//given
-		final String projectId = "projectId";
-		doThrow(new ProjectRestNotFoundException("message")).when(projectsRestService).delete(projectId);
+		final String projectId = UUID.randomUUID().toString();
+		doThrow(new ProjectRestNotFoundException("message")).when(projectsRestService).delete(new ProjectId(projectId));
 
 		//when + then
 		mockMvc.perform(delete(BASE_URL_PROJECTS+"/{projectId}", projectId)
@@ -122,10 +124,10 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldCallUpdateWithProperBody() throws Exception {
 		//given
-		final String projectId = "projectId";
+		final String projectId = UUID.randomUUID().toString();
 		final ProjectUpdateRequest request = new ProjectUpdateRequest("name", "description",
 				new Validity(sampleFrom, sampleTo), "researchField", sampleUser.fenixIdentifier);
-		when(projectsRestService.update(projectId, request)).thenReturn(createProject(projectId));
+		when(projectsRestService.update(new ProjectId(projectId), request)).thenReturn(createProject(projectId));
 
 		//when + then
 		mockMvc.perform(put(BASE_URL_PROJECTS+"/{projectId}", projectId)
@@ -134,7 +136,7 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 				.content(objectMapper.writeValueAsString(request)))
 				.andExpect(status().isOk());
 
-		verify(projectsRestService, times(1)).update(projectId, request);
+		verify(projectsRestService, times(1)).update(new ProjectId(projectId), request);
 	}
 
 	@Test
@@ -159,8 +161,8 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldFindAllProjectAllocationsByProjectId() throws Exception {
 		//given
-		final String projectId = "projectId";
-		when(projectsRestService.findAllProjectAllocationsByProjectId(projectId)).thenReturn(List.of(
+		final String projectId = UUID.randomUUID().toString();
+		when(projectsRestService.findAllProjectAllocationsByProjectId(new ProjectId(projectId))).thenReturn(List.of(
 				createProjectAllocation("id1"), createProjectAllocation("id2")));
 
 		//when + then
@@ -175,9 +177,9 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldFindProjectByProjectIdAndAllocationId() throws Exception {
 		//given
-		final String projectId = "projectId";
-		final String allocationId = "allocationId";
-		when(projectsRestService.findByIdAndProjectAllocationId(projectId, allocationId))
+		final String projectId = UUID.randomUUID().toString();
+		final String allocationId = UUID.randomUUID().toString();
+		when(projectsRestService.findByIdAndProjectAllocationId(new ProjectId(projectId), new ProjectAllocationId(allocationId)))
 				.thenReturn(createProjectAllocation(allocationId));
 
 		//when + then
@@ -195,9 +197,9 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldCallAddProjectAllocationWithProperBody() throws Exception {
 		//given
-		final String projectId = "projectId";
+		final String projectId = UUID.randomUUID().toString();
 		final ProjectAllocationAddRequest request = new ProjectAllocationAddRequest(
-				"allocationId", "communityId", "name", "typeId", ONE);
+			UUID.randomUUID().toString(), UUID.randomUUID().toString(), "name", "typeId", ONE);
 
 		//when + then
 		mockMvc.perform(post(BASE_URL_PROJECTS+"/{projectId}/allocations", projectId)
@@ -206,7 +208,7 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 				.content(objectMapper.writeValueAsString(request)))
 				.andExpect(status().isOk());
 
-		verify(projectsRestService, times(1)).addAllocation(projectId, request);
+		verify(projectsRestService, times(1)).addAllocation(new ProjectId(projectId), request);
 	}
 
 	private ProjectWithUsers createProjectWithUsers(String id) {

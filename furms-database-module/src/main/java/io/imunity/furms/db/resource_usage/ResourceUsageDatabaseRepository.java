@@ -59,7 +59,7 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 	public void create(ResourceUsage resourceUsage, ProjectAllocationResolved projectAllocationResolved) {
 		resourceUsageHistoryEntityRepository.save(
 			ResourceUsageHistoryEntity.builder()
-				.siteId(UUID.fromString(projectAllocationResolved.site.getId()))
+				.siteId(projectAllocationResolved.site.getId().id)
 				.communityId(projectAllocationResolved.communityAllocation.communityId.id)
 				.communityAllocationId(projectAllocationResolved.communityAllocation.id.id)
 				.resourceCreditId(projectAllocationResolved.resourceCredit.id.id)
@@ -80,7 +80,7 @@ public class ResourceUsageDatabaseRepository implements ResourceUsageRepository 
 		resourceUsageEntityRepository.save(
 			ResourceUsageEntity.builder()
 				.id(id)
-				.siteId(UUID.fromString(projectAllocationResolved.site.getId()))
+				.siteId(projectAllocationResolved.site.getId().id)
 				.communityId(projectAllocationResolved.communityAllocation.communityId.id)
 				.communityAllocationId(projectAllocationResolved.communityAllocation.id.id)
 				.resourceCreditId(projectAllocationResolved.resourceCredit.id.id)

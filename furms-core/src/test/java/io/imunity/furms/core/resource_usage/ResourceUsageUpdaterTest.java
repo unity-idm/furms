@@ -5,7 +5,9 @@
 
 package io.imunity.furms.core.resource_usage;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -21,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,14 +46,16 @@ class ResourceUsageUpdaterTest {
 
 	@Test
 	void shouldUpdateResourceUsage() {
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		ResourceUsage resourceUsage = ResourceUsage.builder()
-			.projectId("id")
-			.projectAllocationId("id")
+			.projectId(projectId)
+			.projectAllocationId(projectAllocationId)
 			.cumulativeConsumption(BigDecimal.TEN)
 			.probedAt(LocalDateTime.now().minusMinutes(5))
 			.build();
 		ProjectAllocationResolved build = ProjectAllocationResolved.builder().build();
-		when(projectAllocationRepository.findByIdWithRelatedObjects("id")).thenReturn(Optional.of(build));
+		when(projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId)).thenReturn(Optional.of(build));
 
 		service.updateUsage(resourceUsage);
 
@@ -59,9 +64,11 @@ class ResourceUsageUpdaterTest {
 
 	@Test
 	void shouldUpdateUserResourceUsage() {
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		UserResourceUsage resourceUsage = UserResourceUsage.builder()
-			.projectId("id")
-			.projectAllocationId("id")
+			.projectId(projectId)
+			.projectAllocationId(projectAllocationId)
 			.fenixUserId(new FenixUserId("userId"))
 			.cumulativeConsumption(BigDecimal.TEN)
 			.consumedUntil(LocalDateTime.now().minusMinutes(5))

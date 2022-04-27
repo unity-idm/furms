@@ -15,6 +15,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.services.InfraServiceService;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -68,7 +70,7 @@ public class InfraServicesView extends FurmsViewComponent {
 	private Grid<InfraServiceViewModel> createCommunityGrid() {
 		Grid<InfraServiceViewModel> grid = new DenseGrid<>(InfraServiceViewModel.class);
 
-		grid.addComponentColumn(item -> new RouterLink(item.getName(), InfraServiceFormView.class, item.getId()))
+		grid.addComponentColumn(item -> new RouterLink(item.getName(), InfraServiceFormView.class, item.getId().id.toString()))
 			.setHeader(getTranslation("view.site-admin.service.grid.column.name"))
 			.setSortable(true)
 			.setComparator(item -> item.getName().toLowerCase());
@@ -91,12 +93,12 @@ public class InfraServicesView extends FurmsViewComponent {
 		);
 	}
 
-	private Component createContextMenu(String serviceId, String serviceName) {
+	private Component createContextMenu(InfraServiceId serviceId, String serviceName) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.service.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(InfraServiceFormView.class, serviceId)
+			event -> UI.getCurrent().navigate(InfraServiceFormView.class, serviceId.id.toString())
 		);
 
 		Dialog confirmDialog = createConfirmDialog(serviceId, serviceName);
@@ -110,10 +112,10 @@ public class InfraServicesView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String serviceId, String serviceName) {
+	private Dialog createConfirmDialog(InfraServiceId serviceId, String serviceName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.service.dialog.text", serviceName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			getResultOrException(() -> infraServiceService.delete(serviceId, getCurrentResourceId()))
+			getResultOrException(() -> infraServiceService.delete(serviceId, new SiteId(getCurrentResourceId())))
 				.getException()
 				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), serviceName)));
 			loadGridContent();
@@ -126,7 +128,7 @@ public class InfraServicesView extends FurmsViewComponent {
 	}
 
 	private List<InfraServiceViewModel> loadServicesViewsModels() {
-		return handleExceptions(() -> infraServiceService.findAll(getCurrentResourceId()))
+		return handleExceptions(() -> infraServiceService.findAll(new SiteId(getCurrentResourceId())))
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(InfraServiceViewModelMapper::map)

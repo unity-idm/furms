@@ -6,9 +6,10 @@
 package io.imunity.furms.ui.views.project.alarms;
 
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
+import io.imunity.furms.domain.projects.ProjectId;
 
 class AlarmFormModelMapper {
-	static AlarmWithUserEmails map(String projectId, AlarmFormModel alarmFormModel){
+	static AlarmWithUserEmails map(ProjectId projectId, AlarmFormModel alarmFormModel){
 		return AlarmWithUserEmails.builder()
 			.id(alarmFormModel.id)
 			.projectId(projectId)

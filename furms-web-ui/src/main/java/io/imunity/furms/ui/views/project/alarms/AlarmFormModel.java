@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.project.alarms;
 
 import io.imunity.furms.domain.alarms.AlarmId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 
 import java.util.Objects;
 import java.util.Set;
@@ -13,12 +14,12 @@ import java.util.Set;
 class AlarmFormModel {
 	public final AlarmId id;
 	public String name;
-	public String allocationId;
+	public ProjectAllocationId allocationId;
 	public int threshold;
 	public boolean allUsers;
 	public Set<String> users;
 
-	AlarmFormModel(AlarmId id, String name, String allocationId, int threshold, boolean allUsers, Set<String> users) {
+	AlarmFormModel(AlarmId id, String name, ProjectAllocationId allocationId, int threshold, boolean allUsers, Set<String> users) {
 		this.id = id;
 		this.name = name;
 		this.allocationId = allocationId;
@@ -63,7 +64,7 @@ class AlarmFormModel {
 	public static final class AlarmGridModelBuilder {
 		public AlarmId alarmId;
 		public String name;
-		public String allocationId;
+		public ProjectAllocationId allocationId;
 		public int threshold;
 		public boolean allUsers;
 		public Set<String> users;
@@ -81,7 +82,7 @@ class AlarmFormModel {
 			return this;
 		}
 
-		public AlarmGridModelBuilder allocationId(String allocationId) {
+		public AlarmGridModelBuilder allocationId(ProjectAllocationId allocationId) {
 			this.allocationId = allocationId;
 			return this;
 		}

@@ -22,6 +22,33 @@ class ResourceChecker {
 		this.availabilityTester = availabilityTester;
 	}
 
+	<T> T performIfExists(UUID resourceId, Supplier<T> actionToPerform) {
+		assertNotNull(resourceId);
+		try {
+			final T result = actionToPerform.get();
+			assertResultExists(result, resourceId.toString());
+			return result;
+		} catch (Exception e) {
+			handleException(e, resourceId.toString());
+			throw e;
+		}
+	}
+
+	<T> T performIfExistsAndMatching(UUID resourceId,
+	                                 Supplier<T> actionToPerform,
+	                                 Function<T, Boolean> matchingFilter) {
+		assertNotNull(resourceId);
+		try {
+			final T result = actionToPerform.get();
+			assertResultExists(result, resourceId.toString());
+			assertMatching(matchingFilter, result);
+			return result;
+		} catch (Exception e) {
+			handleException(e, resourceId.toString());
+			throw e;
+		}
+	}
+
 	<T> T performIfExists(String resourceId, Supplier<T> actionToPerform) {
 		assertUUID(resourceId);
 		try {
@@ -79,12 +106,17 @@ class ResourceChecker {
 		}
 	}
 
-	private void assertUUID(String resourceId) {
+	void assertUUID(String resourceId) {
 		try {
 			UUID.fromString(resourceId);
 		} catch (Exception e) {
 			throw new RestNotFoundException("Resource does not exist");
 		}
+	}
+
+	private void assertNotNull(UUID resourceId) {
+		if(resourceId == null)
+			throw new RestNotFoundException("Resource does not exist");
 	}
 
 	private boolean isNotRestNotFoundException(Exception e) {

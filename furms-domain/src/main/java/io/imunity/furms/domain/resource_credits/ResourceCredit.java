@@ -107,6 +107,11 @@ public class ResourceCredit {
 			return this;
 		}
 
+		public ResourceCreditBuilder id(ResourceCreditId id) {
+			this.id = id;
+			return this;
+		}
+
 		public ResourceCreditBuilder name(String name) {
 			this.name = name;
 			return this;
@@ -117,8 +122,18 @@ public class ResourceCredit {
 			return this;
 		}
 
+		public ResourceCreditBuilder siteId(SiteId siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public ResourceCreditBuilder resourceTypeId(String resourceTypeId) {
 			this.resourceTypeId = new ResourceTypeId(resourceTypeId);
+			return this;
+		}
+
+		public ResourceCreditBuilder resourceTypeId(ResourceTypeId resourceTypeId) {
+			this.resourceTypeId = resourceTypeId;
 			return this;
 		}
 

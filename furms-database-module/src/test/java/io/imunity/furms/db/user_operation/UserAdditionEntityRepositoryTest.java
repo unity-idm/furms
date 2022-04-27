@@ -7,10 +7,13 @@ package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -41,24 +44,24 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private UserAdditionJobEntityRepository userAdditionJobEntityRepository;
 
-	private UUID siteId;
-	private UUID projectId;
+	private SiteId siteId;
+	private ProjectId projectId;
 
 	@BeforeEach
 	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -68,15 +71,15 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 	}
 
 	@Test
 	void shouldFindAllByProjectIdAndUserIdWithRelatedSite(){
 		UserAdditionSaveEntity userAddition = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);
@@ -90,8 +93,8 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 
 		UserAdditionSaveEntity userAddition2 = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId2")
 				.build()
 		);
@@ -103,19 +106,19 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllByProjectIdAndUserId(projectId, "userId");
+		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllByProjectIdAndUserId(projectId.id, "userId");
 		assertThat(userAdditions.size()).isEqualTo(1);
 		assertThat(userAdditions.iterator().next().status).isEqualTo(UserStatus.REMOVAL_PENDING.getPersistentId());
 		assertThat(userAdditions.iterator().next().site.getExternalId()).isEqualTo("id");
-		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId);
+		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId.id);
 	}
 
 	@Test
 	void shouldFindAllBySiteIdAndUserId(){
 		UserAdditionSaveEntity userAddition = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);
@@ -129,8 +132,8 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 
 		UserAdditionSaveEntity userAddition2 = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId2")
 				.build()
 		);
@@ -142,20 +145,20 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllBySiteIdAndUserId(siteId,
+		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllBySiteIdAndUserId(siteId.id,
 			"userId");
 		assertThat(userAdditions.size()).isEqualTo(1);
 		assertThat(userAdditions.iterator().next().status).isEqualTo(UserStatus.REMOVAL_PENDING.getPersistentId());
 		assertThat(userAdditions.iterator().next().site.getExternalId()).isEqualTo("id");
-		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId);
+		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId.id);
 	}
 
 	@Test
 	void shouldFindAllBySiteIdAndUserIdWithRelatedSiteProjectInfo(){
 		UserAdditionSaveEntity userAddition = userAdditionEntityRepository.save(
 				UserAdditionSaveEntity.builder()
-						.siteId(siteId)
-						.projectId(projectId)
+						.siteId(siteId.id)
+						.projectId(projectId.id)
 						.userId("userId")
 						.build()
 		);
@@ -169,8 +172,8 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 
 		UserAdditionSaveEntity userAddition2 = userAdditionEntityRepository.save(
 				UserAdditionSaveEntity.builder()
-						.siteId(siteId)
-						.projectId(projectId)
+						.siteId(siteId.id)
+						.projectId(projectId.id)
 						.userId("userId2")
 						.build()
 		);
@@ -182,7 +185,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 						.build()
 		);
 
-		final Set<UserAdditionReadWithProjectsEntity> userAdditions = userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(siteId, "userId");
+		final Set<UserAdditionReadWithProjectsEntity> userAdditions = userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(siteId.id, "userId");
 		assertThat(userAdditions.size()).isEqualTo(1);
 		assertThat(userAdditions.iterator().next().status).isEqualTo(UserStatus.REMOVAL_PENDING.getPersistentId());
 		assertThat(userAdditions.iterator().next().siteName).isEqualTo("name");
@@ -193,8 +196,8 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	void shouldConfirmUserAddition() {
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);
@@ -207,7 +210,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		boolean added = userAdditionEntityRepository.existsBySiteIdAndUserId(siteId, "userId");
+		boolean added = userAdditionEntityRepository.existsBySiteIdAndUserId(siteId.id, "userId");
 		assertThat(added).isTrue();
 	}
 
@@ -215,8 +218,8 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	void shouldCreate(){
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);
@@ -229,8 +232,8 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindByCorrelation(){
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);
@@ -250,8 +253,8 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDelete(){
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);
@@ -266,16 +269,16 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdate(){
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);
 		userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
 				.id(userAdditionSaveEntity.getId())
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);

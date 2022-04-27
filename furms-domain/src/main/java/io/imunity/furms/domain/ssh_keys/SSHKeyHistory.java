@@ -77,7 +77,12 @@ public class SSHKeyHistory {
 			this.siteId = new SiteId(siteId);
 			return this;
 		}
-		
+
+		public Builder siteId(SiteId siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public Builder sshkeyOwnerId(PersistentId sshkeyOwnerId) {
 			this.sshkeyOwnerId = sshkeyOwnerId;
 			return this;

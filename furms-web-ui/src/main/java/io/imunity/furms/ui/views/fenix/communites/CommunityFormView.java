@@ -16,6 +16,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.ui.community.CommunityFormComponent;
 import io.imunity.furms.ui.community.CommunityViewModel;
 import io.imunity.furms.ui.community.CommunityViewModelMapper;
@@ -90,6 +91,7 @@ class CommunityFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		CommunityViewModel communityViewModel = ofNullable(parameter)
+			.map(CommunityId::new)
 			.flatMap(id -> handleExceptions(() -> communityService.findById(id)))
 			.filter(Optional::isPresent)
 			.map(Optional::get)

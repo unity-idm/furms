@@ -75,8 +75,18 @@ public class CommunityAllocation {
 			return this;
 		}
 
+		public CommunityAllocationBuilder communityId(CommunityId communityId) {
+			this.communityId = communityId;
+			return this;
+		}
+
 		public CommunityAllocationBuilder resourceCreditId(String resourceCreditId) {
 			this.resourceCreditId = new ResourceCreditId(resourceCreditId);
+			return this;
+		}
+
+		public CommunityAllocationBuilder resourceCreditId(ResourceCreditId resourceCreditId) {
+			this.resourceCreditId = resourceCreditId;
 			return this;
 		}
 
@@ -87,6 +97,11 @@ public class CommunityAllocation {
 
 		public CommunityAllocationBuilder id(String id) {
 			this.id = new CommunityAllocationId(id);
+			return this;
+		}
+
+		public CommunityAllocationBuilder id(CommunityAllocationId id) {
+			this.id = id;
 			return this;
 		}
 

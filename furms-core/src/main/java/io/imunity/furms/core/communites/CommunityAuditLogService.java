@@ -46,7 +46,7 @@ class CommunityAuditLogService {
 	void onCommunityCreatedEvent(CommunityCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.community.getId())
+			.resourceId(event.community.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.COMMUNITIES_MANAGEMENT)
@@ -61,7 +61,7 @@ class CommunityAuditLogService {
 	void onCommunityRemovedEvent(CommunityRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.community.getId())
+			.resourceId(event.community.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.COMMUNITIES_MANAGEMENT)
@@ -76,7 +76,7 @@ class CommunityAuditLogService {
 	void onCommunityUpdatedEvent(CommunityUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.newCommunity.getId())
+			.resourceId(event.newCommunity.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.COMMUNITIES_MANAGEMENT)

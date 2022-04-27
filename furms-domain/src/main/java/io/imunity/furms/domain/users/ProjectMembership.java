@@ -4,16 +4,18 @@
  */
 package io.imunity.furms.domain.users;
 
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
 public class ProjectMembership {
-	public final String id;
+	public final ProjectId id;
 	public final String name;
 	public final Set<UserAttribute> attributes;
 
-	public ProjectMembership(String id, String name, Collection<UserAttribute> attributes) {
+	public ProjectMembership(ProjectId id, String name, Collection<UserAttribute> attributes) {
 		this.id = id;
 		this.name = name;
 		this.attributes = Set.copyOf(attributes);

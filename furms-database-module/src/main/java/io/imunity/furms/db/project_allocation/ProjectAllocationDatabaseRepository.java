@@ -32,7 +32,6 @@ import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository {
@@ -191,6 +190,14 @@ class ProjectAllocationDatabaseRepository implements ProjectAllocationRepository
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(ProjectAllocationId id) {
+		return id == null || id.id == null;
+	}
+
+	private boolean isEmpty(CommunityAllocationId id) {
+		return id == null || id.id == null;
 	}
 }
 

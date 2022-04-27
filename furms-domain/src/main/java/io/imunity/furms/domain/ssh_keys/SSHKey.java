@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SSHKey {
 	public final SSHKeyId id;
@@ -122,6 +121,11 @@ public class SSHKey {
 			return this;
 		}
 
+		public SSHKey.SSHKeyBuilder id(SSHKeyId id) {
+			this.id = id;
+			return this;
+		}
+
 		public SSHKey.SSHKeyBuilder name(String name) {
 			this.name = name;
 			return this;
@@ -147,10 +151,8 @@ public class SSHKey {
 			return this;
 		}
 
-		public SSHKey.SSHKeyBuilder sites(Set<String> sites) {
-			this.sites = sites.stream()
-				.map(SiteId::new)
-				.collect(Collectors.toSet());
+		public SSHKey.SSHKeyBuilder sites(Set<SiteId> sites) {
+			this.sites = sites;
 			return this;
 		}
 

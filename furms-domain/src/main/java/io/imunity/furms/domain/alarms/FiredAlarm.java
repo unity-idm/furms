@@ -5,16 +5,19 @@
 
 package io.imunity.furms.domain.alarms;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.util.Objects;
 
 public class FiredAlarm {
 	public final AlarmId alarmId;
-	public final String projectId;
-	public final String projectAllocationId;
+	public final ProjectId projectId;
+	public final ProjectAllocationId projectAllocationId;
 	public final String projectAllocationName;
 	public final String alarmName;
 
-	public FiredAlarm(AlarmId alarmId, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
+	public FiredAlarm(AlarmId alarmId, ProjectId projectId, ProjectAllocationId projectAllocationId, String projectAllocationName, String alarmName) {
 		this.alarmId = alarmId;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
@@ -56,8 +59,8 @@ public class FiredAlarm {
 
 	public static final class ActiveAlarmBuilder {
 		public AlarmId alarmId;
-		public String projectId;
-		public String projectAllocationId;
+		public ProjectId projectId;
+		public ProjectAllocationId projectAllocationId;
 		public String projectAllocationName;
 		public String alarmName;
 
@@ -69,12 +72,12 @@ public class FiredAlarm {
 			return this;
 		}
 
-		public ActiveAlarmBuilder projectId(String projectId) {
+		public ActiveAlarmBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public ActiveAlarmBuilder projectAllocationId(String projectAllocationId) {
+		public ActiveAlarmBuilder projectAllocationId(ProjectAllocationId projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}

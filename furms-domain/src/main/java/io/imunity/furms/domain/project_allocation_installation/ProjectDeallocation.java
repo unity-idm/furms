@@ -91,8 +91,18 @@ public class ProjectDeallocation {
 			return this;
 		}
 
+		public ProjectAllocationInstallationBuilder siteId(SiteId siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public ProjectAllocationInstallationBuilder projectAllocationId(String projectAllocationId) {
 			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
+			return this;
+		}
+
+		public ProjectAllocationInstallationBuilder projectAllocationId(ProjectAllocationId projectAllocationId) {
+			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 

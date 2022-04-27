@@ -74,7 +74,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 	}
 
 	@Override
-	public String create(SSHKeyOperationJob sshkeyOperationJob) {
+	public SSHKeyOperationJobId create(SSHKeyOperationJob sshkeyOperationJob) {
 		SSHKeyOperationJobEntity sshkeyInstallationJobEntity = SSHKeyOperationJobEntity.builder()
 				.correlationId(UUID.fromString(sshkeyOperationJob.correlationId.id))
 				.siteId(sshkeyOperationJob.siteId.id)
@@ -83,7 +83,7 @@ class SSHKeyOperationJobDatabaseRepository implements SSHKeyOperationRepository 
 				.error(sshkeyOperationJob.error).originationTime(sshkeyOperationJob.originationTime)
 				.build();
 		SSHKeyOperationJobEntity job = repository.save(sshkeyInstallationJobEntity);
-		return job.getId().toString();
+		return new SSHKeyOperationJobId(job.getId());
 	}
 
 	@Override

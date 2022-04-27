@@ -6,6 +6,7 @@
 package io.imunity.furms.api.communites;
 
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
@@ -18,11 +19,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface CommunityService {
-	boolean existsById(String id);
+	boolean existsById(CommunityId id);
 
-	Set<Community> findAll(Set<String> ids);
+	Set<Community> findAll(Set<CommunityId> ids);
 
-	Optional<Community> findById(String id);
+	Optional<Community> findById(CommunityId id);
 
 	Set<Community> findAll();
 
@@ -32,29 +33,29 @@ public interface CommunityService {
 
 	void update(Community community);
 
-	void delete(String id);
+	void delete(CommunityId id);
 
-	List<FURMSUser> findAllAdmins(String communityId);
+	List<FURMSUser> findAllAdmins(CommunityId communityId);
 
-	CommunityUsersAndAdmins findAllCommunityAdminsAllUsers(String id);
+	CommunityUsersAndAdmins findAllCommunityAdminsAllUsers(CommunityId id);
 
-	List<FURMSUser> findAllUsers(String communityId);
+	List<FURMSUser> findAllUsers(CommunityId communityId);
 
-	AllUsersAndCommunityAdmins findAllAdminsWithAllUsers(String id);
+	AllUsersAndCommunityAdmins findAllAdminsWithAllUsers(CommunityId id);
 
-	Set<Invitation> findAllInvitations(String communityId);
+	Set<Invitation> findAllInvitations(CommunityId communityId);
 
-	void inviteAdmin(String communityId, PersistentId userId);
+	void inviteAdmin(CommunityId communityId, PersistentId userId);
 
-	void inviteAdmin(String communityId, String email);
+	void inviteAdmin(CommunityId communityId, String email);
 
-	void resendInvitation(String communityId, InvitationId invitationId);
+	void resendInvitation(CommunityId communityId, InvitationId invitationId);
 
-	void removeInvitation(String communityId, InvitationId invitationId);
+	void removeInvitation(CommunityId communityId, InvitationId invitationId);
 
-	void addAdmin(String communityId, PersistentId userId);
+	void addAdmin(CommunityId communityId, PersistentId userId);
 
-	void removeAdmin(String communityId, PersistentId userId);
+	void removeAdmin(CommunityId communityId, PersistentId userId);
 
-	boolean isAdmin(String communityId);
+	boolean isAdmin(CommunityId communityId);
 }

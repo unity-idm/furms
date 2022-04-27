@@ -6,12 +6,16 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
+import io.imunity.furms.domain.project_installation.ProjectInstallationId;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
+import io.imunity.furms.domain.project_installation.ProjectUpdateId;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
 import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
@@ -49,8 +54,9 @@ class ProjectInstallationStatusUpdaterTest {
 	void shouldUpdateProjectInstallation() {
 		//given
 		CorrelationId id = new CorrelationId("id");
+		ProjectInstallationId projectInstallationId = new ProjectInstallationId(UUID.randomUUID());
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
-				.id("id")
+				.id(projectInstallationId)
 				.correlationId(id)
 				.status(PENDING)
 				.build();
@@ -61,17 +67,20 @@ class ProjectInstallationStatusUpdaterTest {
 		service.update(id, result);
 
 		//then
-		orderVerifier.verify(repository).update("id", result);
+		orderVerifier.verify(repository).update(projectInstallationId, result);
 	}
 
 	@Test
 	void shouldUpdateProjectInstallationAndStartAllocationsInstallation() {
 		//given
 		CorrelationId id = new CorrelationId("id");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ProjectInstallationId projectInstallationId = new ProjectInstallationId(UUID.randomUUID());
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
-			.id("id")
-			.projectId("projectId")
-			.siteId("siteId")
+			.id(projectInstallationId)
+			.projectId(projectId)
+			.siteId(siteId)
 			.correlationId(id)
 			.status(PENDING)
 			.build();
@@ -82,16 +91,17 @@ class ProjectInstallationStatusUpdaterTest {
 		service.update(id, result);
 
 		//then
-		orderVerifier.verify(repository).update("id", result);
-		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations("projectId", "siteId");
+		orderVerifier.verify(repository).update(projectInstallationId, result);
+		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations(projectId, siteId);
 	}
 
 	@Test
 	void shouldUpdateProjectUpdate() {
 		//given
 		CorrelationId id = new CorrelationId("id");
+		ProjectUpdateId projectUpdateId = new ProjectUpdateId(UUID.randomUUID());
 		ProjectUpdateJob projectInstallationJob = ProjectUpdateJob.builder()
-			.id("id")
+			.id(projectUpdateId)
 			.correlationId(id)
 			.status(ProjectUpdateStatus.PENDING)
 			.build();
@@ -102,6 +112,6 @@ class ProjectInstallationStatusUpdaterTest {
 		service.update(id, result);
 
 		//then
-		orderVerifier.verify(repository).update("id", result);
+		orderVerifier.verify(repository).update(projectUpdateId, result);
 	}
 }

@@ -5,15 +5,17 @@
 
 package io.imunity.furms.api.services;
 
+import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.util.Optional;
 import java.util.Set;
 
-import io.imunity.furms.domain.services.InfraService;
-
 public interface InfraServiceService {
-	Optional<InfraService> findById(String id, String siteId);
+	Optional<InfraService> findById(InfraServiceId id, SiteId siteId);
 
-	Set<InfraService> findAll(String siteId);
+	Set<InfraService> findAll(SiteId siteId);
 
 	Set<InfraService> findAll();
 
@@ -21,5 +23,5 @@ public interface InfraServiceService {
 
 	void update(InfraService infraService);
 
-	void delete(String infraServiceId, String siteId);
+	void delete(InfraServiceId infraServiceId, SiteId siteId);
 }

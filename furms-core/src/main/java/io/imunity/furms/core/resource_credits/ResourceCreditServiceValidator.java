@@ -10,6 +10,9 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -73,7 +76,7 @@ class ResourceCreditServiceValidator {
 			CreditUpdateBelowDistributedAmountException::new);
 	}
 
-	void validateDelete(String id) {
+	void validateDelete(ResourceCreditId id) {
 		assertCreditWithIdExists(id);
 		assertCommunityAllocationNotExistsByResourceId(id);
 	}
@@ -98,19 +101,19 @@ class ResourceCreditServiceValidator {
 		}
 	}
 
-	private ResourceCredit assertCreditWithIdExists(String id) {
+	private ResourceCredit assertCreditWithIdExists(ResourceCreditId id) {
 		notNull(id, "Resource Credit ID has to be declared.");
 		Optional<ResourceCredit> existing = resourceCreditRepository.findById(id);
 		assertTrue(existing.isPresent(), () -> new IdNotFoundValidationError("ResourceCredit with declared ID does not exist."));
 		return existing.get();
 	}
 
-	private void validateSiteId(String id) {
+	private void validateSiteId(SiteId id) {
 		notNull(id, "Site ID has to be declared.");
 		assertTrue(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
 	}
 
-	private void validateResourceTypeId(String id) {
+	private void validateResourceTypeId(ResourceTypeId id) {
 		notNull(id, "ResourceType ID has to be declared.");
 		assertTrue(resourceTypeRepository.exists(id), 
 				() -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
@@ -163,7 +166,7 @@ class ResourceCreditServiceValidator {
 		}
 	}
 
-	private void assertCommunityAllocationNotExistsByResourceId(String id) {
+	private void assertCommunityAllocationNotExistsByResourceId(ResourceCreditId id) {
 		if(communityAllocationRepository.existsByResourceCreditId(id)){
 			throw new ResourceCreditHasAllocationException("ResourceTypeCredit can not be removed when community allocation exists");
 		}

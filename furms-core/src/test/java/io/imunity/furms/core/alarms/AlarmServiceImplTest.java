@@ -14,6 +14,8 @@ import io.imunity.furms.domain.alarms.AlarmRemovedEvent;
 import io.imunity.furms.domain.alarms.AlarmUpdatedEvent;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.alarms.AlarmRepository;
@@ -53,7 +55,9 @@ class AlarmServiceImplTest {
 
 	@Test
 	void shouldFindAll() {
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId1 = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("id");
 		FenixUserId fenixUserId1 = new FenixUserId("id1");
 		FenixUserId fenixUserId2 = new FenixUserId("id2");
@@ -76,7 +80,7 @@ class AlarmServiceImplTest {
 				.id(new AlarmId(UUID.randomUUID()))
 				.name("name")
 				.projectId(projectId)
-				.projectAllocationId("projectAllocationId")
+				.projectAllocationId(projectAllocationId)
 				.allUsers(true)
 				.alarmUser(Set.of(fenixUserId, fenixUserId1))
 				.build(),
@@ -84,22 +88,24 @@ class AlarmServiceImplTest {
 				.id(new AlarmId(UUID.randomUUID()))
 				.name("name1")
 				.projectId(projectId)
-				.projectAllocationId("projectAllocationId1")
+				.projectAllocationId(projectAllocationId1)
 				.allUsers(true)
 				.alarmUser(Set.of(fenixUserId2))
 				.build()
 			));
 
-		Set<AlarmWithUserEmails> alarms = alarmService.findAll("projectId");
+		Set<AlarmWithUserEmails> alarms = alarmService.findAll(projectId);
 		assertThat(alarms.stream().flatMap(alarm -> alarm.alarmUserEmails.stream()).collect(toSet())).isEqualTo(Set.of("email", "email1", "email2"));
 		assertThat(alarms.stream().map(alarm -> alarm.name).collect(toSet())).isEqualTo(Set.of("name", "name1"));
-		assertThat(alarms.stream().map(alarm -> alarm.projectAllocationId).collect(toSet())).isEqualTo(Set.of("projectAllocationId", "projectAllocationId1"));
+		assertThat(alarms.stream().map(alarm -> alarm.projectAllocationId).collect(toSet())).isEqualTo(Set.of(projectAllocationId,
+			projectAllocationId1));
 	}
 
 	@Test
 	void shouldFind() {
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("id");
 		FenixUserId fenixUserId1 = new FenixUserId("id1");
 		when(usersDAO.getAllUsers()).thenReturn(List.of(
@@ -117,7 +123,7 @@ class AlarmServiceImplTest {
 				.id(alarmId)
 				.name("name")
 				.projectId(projectId)
-				.projectAllocationId("projectAllocationId")
+				.projectAllocationId(projectAllocationId)
 				.allUsers(true)
 				.alarmUser(Set.of(fenixUserId, fenixUserId1))
 				.build()
@@ -129,15 +135,15 @@ class AlarmServiceImplTest {
 		assertThat(alarmWithUserEmails.get().id).isEqualTo(alarmId);
 		assertThat(alarmWithUserEmails.get().name).isEqualTo("name");
 		assertThat(alarmWithUserEmails.get().projectId).isEqualTo(projectId);
-		assertThat(alarmWithUserEmails.get().projectAllocationId).isEqualTo("projectAllocationId");
+		assertThat(alarmWithUserEmails.get().projectAllocationId).isEqualTo(projectAllocationId);
 		assertThat(alarmWithUserEmails.get().allUsers).isEqualTo(true);
 		assertThat(alarmWithUserEmails.get().alarmUserEmails).isEqualTo(Set.of("email", "email1"));
 	}
 
 	@Test
 	void shouldCreate() {
-		String projectId = "projectId";
-		String projectAllocationId = "projectAllocationId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		int threshold = 50;
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
 
@@ -173,7 +179,7 @@ class AlarmServiceImplTest {
 			.id(new AlarmId((UUID) null))
 			.name("name")
 			.projectId(projectId)
-			.projectAllocationId("projectAllocationId")
+			.projectAllocationId(projectAllocationId)
 			.allUsers(true)
 			.threshold(threshold)
 			.alarmUser(Set.of("email", "email1"))
@@ -186,8 +192,8 @@ class AlarmServiceImplTest {
 
 	@Test
 	void shouldNotCreateWhenThresholdExceedsUsage() {
-		String projectId = "projectId";
-		String projectAllocationId = "projectAllocationId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		int threshold = 50;
 
 		when(alarmRepository.exist(projectId, "name")).thenReturn(false);
@@ -198,7 +204,7 @@ class AlarmServiceImplTest {
 				.id(new AlarmId((UUID) null))
 				.name("name")
 				.projectId(projectId)
-				.projectAllocationId("projectAllocationId")
+				.projectAllocationId(projectAllocationId)
 				.allUsers(true)
 				.threshold(threshold)
 				.alarmUser(Set.of("email", "email1"))
@@ -208,7 +214,7 @@ class AlarmServiceImplTest {
 
 	@Test
 	void shouldNotCreateWhenNameIsDuplicated() {
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
 
 		when(alarmRepository.exist(projectId, "name")).thenReturn(true);
@@ -218,7 +224,7 @@ class AlarmServiceImplTest {
 				.id(alarmId)
 				.name("name")
 				.projectId(projectId)
-				.projectAllocationId("projectAllocationId")
+				.projectAllocationId(UUID.randomUUID().toString())
 				.allUsers(true)
 				.alarmUser(Set.of("email", "email1"))
 				.build())
@@ -228,8 +234,8 @@ class AlarmServiceImplTest {
 
 	@Test
 	void shouldUpdateWitUnsettingAlarmToFired() {
-		String projectId = "projectId";
-		String projectAllocationId = "projectAllocationId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		int threshold = 50;
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
 
@@ -282,7 +288,8 @@ class AlarmServiceImplTest {
 
 	@Test
 	void shouldUpdateWithSettingAlarmToFired() {
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
 
 		FenixUserId fenixUserId = new FenixUserId("id");
@@ -307,7 +314,7 @@ class AlarmServiceImplTest {
 			.id(alarmId)
 			.name("name")
 			.projectId(projectId)
-			.projectAllocationId("projectAllocationId")
+			.projectAllocationId(projectAllocationId)
 			.allUsers(true)
 			.alarmUser(Set.of("email", "email1"))
 			.build());
@@ -316,7 +323,7 @@ class AlarmServiceImplTest {
 			.id(alarmId)
 			.name("name")
 			.projectId(projectId)
-			.projectAllocationId("projectAllocationId")
+			.projectAllocationId(projectAllocationId)
 			.allUsers(true)
 			.alarmUser(Set.of(fenixUserId, fenixUserId1))
 			.build();
@@ -327,7 +334,7 @@ class AlarmServiceImplTest {
 
 	@Test
 	void shouldNotUpdateIfProjectIdAndAlarmIdNotConnected() {
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
 
 		when(alarmRepository.exist(projectId, alarmId)).thenReturn(false);
@@ -337,7 +344,7 @@ class AlarmServiceImplTest {
 				.id(alarmId)
 				.name("name")
 				.projectId(projectId)
-				.projectAllocationId("projectAllocationId")
+				.projectAllocationId(UUID.randomUUID().toString())
 				.allUsers(true)
 				.alarmUser(Set.of("email", "email1"))
 				.build())
@@ -347,7 +354,7 @@ class AlarmServiceImplTest {
 	@Test
 	void shouldRemove() {
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		AlarmWithUserIds alarmWithUserIds = AlarmWithUserIds.builder()
 			.name("name")
 			.build();
@@ -355,7 +362,7 @@ class AlarmServiceImplTest {
 		when(alarmRepository.find(alarmId)).thenReturn(Optional.of(alarmWithUserIds));
 		when(alarmRepository.exist(projectId, alarmId)).thenReturn(true);
 
-		alarmService.remove("projectId", alarmId);
+		alarmService.remove(projectId, alarmId);
 
 		verify(alarmRepository).remove(alarmId);
 		verify(publisher).publishEvent(new AlarmRemovedEvent(alarmWithUserIds));
@@ -364,10 +371,10 @@ class AlarmServiceImplTest {
 	@Test
 	void shouldNotRemoveIfProjectIdAndAlarmIdNotConnected() {
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 
 		when(alarmRepository.exist(projectId, alarmId)).thenReturn(false);
 
-		assertThrows(AlarmNotExistingException.class, () -> alarmService.remove("projectId", alarmId));
+		assertThrows(AlarmNotExistingException.class, () -> alarmService.remove(projectId, alarmId));
 	}
 }

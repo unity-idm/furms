@@ -5,24 +5,26 @@
 
 package io.imunity.furms.core.resource_types;
 
-import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static org.springframework.util.Assert.notNull;
-
-import java.util.Objects;
-import java.util.Optional;
-
-import org.springframework.stereotype.Component;
-
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.TypeAndUnitAreInconsistentValidationError;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+import java.util.Optional;
+
+import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
+import static io.imunity.furms.utils.ValidationUtils.assertTrue;
+import static org.springframework.util.Assert.notNull;
 
 @Component
 class ResourceTypeServiceValidator {
@@ -60,7 +62,7 @@ class ResourceTypeServiceValidator {
 		validateTypeAndUnitConsistency(resourceType);
 	}
 
-	void validateDelete(String id) {
+	void validateDelete(ResourceTypeId id) {
 		validateId(id);
 		if (resourceCreditRepository.existsByResourceTypeId(id)) {
 			throw new ResourceTypeHasResourceCreditsRemoveValidationError("ResourceType should not have ResourceCredits.");
@@ -96,17 +98,17 @@ class ResourceTypeServiceValidator {
 		}
 	}
 
-	private void validateId(String id) {
+	private void validateId(ResourceTypeId id) {
 		notNull(id, "Resource Type ID has to be declared.");
 		assertTrue(resourceTypeRepository.exists(id), () -> new IdNotFoundValidationError("ResourceType with declared ID does not exist."));
 	}
 
-	private void validateSiteId(String id) {
+	private void validateSiteId(SiteId id) {
 		notNull(id, "Site ID has to be declared.");
 		assertTrue(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
 	}
 
-	private void validateServiceId(String id) {
+	private void validateServiceId(InfraServiceId id) {
 		notNull(id, "Service ID has to be declared.");
 		assertTrue(infraServiceRepository.exists(id), () -> new IdNotFoundValidationError("Service with declared ID is not exists."));
 	}

@@ -75,7 +75,7 @@ public class PolicyAcceptanceMockUtils {
 							ACCEPTED.name(),
 							LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
 			return new RestGroupMemberWithAttributes(map(policyAcceptance.user.getEntity().getEntityInformation()),
-				policyAcceptance.user.getEntity().getIdentities().stream().map(x -> map(x)).collect(toList()),
+				policyAcceptance.user.getEntity().getIdentities().stream().map(PolicyAcceptanceMockUtils::map).collect(toList()),
 				attributes);
 		} catch (JsonProcessingException e) {
 			return null;

@@ -24,6 +24,7 @@ import io.imunity.furms.domain.constant.SSHKeysConst;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
@@ -111,8 +112,8 @@ public class SettingsView extends FurmsViewComponent {
 		getContent().add(formLayout);
 	}
 
-	private Component furmsIdRow(String id, String textLabel) {
-		return new IdFormItem(id, textLabel);
+	private Component furmsIdRow(SiteId id, String textLabel) {
+		return new IdFormItem(id.id.toString(), textLabel);
 	}
 
 	private Component externalIdRow(Binder<SiteSettingsDto> binder) {
@@ -274,7 +275,7 @@ public class SettingsView extends FurmsViewComponent {
 	private SiteSettingsDto loadSite() {
 		try {
 			FurmsViewUserContext context = FurmsViewUserContext.getCurrent();
-			bufferedSettings = siteService.findById(context.id)
+			bufferedSettings = siteService.findById(new SiteId(context.id))
 					.map(SiteSettingsDto::new)
 					.orElseThrow(IllegalArgumentException::new);
 			return bufferedSettings.clone();

@@ -7,18 +7,26 @@ package io.imunity.furms.db.resource_access;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -32,7 +40,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -66,9 +73,9 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private UserGrantJobEntityRepository userGrantJobEntityRepository;
 
-	private UUID siteId;
-	private UUID projectId;
-	private UUID projectAllocationId;
+	private SiteId siteId;
+	private ProjectId projectId;
+	private ProjectAllocationId projectAllocationId;
 
 
 	@BeforeEach
@@ -77,17 +84,17 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
 
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -97,61 +104,61 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
+		);
 
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
+		projectAllocationId = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(5))
 				.build()
-		));
+		);
 	}
 
 	@Test
 	void shouldFindByUserIdAndProjectAllocationId(){
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -162,7 +169,7 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(userGrantJobEntity);
 
-		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId.id);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation).isEqualTo(userAllocation);
 		assertThat(userAllocationResolved.get().job).isEqualTo(userAdditionSaveEntity);
@@ -172,9 +179,9 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindByCorrelationId(){
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -189,16 +196,16 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectUserGrantEntity> userAllocationResolved = userGrantEntityRepository.findByCorrelationId(correlationId);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().userId).isEqualTo("userId");
-		assertThat(userAllocationResolved.get().projectId).isEqualTo(projectId.toString());
+		assertThat(userAllocationResolved.get().projectId).isEqualTo(projectId.id.toString());
 	}
 
 	@Test
 	void shouldFindAllByProjectId(){
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -209,7 +216,7 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(userGrantJobEntity);
 
-		Set<UserGrantResolved> userAllocationsResolved = userGrantEntityRepository.findAll(projectId);
+		Set<UserGrantResolved> userAllocationsResolved = userGrantEntityRepository.findAll(projectId.id);
 		assertThat(userAllocationsResolved.size()).isEqualTo(1);
 		UserGrantResolved userGrantResolved = userAllocationsResolved.iterator().next();
 		assertThat(userGrantResolved.allocation).isEqualTo(userAllocation);
@@ -220,17 +227,17 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllByProjectIdAndUserId(){
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
 		userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId2")
 				.build()
 		);
@@ -241,7 +248,7 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		UserGrantJobEntity userAdditionSaveEntity = userGrantJobEntityRepository.save(userGrantJobEntity);
 
-		Set<UserGrantResolved> userAllocationsResolved = userGrantEntityRepository.findAll(projectId, "userId");
+		Set<UserGrantResolved> userAllocationsResolved = userGrantEntityRepository.findAll(projectId.id, "userId");
 		assertThat(userAllocationsResolved.size()).isEqualTo(1);
 		UserGrantResolved userGrantResolved = userAllocationsResolved.iterator().next();
 		assertThat(userGrantResolved.allocation).isEqualTo(userAllocation);
@@ -252,9 +259,9 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 	void shouldCreate(){
 		UserGrantEntity userAdditionSaveEntity = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -267,9 +274,9 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDelete(){
 		UserGrantEntity userAdditionSaveEntity = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -284,18 +291,18 @@ class UserGrantEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdate(){
 		UserGrantEntity userAdditionSaveEntity = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
 		userGrantEntityRepository.save(
 			UserGrantEntity.builder()
 				.id(userAdditionSaveEntity.getId())
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId2")
 				.build()
 		);

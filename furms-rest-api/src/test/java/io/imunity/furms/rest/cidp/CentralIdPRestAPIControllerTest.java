@@ -7,10 +7,13 @@ package io.imunity.furms.rest.cidp;
 import io.imunity.furms.TestBeansRegistry;
 import io.imunity.furms.core.config.security.SecurityProperties;
 import io.imunity.furms.core.config.security.WebAppSecurityConfiguration;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GroupAccess;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -57,6 +60,12 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 		final UUID policy2 = UUID.randomUUID();
 		final FenixUserId fenixUserId = new FenixUserId("F_ID");
 		final PersistentId persistentId = new PersistentId("ID");
+
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		CommunityId communityId2 = new CommunityId(UUID.randomUUID());
+
 		when(userService.getUserRecord(fenixUserId)).thenReturn(new UserRecord(
 				FURMSUser.builder()
 						.id(persistentId)
@@ -67,17 +76,17 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 						.status(UserStatus.ENABLED)
 						.build(),
 				Set.of(new SiteUser(
-						"siteId",
+						siteId,
 						"siteOauthClientId",
-						Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
-						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
+						Set.of(new ProjectMembershipOnSite("localUserId", projectId)),
+						new PolicyAcceptanceAtSite(new PolicyId(policy1), siteId, 1,
 								1, ACCEPTED, Instant.now()),
-						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
+						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), siteId, 2,
 								1, ACCEPTED, Instant.now())),
-						new SiteSSHKeys("siteId", Set.of("sshKey1")))),
+						new SiteSSHKeys(siteId, Set.of("sshKey1")))),
 				Set.of(
-					new GroupAccess("communityId", Set.of("group1", "group2")),
-					new GroupAccess("communityId2", Set.of("group1", "group2"))
+					new GroupAccess(communityId, Set.of("group1", "group2")),
+					new GroupAccess(communityId2, Set.of("group1", "group2"))
 				)
 			));
 
@@ -100,16 +109,18 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.andExpect(jsonPath("$.user.placeOfBirth").isEmpty())
 				.andExpect(jsonPath("$.user.postalAddress").isEmpty())
 				.andExpect(jsonPath("$.userStatus").value("ENABLED"))
-				.andExpect(jsonPath("$.groupAccess[0].communityId").value(in(Set.of("communityId", "communityId2"))))
+				.andExpect(jsonPath("$.groupAccess[0].communityId").value(in(Set.of(communityId.id.toString(),
+					communityId2.id.toString()))))
 				.andExpect(jsonPath("$.groupAccess[0].groups[0]").value(in(Set.of("group1", "group2"))))
 				.andExpect(jsonPath("$.groupAccess[0].groups[1]").value(in(Set.of("group1", "group2"))))
-				.andExpect(jsonPath("$.groupAccess[1].communityId").value(in(Set.of("communityId", "communityId2"))))
+				.andExpect(jsonPath("$.groupAccess[1].communityId").value(in(Set.of(communityId.id.toString(),
+					communityId2.id.toString()))))
 				.andExpect(jsonPath("$.groupAccess[1].groups[0]").value(in(Set.of("group1", "group2"))))
 				.andExpect(jsonPath("$.groupAccess[1].groups[1]").value(in(Set.of("group1", "group2"))))
-				.andExpect(jsonPath("$.siteAccess[0].siteId").value("siteId"))
+				.andExpect(jsonPath("$.siteAccess[0].siteId").value(siteId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].siteOauthClientId").value("siteOauthClientId"))
 				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].localUserId").value("localUserId"))
-				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].projectId").value("projId"))
+				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].projectId").value(projectId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.policyId").value(policy1.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.acceptanceStatus").value("ACCEPTED"))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.processedOn").isNotEmpty())
@@ -128,6 +139,12 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 		final UUID policy1 = UUID.randomUUID();
 		final UUID policy2 = UUID.randomUUID();
 		final FenixUserId fenixUserId = new FenixUserId("F_ID");
+
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		CommunityId communityId2 = new CommunityId(UUID.randomUUID());
+
 		when(userService.getUserRecord(fenixUserId)).thenReturn(new UserRecord(
 				FURMSUser.builder()
 						.id(new PersistentId("ID"))
@@ -138,26 +155,26 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 						.status(UserStatus.ENABLED)
 						.build(),
 				Set.of(new SiteUser(
-						"siteId",
+						siteId,
 						"siteOauthClientId",
-						Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
-						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
+						Set.of(new ProjectMembershipOnSite("localUserId", projectId)),
+						new PolicyAcceptanceAtSite(new PolicyId(policy1), siteId, 1,
 								1, ACCEPTED, Instant.now()),
-						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
+						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), siteId, 2,
 								1, ACCEPTED, Instant.now())),
-						new SiteSSHKeys("siteId", Set.of("sshKey1"))),
+						new SiteSSHKeys(siteId, Set.of("sshKey1"))),
 					new SiteUser(
-						"siteId",
+						siteId,
 						"otherSiteOauthClientId",
-						Set.of(new ProjectMembershipOnSite("localUserId2", "projId")),
-						new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
+						Set.of(new ProjectMembershipOnSite("localUserId2", projectId)),
+						new PolicyAcceptanceAtSite(new PolicyId(policy1), siteId, 1,
 								1, ACCEPTED, Instant.now()),
-						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
+						Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), siteId, 2,
 								1, ACCEPTED, Instant.now())),
-						new SiteSSHKeys("siteId", Set.of("sshKey1")))),
+						new SiteSSHKeys(siteId, Set.of("sshKey1")))),
 				Set.of(
-					new GroupAccess("communityId", Set.of("group1", "group2")),
-					new GroupAccess("communityId2", Set.of("group1", "group2"))
+					new GroupAccess(communityId, Set.of("group1", "group2")),
+					new GroupAccess(communityId2, Set.of("group1", "group2"))
 				)
 		));
 
@@ -180,17 +197,19 @@ public class CentralIdPRestAPIControllerTest extends TestBeansRegistry {
 				.andExpect(jsonPath("$.user.placeOfBirth").isEmpty())
 				.andExpect(jsonPath("$.user.postalAddress").isEmpty())
 				.andExpect(jsonPath("$.userStatus").value("ENABLED"))
-				.andExpect(jsonPath("$.groupAccess[0].communityId").value(in(Set.of("communityId", "communityId2"))))
+				.andExpect(jsonPath("$.groupAccess[0].communityId").value(in(Set.of(communityId.id.toString(),
+					communityId2.id.toString()))))
 				.andExpect(jsonPath("$.groupAccess[0].groups[0]").value(in(Set.of("group1", "group2"))))
 				.andExpect(jsonPath("$.groupAccess[0].groups[1]").value(in(Set.of("group1", "group2"))))
-				.andExpect(jsonPath("$.groupAccess[1].communityId").value(in(Set.of("communityId", "communityId2"))))
+				.andExpect(jsonPath("$.groupAccess[1].communityId").value(in(Set.of(communityId.id.toString(),
+					communityId2.id.toString()))))
 				.andExpect(jsonPath("$.groupAccess[1].groups[0]").value(in(Set.of("group1", "group2"))))
 				.andExpect(jsonPath("$.groupAccess[1].groups[1]").value(in(Set.of("group1", "group2"))))
 				.andExpect(jsonPath("$.siteAccess", hasSize(1)))
-				.andExpect(jsonPath("$.siteAccess[0].siteId").value("siteId"))
+				.andExpect(jsonPath("$.siteAccess[0].siteId").value(siteId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].siteOauthClientId").value("siteOauthClientId"))
 				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].localUserId").value("localUserId"))
-				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].projectId").value("projId"))
+				.andExpect(jsonPath("$.siteAccess[0].projectMemberships[0].projectId").value(projectId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.policyId").value(policy1.toString()))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.acceptanceStatus").value("ACCEPTED"))
 				.andExpect(jsonPath("$.siteAccess[0].sitePolicyAcceptance.processedOn").isNotEmpty())

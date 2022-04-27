@@ -5,15 +5,17 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.util.Objects;
 
 class SiteComboBoxModel {
 	
-	public final String id;
+	public final SiteId id;
 	public final String name;
 	public final boolean sshKeyFromOptionMandatory;
 
-	SiteComboBoxModel(String id, String name, Boolean sshKeyFromOptionMandatory) {
+	SiteComboBoxModel(SiteId id, String name, Boolean sshKeyFromOptionMandatory) {
 		this.id = id;
 		this.name = name;
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory != null && sshKeyFromOptionMandatory;
@@ -44,14 +46,14 @@ class SiteComboBoxModel {
 	}
 
 	public static final class Builder {
-		private String id;
+		private SiteId id;
 		private String name;
 		private boolean sshKeyFromOptionMandatory;
 
 		private Builder() {
 		}
 
-		public Builder id(String id) {
+		public Builder id(SiteId id) {
 			this.id = id;
 			return this;
 		}

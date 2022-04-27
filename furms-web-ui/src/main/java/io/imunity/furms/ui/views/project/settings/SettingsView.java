@@ -13,6 +13,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -111,7 +112,7 @@ public class SettingsView extends FurmsViewComponent {
 	}
 
 	private Optional<ProjectViewModel> getProjectViewModel() {
-		return handleExceptions(() -> projectService.findById(getCurrentResourceId()))
+		return handleExceptions(() -> projectService.findById(new ProjectId(getCurrentResourceId())))
 			.flatMap(identity())
 			.map(project -> resolver.resolve(project, zoneId));
 	}

@@ -8,6 +8,9 @@ package io.imunity.furms.core.resource_types;
 import io.imunity.furms.api.validation.exceptions.ResourceTypeHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.api.validation.exceptions.TypeAndUnitAreInconsistentValidationError;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
@@ -21,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,9 +48,11 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType service = ResourceType.builder()
-			.siteId("id")
-			.serviceId("id")
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -64,9 +70,11 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullType() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType service = ResourceType.builder()
-			.siteId("id")
-			.serviceId("id")
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.unit(ResourceMeasureUnit.MEGA)
 			.build();
@@ -82,9 +90,11 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullUnit() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType service = ResourceType.builder()
-			.siteId("id")
-			.serviceId("id")
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.unit(ResourceMeasureUnit.MEGA)
 			.build();
@@ -100,9 +110,11 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForInconsistentTypeAndUnit() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType service = ResourceType.builder()
-			.siteId("id")
-			.serviceId("id")
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.MEGA)
@@ -119,9 +131,11 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType service = ResourceType.builder()
-			.siteId("id")
-			.serviceId("id")
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -138,8 +152,9 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonExistingSiteId() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		ResourceType service = ResourceType.builder()
-			.siteId("id")
+			.siteId(siteId)
 			.name("name")
 			.build();
 
@@ -152,14 +167,16 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonExistingServiceId() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType service = ResourceType.builder()
-			.siteId("id")
-			.serviceId("id")
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
-		when(serviceRepository.exists(service.siteId)).thenReturn(false);
+		when(serviceRepository.exists(service.serviceId)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -179,8 +196,9 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullServiceId() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		ResourceType service = ResourceType.builder()
-			.siteId("id")
+			.siteId(siteId)
 			.name("name")
 			.build();
 
@@ -191,10 +209,13 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldPassUpdateWithSameName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		final ResourceType service = ResourceType.builder()
-			.id("id")
-			.siteId("id")
-			.serviceId("id")
+			.id(resourceTypeId)
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -212,10 +233,13 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceType community = ResourceType.builder()
-			.id("id")
-			.siteId("id")
-			.serviceId("id")
+			.id(resourceTypeId)
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -230,19 +254,22 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceType resourceType = ResourceType.builder()
-			.id("id")
-			.siteId("id")
-			.serviceId("id")
+			.id(resourceTypeId)
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
 			.build();
 
 		ResourceType resourceType2 = ResourceType.builder()
-			.id("id")
-			.siteId("id")
-			.serviceId("id")
+			.id(resourceTypeId)
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name2")
 			.build();
 
@@ -259,35 +286,35 @@ class ResourceTypeServiceImplValidatorTest {
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		String id = "id";
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 
-		when(resourceTypeRepository.exists(id)).thenReturn(true);
+		when(resourceTypeRepository.exists(resourceTypeId)).thenReturn(true);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateDelete(id));
+		assertDoesNotThrow(() -> validator.validateDelete(resourceTypeId));
 	}
 
 	@Test
 	void shouldNotPassDeleteForExistingResourceCredits() {
 		//given
-		String id = "id";
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 
-		when(resourceTypeRepository.exists(id)).thenReturn(true);
-		when(resourceCreditRepository.existsByResourceTypeId(id)).thenReturn(true);
+		when(resourceTypeRepository.exists(resourceTypeId)).thenReturn(true);
+		when(resourceCreditRepository.existsByResourceTypeId(resourceTypeId)).thenReturn(true);
 
 		//when+then
-		assertThrows(ResourceTypeHasResourceCreditsRemoveValidationError.class, () -> validator.validateDelete(id));
+		assertThrows(ResourceTypeHasResourceCreditsRemoveValidationError.class, () -> validator.validateDelete(resourceTypeId));
 	}
 
 	@Test
 	void shouldNotPassDeleteForNonExistingId() {
 		//given
-		String id = "id";
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 
-		when(resourceTypeRepository.exists(id)).thenReturn(false);
+		when(resourceTypeRepository.exists(resourceTypeId)).thenReturn(false);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(resourceTypeId));
 	}
 
 }

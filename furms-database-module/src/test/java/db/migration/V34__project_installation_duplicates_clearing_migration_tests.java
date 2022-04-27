@@ -8,10 +8,13 @@ package db.migration;
 import io.imunity.furms.db.project_installation.ProjectInstallationJobEntity;
 import io.imunity.furms.db.project_installation.ProjectInstallationJobEntityRepository;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -50,11 +53,11 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 	@Autowired
 	private Flyway flyway;
 
-	private UUID siteId;
-	private UUID projectId;
+	private SiteId siteId;
+	private ProjectId projectId;
 
-	private UUID siteId1;
-	private UUID projectId1;
+	private SiteId siteId1;
+	private ProjectId projectId1;
 
 	@BeforeEach
 	void setUp() {
@@ -73,16 +76,16 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -91,23 +94,23 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 
 
 		Site site1 = Site.builder()
 			.name("name1")
 			.build();
 
-		siteId1 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id1")));
+		siteId1 = siteRepository.create(site1, new SiteExternalId("id1"));
 
 		Community community1 = Community.builder()
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId1 = UUID.fromString(communityRepository.create(community1));
+		CommunityId communityId1 = communityRepository.create(community1);
 
 		Project project1 = Project.builder()
-			.communityId(communityId1.toString())
+			.communityId(communityId1)
 			.name("name1")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -116,7 +119,7 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
-		projectId1 = UUID.fromString(projectRepository.create(project1));
+		projectId1 = projectRepository.create(project1);
 	}
 
 	@AfterEach
@@ -130,72 +133,72 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(2)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(2)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(2)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId1)
+				.siteId(siteId.id)
+				.projectId(projectId1.id)
 				.status(2)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId1)
+				.siteId(siteId.id)
+				.projectId(projectId1.id)
 				.status(2)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId1)
-				.projectId(projectId)
+				.siteId(siteId1.id)
+				.projectId(projectId.id)
 				.status(2)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId1)
-				.projectId(projectId)
+				.siteId(siteId1.id)
+				.projectId(projectId.id)
 				.status(2)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId1)
-				.projectId(projectId1)
+				.siteId(siteId1.id)
+				.projectId(projectId1.id)
 				.status(2)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId1)
-				.projectId(projectId1)
+				.siteId(siteId1.id)
+				.projectId(projectId1.id)
 				.status(2)
 				.build()
 		);
@@ -209,10 +212,10 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 			.collect(Collectors.toSet());
 		assertEquals(
 			Set.of(
-				Pair.of(siteId, projectId),
-				Pair.of(siteId, projectId1),
-				Pair.of(siteId1, projectId),
-				Pair.of(siteId1, projectId1)
+				Pair.of(siteId.id, projectId.id),
+				Pair.of(siteId.id, projectId1.id),
+				Pair.of(siteId1.id, projectId.id),
+				Pair.of(siteId1.id, projectId1.id)
 			),
 			siteIdAndProjectIdPairs
 		);
@@ -223,31 +226,31 @@ class V34__project_installation_duplicates_clearing_migration_tests {
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(2)
 				.build()
 		);
 		ProjectInstallationJobEntity toNotRemove = repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(6)
 				.build()
 		);
 		repository.save(
 			ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId1)
-				.projectId(projectId1)
+				.siteId(siteId1.id)
+				.projectId(projectId1.id)
 				.status(3)
 				.build()
 		);
 		ProjectInstallationJobEntity toNotRemove1 = repository.save(ProjectInstallationJobEntity.builder()
 			.correlationId(UUID.randomUUID())
-			.siteId(siteId1)
-			.projectId(projectId1)
+			.siteId(siteId1.id)
+			.projectId(projectId1.id)
 			.status(4)
 			.build()
 		);

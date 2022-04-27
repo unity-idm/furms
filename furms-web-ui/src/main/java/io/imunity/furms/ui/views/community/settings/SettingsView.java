@@ -12,6 +12,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.ui.community.CommunityFormComponent;
 import io.imunity.furms.ui.community.CommunityViewModel;
 import io.imunity.furms.ui.community.CommunityViewModelMapper;
@@ -89,7 +90,7 @@ public class SettingsView extends FurmsViewComponent {
 	}
 
 	private Optional<CommunityViewModel> getCommunityViewModel() {
-		return handleExceptions(() -> communityService.findById(getCurrentResourceId()))
+		return handleExceptions(() -> communityService.findById(new CommunityId(getCurrentResourceId())))
 			.flatMap(identity())
 			.map(CommunityViewModelMapper::map);
 	}

@@ -11,6 +11,9 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,6 +41,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @Service
 class RoleTranslatorService implements RoleTranslator {
@@ -99,17 +103,20 @@ class RoleTranslatorService implements RoleTranslator {
 			case FENIX_ADMIN:
 				return Stream.of(new FurmsViewUserContext(FENIX_ADMIN_CONTEXT_ID, "Fenix admin", FENIX));
 			case SITE_ADMIN:
-				return siteService.findAll(resourceIds).stream()
-					.map(site -> new FurmsViewUserContext(site.getId(), getAdminName(site.getName()), SITE));
+				return siteService.findAll(resourceIds.stream().map(SiteId::new).collect(toSet())).stream()
+					.map(site -> new FurmsViewUserContext(site.getId().id.toString(), getAdminName(site.getName()), SITE));
 			case SITE_SUPPORT:
-				return siteService.findAll(resourceIds).stream()
-					.map(site -> new FurmsViewUserContext(site.getId(), getSupportName(site.getName()), SITE, SITE_SUPPORT_LANDING_PAGE));
+				return siteService.findAll(resourceIds.stream().map(SiteId::new).collect(toSet())).stream()
+					.map(site -> new FurmsViewUserContext(site.getId().id.toString(), getSupportName(site.getName()), SITE,
+						SITE_SUPPORT_LANDING_PAGE));
 			case COMMUNITY_ADMIN:
-				return communityService.findAll(resourceIds).stream()
-					.map(community -> new FurmsViewUserContext(community.getId(), getAdminName(community.getName()), COMMUNITY));
+				return communityService.findAll(resourceIds.stream().map(CommunityId::new).collect(toSet())).stream()
+					.map(community -> new FurmsViewUserContext(community.getId().id.toString(), getAdminName(community.getName()),
+						COMMUNITY));
 			case PROJECT_ADMIN:
-				return projectService.findAll(resourceIds).stream()
-					.map(project -> new FurmsViewUserContext(project.getId(), getAdminName(project.getName()), PROJECT));
+				return projectService.findAll(resourceIds.stream().map(ProjectId::new).collect(toSet())).stream()
+					.map(project -> new FurmsViewUserContext(project.getId().id.toString(), getAdminName(project.getName()),
+						PROJECT));
 			case PROJECT_USER:
 				return Stream.empty();
 			default:

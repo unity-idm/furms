@@ -25,6 +25,7 @@ import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -43,13 +44,12 @@ public class DefaultDataBuilders {
 
 	public static Site.SiteBuilder defaultSite() {
 		return Site.builder()
-			.id(UUID.randomUUID().toString())
+			.id(new SiteId(UUID.randomUUID().toString(), new SiteExternalId("se_id")))
 			.name("Default Site Name")
 			.oauthClientId("default_oauth_client")
 			.connectionInfo("Default Connection Info")
 			.logo(new FurmsImage("image".getBytes(), "jpg"))
 			.sshKeyFromOptionMandatory(false)
-			.externalId(new SiteExternalId("se_id"))
 			.sshKeyHistoryLength(1)
 			.policyId(PolicyId.empty());
 	}
@@ -170,10 +170,10 @@ public class DefaultDataBuilders {
 
 	public static InfraService.ServiceBuilder defaultService() {
 		return InfraService.builder()
-				.id(UUID.randomUUID().toString())
+				.id(new InfraServiceId(UUID.randomUUID()))
 				.name("Default Service Name")
 				.description("Default Service Description")
-				.siteId(UUID.randomUUID().toString())
+				.siteId(new SiteId(UUID.randomUUID()))
 				.policyId(PolicyId.empty());
 	}
 
@@ -191,7 +191,7 @@ public class DefaultDataBuilders {
 	public static GenericGroup.GenericGroupBuilder defaultGenericGroup() {
 		return GenericGroup.builder()
 				.id(UUID.randomUUID())
-				.communityId(UUID.randomUUID().toString())
+				.communityId(UUID.randomUUID())
 				.name(UUID.randomUUID().toString())
 				.description("Default Description");
 	}

@@ -8,17 +8,25 @@ package io.imunity.furms.db.project_allocation_installation;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -33,12 +41,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,10 +71,10 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectAllocationChunkEntityRepository entityRepository;
 
-	private UUID projectId;
+	private ProjectId projectId;
 
-	private UUID projectAllocationId;
-	private UUID projectAllocationId2;
+	private ProjectAllocationId projectAllocationId;
+	private ProjectAllocationId projectAllocationId2;
 
 	@BeforeEach
 	void init() {
@@ -78,7 +84,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		SiteId siteId = siteRepository.create(site, new SiteExternalId("id"));
 		siteRepository.create(site1, new SiteExternalId("id2"));
 
 		Community community = Community.builder()
@@ -89,11 +95,11 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
-		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
+		CommunityId communityId = communityRepository.create(community);
+		CommunityId communityId2 = communityRepository.create(community2);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -103,7 +109,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 		Project project2 = Project.builder()
-			.communityId(communityId2.toString())
+			.communityId(communityId2)
 			.name("name2")
 			.logo(FurmsImage.empty())
 			.description("new_description")
@@ -113,69 +119,69 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
-		UUID projectId2 = UUID.fromString(projectRepository.create(project2));
+		projectId = projectRepository.create(project);
+		ProjectId projectId2 = projectRepository.create(project2);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
-		UUID communityAllocationId2 = UUID.fromString(communityAllocationRepository.create(
+		);
+		CommunityAllocationId communityAllocationId2 = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem2")
 				.amount(new BigDecimal(30))
 				.build()
-		));
+		);
 
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
+		projectAllocationId = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(5))
 				.build()
-		));
-		projectAllocationId2 = UUID.fromString(projectAllocationRepository.create(
+		);
+		projectAllocationId2 = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId2.toString())
-				.communityAllocationId(communityAllocationId2.toString())
+				.projectId(projectId2)
+				.communityAllocationId(communityAllocationId2)
 				.name("anem2")
 				.amount(new BigDecimal(30))
 				.build()
-		));
+		);
 	}
 
 	@AfterEach
@@ -187,7 +193,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	void shouldCreateProjectAllocationChunk() {
 		//given
 		ProjectAllocationChunkEntity entityToSave = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId)
+			.projectAllocationId(projectAllocationId.id)
 			.amount(BigDecimal.TEN)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
@@ -210,7 +216,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateProjectAllocationChunk() {
 		//given
 		ProjectAllocationChunkEntity entityToSave = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId)
+			.projectAllocationId(projectAllocationId.id)
 			.chunkId("1")
 			.amount(BigDecimal.TEN)
 			.receivedTime(LocalDateTime.now())
@@ -224,7 +230,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 		ProjectAllocationChunkEntity entityToUpdate = ProjectAllocationChunkEntity.builder()
 			.id(save.getId())
 			.chunkId("1")
-			.projectAllocationId(projectAllocationId)
+			.projectAllocationId(projectAllocationId.id)
 			.amount(BigDecimal.ONE)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
@@ -245,7 +251,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedProjectAllocationChunk() {
 		//given
 		ProjectAllocationChunkEntity toSave = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId)
+			.projectAllocationId(projectAllocationId.id)
 			.amount(BigDecimal.TEN)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
@@ -265,7 +271,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllProjectAllocationChunksByProjectId() {
 		//given
 		ProjectAllocationChunkEntity toNotFind = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId2)
+			.projectAllocationId(projectAllocationId2.id)
 			.amount(BigDecimal.TEN)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
@@ -273,7 +279,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		ProjectAllocationChunkEntity toFind = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId)
+			.projectAllocationId(projectAllocationId.id)
 			.amount(BigDecimal.TEN)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
@@ -284,7 +290,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 		ProjectAllocationChunkEntity save = entityRepository.save(toFind);
 
 		//when
-		Set<ProjectAllocationChunkEntity> chunks = entityRepository.findAllByProjectId(projectId);
+		Set<ProjectAllocationChunkEntity> chunks = entityRepository.findAllByProjectId(projectId.id);
 
 		//then
 		assertThat(chunks.size()).isEqualTo(1);
@@ -295,14 +301,14 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllAvailableProjectAllocationChunk() {
 		//given
 		ProjectAllocationChunkEntity toSave = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId)
+			.projectAllocationId(projectAllocationId.id)
 			.amount(BigDecimal.TEN)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
 			.validTo(LocalDateTime.now())
 			.build();
 		ProjectAllocationChunkEntity toSave1 = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId2)
+			.projectAllocationId(projectAllocationId2.id)
 			.amount(BigDecimal.ZERO)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
@@ -323,7 +329,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteProjectAllocationChunk() {
 		//given
 		ProjectAllocationChunkEntity toSave = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId2)
+			.projectAllocationId(projectAllocationId2.id)
 			.amount(BigDecimal.ZERO)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
@@ -342,14 +348,14 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteAllProjectAllocationChunks() {
 		//given
 		ProjectAllocationChunkEntity toSave = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId)
+			.projectAllocationId(projectAllocationId.id)
 			.amount(BigDecimal.TEN)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())
 			.validTo(LocalDateTime.now())
 			.build();
 		ProjectAllocationChunkEntity toSave1 = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId2)
+			.projectAllocationId(projectAllocationId2.id)
 			.amount(BigDecimal.ZERO)
 			.receivedTime(LocalDateTime.now())
 			.validFrom(LocalDateTime.now())

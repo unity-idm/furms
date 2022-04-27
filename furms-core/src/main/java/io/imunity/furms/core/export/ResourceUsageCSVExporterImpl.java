@@ -7,8 +7,12 @@ package io.imunity.furms.core.export;
 
 import io.imunity.furms.api.export.ResourceUsageCSVExporter;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -20,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -48,11 +51,11 @@ class ResourceUsageCSVExporterImpl implements ResourceUsageCSVExporter {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Supplier<String> getCsvForProjectAllocation(String projectId, String projectAllocationId) {
+	public Supplier<String> getCsvForProjectAllocation(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		return () -> {
 			exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
 			ProjectAllocationResolved projectAllocation = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
-			List<ResourceUsage> allResourceUsageHistory = resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId))
+			List<ResourceUsage> allResourceUsageHistory = resourceUsageRepository.findResourceUsagesHistory(projectAllocationId)
 				.stream().sorted(Comparator.comparing(usage -> usage.utcProbedAt)).collect(Collectors.toList());
 			StringBuilder file = new StringBuilder(HEADER);
 			for (ResourceUsage usage : allResourceUsageHistory) {
@@ -70,8 +73,8 @@ class ResourceUsageCSVExporterImpl implements ResourceUsageCSVExporter {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Supplier<String> getCsvForCommunityAllocation(String communityId, String communityAllocationId) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Supplier<String> getCsvForCommunityAllocation(CommunityId communityId, CommunityAllocationId communityAllocationId) {
 		return () -> {
 			exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
 			CommunityAllocationResolved communityAllocationResolved = communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId).get();

@@ -20,6 +20,6 @@ class PendingUserInstallationRemover implements UserProjectAddRemover {
 
 	@Override
 	public void remove(CorrelationId correlationId) {
-		userOperationRepository.deleteByCorrelationId(correlationId.id);
+		userOperationRepository.deleteByCorrelationId(correlationId);
 	}
 }

@@ -49,7 +49,7 @@ class ProjectAuditLogService {
 	void onProjectCreatedEvent(ProjectCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.project.getId())
+			.resourceId(event.project.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.PROJECTS_MANAGEMENT)
@@ -64,7 +64,7 @@ class ProjectAuditLogService {
 	void onProjectRemovedEvent(ProjectRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.project.getId())
+			.resourceId(event.project.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.PROJECTS_MANAGEMENT)
@@ -79,7 +79,7 @@ class ProjectAuditLogService {
 	void onProjectUpdatedEvent(ProjectUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.newProject.getId())
+			.resourceId(event.newProject.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.PROJECTS_MANAGEMENT)

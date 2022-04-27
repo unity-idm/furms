@@ -5,12 +5,14 @@
 
 package io.imunity.furms.domain.policy_documents;
 
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.util.Objects;
 
 public class PolicyDocument {
 
 	public final PolicyId id;
-	public final String siteId;
+	public final SiteId siteId;
 	public final String name;
 	public final PolicyWorkflow workflow;
 	public final int revision;
@@ -18,7 +20,7 @@ public class PolicyDocument {
 	public final String htmlText;
 	public final PolicyFile policyFile;
 
-	PolicyDocument(PolicyId id, String siteId, String name, PolicyWorkflow workflow, int revision, PolicyContentType contentType, String htmlText, PolicyFile policyFile) {
+	PolicyDocument(PolicyId id, SiteId siteId, String name, PolicyWorkflow workflow, int revision, PolicyContentType contentType, String htmlText, PolicyFile policyFile) {
 		if((htmlText != null && !htmlText.isBlank() && !policyFile.isEmpty()))
 			throw new IllegalArgumentException("Html text or policy file have to be empty");
 		this.id = id;
@@ -61,7 +63,7 @@ public class PolicyDocument {
 
 	public static final class PolicyDocumentBuilder {
 		private PolicyId id;
-		private String siteId;
+		private SiteId siteId;
 		private String name;
 		private PolicyWorkflow workflow;
 		private int revision = 1;
@@ -78,6 +80,11 @@ public class PolicyDocument {
 		}
 
 		public PolicyDocumentBuilder siteId(String siteId) {
+			this.siteId = new SiteId(siteId);
+			return this;
+		}
+
+		public PolicyDocumentBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

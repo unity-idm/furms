@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface UserSiteAccessRepository {
-	Set<String> findAllUserProjectIds(SiteId siteId, FenixUserId userId);
+	Set<ProjectId> findAllUserProjectIds(SiteId siteId, FenixUserId userId);
 	Map<SiteId, Set<FenixUserId>> findAllUserGroupedBySiteId(ProjectId projectId);
 	void add(SiteId siteId, ProjectId projectId, FenixUserId userId);
 	void remove(SiteId siteId, ProjectId projectId, FenixUserId userId);

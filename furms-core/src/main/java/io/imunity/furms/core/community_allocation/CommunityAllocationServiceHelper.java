@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.community_allocation;
 
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +19,11 @@ public class CommunityAllocationServiceHelper {
 		this.communityAllocationRepository = communityAllocationRepository;
 	}
 
-	public boolean existsByResourceCreditId(String resourceCreditId) {
+	public boolean existsByResourceCreditId(ResourceCreditId resourceCreditId) {
 		return communityAllocationRepository.existsByResourceCreditId(resourceCreditId);
 	}
 
-	public BigDecimal getAvailableAmountForNew(String resourceCreditId) {
+	public BigDecimal getAvailableAmountForNew(ResourceCreditId resourceCreditId) {
 		return communityAllocationRepository.getAvailableAmount(resourceCreditId);
 	}
 }

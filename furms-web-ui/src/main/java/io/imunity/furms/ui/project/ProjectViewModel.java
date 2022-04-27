@@ -5,7 +5,9 @@
 
 package io.imunity.furms.ui.project;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,8 +15,8 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class ProjectViewModel {
-	public final String id;
-	public final String communityId;
+	public final ProjectId id;
+	public final CommunityId communityId;
 	public String name;
 	public String description;
 	public FurmsImage logo;
@@ -24,7 +26,7 @@ public class ProjectViewModel {
 	public ZonedDateTime endTime;
 	public FurmsViewUserModel projectLeader;
 
-	public ProjectViewModel(String id, String communityId, String name, String description, FurmsImage logo,
+	public ProjectViewModel(ProjectId id, CommunityId communityId, String name, String description, FurmsImage logo,
 	                        String acronym, String researchField, ZonedDateTime startTime, ZonedDateTime endTime,
 	                        FurmsViewUserModel projectLeader) {
 		this.id = id;
@@ -39,7 +41,7 @@ public class ProjectViewModel {
 		this.projectLeader = projectLeader;
 	}
 
-	public ProjectViewModel(String communityId) {
+	public ProjectViewModel(CommunityId communityId) {
 		this.id = null;
 		this.communityId = communityId;
 		this.logo = FurmsImage.empty();
@@ -58,11 +60,11 @@ public class ProjectViewModel {
 		this.projectLeader = projectViewModel.projectLeader;
 	}
 
-	public String getId() {
+	public ProjectId getId() {
 		return id;
 	}
 
-	public String getCommunityId() {
+	public CommunityId getCommunityId() {
 		return communityId;
 	}
 
@@ -172,8 +174,8 @@ public class ProjectViewModel {
 	}
 
 	public static final class ProjectViewModelBuilder {
-		public String id;
-		public String communityId;
+		public ProjectId id;
+		public CommunityId communityId;
 		public String name;
 		public String description;
 		public FurmsImage logo;
@@ -186,12 +188,12 @@ public class ProjectViewModel {
 		private ProjectViewModelBuilder() {
 		}
 
-		public ProjectViewModelBuilder id(String id) {
+		public ProjectViewModelBuilder id(ProjectId id) {
 			this.id = id;
 			return this;
 		}
 
-		public ProjectViewModelBuilder communityId(String communityId) {
+		public ProjectViewModelBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}

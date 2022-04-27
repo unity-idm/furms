@@ -46,7 +46,7 @@ class SiteAuditLogService {
 	void onSiteCreatedEvent(SiteCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.site.getId())
+			.resourceId(event.site.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.SITES_MANAGEMENT)
@@ -61,7 +61,7 @@ class SiteAuditLogService {
 	void onSiteRemovedEvent(SiteRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.site.getId())
+			.resourceId(event.site.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.SITES_MANAGEMENT)
@@ -76,7 +76,7 @@ class SiteAuditLogService {
 	void onSiteUpdatedEvent(SiteUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.newSite.getId())
+			.resourceId(event.newSite.getId().id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.SITES_MANAGEMENT)

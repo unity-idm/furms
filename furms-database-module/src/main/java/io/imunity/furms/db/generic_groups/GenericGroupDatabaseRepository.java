@@ -121,7 +121,7 @@ class GenericGroupDatabaseRepository implements GenericGroupRepository {
 		return genericGroupEntityRepository.findAllAssignments(userId.id).stream()
 			.collect(groupingBy(x -> x.communityId, mapping(x -> x.name, toSet())))
 			.entrySet().stream()
-			.map(entry -> new GroupAccess(entry.getKey().toString(), entry.getValue()))
+			.map(entry -> new GroupAccess(new CommunityId(entry.getKey()), entry.getValue()))
 			.collect(toSet());
 	}
 

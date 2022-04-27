@@ -20,9 +20,9 @@ public interface SSHKeyRepository {
 	
 	Set<SSHKey> findAllByOwnerId(PersistentId ownerId);
 
-	String create(SSHKey sshKey);
+	SSHKeyId create(SSHKey sshKey);
 
-	String update(SSHKey sshKey);
+	SSHKeyId update(SSHKey sshKey);
 
 	boolean exists(SSHKeyId id);
 
@@ -32,5 +32,5 @@ public interface SSHKeyRepository {
 
 	boolean isNamePresent(String name);
 
-	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
+	boolean isNamePresentIgnoringRecord(String name, SSHKeyId recordToIgnore);
 }

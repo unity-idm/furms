@@ -7,6 +7,7 @@ package io.imunity.furms.ui.components.branding.logo.providers;
 
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.ViewMode;
@@ -30,7 +31,7 @@ class FurmsLogoProviderCommunity implements FurmsLogoProvider{
 	@Override
 	public Optional<FurmsImage> getLogoForCurrentViewMode() {
 		final FurmsViewUserContext context = FurmsViewUserContext.getCurrent();
-		return communityService.findById(context.id)
+		return communityService.findById(new CommunityId(context.id))
 				.map(Community::getLogo);
 	}
 }

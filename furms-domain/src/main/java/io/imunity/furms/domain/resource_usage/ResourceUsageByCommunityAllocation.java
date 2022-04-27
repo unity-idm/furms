@@ -18,7 +18,7 @@ public class ResourceUsageByCommunityAllocation {
 		this.idToSum = Map.copyOf(idToSum);
 	}
 
-	public BigDecimal get(String id){
+	public BigDecimal get(CommunityAllocationId id){
 		return Optional.ofNullable(idToSum.get(id))
 			.orElse(BigDecimal.ZERO);
 	}

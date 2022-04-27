@@ -12,7 +12,9 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.data.binder.Binder;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.ui.components.DefaultNameField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
@@ -22,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
@@ -60,7 +63,8 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		BigDecimalField amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
 		resourceTypeComboBox.addValueChangeListener(event -> {
-			String id = Optional.ofNullable(event.getValue()).map(x -> x.id).orElse("");
+			ResourceTypeId id =
+				Optional.ofNullable(event.getValue()).map(x -> x.id).orElse(new ResourceTypeId((UUID) null));
 			communityAllocationComboBox.setItems(resolver.getCommunityAllocations(id));
 			createUnitLabel(amountField, null);
 		});
@@ -70,7 +74,8 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		communityAllocationComboBox.addValueChangeListener(event ->
 			Optional.ofNullable(event.getValue()).ifPresentOrElse(
 				allocation -> {
-					availableAmount = resolver.getAvailableAmount(getCurrentResourceId(), allocation.id);
+					availableAmount = resolver.getAvailableAmount(new CommunityId(getCurrentResourceId()),
+						allocation.id);
 					availableAmountLabel.setText(getTranslation(allocation.split ? 
 							"view.community-admin.project-allocation.form.label.available" :
 							"view.community-admin.project-allocation.form.label.availableNotSplit", 

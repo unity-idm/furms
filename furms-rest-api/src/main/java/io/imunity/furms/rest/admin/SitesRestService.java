@@ -21,8 +21,13 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteInstalledProjectResolved;
@@ -41,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -97,7 +101,7 @@ class SitesRestService {
 		this.userService = userService;
 		this.userAllocationsService = userAllocationsService;
 		this.sshKeyService = sshKeyService;
-		this.resourceChecker = new ResourceChecker(siteService::existsById);
+		this.resourceChecker = new ResourceChecker(id -> siteService.existsById(new SiteId(id)));
 		this.policyDocumentService = policyDocumentService;
 		this.siteAgentConnectionService = siteAgentConnectionService;
 	}
@@ -108,67 +112,68 @@ class SitesRestService {
 				.collect(toList());
 	}
 
-	Site findOneById(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> siteService.findById(siteId))
+	Site findOneById(SiteId siteId) {
+		return resourceChecker.performIfExists(siteId.id, () -> siteService.findById(siteId))
 				.map(this::createSite)
 				.get();
 	}
 
-	List<ResourceCredit> findAllResourceCreditsBySiteId(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> resourceCreditService.findAllWithAllocations(siteId)).stream()
+	List<ResourceCredit> findAllResourceCreditsBySiteId(SiteId siteId) {
+		return resourceChecker.performIfExists(siteId.id, () -> resourceCreditService.findAllWithAllocations(siteId)).stream()
 				.map(ResourceCredit::new)
 				.collect(toList());
 	}
 
-	ResourceCredit findResourceCreditBySiteIdAndId(String siteId, String creditId) {
-		return resourceChecker.performIfExists(siteId, () -> resourceCreditService.findWithAllocationsByIdAndSiteId(creditId, siteId))
+	ResourceCredit findResourceCreditBySiteIdAndId(SiteId siteId, ResourceCreditId creditId) {
+		return resourceChecker.performIfExists(siteId.id,
+				() -> resourceCreditService.findWithAllocationsByIdAndSiteId(creditId, siteId))
 				.map(ResourceCredit::new)
 				.get();
 	}
 
-	List<ResourceType> findAllResourceTypesBySiteId(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> resourceTypeService.findAll(siteId)).stream()
+	List<ResourceType> findAllResourceTypesBySiteId(SiteId siteId) {
+		return resourceChecker.performIfExists(siteId.id, () -> resourceTypeService.findAll(siteId)).stream()
 				.map(ResourceType::new)
 				.collect(toList());
 	}
 
-	ResourceType findResourceTypesBySiteIdAndId(String siteId, String resourceTypeId) {
-		return resourceChecker.performIfExistsAndMatching(siteId,
+	ResourceType findResourceTypesBySiteIdAndId(SiteId siteId, ResourceTypeId resourceTypeId) {
+		return resourceChecker.performIfExistsAndMatching(siteId.id,
 					() -> resourceTypeService.findById(resourceTypeId, siteId),
 					resourceType -> resourceType.isPresent() && resourceType.get().siteId.equals(siteId))
 				.map(ResourceType::new)
 				.get();
 	}
 
-	List<InfraService> findAllServicesBySiteId(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> infraServiceService.findAll(siteId)).stream()
+	List<InfraService> findAllServicesBySiteId(SiteId siteId) {
+		return resourceChecker.performIfExists(siteId.id, () -> infraServiceService.findAll(siteId)).stream()
 				.map(InfraService::new)
 				.collect(toList());
 	}
 
-	InfraService findServiceBySiteIdAndId(String siteId, String serviceId) {
-		return resourceChecker.performIfExistsAndMatching(siteId,
+	InfraService findServiceBySiteIdAndId(SiteId siteId, InfraServiceId serviceId) {
+		return resourceChecker.performIfExistsAndMatching(siteId.id,
 					() -> infraServiceService.findById(serviceId, siteId),
 					service -> service.isPresent() && service.get().siteId.equals(siteId))
 				.map(InfraService::new)
 				.get();
 	}
 
-	List<Policy> findAllPolicies(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> policyDocumentService.findAllBySiteId(siteId)).stream()
+	List<Policy> findAllPolicies(SiteId siteId) {
+		return resourceChecker.performIfExists(siteId.id, () -> policyDocumentService.findAllBySiteId(siteId)).stream()
 				.map(Policy::new)
 				.collect(toList());
 	}
 
-	Policy findPolicy(String siteId, String policyId) {
-		return resourceChecker.performIfExistsAndMatching(siteId,
+	Policy findPolicy(SiteId siteId, String policyId) {
+		return resourceChecker.performIfExistsAndMatching(siteId.id,
 					() -> policyDocumentService.findById(siteId, new io.imunity.furms.domain.policy_documents.PolicyId(policyId)),
 					policy -> policy.isPresent() && policy.get().siteId.equals(siteId))
 				.map(Policy::new)
 				.get();
 	}
 
-	List<PolicyAcceptance> findAllPoliciesAcceptances(String siteId) {
+	List<PolicyAcceptance> findAllPoliciesAcceptances(SiteId siteId) {
 		Set<UserPolicyAcceptances> allUsersPolicyAcceptances = policyDocumentService.findAllUsersPolicyAcceptances(siteId);
 		Map<FenixUserId, Map<PolicyId, io.imunity.furms.domain.policy_documents.PolicyAcceptance>> lastPoliciesAcceptanceByUserIdAndPolicyId = allUsersPolicyAcceptances.stream()
 			.filter(userPolicyAcceptances -> userPolicyAcceptances.user.fenixUserId.isPresent())
@@ -182,7 +187,7 @@ class SitesRestService {
 						BinaryOperator.maxBy(Comparator.comparing(policyAcceptance -> policyAcceptance.policyDocumentRevision))
 					))
 			));
-		return resourceChecker.performIfExists(siteId, () -> policyDocumentService.findAllUsersPolicies(siteId)).entrySet().stream()
+		return resourceChecker.performIfExists(siteId.id, () -> policyDocumentService.findAllUsersPolicies(siteId)).entrySet().stream()
 			.flatMap(entry -> entry.getValue().stream()
 				.map(policy -> {
 					FenixUserId fenixUserId = entry.getKey();
@@ -216,7 +221,7 @@ class SitesRestService {
 			.build();
 	}
 
-	List<PolicyAcceptance> addPolicyAcceptance(String siteId, String policyId, String fenixUserId) {
+	List<PolicyAcceptance> addPolicyAcceptance(SiteId siteId, String policyId, String fenixUserId) {
 		policyDocumentService.addUserPolicyAcceptance(siteId, new FenixUserId(fenixUserId), io.imunity.furms.domain.policy_documents.PolicyAcceptance.builder()
 				.policyDocumentId(new io.imunity.furms.domain.policy_documents.PolicyId(policyId))
 				.policyDocumentRevision(0)
@@ -226,9 +231,9 @@ class SitesRestService {
 		return findAllPoliciesAcceptances(siteId);
 	}
 
-	List<ProtocolMessage> getProtocolMessages(String siteId) {
-		resourceChecker.performIfExists(siteId, () -> siteService.findById(siteId));
-		return resourceChecker.performIfExists(siteId, () -> siteAgentConnectionService.findAll(new SiteId(siteId)))
+	List<ProtocolMessage> getProtocolMessages(SiteId siteId) {
+		resourceChecker.performIfExists(siteId.id, () -> siteService.findById(siteId));
+		return resourceChecker.performIfExists(siteId.id, () -> siteAgentConnectionService.findAll(siteId))
 			.stream()
 			.map(message -> new ProtocolMessage(
 				message.correlationId.id,
@@ -240,25 +245,28 @@ class SitesRestService {
 			).collect(Collectors.toList());
 	}
 
-	void dropProtocolMessage(String siteId, String messageId) {
-		resourceChecker.performIfExists(siteId, () -> siteService.findById(siteId));
-		resourceChecker.performIfExists(messageId, () -> siteAgentConnectionService.delete(new SiteId(siteId), new CorrelationId(messageId)));
+	void dropProtocolMessage(SiteId siteId, String messageId) {
+		resourceChecker.performIfExists(siteId.id, () -> siteService.findById(siteId));
+		resourceChecker.performIfExists(messageId, () -> siteAgentConnectionService.delete(siteId,
+			new CorrelationId(messageId)));
 	}
 
-	void retryProtocolMessage(String siteId, String messageId) {
-		resourceChecker.performIfExists(siteId, () -> siteService.findById(siteId));
-		resourceChecker.performIfExists(messageId, () -> siteAgentConnectionService.retry(new SiteId(siteId), new CorrelationId(messageId)));
+	void retryProtocolMessage(SiteId siteId, String messageId) {
+		resourceChecker.performIfExists(siteId.id, () -> siteService.findById(siteId));
+		resourceChecker.performIfExists(messageId, () -> siteAgentConnectionService.retry(siteId,
+			new CorrelationId(messageId)));
 	}
 
-	List<ProjectInstallation> findAllProjectInstallationsBySiteId(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> projectInstallationsService.findAllSiteInstalledProjectsBySiteId(siteId))
+	List<ProjectInstallation> findAllProjectInstallationsBySiteId(SiteId siteId) {
+		return resourceChecker.performIfExists(siteId.id,
+				() -> projectInstallationsService.findAllSiteInstalledProjectsBySiteId(siteId))
 				.stream()
 				.map(this::convertToProject)
 				.collect(toList());
 	}
 
-	List<SiteUser> findAllSiteUsersBySiteId(String siteId) {
-		final Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId,
+	List<SiteUser> findAllSiteUsersBySiteId(SiteId siteId) {
+		final Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId.id,
 				() -> userAllocationsService.findUserAdditionsBySiteId(siteId));
 		return userAdditionsBySite.stream()
 				.collect(groupingBy(userAddition -> userAddition.userId, toSet()))
@@ -267,35 +275,36 @@ class SitesRestService {
 				.collect(toList());
 	}
 
-	SiteUser findSiteUserByUserIdAndSiteId(String userId, String siteId) {
-		Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId,
-			() -> userAllocationsService.findUserAdditionsBySiteAndFenixUserId(siteId, new FenixUserId(userId)));
+	SiteUser findSiteUserByUserIdAndSiteId(FenixUserId userId, SiteId siteId) {
+		Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId.id,
+			() -> userAllocationsService.findUserAdditionsBySiteAndFenixUserId(siteId, userId));
 		return createSiteUser(userId, userAdditionsBySite, siteId);
 	}
 
-	List<ProjectAllocation> findAllProjectAllocationsBySiteId(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> projectAllocationService.findAllWithRelatedObjectsBySiteId(siteId))
+	List<ProjectAllocation> findAllProjectAllocationsBySiteId(SiteId siteId) {
+		return resourceChecker.performIfExists(siteId.id,
+				() -> projectAllocationService.findAllWithRelatedObjectsBySiteId(siteId))
 				.stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
-	List<ProjectAllocation> findAllProjectAllocationsBySiteIdAndProjectId(String siteId, String projectId) {
-		return resourceChecker.performIfExists(siteId,
+	List<ProjectAllocation> findAllProjectAllocationsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId) {
+		return resourceChecker.performIfExists(siteId.id,
 					() -> projectAllocationService.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId))
 				.stream()
 				.map(ProjectAllocation::new)
 				.collect(toList());
 	}
 
-	List<SiteAllocatedResources> findAllSiteAllocatedResourcesBySiteId(String siteId) {
-		return resourceChecker.performIfExists(siteId, () -> projectAllocationService.findAllChunksBySiteId(siteId)).stream()
+	List<SiteAllocatedResources> findAllSiteAllocatedResourcesBySiteId(SiteId siteId) {
+		return resourceChecker.performIfExists(siteId.id, () -> projectAllocationService.findAllChunksBySiteId(siteId)).stream()
 				.map(SiteAllocatedResources::new)
 				.collect(toList());
 	}
 
-	List<SiteAllocatedResources> findAllSiteAllocatedResourcesBySiteIdAndProjectId(String siteId, String projectId) {
-		return resourceChecker.performIfExists(siteId,
+	List<SiteAllocatedResources> findAllSiteAllocatedResourcesBySiteIdAndProjectId(SiteId siteId, ProjectId projectId) {
+		return resourceChecker.performIfExists(siteId.id,
 					() -> projectAllocationService.findAllChunksBySiteIdAndProjectId(siteId, projectId))
 				.stream()
 				.map(SiteAllocatedResources::new)
@@ -303,24 +312,24 @@ class SitesRestService {
 	}
 
 	List<ProjectCumulativeResourceConsumption> findAllProjectCumulativeResourceConsumptionBySiteIdAndProjectId(
-			String siteId, String projectId) {
-		return resourceChecker.performIfExists(siteId,
+		SiteId siteId, ProjectId projectId) {
+		return resourceChecker.performIfExists(siteId.id,
 					() -> projectAllocationService.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId))
 				.stream()
 				.map(ProjectCumulativeResourceConsumption::new)
 				.collect(toList());
 	}
 
-	List<ProjectUsageRecord> findAllProjectUsageRecordBySiteIdAndProjectIdInPeriod(String siteId,
-	                                                                               String projectId,
+	List<ProjectUsageRecord> findAllProjectUsageRecordBySiteIdAndProjectIdInPeriod(SiteId siteId,
+	                                                                               ProjectId projectId,
 	                                                                               ZonedDateTime from,
 	                                                                               ZonedDateTime until) {
-		final Set<ProjectAllocationResolved> allocations = resourceChecker.performIfExists(siteId,
+		final Set<ProjectAllocationResolved> allocations = resourceChecker.performIfExists(siteId.id,
 				() -> projectAllocationService.findAllWithRelatedObjectsBySiteIdAndProjectId(siteId, projectId));
 		final Set<UserResourceUsage> userUsages = resourceUsageService.findAllUserUsages(
 				siteId,
 				allocations.stream()
-					.map(allocation -> UUID.fromString(allocation.id))
+					.map(allocation -> allocation.id)
 					.collect(toSet()),
 				convertToUTCTime(from),
 				convertToUTCTime(until));
@@ -332,7 +341,7 @@ class SitesRestService {
 
 	private Site createSite(io.imunity.furms.domain.sites.Site site) {
 		return new Site(
-				site.getId(),
+				site.getId().id.toString(),
 				site.getName(),
 				getSelectedPolicyId(site),
 				resourceCreditService.findAllWithAllocations(site.getId()).stream()
@@ -358,27 +367,28 @@ class SitesRestService {
 				: site.getPolicyId().id.toString();
 	}
 
-	private ProjectAllocationResolved findAllocation(String projectAllocationId, Set<ProjectAllocationResolved> allocations) {
+	private ProjectAllocationResolved findAllocation(ProjectAllocationId projectAllocationId,
+	                                                 Set<ProjectAllocationResolved> allocations) {
 		return allocations.stream()
 				.filter(allocation -> allocation.id.equals(projectAllocationId))
 				.findFirst()
 				.get();
 	}
 
-	private SiteUser createSiteUser(String fenixUserId, Set<UserAddition> userAdditions, String siteId) {
+	private SiteUser createSiteUser(FenixUserId fenixUserId, Set<UserAddition> userAdditions, SiteId siteId) {
 		final String uid = userAdditions.stream()
 				.filter(userAddition -> StringUtils.hasText(userAddition.uid))
 				.findAny()
 				.map(userAddition -> userAddition.uid)
 				.orElseThrow(() -> new IllegalArgumentException("UID not found"));
 
-		return userService.findByFenixUserId(new FenixUserId(fenixUserId))
+		return userService.findByFenixUserId(fenixUserId)
 				.map(user -> new SiteUser(
 						new User(user),
 						uid,
 						sshKeyService.findSiteSSHKeysByUserIdAndSite(user.id.get(), siteId).sshKeys,
 						userAdditions.stream()
-							.map(userAddition -> userAddition.projectId)
+							.map(userAddition -> userAddition.projectId.id.toString())
 							.collect(toSet())))
 				.orElse(null);
 	}

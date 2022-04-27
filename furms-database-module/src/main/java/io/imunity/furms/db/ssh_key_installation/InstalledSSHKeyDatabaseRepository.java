@@ -34,13 +34,13 @@ class InstalledSSHKeyDatabaseRepository implements InstalledSSHKeyRepository {
 	}
 
 	@Override
-	public String create(InstalledSSHKey installedSSHKey) {
+	public InstalledSSHKeyId create(InstalledSSHKey installedSSHKey) {
 		InstalledSSHKeyEntity installedSSHKeyEntity = InstalledSSHKeyEntity.builder()
 				.siteId(installedSSHKey.siteId.id)
 				.sshkeyId(installedSSHKey.sshkeyId.id).value(installedSSHKey.value)
 				.build();
 		InstalledSSHKeyEntity saved = repository.save(installedSSHKeyEntity);
-		return saved.getId().toString();
+		return new InstalledSSHKeyId(saved.getId());
 	}
 
 	@Override

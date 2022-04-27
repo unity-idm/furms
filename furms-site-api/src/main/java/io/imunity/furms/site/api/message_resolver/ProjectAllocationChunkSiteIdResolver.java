@@ -5,8 +5,9 @@
 
 package io.imunity.furms.site.api.message_resolver;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 
 public interface ProjectAllocationChunkSiteIdResolver {
-	SiteExternalId getSiteId(String projectAllocationId);
+	SiteExternalId getSiteId(ProjectAllocationId projectAllocationId);
 }

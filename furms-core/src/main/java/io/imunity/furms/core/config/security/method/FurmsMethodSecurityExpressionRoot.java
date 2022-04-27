@@ -9,6 +9,9 @@ import io.imunity.furms.api.authz.FURMSUserProvider;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import org.slf4j.Logger;
@@ -22,6 +25,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
@@ -46,12 +50,16 @@ class FurmsMethodSecurityExpressionRoot
 		return hasCapabilityForResource(method, capability, resourceType, null);
 	}
 
-	public boolean hasCapabilityForResources(String method, Capability capability, ResourceType resourceType, Collection<String> ids) {
+	public boolean hasCapabilityForResources(String method, Capability capability, ResourceType resourceType,
+	                                         Collection<Object> ids) {
 		if(!authentication.isAuthenticated() || isAnonymousUser())
 			return false;
 
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
-		List<ResourceId> resourceIds = ids.stream().map(id -> new ResourceId(id, resourceType)).collect(Collectors.toList());
+		List<ResourceId> resourceIds = ids.stream()
+			.map(this::map)
+			.map(id -> new ResourceId(id, resourceType))
+			.collect(Collectors.toList());
 		Set<Capability> userCapabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceIds, resourceType);
 		userCapabilities.addAll(ELEMENTARY_CAPABILITIES);
 
@@ -65,7 +73,17 @@ class FurmsMethodSecurityExpressionRoot
 		return hasCapability;
 	}
 
-	public boolean hasCapabilityForResource(String method, Capability capability, ResourceType resourceType, String id) {
+	private String map(Object id) {
+		if(id instanceof SiteId)
+			return ((SiteId) id).id.toString();
+		if(id instanceof CommunityId)
+			return ((CommunityId) id).id.toString();
+		if(id instanceof ProjectId)
+			return ((ProjectId) id).id.toString();
+		throw new RuntimeException();
+	}
+
+	public boolean hasCapabilityForResource(String method, Capability capability, ResourceType resourceType, UUID id) {
 		if(!authentication.isAuthenticated() || isAnonymousUser())
 			return false;
 

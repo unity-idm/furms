@@ -83,8 +83,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 				: null;
 		return ProjectInstallation.builder()
 			.id(allocation.id)
-			.siteId(allocation.siteId)
-			.siteExternalId(allocation.siteExternalId)
+			.siteId(new SiteId(allocation.siteId, allocation.siteExternalId))
 			.name(allocation.name)
 			.description(allocation.description)
 			.communityId(allocation.communityId)
@@ -98,7 +97,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public String createOrUpdate(ProjectInstallationJob projectInstallationJob) {
+	public void createOrUpdate(ProjectInstallationJob projectInstallationJob) {
 		UUID id = installationRepository.findBySiteIdAndProjectId(
 			projectInstallationJob.siteId.id, projectInstallationJob.projectId.id
 			)
@@ -111,12 +110,11 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 			.projectId(projectInstallationJob.projectId.id)
 			.status(projectInstallationJob.status)
 			.build();
-		ProjectInstallationJobEntity job = installationRepository.save(projectInstallationJobEntity);
-		return job.getId().toString();
+		installationRepository.save(projectInstallationJobEntity);
 	}
 
 	@Override
-	public String createOrUpdate(ProjectUpdateJob projectUpdateJob) {
+	public void createOrUpdate(ProjectUpdateJob projectUpdateJob) {
 		UUID id = updateRepository.findByProjectIdAndSiteId(projectUpdateJob.projectId.id, projectUpdateJob.siteId.id)
 			.map(UUIDIdentifiable::getId)
 			.orElse(null);
@@ -127,8 +125,7 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 			.projectId(projectUpdateJob.projectId.id)
 			.status(projectUpdateJob.status)
 			.build();
-		ProjectUpdateJobEntity job = updateRepository.save(projectUpdateJobEntity);
-		return job.getId().toString();
+		updateRepository.save(projectUpdateJobEntity);
 	}
 
 	@Override
@@ -302,9 +299,9 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 
 	private SiteInstalledProject convertToSiteInstalledProject(ProjectInstallationJobStatusEntity installation) {
 		return SiteInstalledProject.builder()
-				.siteId(installation.siteId.toString())
+				.siteId(new SiteId(installation.siteId))
 				.siteName(installation.siteName)
-				.projectId(installation.projectId.toString())
+				.projectId(new ProjectId(installation.projectId))
 				.gid(new Gid(installation.gid))
 				.build();
 	}

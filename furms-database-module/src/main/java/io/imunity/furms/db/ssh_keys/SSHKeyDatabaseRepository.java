@@ -12,18 +12,16 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.empty;
-import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class SSHKeyDatabaseRepository implements SSHKeyRepository {
@@ -37,19 +35,19 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	}
 
 	@Override
-	public String create(SSHKey sshKey) {
+	public SSHKeyId create(SSHKey sshKey) {
 		validateKeyName(sshKey);
 		validateKeyValue(sshKey);
 		validateSites(sshKey);
-		return repository
-				.save(new SSHKeyEntity(sshKey.name, sshKey.value, sshKey.ownerId.id, sshKey.createTime,
-						sshKey.updateTime,
-						(sshKey.sites != null
-								? sshKey.sites.stream()
-										.map(siteId -> new SSHKeySiteReference(siteId.id))
-										.collect(toSet())
-								: Collections.emptySet())))
-				.getId().toString();
+		SSHKeyEntity saved = repository
+			.save(new SSHKeyEntity(sshKey.name, sshKey.value, sshKey.ownerId.id, sshKey.createTime,
+				sshKey.updateTime,
+				(sshKey.sites != null
+					? sshKey.sites.stream()
+					.map(siteId -> new SSHKeySiteReference(siteId.id))
+					.collect(toSet())
+					: Collections.emptySet())));
+		return new SSHKeyId(saved.getId());
 	}
 
 	@Override
@@ -67,7 +65,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 
 	@Override
 	public Set<SSHKey> findAllByOwnerId(PersistentId ownerId) {
-		if (isEmpty(ownerId)) {
+		if (ObjectUtils.isEmpty(ownerId)) {
 			return Collections.emptySet();
 		}
 		return repository.findAllByOwnerId(ownerId.id).stream()
@@ -76,7 +74,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	}
 
 	@Override
-	public String update(SSHKey sshKey) {
+	public SSHKeyId update(SSHKey sshKey) {
 		validateKeyId(sshKey);
 		validateKeyName(sshKey);
 		validateKeyValue(sshKey);
@@ -89,7 +87,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 						.sites(sshKey.sites).build())
 				.map(repository::save)
 				.map(SSHKeyEntity::getId)
-				.map(UUID::toString)
+				.map(SSHKeyId::new)
 				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + sshKey));
 	}
 
@@ -107,8 +105,8 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 	}
 
 	@Override
-	public boolean isNamePresentIgnoringRecord(String name, String recordToIgnore) {
-		return repository.existsByNameAndIdIsNot(name, fromString(recordToIgnore));
+	public boolean isNamePresentIgnoringRecord(String name, SSHKeyId recordToIgnore) {
+		return repository.existsByNameAndIdIsNot(name, recordToIgnore.id);
 	}
 
 	@Override
@@ -125,20 +123,20 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 
 	private void validateKeyName(final SSHKey sshKey) {
 		assertTrue(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
-		assertTrue(!isEmpty(sshKey.name),
+		assertTrue(!ObjectUtils.isEmpty(sshKey.name),
 				() -> new IllegalArgumentException("Incorrect SSH key name: name is empty"));
 	}
 
 	private void validateKeyId(final SSHKey sshKey) {
 		assertTrue(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
-		assertTrue(!isEmpty(sshKey.id), () -> new IllegalArgumentException("Incorrect SSH key ID: ID is empty."));
+		assertTrue(!ObjectUtils.isEmpty(sshKey.id), () -> new IllegalArgumentException("Incorrect SSH key ID: ID is empty."));
 		assertTrue(repository.existsById(sshKey.id.id),
 				() -> new IllegalArgumentException("Incorrect SSH key ID: ID not exists in DB."));
 	}
 
 	private void validateKeyValue(final SSHKey sshKey) {
 		assertTrue(sshKey != null, () -> new IllegalArgumentException("SSH key object is missing."));
-		assertTrue(!isEmpty(sshKey.value),
+		assertTrue(!ObjectUtils.isEmpty(sshKey.value),
 				() -> new IllegalArgumentException("Incorrect SSH key value: value is empty"));
 	}
 
@@ -152,4 +150,7 @@ class SSHKeyDatabaseRepository implements SSHKeyRepository {
 		}
 	}
 
+	private boolean isEmpty(SSHKeyId id) {
+		return id == null || id.id == null;
+	}
 }

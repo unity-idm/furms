@@ -75,8 +75,18 @@ public class ProjectAllocation {
 			return this;
 		}
 
+		public ProjectAllocationBuilder projectId(ProjectId projectId) {
+			this.projectId = projectId;
+			return this;
+		}
+
 		public ProjectAllocationBuilder communityAllocationId(String communityAllocationId) {
 			this.communityAllocationId = new CommunityAllocationId(communityAllocationId);
+			return this;
+		}
+
+		public ProjectAllocationBuilder communityAllocationId(CommunityAllocationId communityAllocationId) {
+			this.communityAllocationId = communityAllocationId;
 			return this;
 		}
 
@@ -87,6 +97,11 @@ public class ProjectAllocation {
 
 		public ProjectAllocationBuilder id(String id) {
 			this.id = new ProjectAllocationId(id);
+			return this;
+		}
+
+		public ProjectAllocationBuilder id(ProjectAllocationId id) {
+			this.id = id;
 			return this;
 		}
 

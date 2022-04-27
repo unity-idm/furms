@@ -5,19 +5,21 @@
 
 package io.imunity.furms.domain.policy_documents;
 
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.time.Instant;
 import java.util.Objects;
 
 public class PolicyAcceptanceAtSite {
 	public final PolicyId policyDocumentId;
-	public final String siteId;
+	public final SiteId siteId;
 	public final int policyDocumentRevision;
 	public final int acceptedPolicyDocumentRevision;
 	public final PolicyAcceptanceStatus acceptanceStatus;
 	public final Instant decisionTs;
 
 	public PolicyAcceptanceAtSite(PolicyId policyDocumentId,
-	                              String siteId,
+	                              SiteId siteId,
 	                              int policyDocumentRevision,
 	                              int acceptedPolicyDocumentRevision,
 	                              PolicyAcceptanceStatus acceptanceStatus,
@@ -72,7 +74,7 @@ public class PolicyAcceptanceAtSite {
 
 	public static final class PolicyAcceptanceAtSiteBuilder {
 		public PolicyId policyDocumentId;
-		public String siteId;
+		public SiteId siteId;
 		public int policyDocumentRevision;
 		public int acceptedPolicyDocumentRevision;
 		public PolicyAcceptanceStatus acceptanceStatus;
@@ -87,6 +89,11 @@ public class PolicyAcceptanceAtSite {
 		}
 
 		public PolicyAcceptanceAtSiteBuilder siteId(String siteId) {
+			this.siteId = new SiteId(siteId);
+			return this;
+		}
+
+		public PolicyAcceptanceAtSiteBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

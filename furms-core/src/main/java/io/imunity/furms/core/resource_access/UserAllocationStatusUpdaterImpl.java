@@ -14,7 +14,6 @@ import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
-import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import org.slf4j.Logger;
@@ -52,7 +51,7 @@ class UserAllocationStatusUpdaterImpl implements UserAllocationStatusUpdater {
 				.orElseThrow(() -> new IllegalArgumentException(String.format("Resource access correlation Id %s doesn't exist", correlationId)));
 			repository.deleteByCorrelationId(correlationId);
 			GrantAccess userGrant = GrantAccess.builder()
-				.siteId(new SiteId(projectUserGrant.siteId))
+				.siteId(projectUserGrant.siteId)
 				.projectId(projectUserGrant.projectId)
 				.fenixUserId(projectUserGrant.userId)
 				.build();

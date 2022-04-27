@@ -8,6 +8,7 @@ package io.imunity.furms.rabbitmq.site.client;
 import io.imunity.furms.domain.project_installation.Error;
 import io.imunity.furms.domain.project_installation.*;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -116,8 +117,8 @@ class SiteAgentProjectOperationServiceImpl implements SiteAgentProjectOperationS
 	}
 
 	@Override
-	public void removeProject(CorrelationId correlationId, SiteExternalId siteId, String projectId) {
-		AgentProjectRemovalRequest request = new AgentProjectRemovalRequest(projectId);
+	public void removeProject(CorrelationId correlationId, SiteExternalId siteId, ProjectId projectId) {
+		AgentProjectRemovalRequest request = new AgentProjectRemovalRequest(projectId.id.toString());
 		try {
 			rabbitTemplate.convertAndSend(getFurmsPublishQueueName(siteId), new Payload<>(new Header(VERSION, correlationId.id), request));
 		}catch (AmqpConnectException e){

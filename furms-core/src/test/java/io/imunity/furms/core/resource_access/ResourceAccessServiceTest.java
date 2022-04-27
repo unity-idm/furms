@@ -8,8 +8,11 @@ package io.imunity.furms.core.resource_access;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.core.MockedTransactionManager;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.GrantId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -86,15 +89,17 @@ class ResourceAccessServiceTest {
 
 	@Test
 	void shouldGrantAccessForInstalledUser() {
-		UUID grantId = UUID.randomUUID();
+		GrantId grantId = new GrantId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "externalId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("userId");
 		FURMSUser user = FURMSUser.builder()
 			.email("admin@admin.pl")
 			.fenixUserId(fenixUserId)
 			.build();
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
+			.siteId(siteId)
+			.projectId(projectId)
 			.fenixUserId(fenixUserId)
 			.build();
 		//when
@@ -102,31 +107,33 @@ class ResourceAccessServiceTest {
 		when(repository.create(any(), eq(grantAccess), eq(GRANT_PENDING))).thenReturn(grantId);
 		when(repository.create(any(), eq(grantAccess), eq(GRANT_PENDING))).thenReturn(grantId);
 		when(repository.exists(grantAccess)).thenReturn(false);
-		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId))
+		when(userRepository.findAdditionStatus(siteId, projectId, fenixUserId))
 			.thenReturn(Optional.of(UserStatus.ADDED));
 
 		service.grantAccess(grantAccess);
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(GRANT_PENDING));
-		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies(siteId, fenixUserId,
+			grantId);
 		orderVerifier.verify(siteAgentResourceAccessService).grantAccess(any(), eq(grantAccess), eq(user));
 	}
 
 	@Test
 	void shouldGrantAccessForNonInstalledUser() {
-		UUID grantId = UUID.randomUUID();
+		GrantId grantId = new GrantId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("userId");
-		SiteId siteId = new SiteId("siteId", "externalId");
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "externalId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		GrantAccess grantAccess = GrantAccess.builder()
 			.siteId(siteId)
-			.projectId("projectId")
+			.projectId(projectId)
 			.fenixUserId(fenixUserId)
 			.build();
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
-		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
+		when(userRepository.findAdditionStatus(siteId, projectId, fenixUserId)).thenReturn(Optional.empty());
 
 		service.grantAccess(grantAccess);
 
@@ -136,71 +143,76 @@ class ResourceAccessServiceTest {
 
 	@Test
 	void shouldGrantAccessForNonInstalledUserWithAcceptedPolicy() {
-		UUID grantId = UUID.randomUUID();
+		GrantId grantId = new GrantId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("userId");
-		SiteId siteId = new SiteId("siteId", "externalId");
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "externalId");
 		GrantAccess grantAccess = GrantAccess.builder()
 			.siteId(siteId)
-			.projectId("projectId")
+			.projectId(projectId)
 			.fenixUserId(fenixUserId)
 			.build();
 
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
-		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
+		when(userRepository.findAdditionStatus(siteId, projectId, fenixUserId)).thenReturn(Optional.empty());
 
 		service.grantAccess(grantAccess);
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies(siteId, fenixUserId, grantId);
 	}
 
 	@Test
 	void shouldGrantAccessForNonInstalledUserWithSiteWithoutPolicy() {
-		UUID grantId = UUID.randomUUID();
+		GrantId grantId = new GrantId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("userId");
-		SiteId siteId = new SiteId("siteId", "externalId");
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "externalId");
 		GrantAccess grantAccess = GrantAccess.builder()
 			.siteId(siteId)
-			.projectId("projectId")
+			.projectId(new ProjectId(UUID.randomUUID()))
 			.fenixUserId(fenixUserId)
 			.build();
 
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
-		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.empty());
+		when(userRepository.findAdditionStatus(siteId, projectId, fenixUserId)).thenReturn(Optional.empty());
 
 		service.grantAccess(grantAccess);
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies(siteId, fenixUserId,
+			grantId);
 	}
 
 	@Test
 	void shouldGrantAccessForInstallingUser() {
-		UUID grantId = UUID.randomUUID();
+		GrantId grantId = new GrantId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("userId");
-		SiteId siteId = new SiteId("siteId", "externalId");
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "externalId");
 		GrantAccess grantAccess = GrantAccess.builder()
 			.siteId(siteId)
-			.projectId("projectId")
+			.projectId(new ProjectId(UUID.randomUUID()))
 			.fenixUserId(fenixUserId)
 			.build();
 		//when
 		when(repository.exists(grantAccess)).thenReturn(false);
 		when(repository.create(any(), eq(grantAccess), eq(USER_INSTALLING))).thenReturn(grantId);
-		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
-		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
+		when(userRepository.findAdditionStatus(siteId, projectId, fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
+		when(userRepository.findAdditionStatus(siteId, projectId, fenixUserId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
 
 		service.grantAccess(grantAccess);
 
 		//then
 		orderVerifier.verify(repository).create(any(), eq(grantAccess), eq(USER_INSTALLING));
-		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, grantId.toString());
+		orderVerifier.verify(policyNotificationService).notifyAboutAllNotAcceptedPolicies(siteId, fenixUserId,
+			grantId);
 	}
 
 	@Test
@@ -217,15 +229,16 @@ class ResourceAccessServiceTest {
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_FAILED", "GRANTED"})
 	void shouldRevokeAccess(AccessStatus status) {
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("id");
 
 		GrantAccess grantAccess = GrantAccess.builder()
 			.fenixUserId(userId)
-			.allocationId("id")
+			.allocationId(projectAllocationId)
 			.build();
 
 		//when
-		when(repository.findCurrentStatus(userId, "id")).thenReturn(status);
+		when(repository.findCurrentStatus(userId, projectAllocationId)).thenReturn(status);
 		service.revokeAccess(grantAccess);
 
 		//then
@@ -236,15 +249,16 @@ class ResourceAccessServiceTest {
 	@ParameterizedTest
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_FAILED", "GRANTED", "GRANT_FAILED"}, mode = EXCLUDE)
 	void shouldNotRevokeAccessIfStateIsNotTransitionalTo(AccessStatus status) {
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("id");
 
 		GrantAccess grantAccess = GrantAccess.builder()
 			.fenixUserId(userId)
-			.allocationId("id")
+			.allocationId(projectAllocationId)
 			.build();
 
 		//when
-		when(repository.findCurrentStatus(userId, "id")).thenReturn(status);
+		when(repository.findCurrentStatus(userId, projectAllocationId)).thenReturn(status);
 
 		//then
 		assertThrows(IllegalArgumentException.class, () -> service.revokeAccess(grantAccess));
@@ -252,17 +266,18 @@ class ResourceAccessServiceTest {
 
 	@Test
 	void shouldOnlyDeleteAccessGrantIfFails() {
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("id");
 		GrantAccess grantAccess = GrantAccess.builder()
 			.fenixUserId(userId)
-			.allocationId("id")
+			.allocationId(projectAllocationId)
 			.build();
 		//when
-		when(repository.findCurrentStatus(userId, "id")).thenReturn(GRANT_FAILED);
+		when(repository.findCurrentStatus(userId, projectAllocationId)).thenReturn(GRANT_FAILED);
 		service.revokeAccess(grantAccess);
 
 		//then
-		verify(repository).deleteByUserAndAllocationId(userId, "id");
+		verify(repository).deleteByUserAndAllocationId(userId, projectAllocationId);
 		verify(repository, times(0)).update(any(), eq(grantAccess), eq(AccessStatus.REVOKE_PENDING));
 		verify(siteAgentResourceAccessService, times(0)).revokeAccess(any(), eq(grantAccess));	}
 }

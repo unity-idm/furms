@@ -13,6 +13,7 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -60,16 +61,16 @@ public class SitesAdminsView extends FurmsViewComponent {
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		getContent().removeAll();
 		breadCrumbParameter = parameter;
-		init(parameter);
+		init(new SiteId(parameter));
 	}
 
 	@Override
 	public Optional<BreadCrumbParameter> getParameter() {
-		return siteService.findById(breadCrumbParameter)
-				.map(site -> new BreadCrumbParameter(site.getId(), site.getName()));
+		return siteService.findById(new SiteId(breadCrumbParameter))
+				.map(site -> new BreadCrumbParameter(site.getId().id.toString(), site.getName()));
 	}
 
-	private void init(String siteId) {
+	private void init(SiteId siteId) {
 		usersDAO = new UsersDAO(() -> siteService.findAllUsersAndSiteAdmins(siteId));
 
 		InviteUserComponent inviteUser = new InviteUserComponent(
@@ -134,7 +135,8 @@ public class SitesAdminsView extends FurmsViewComponent {
 		getContent().add(viewHeaderLayout, inviteUser, grid);
 	}
 
-	private void doInviteAction(String siteId, InviteUserComponent inviteUserComponent, MembershipChangerComponent membershipLayout) {
+	private void doInviteAction(SiteId siteId, InviteUserComponent inviteUserComponent,
+	                            MembershipChangerComponent membershipLayout) {
 		try {
 			inviteUserComponent.getUserId().ifPresentOrElse(
 				id -> siteService.inviteAdmin(siteId, id),

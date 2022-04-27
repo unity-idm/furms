@@ -16,6 +16,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsProgressBar;
@@ -74,7 +76,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	private Grid<ResourceCreditViewModel> createResourceCreditGrid() {
 		Grid<ResourceCreditViewModel> grid = new DenseGrid<>(ResourceCreditViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceCreditFormView.class, c.getId()))
+		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceCreditFormView.class, c.getId().id.toString()))
 			.setHeader(getTranslation("view.site-admin.resource-credits.grid.column.name"))
 			.setSortable(true)
 			.setFlexGrow(20)
@@ -123,21 +125,21 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		return grid;
 	}
 
-	private HorizontalLayout createLastColumnContent(ResourceCreditViewModel resourceTypeViewModel) {
+	private HorizontalLayout createLastColumnContent(ResourceCreditViewModel resourceCreditViewModel) {
 		return new GridActionsButtonLayout(
-			createContextMenu(resourceTypeViewModel.getId(), resourceTypeViewModel.getName())
+			createContextMenu(resourceCreditViewModel.getId(), resourceCreditViewModel.getName())
 		);
 	}
 
-	private Component createContextMenu(String resourceTypeId, String resourceCreditName) {
+	private Component createContextMenu(ResourceCreditId resourceCreditId, String resourceCreditName) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.resource-credits.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(ResourceCreditFormView.class, resourceTypeId)
+			event -> UI.getCurrent().navigate(ResourceCreditFormView.class, resourceCreditId.id.toString())
 		);
 
-		Dialog confirmDialog = createConfirmDialog(resourceTypeId, resourceCreditName);
+		Dialog confirmDialog = createConfirmDialog(resourceCreditId, resourceCreditName);
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.resource-credits.menu.delete"), TRASH),
@@ -148,10 +150,10 @@ public class ResourceCreditsView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String resourceTypeId, String resourceCreditName) {
+	private Dialog createConfirmDialog(ResourceCreditId resourceTypeId, String resourceCreditName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-credits.dialog.text", resourceCreditName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			handleExceptions(() -> resourceCreditService.delete(resourceTypeId, getCurrentResourceId()),
+			handleExceptions(() -> resourceCreditService.delete(resourceTypeId, new SiteId(getCurrentResourceId())),
 					Map.of(ResourceCreditHasAllocationException.class, "view.site-admin.resource-credits.form.error.resourceCreditHasAllocations"));
 			loadGridContent();
 		});
@@ -163,7 +165,7 @@ public class ResourceCreditsView extends FurmsViewComponent {
 	}
 
 	private List<ResourceCreditViewModel> loadServicesViewsModels() {
-		return handleExceptions(() -> resourceCreditService.findAllWithAllocations(getCurrentResourceId()))
+		return handleExceptions(() -> resourceCreditService.findAllWithAllocations(new SiteId(getCurrentResourceId())))
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))

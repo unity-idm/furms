@@ -5,14 +5,18 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
 import io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentChunkUpdateProducerMock;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationUpdate;
@@ -44,19 +48,18 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 	void shouldInstallProjectAllocation() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
-			.id("id")
-			.projectId("id")
+			.id(new ProjectAllocationId(UUID.randomUUID()))
+			.projectId(new ProjectId(UUID.randomUUID()))
 			.amount(BigDecimal.TEN)
 			.site(Site.builder()
-				.id("id")
-				.externalId(new SiteExternalId("mock"))
+				.id(new SiteId(UUID.randomUUID().toString(), new SiteExternalId("mock")))
 				.build()
 			)
 			.resourceType(ResourceType.builder()
 				.name("name")
 				.build())
 			.resourceCredit(ResourceCredit.builder()
-				.id("id")
+				.id(new ResourceCreditId(UUID.randomUUID()))
 				.utcStartTime(LocalDateTime.now())
 				.utcEndTime(LocalDateTime.now())
 				.build())
@@ -85,19 +88,18 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 	void shouldDeallocateProject() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
-			.id("id")
-			.projectId("id")
+			.id(new ProjectAllocationId(UUID.randomUUID()))
+			.projectId(new ProjectId(UUID.randomUUID()))
 			.amount(BigDecimal.TEN)
 			.site(Site.builder()
-				.id("id")
-				.externalId(new SiteExternalId("mock"))
+				.id(new SiteId(UUID.randomUUID().toString(), new SiteExternalId("mock")))
 				.build()
 			)
 			.resourceType(ResourceType.builder()
 				.name("name")
 				.build())
 			.resourceCredit(ResourceCredit.builder()
-				.id("id")
+				.id(new ResourceCreditId(UUID.randomUUID()))
 				.utcStartTime(LocalDateTime.now())
 				.utcEndTime(LocalDateTime.now())
 				.build())

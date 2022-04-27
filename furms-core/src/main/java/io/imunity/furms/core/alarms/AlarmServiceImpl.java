@@ -18,6 +18,8 @@ import io.imunity.furms.domain.alarms.AlarmRemovedEvent;
 import io.imunity.furms.domain.alarms.AlarmUpdatedEvent;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.alarms.AlarmRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -58,8 +60,8 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
-	public Set<AlarmWithUserEmails> findAll(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId.id")
+	public Set<AlarmWithUserEmails> findAll(ProjectId projectId) {
 		Map<FenixUserId, String> groupedUsers = getUserEmails();
 		return alarmRepository.findAll(projectId).stream()
 			.map(alarm -> new AlarmWithUserEmails(alarm, getUserIds(groupedUsers, alarm)))
@@ -67,8 +69,8 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
-	public Optional<AlarmWithUserEmails> find(String projectId, AlarmId id) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId.id")
+	public Optional<AlarmWithUserEmails> find(ProjectId projectId, AlarmId id) {
 		if(!alarmRepository.exist(projectId, id))
 			throw new IllegalArgumentException(String.format("Alarm %s and project %s are not related", id.id, projectId));
 		Map<FenixUserId, String> groupedUsers = getUserEmails();
@@ -78,8 +80,8 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
-	public Optional<AlarmWithUserEmails> find(String projectId, String projectAllocationId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId.id")
+	public Optional<AlarmWithUserEmails> find(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		projectAllocationRepository.findById(projectAllocationId)
 			.filter(allocation -> allocation.projectId.equals(projectId))
 			.orElseThrow(() -> new IllegalArgumentException(String.format(
@@ -111,7 +113,7 @@ class AlarmServiceImpl implements AlarmService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId.id")
 	public void create(AlarmWithUserEmails alarm) {
 		assertUniquenessForCreate(alarm.projectId, alarm.name);
 		assertThresholdIsNotExceeded(alarm);
@@ -139,7 +141,7 @@ class AlarmServiceImpl implements AlarmService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId.id")
 	public void update(AlarmWithUserEmails alarm) {
 		assertExist(alarm.projectId, alarm.id);
 		assertUniquenessForUpdate(alarm.projectId, alarm.id, alarm.name);
@@ -158,7 +160,7 @@ class AlarmServiceImpl implements AlarmService {
 		LOG.info("Alarm ID {} for project allocation ID: {} was updated", alarm.id.id, alarm.projectAllocationId);
 	}
 
-	private void assertExist(String projectId, AlarmId alarmId) {
+	private void assertExist(ProjectId projectId, AlarmId alarmId) {
 		if(!alarmRepository.exist(projectId, alarmId))
 			throw new AlarmNotExistingException(String.format("Alarm %s and project %s are not related", alarmId, alarmId));
 	}
@@ -173,12 +175,12 @@ class AlarmServiceImpl implements AlarmService {
 			throw new FiredAlarmThresholdReduceException("Fired alarm threshold cannot be reduce");
 	}
 
-	private void assertUniquenessForCreate(String projectId, String name) {
+	private void assertUniquenessForCreate(ProjectId projectId, String name) {
 		if(alarmRepository.exist(projectId, name))
 			throw new DuplicatedNameValidationError(String.format("Alarm name: %s - already exists", name));
 	}
 
-	private void assertUniquenessForUpdate(String projectId, AlarmId alarmId, String name) {
+	private void assertUniquenessForUpdate(ProjectId projectId, AlarmId alarmId, String name) {
 		boolean present = alarmRepository.find(alarmId)
 			.filter(x -> !x.name.equals(name))
 			.isPresent();
@@ -188,8 +190,8 @@ class AlarmServiceImpl implements AlarmService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
-	public void remove(String projectId, AlarmId id) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId.id")
+	public void remove(ProjectId projectId, AlarmId id) {
 		assertExist(projectId, id);
 		AlarmWithUserIds alarm = alarmRepository.find(id).get();
 		alarmRepository.remove(id);

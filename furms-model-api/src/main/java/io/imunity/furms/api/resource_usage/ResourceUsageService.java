@@ -5,21 +5,25 @@
 
 package io.imunity.furms.api.resource_usage;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 
 public interface ResourceUsageService {
 
-	Set<UserResourceUsage> findAllUserUsages(String siteId, Set<UUID> projectAllocations, LocalDateTime from, LocalDateTime to);
+	Set<UserResourceUsage> findAllUserUsages(SiteId siteId, Set<ProjectAllocationId> projectAllocations, LocalDateTime from, LocalDateTime to);
 
-	Set<UserResourceUsage> findAllUserUsagesHistory(String projectId, String projectAllocationId);
+	Set<UserResourceUsage> findAllUserUsagesHistory(ProjectId projectId, ProjectAllocationId projectAllocationId);
 
-	Set<ResourceUsage> findAllResourceUsageHistory(String projectId, String projectAllocations);
+	Set<ResourceUsage> findAllResourceUsageHistory(ProjectId projectId, ProjectAllocationId projectAllocationId);
 
-	Set<ResourceUsage> findAllResourceUsageHistoryByCommunity(String communityId, String communityAllocationId);
+	Set<ResourceUsage> findAllResourceUsageHistoryByCommunity(CommunityId communityId, CommunityAllocationId communityAllocationId);
 
 }

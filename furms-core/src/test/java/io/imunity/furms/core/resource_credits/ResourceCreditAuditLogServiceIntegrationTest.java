@@ -14,6 +14,9 @@ import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
@@ -33,9 +36,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -78,12 +81,15 @@ class ResourceCreditAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectResourceCreditDeletion() {
 		//given
-		String id = "id";
-		ResourceCredit mock = mock(ResourceCredit.class);
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceCreditId id = new ResourceCreditId(UUID.randomUUID());
+		ResourceCredit mock = ResourceCredit.builder()
+			.id(id)
+			.build();
 		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(mock));
 
 		//when
-		service.delete(id, "");
+		service.delete(id, siteId);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -95,9 +101,9 @@ class ResourceCreditAuditLogServiceIntegrationTest {
 	void shouldDetectResourceCreditUpdate() {
 		//given
 		ResourceCredit request = ResourceCredit.builder()
-			.id("id")
-			.siteId("id")
-			.resourceTypeId("id")
+			.id(UUID.randomUUID().toString())
+			.siteId(UUID.randomUUID().toString())
+			.resourceTypeId(UUID.randomUUID().toString())
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -121,10 +127,13 @@ class ResourceCreditAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectResourceCreditCreation() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		ResourceCredit request = ResourceCredit.builder()
-			.id("id")
-			.siteId("id")
-			.resourceTypeId("id")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -134,8 +143,8 @@ class ResourceCreditAuditLogServiceIntegrationTest {
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(request.resourceTypeId)).thenReturn(true);
 		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
-		when(resourceCreditRepository.create(request)).thenReturn("id");
-		when(resourceCreditRepository.findById("id")).thenReturn(Optional.of(request));
+		when(resourceCreditRepository.create(request)).thenReturn(resourceCreditId);
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);

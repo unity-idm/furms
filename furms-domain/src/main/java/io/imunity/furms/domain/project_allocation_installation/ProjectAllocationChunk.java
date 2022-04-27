@@ -89,6 +89,11 @@ public class ProjectAllocationChunk {
 			return this;
 		}
 
+		public ProjectAllocationChunkBuilder projectAllocationId(ProjectAllocationId projectAllocationId) {
+			this.projectAllocationId = projectAllocationId;
+			return this;
+		}
+
 		public ProjectAllocationChunkBuilder chunkId(String chunkId) {
 			this.chunkId = new ChunkId(chunkId);
 			return this;

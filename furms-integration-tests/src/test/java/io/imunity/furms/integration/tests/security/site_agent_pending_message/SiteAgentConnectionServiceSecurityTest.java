@@ -33,7 +33,7 @@ class SiteAgentConnectionServiceSecurityTest extends SecurityTestsBase {
 
 	@Test
 	void shouldPassForSecurityRulesForMethodsInSiteAgentConnectionService() {
-		final SiteId siteId = new SiteId(site);
+		final SiteId siteId = site;
 		forMethods(
 				() -> service.findAll(siteId),
 				() -> service.getSiteAgentStatus(siteId))

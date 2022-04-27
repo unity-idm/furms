@@ -81,6 +81,11 @@ public class Community {
 			return this;
 		}
 
+		public CommunityBuilder id(CommunityId id) {
+			this.id = id;
+			return this;
+		}
+
 		public CommunityBuilder name(String name) {
 			this.name = name;
 			return this;

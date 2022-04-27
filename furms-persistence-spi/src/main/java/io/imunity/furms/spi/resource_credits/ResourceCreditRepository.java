@@ -28,7 +28,7 @@ public interface ResourceCreditRepository {
 
 	Set<ResourceCredit> findAllNotExpiredByNameOrSiteName(String name);
 
-	String create(ResourceCredit resourceCredit);
+	ResourceCreditId create(ResourceCredit resourceCredit);
 
 	void update(ResourceCredit resourceType);
 

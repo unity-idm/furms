@@ -19,11 +19,15 @@ import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProject
 import io.imunity.furms.api.validation.exceptions.ProjectNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -68,7 +72,7 @@ class ProjectAllocationServiceValidator {
 		this.projectInstallationService = projectInstallationService;
 	}
 
-	void validateCreate(String communityId, ProjectAllocation projectAllocation) {
+	void validateCreate(CommunityId communityId, ProjectAllocation projectAllocation) {
 		notNull(projectAllocation, "ProjectAllocation object cannot be null.");
 		assertProjectBelongsToCommunity(communityId, projectAllocation.projectId);
 		assertProjectExists(projectAllocation.projectId);
@@ -80,7 +84,7 @@ class ProjectAllocationServiceValidator {
 		assertAmountNotNull(projectAllocation.amount);
 	}
 
-	void validateUpdate(String communityId, ProjectAllocation projectAllocation) {
+	void validateUpdate(CommunityId communityId, ProjectAllocation projectAllocation) {
 		notNull(projectAllocation, "ProjectAllocation object cannot be null.");
 
 		assertProjectAllocationExists(projectAllocation.id);
@@ -97,37 +101,43 @@ class ProjectAllocationServiceValidator {
 		assertStatusIsInTerminalState(projectAllocation);
 	}
 
-	void validateCommunityIdAndProjectId(String communityId, String projectId) {
+	void validateCommunityIdAndProjectId(CommunityId communityId, ProjectId projectId) {
 		assertProjectBelongsToCommunity(communityId, projectId);
 	}
 
-	void validateCommunityIdAndProjectAllocationId(String communityId, String projectAllocationId) {
-		String projectId = projectAllocationRepository.findById(projectAllocationId).map(allocation -> allocation.projectId).orElse(null);
+	void validateCommunityIdAndProjectAllocationId(CommunityId communityId, ProjectAllocationId projectAllocationId) {
+		ProjectId projectId = projectAllocationRepository.findById(projectAllocationId)
+			.map(allocation -> allocation.projectId)
+			.orElse(null);
 		assertProjectBelongsToCommunity(communityId, projectId);
 	}
 
-	void validateCommunityIdAndCommunityAllocationId(String communityId, String communityAllocationId) {
-		String id = communityAllocationRepository.findById(communityAllocationId).map(allocation -> allocation.communityId).orElse(null);
+	void validateCommunityIdAndCommunityAllocationId(CommunityId communityId, CommunityAllocationId communityAllocationId) {
+		CommunityId id = communityAllocationRepository.findById(communityAllocationId)
+			.map(allocation -> allocation.communityId)
+			.orElse(null);
 		if(!communityId.equals(id)){
 			throw new CommunityIsNotRelatedWithCommunityAllocation("Community "+ communityId +" is not related with community allocation " + communityAllocationId);
 		}
 	}
 
-	void validateProjectIdAndProjectAllocationId(String projectId, String projectAllocationId) {
-		String id = projectAllocationRepository.findById(projectAllocationId).map(allocation -> allocation.projectId).orElse(null);
+	void validateProjectIdAndProjectAllocationId(ProjectId projectId, ProjectAllocationId projectAllocationId) {
+		ProjectId id = projectAllocationRepository.findById(projectAllocationId)
+			.map(allocation -> allocation.projectId)
+			.orElse(null);
 		if(!projectId.equals(id)){
 			throw new ProjectIsNotRelatedWithProjectAllocation("Project "+ projectId +" is not related with project allocation " + projectAllocationId);
 		}
 	}
 
-	private void assertResourceCreditNotExpired(String communityAllocationId) {
+	private void assertResourceCreditNotExpired(CommunityAllocationId communityAllocationId) {
 		communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId)
 				.ifPresent(communityAllocation -> assertFalse(communityAllocation.resourceCredit.isExpired(),
 						() -> new ResourceCreditExpiredException("Cannot use expired Resource credit")));
 	}
 
 
-	void validateDelete(String communityId, String projectAllocationId) {
+	void validateDelete(CommunityId communityId, ProjectAllocationId projectAllocationId) {
 		projectAllocationRepository.findById(projectAllocationId)
 			.ifPresentOrElse(projectAllocation -> {
 					assertProjectBelongsToCommunity(communityId, projectAllocation.projectId);
@@ -140,7 +150,7 @@ class ProjectAllocationServiceValidator {
 		);
 	}
 
-	private void validateName(String communityId, ProjectAllocation projectAllocation) {
+	private void validateName(CommunityId communityId, ProjectAllocation projectAllocation) {
 		notNull(projectAllocation.name, "ProjectAllocation name has to be declared.");
 		validateLength("name", projectAllocation.name, MAX_NAME_LENGTH);
 		if (isNameOccupied(communityId, projectAllocation)) {
@@ -148,13 +158,13 @@ class ProjectAllocationServiceValidator {
 		}
 	}
 
-	private void assertProjectBelongsToCommunity(String communityId, String projectId) {
+	private void assertProjectBelongsToCommunity(CommunityId communityId, ProjectId projectId) {
 		if (!projectRepository.isProjectRelatedWithCommunity(communityId, projectId)) {
 			throw new ProjectIsNotRelatedWithCommunity("Project "+ projectId +" is not related with community " + communityId);
 		}
 	}
 
-	private boolean isNameOccupied(String communityId, ProjectAllocation projectAllocation) {
+	private boolean isNameOccupied(CommunityId communityId, ProjectAllocation projectAllocation) {
 		Optional<ProjectAllocation> optionalProject = projectAllocationRepository.findById(projectAllocation.id);
 		return !projectAllocationRepository.isNamePresent(communityId, projectAllocation.name) &&
 			(optionalProject.isEmpty() || !optionalProject.get().name.equals(projectAllocation.name));
@@ -166,24 +176,24 @@ class ProjectAllocationServiceValidator {
 		}
 	}
 
-	private void assertProjectAllocationExists(String id) {
+	private void assertProjectAllocationExists(ProjectAllocationId id) {
 		notNull(id, "Resource CreditAllocation ID has to be declared.");
 		assertTrue(projectAllocationRepository.exists(id), () -> new IdNotFoundValidationError("ProjectAllocation with declared ID is not exists."));
 	}
 
-	private void assertProjectExists(String id) {
+	private void assertProjectExists(ProjectId id) {
 		notNull(id, "Project ID has to be declared.");
 		assertTrue(projectRepository.exists(id), () -> new IdNotFoundValidationError("Project with declared ID is not exists."));
 	}
 
-	private void assertProjectNotExpired(String projectId) {
+	private void assertProjectNotExpired(ProjectId projectId) {
 		notNull(projectId, "Project ID has to be declared.");
 		final Optional<Project> project = projectRepository.findById(projectId);
 		assertTrue(project.isPresent() && !project.get().isExpired(),
 				() -> new ProjectExpiredException("Project is expired."));
 	}
 
-	private void assertProjectNotInTerminalState(String projectId) {
+	private void assertProjectNotInTerminalState(ProjectId projectId) {
 		assertTrue(projectInstallationService.isProjectInTerminalState(projectId),
 				() -> new ProjectNotInTerminalStateException("Deleted project has to be in terminal state."));
 	}
@@ -203,7 +213,7 @@ class ProjectAllocationServiceValidator {
 		assertFalse(matches, () -> new ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException(projectAllocation.projectId, resourceCredit.resourceTypeId));
 	}
 
-	private void validateCommunityAllocationId(String id) {
+	private void validateCommunityAllocationId(CommunityAllocationId id) {
 		notNull(id, "CommunityAllocation ID has to be declared.");
 		assertTrue(communityAllocationRepository.exists(id), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID does not exist."));
 	}

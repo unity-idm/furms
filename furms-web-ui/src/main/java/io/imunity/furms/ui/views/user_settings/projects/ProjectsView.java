@@ -27,7 +27,9 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -124,7 +126,7 @@ public class ProjectsView extends FurmsViewComponent {
 		Grid.Column<ProjectGridModel> firstColumn = grid.addComponentColumn(project -> {
 			Component component = new Span(project.name);
 			if (project.status.equals(ACTIVE))
-				component = new RouterLink(project.name, ProjectView.class, project.id);
+				component = new RouterLink(project.name, ProjectView.class, project.id.id.toString());
 			return component;
 		})
 			.setHeader(getTranslation("view.user-settings.projects.grid.column.1"))
@@ -150,7 +152,7 @@ public class ProjectsView extends FurmsViewComponent {
 		switch (project.status) {
 			case ACTIVE:
 				return new GridActionsButtonLayout(
-					new RouterGridLink(PIE_CHART, project.id, ProjectView.class),
+					new RouterGridLink(PIE_CHART, project.id.id.toString(), ProjectView.class),
 					createContextMenu(project.id, project.name, project.communityId)
 				);
 			case NOT_ACTIVE:
@@ -195,7 +197,7 @@ public class ProjectsView extends FurmsViewComponent {
 		return menuButton;
 	}
 
-	private Component createContextMenu(String projectId, String projectName, String communityId) {
+	private Component createContextMenu(ProjectId projectId, String projectName, CommunityId communityId) {
 		GridActionMenu contextMenu = new GridActionMenu();
 		Dialog confirmDialog = createConfirmDialog(projectId, projectName, communityId);
 
@@ -209,13 +211,13 @@ public class ProjectsView extends FurmsViewComponent {
 			PIE_CHART
 		);
 
-		RouterLink allocationsPool = new RouterGridLink(allocationComponent, projectId, ProjectView.class);
+		RouterLink allocationsPool = new RouterGridLink(allocationComponent, projectId.id.toString(), ProjectView.class);
 		contextMenu.addItem(allocationsPool);
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String projectId, String projectName, String communityId) {
+	private Dialog createConfirmDialog(ProjectId projectId, String projectName, CommunityId communityId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.user-settings.projects.dialog.text", projectName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			try {

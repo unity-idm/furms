@@ -5,9 +5,14 @@
 
 package io.imunity.furms.api.export;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.util.function.Supplier;
 
 public interface ResourceUsageJSONExporter {
-	Supplier<String> getJsonForProjectAllocation(String projectId, String projectAllocationId);
-	Supplier<String> getJsonForCommunityAllocation(String communityId, String communityAllocationId);
+	Supplier<String> getJsonForProjectAllocation(ProjectId projectId, ProjectAllocationId projectAllocationId);
+	Supplier<String> getJsonForCommunityAllocation(CommunityId communityId, CommunityAllocationId communityAllocationId);
 }

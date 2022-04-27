@@ -14,6 +14,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsLandingViewComponent;
@@ -157,7 +158,7 @@ public class DashboardView extends FurmsLandingViewComponent {
 
 	private Stream<ResourceAllocationsGridItem> loadCredits() {
 		return allocationService.findAllWithRelatedObjects(
-					getCurrentResourceId(),
+					new CommunityId(getCurrentResourceId()),
 					filters.getName(),
 					filters.isIncludedFullyDistributed(),
 					filters.isIncludedExpired())

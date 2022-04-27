@@ -27,17 +27,17 @@ class UserSiteAccessDatabaseRepository implements UserSiteAccessRepository {
 	}
 
 	@Override
-	public Set<String> findAllUserProjectIds(SiteId siteId, FenixUserId userId) {
+	public Set<ProjectId> findAllUserProjectIds(SiteId siteId, FenixUserId userId) {
 		return userSiteAccessEntityRepository.findAllBySiteIdAndUserId(siteId.id, userId.id).stream()
-			.map(userSiteAccessEntity -> userSiteAccessEntity.projectId.toString())
-			.collect(toSet());
+			.map(userSiteAccessEntity -> new ProjectId(userSiteAccessEntity.projectId))
+				.collect(toSet());
 	}
 
 	@Override
 	public Map<SiteId, Set<FenixUserId>> findAllUserGroupedBySiteId(ProjectId projectId) {
 		return userSiteAccessEntityRepository.findAllByProjectId(projectId.id).stream()
 			.collect(groupingBy(
-				entity -> new SiteId(entity.siteId.toString()),
+				entity -> new SiteId(entity.siteId),
 				mapping(entity -> new FenixUserId(entity.userId), toSet()))
 			);
 	}

@@ -23,7 +23,7 @@ public interface ResourceTypeRepository {
 
 	Set<ResourceType> findAll();
 
-	String create(ResourceType resourceType);
+	ResourceTypeId create(ResourceType resourceType);
 
 	void update(ResourceType resourceType);
 

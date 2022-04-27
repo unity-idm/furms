@@ -6,7 +6,7 @@
 package io.imunity.furms.domain.project_installation;
 
 import io.imunity.furms.domain.communities.CommunityId;
-import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ProjectInstallation {
-	public final ProjectInstallationId id;
+	public final ProjectId id;
 	public final SiteId siteId;
 	public final String name;
 	public final String description;
@@ -26,7 +26,7 @@ public class ProjectInstallation {
 	public final LocalDateTime validityEnd;
 	public final FURMSUser leader;
 
-	ProjectInstallation(ProjectInstallationId id,
+	ProjectInstallation(ProjectId id,
 			SiteId siteId,
 			String name,
 			String description,
@@ -96,9 +96,8 @@ public class ProjectInstallation {
 	}
 
 	public static final class ProjectInstallationBuilder {
-		private ProjectInstallationId id;
-		private String siteId;
-		private SiteExternalId siteExternalId;
+		private ProjectId id;
+		private SiteId siteId;
 		private String name;
 		private String description;
 		private CommunityId communityId;
@@ -113,17 +112,17 @@ public class ProjectInstallation {
 		}
 
 		public ProjectInstallationBuilder id(String id) {
-			this.id = new ProjectInstallationId(id);
+			this.id = new ProjectId(id);
 			return this;
 		}
 
-		public ProjectInstallationBuilder siteId(String siteId) {
+		public ProjectInstallationBuilder id(ProjectId id) {
+			this.id = id;
+			return this;
+		}
+
+		public ProjectInstallationBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
-			return this;
-		}
-
-		public ProjectInstallationBuilder siteExternalId(String siteExternalId) {
-			this.siteExternalId = new SiteExternalId(siteExternalId);
 			return this;
 		}
 
@@ -139,6 +138,11 @@ public class ProjectInstallation {
 
 		public ProjectInstallationBuilder communityId(String communityId) {
 			this.communityId = new CommunityId(communityId);
+			return this;
+		}
+
+		public ProjectInstallationBuilder communityId(CommunityId communityId) {
+			this.communityId = communityId;
 			return this;
 		}
 
@@ -173,7 +177,7 @@ public class ProjectInstallation {
 		}
 
 		public ProjectInstallation build() {
-			return new ProjectInstallation(id, new SiteId(siteId, siteExternalId), name, description, communityId,
+			return new ProjectInstallation(id, siteId, name, description, communityId,
 				communityName,
 					acronym, researchField, validityStart, validityEnd, leader);
 		}

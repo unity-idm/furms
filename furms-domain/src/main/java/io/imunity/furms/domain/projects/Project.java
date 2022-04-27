@@ -5,6 +5,7 @@
 
 package io.imunity.furms.domain.projects;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.utils.UTCTimeUtils;
@@ -14,8 +15,8 @@ import java.util.Objects;
 
 public class Project {
 
-	private final String id;
-	private final String communityId;
+	private final ProjectId id;
+	private final CommunityId communityId;
 	private final String name;
 	private final String description;
 	private final FurmsImage logo;
@@ -25,7 +26,7 @@ public class Project {
 	private final LocalDateTime utcEndTime;
 	private final PersistentId leaderId;
 
-	public Project(String id, String communityId, String name, String description, FurmsImage logo, String acronym,
+	public Project(ProjectId id, CommunityId communityId, String name, String description, FurmsImage logo, String acronym,
 	               String researchField, LocalDateTime utcStartTime, LocalDateTime utcEndTime, PersistentId projectLeaderId) {
 		this.id = id;
 		this.communityId = communityId;
@@ -39,11 +40,11 @@ public class Project {
 		this.leaderId = projectLeaderId;
 	}
 
-	public String getId() {
+	public ProjectId getId() {
 		return id;
 	}
 
-	public String getCommunityId() {
+	public CommunityId getCommunityId() {
 		return communityId;
 	}
 
@@ -125,8 +126,8 @@ public class Project {
 	}
 
 	public static class ProjectBuilder {
-		private String id;
-		private String communityId;
+		private ProjectId id;
+		private CommunityId communityId;
 		private String name;
 		private String description;
 		private FurmsImage logo;
@@ -140,11 +141,21 @@ public class Project {
 		}
 
 		public ProjectBuilder id(String id) {
+			this.id = new ProjectId(id);
+			return this;
+		}
+
+		public ProjectBuilder id(ProjectId id) {
 			this.id = id;
 			return this;
 		}
 
 		public ProjectBuilder communityId(String communityId) {
+			this.communityId = new CommunityId(communityId);
+			return this;
+		}
+
+		public ProjectBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}

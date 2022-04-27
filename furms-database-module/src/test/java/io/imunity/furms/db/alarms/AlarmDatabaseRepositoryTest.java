@@ -11,19 +11,25 @@ import io.imunity.furms.domain.alarms.AlarmId;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.alarms.FiredAlarm;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -44,7 +50,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -89,7 +94,7 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		SiteId siteId = siteRepository.create(site, new SiteExternalId("id"));
 		siteRepository.create(site1, new SiteExternalId("id2"));
 
 		Community community = Community.builder()
@@ -100,11 +105,11 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
-		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
+		CommunityId communityId = communityRepository.create(community);
+		CommunityId communityId2 = communityRepository.create(community2);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -114,7 +119,7 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 		Project project2 = Project.builder()
-			.communityId(communityId2.toString())
+			.communityId(communityId2)
 			.name("name2")
 			.logo(FurmsImage.empty())
 			.description("new_description")
@@ -124,77 +129,77 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
-		projectId2 = UUID.fromString(projectRepository.create(project2));
+		projectId = projectRepository.create(project);
+		projectId2 = projectRepository.create(project2);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
-		UUID communityAllocationId2 = UUID.fromString(communityAllocationRepository.create(
+		);
+		CommunityAllocationId communityAllocationId2 = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem2")
 				.amount(new BigDecimal(30))
 				.build()
-		));
+		);
 
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
+		projectAllocationId = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
-		projectAllocationId1 = UUID.fromString(projectAllocationRepository.create(
+		);
+		projectAllocationId1 = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId2.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId2)
 				.name("name1")
 				.amount(new BigDecimal(20))
 				.build()
-		));
-		projectAllocationId2 = UUID.fromString(projectAllocationRepository.create(
+		);
+		projectAllocationId2 = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId2.toString())
-				.communityAllocationId(communityAllocationId2.toString())
+				.projectId(projectId2)
+				.communityAllocationId(communityAllocationId2)
 				.name("anem2")
 				.amount(new BigDecimal(30))
 				.build()
-		));
+		);
 	}
 
 	@AfterEach
@@ -206,8 +211,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldCreate() {
 		Set<FenixUserId> alarmUser = Set.of(new FenixUserId("userId1"), new FenixUserId("userId2"));
 		AlarmWithUserIds alarm = AlarmWithUserIds.builder()
-			.projectId(projectId.toString())
-			.projectAllocationId(projectAllocationId.toString())
+			.projectId(projectId)
+			.projectAllocationId(projectAllocationId)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -218,8 +223,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Optional<AlarmEntity> alarmEntity = alarmEntityRepository.findById(alarmId.id);
 		assertThat(alarmEntity).isPresent();
-		assertThat(alarmEntity.get().projectId).isEqualTo(projectId);
-		assertThat(alarmEntity.get().projectAllocationId).isEqualTo(projectAllocationId);
+		assertThat(alarmEntity.get().projectId).isEqualTo(projectId.id);
+		assertThat(alarmEntity.get().projectAllocationId).isEqualTo(projectAllocationId.id);
 		assertThat(alarmEntity.get().name).isEqualTo("name");
 		assertThat(alarmEntity.get().threshold).isEqualTo(50);
 		assertThat(alarmEntity.get().allUsers).isEqualTo(false);
@@ -230,8 +235,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldUpdate() {
 		Set<AlarmUserEntity> alarmUser = Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2"));
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -245,8 +250,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		AlarmWithUserIds alarm1 = AlarmWithUserIds.builder()
 			.id(alarmId)
-			.projectId(projectId.toString())
-			.projectAllocationId(projectAllocationId.toString())
+			.projectId(projectId)
+			.projectAllocationId(projectAllocationId)
 			.name("name2")
 			.threshold(60)
 			.allUsers(true)
@@ -257,8 +262,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Optional<AlarmEntity> alarmEntity = alarmEntityRepository.findById(alarmId.id);
 		assertThat(alarmEntity).isPresent();
-		assertThat(alarmEntity.get().projectId).isEqualTo(projectId);
-		assertThat(alarmEntity.get().projectAllocationId).isEqualTo(projectAllocationId);
+		assertThat(alarmEntity.get().projectId).isEqualTo(projectId.id);
+		assertThat(alarmEntity.get().projectAllocationId).isEqualTo(projectAllocationId.id);
 		assertThat(alarmEntity.get().name).isEqualTo("name2");
 		assertThat(alarmEntity.get().threshold).isEqualTo(60);
 		assertThat(alarmEntity.get().allUsers).isEqualTo(true);
@@ -268,8 +273,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAll() {
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -279,8 +284,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		alarmEntityRepository.save(alarm);
 
 		AlarmEntity alarm1 = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId1)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId1.id)
 			.name("name1")
 			.threshold(50)
 			.allUsers(false)
@@ -290,8 +295,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		alarmEntityRepository.save(alarm1);
 
 		AlarmEntity alarm2 = AlarmEntity.builder()
-			.projectId(projectId2)
-			.projectAllocationId(projectAllocationId2)
+			.projectId(projectId2.id)
+			.projectAllocationId(projectAllocationId2.id)
 			.name("name2")
 			.threshold(50)
 			.allUsers(false)
@@ -300,10 +305,10 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		alarmEntityRepository.save(alarm2);
 
-		Set<AlarmWithUserIds> all = databaseRepository.findAll(projectId.toString());
+		Set<AlarmWithUserIds> all = databaseRepository.findAll(projectId);
 		assertThat(all.size()).isEqualTo(2);
-		assertThat(all.stream().map(a -> a.projectId).collect(toSet())).isEqualTo(Set.of(projectId.toString()));
-		assertThat(all.stream().map(a -> a.projectAllocationId).collect(toSet())).isEqualTo(Set.of(projectAllocationId.toString(), projectAllocationId1.toString()));
+		assertThat(all.stream().map(a -> a.projectId).collect(toSet())).isEqualTo(Set.of(projectId));
+		assertThat(all.stream().map(a -> a.projectAllocationId).collect(toSet())).isEqualTo(Set.of(projectAllocationId, projectAllocationId1));
 		assertThat(all.stream().map(a -> a.name).collect(toSet())).isEqualTo(Set.of("name", "name1"));
 		assertThat(all.stream().map(a -> a.threshold).collect(toSet())).isEqualTo(Set.of(50));
 		assertThat(all.stream().map(a -> a.allUsers).collect(toSet())).isEqualTo(Set.of(false));
@@ -313,8 +318,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldRemove() {
 		Set<AlarmUserEntity> alarmUser = Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2"));
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -335,8 +340,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldExistByProjectIdAndAlarmId() {
 		Set<AlarmUserEntity> alarmUser = Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2"));
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -347,17 +352,17 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		AlarmId alarmId = new AlarmId(saved.getId());
 
-		databaseRepository.exist(projectId.toString(), alarmId);
+		databaseRepository.exist(projectId, alarmId);
 
-		assertThat(databaseRepository.exist(projectId.toString(), alarmId)).isTrue();
+		assertThat(databaseRepository.exist(projectId, alarmId)).isTrue();
 	}
 
 	@Test
 	void shouldNotExistByProjectIdAndAlarmId() {
 		Set<AlarmUserEntity> alarmUser = Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2"));
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId2)
-			.projectAllocationId(projectAllocationId2)
+			.projectId(projectId2.id)
+			.projectAllocationId(projectAllocationId2.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -368,17 +373,17 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		AlarmId alarmId = new AlarmId(saved.getId());
 
-		databaseRepository.exist(projectId.toString(), alarmId);
+		databaseRepository.exist(projectId, alarmId);
 
-		assertThat(databaseRepository.exist(projectId.toString(), alarmId)).isFalse();
+		assertThat(databaseRepository.exist(projectId, alarmId)).isFalse();
 	}
 
 	@Test
 	void shouldExistByProjectIdAndName() {
 		Set<AlarmUserEntity> alarmUser = Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2"));
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -389,17 +394,17 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		AlarmId alarmId = new AlarmId(saved.getId());
 
-		databaseRepository.exist(projectId.toString(), alarmId);
+		databaseRepository.exist(projectId, alarmId);
 
-		assertThat(databaseRepository.exist(projectId.toString(), "name")).isTrue();
+		assertThat(databaseRepository.exist(projectId, "name")).isTrue();
 	}
 
 	@Test
 	void shouldNotExistByProjectIdAndName() {
 		Set<AlarmUserEntity> alarmUser = Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2"));
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -410,17 +415,17 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 
 		AlarmId alarmId = new AlarmId(saved.getId());
 
-		databaseRepository.exist(projectId.toString(), alarmId);
+		databaseRepository.exist(projectId, alarmId);
 
-		assertThat(databaseRepository.exist(projectId.toString(), "name2")).isFalse();
+		assertThat(databaseRepository.exist(projectId, "name2")).isFalse();
 	}
 
 	@Test
 	void shouldFindByAlarmId() {
 		Set<AlarmUserEntity> alarmUser = Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2"));
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -434,8 +439,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		Optional<AlarmWithUserIds> alarmWithUserIds = databaseRepository.find(alarmId);
 
 		assertThat(alarmWithUserIds).isPresent();
-		assertThat(alarmWithUserIds.get().projectId).isEqualTo(projectId.toString());
-		assertThat(alarmWithUserIds.get().projectAllocationId).isEqualTo(projectAllocationId.toString());
+		assertThat(alarmWithUserIds.get().projectId).isEqualTo(projectId);
+		assertThat(alarmWithUserIds.get().projectAllocationId).isEqualTo(projectAllocationId);
 		assertThat(alarmWithUserIds.get().name).isEqualTo("name");
 		assertThat(alarmWithUserIds.get().threshold).isEqualTo(50);
 		assertThat(alarmWithUserIds.get().allUsers).isEqualTo(false);
@@ -446,8 +451,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldFindByProjectAllocationId() {
 		Set<AlarmUserEntity> alarmUser = Set.of(new AlarmUserEntity("userId1"), new AlarmUserEntity("userId2"));
 		AlarmEntity alarm = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -459,8 +464,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		Optional<AlarmWithUserIds> alarmWithUserIds = databaseRepository.find(projectAllocationId);
 
 		assertThat(alarmWithUserIds).isPresent();
-		assertThat(alarmWithUserIds.get().projectId).isEqualTo(projectId.toString());
-		assertThat(alarmWithUserIds.get().projectAllocationId).isEqualTo(projectAllocationId.toString());
+		assertThat(alarmWithUserIds.get().projectId).isEqualTo(projectId);
+		assertThat(alarmWithUserIds.get().projectAllocationId).isEqualTo(projectAllocationId);
 		assertThat(alarmWithUserIds.get().name).isEqualTo("name");
 		assertThat(alarmWithUserIds.get().threshold).isEqualTo(50);
 		assertThat(alarmWithUserIds.get().allUsers).isEqualTo(false);
@@ -470,8 +475,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllByUserId() {
 		AlarmEntity alarmEntity = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -482,8 +487,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		AlarmEntity saved = alarmEntityRepository.save(alarmEntity);
 
 		AlarmEntity alarmEntity1 = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId1)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId1.id)
 			.name("name1")
 			.threshold(50)
 			.allUsers(true)
@@ -494,8 +499,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		alarmEntityRepository.save(alarmEntity1);
 
 		AlarmEntity alarmEntity2 = AlarmEntity.builder()
-			.projectId(projectId2)
-			.projectAllocationId(projectAllocationId2)
+			.projectId(projectId2.id)
+			.projectAllocationId(projectAllocationId2.id)
 			.name("name2")
 			.threshold(30)
 			.allUsers(true)
@@ -509,16 +514,16 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(alarms.size()).isEqualTo(2);
 		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.alarmId).collect(toSet())).isEqualTo(Set.of(new AlarmId(saved.getId()), new AlarmId(saved2.getId())));
 		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.alarmName).collect(toSet())).isEqualTo(Set.of("name", "name2"));
-		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectId).collect(toSet())).isEqualTo(Set.of(projectId.toString(), projectId2.toString()));
-		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectAllocationId).collect(toSet())).isEqualTo(Set.of(projectAllocationId.toString(), projectAllocationId2.toString()));
+		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectId).collect(toSet())).isEqualTo(Set.of(projectId, projectId2));
+		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectAllocationId).collect(toSet())).isEqualTo(Set.of(projectAllocationId, projectAllocationId2));
 		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectAllocationName).collect(toSet())).isEqualTo(Set.of("anem2", "anem"));
 	}
 
 	@Test
 	void shouldFindAllByProjectIdsOrUserId() {
 		AlarmEntity alarmEntity = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId.id)
 			.name("name")
 			.threshold(50)
 			.allUsers(false)
@@ -529,8 +534,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		AlarmEntity saved = alarmEntityRepository.save(alarmEntity);
 
 		AlarmEntity alarmEntity1 = AlarmEntity.builder()
-			.projectId(projectId)
-			.projectAllocationId(projectAllocationId1)
+			.projectId(projectId.id)
+			.projectAllocationId(projectAllocationId1.id)
 			.name("name1")
 			.threshold(50)
 			.allUsers(true)
@@ -541,8 +546,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		alarmEntityRepository.save(alarmEntity1);
 
 		AlarmEntity alarmEntity2 = AlarmEntity.builder()
-			.projectId(projectId2)
-			.projectAllocationId(projectAllocationId2)
+			.projectId(projectId2.id)
+			.projectAllocationId(projectAllocationId2.id)
 			.name("name2")
 			.threshold(30)
 			.allUsers(true)
@@ -556,8 +561,8 @@ class AlarmDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(alarms.size()).isEqualTo(2);
 		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.alarmId).collect(toSet())).isEqualTo(Set.of(new AlarmId(saved.getId()), new AlarmId(saved2.getId())));
 		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.alarmName).collect(toSet())).isEqualTo(Set.of("name", "name2"));
-		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectId).collect(toSet())).isEqualTo(Set.of(projectId.toString(), projectId2.toString()));
-		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectAllocationId).collect(toSet())).isEqualTo(Set.of(projectAllocationId.toString(), projectAllocationId2.toString()));
+		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectId).collect(toSet())).isEqualTo(Set.of(projectId, projectId2));
+		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectAllocationId).collect(toSet())).isEqualTo(Set.of(projectAllocationId, projectAllocationId2));
 		assertThat(alarms.stream().map(activeAlarm -> activeAlarm.projectAllocationName).collect(toSet())).isEqualTo(Set.of("anem2", "anem"));
 	}
 }

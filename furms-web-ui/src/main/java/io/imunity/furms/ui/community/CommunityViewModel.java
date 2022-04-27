@@ -5,12 +5,13 @@
 
 package io.imunity.furms.ui.community;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 
 import java.util.Objects;
 
 public class CommunityViewModel {
-	private String id;
+	private CommunityId id;
 	private String name;
 	private String description;
 	private FurmsImage logo;
@@ -26,14 +27,14 @@ public class CommunityViewModel {
 		this.logo = new FurmsImage(model.logo.getImage(), model.logo.getType());
 	}
 
-	CommunityViewModel(String id, String name, String description, FurmsImage logo) {
+	CommunityViewModel(CommunityId id, String name, String description, FurmsImage logo) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.logo = logo;
 	}
 
-	public String getId() {
+	public CommunityId getId() {
 		return id;
 	}
 
@@ -49,7 +50,7 @@ public class CommunityViewModel {
 		return logo;
 	}
 
-	public void setId(String id) {
+	public void setId(CommunityId id) {
 		this.id = id;
 	}
 
@@ -102,7 +103,7 @@ public class CommunityViewModel {
 	}
 
 	public static class CommunityViewModelBuilder {
-		private String id;
+		private CommunityId id;
 		private String name;
 		private String description;
 		private FurmsImage logo;
@@ -110,7 +111,7 @@ public class CommunityViewModel {
 		private CommunityViewModelBuilder() {
 		}
 
-		public CommunityViewModelBuilder id(String id) {
+		public CommunityViewModelBuilder id(CommunityId id) {
 			this.id = id;
 			return this;
 		}

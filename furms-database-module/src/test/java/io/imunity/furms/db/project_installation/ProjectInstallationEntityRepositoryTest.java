@@ -8,10 +8,13 @@ package io.imunity.furms.db.project_installation;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -20,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
@@ -44,13 +46,13 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectInstallationJobEntityRepository entityRepository;
 
-	private UUID siteId;
-	private UUID siteId2;
+	private SiteId siteId;
+	private SiteId siteId2;
 
-	private UUID communityId;
+	private CommunityId communityId;
 
-	private UUID projectId;
-	private UUID projectId2;
+	private ProjectId projectId;
+	private ProjectId projectId2;
 
 	@BeforeEach
 	void init() {
@@ -60,8 +62,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
+		siteId2 = siteRepository.create(site1, new SiteExternalId("id2"));
 
 		Community community = Community.builder()
 			.name("name")
@@ -71,11 +73,11 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		communityId = UUID.fromString(communityRepository.create(community));
-		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
+		communityId = communityRepository.create(community);
+		CommunityId communityId2 = communityRepository.create(community2);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -85,7 +87,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 		Project project2 = Project.builder()
-			.communityId(communityId2.toString())
+			.communityId(communityId2)
 			.name("name2")
 			.logo(FurmsImage.empty())
 			.description("new_description")
@@ -95,8 +97,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
-		projectId2 = UUID.fromString(projectRepository.create(project2));
+		projectId = projectRepository.create(project);
+		projectId2 = projectRepository.create(project2);
 	}
 
 	@Test
@@ -105,8 +107,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(PENDING)
 				.gid("gid")
 				.build();
@@ -131,15 +133,15 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId)
-			.siteId(siteId)
-			.projectId(projectId)
+			.siteId(siteId.id)
+			.projectId(projectId.id)
 			.status(PENDING)
 			.gid("gid")
 			.build();
 		ProjectInstallationJobEntity secondEntityToSave = ProjectInstallationJobEntity.builder()
 			.correlationId(UUID.randomUUID())
-			.siteId(siteId)
-			.projectId(projectId2)
+			.siteId(siteId.id)
+			.projectId(projectId2.id)
 			.status(PENDING)
 			.gid("gid")
 			.build();
@@ -149,12 +151,12 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		entityRepository.save(secondEntityToSave);
 
 		//then
-		Set<ProjectInstallationJobStatusEntity> entities = entityRepository.findAllByCommunityId(communityId);
+		Set<ProjectInstallationJobStatusEntity> entities = entityRepository.findAllByCommunityId(communityId.id);
 		assertThat(entities).hasSize(1);
 		ProjectInstallationJobStatusEntity entity = entities.iterator().next();
-		assertThat(entity.projectId).isEqualTo(projectId);
+		assertThat(entity.projectId).isEqualTo(projectId.id);
 		assertThat(entity.status).isEqualTo(PENDING.getPersistentId());
-		assertThat(entity.siteId).isEqualTo(siteId);
+		assertThat(entity.siteId).isEqualTo(siteId.id);
 		assertThat(entity.siteName).isEqualTo("name");
 	}
 
@@ -163,40 +165,40 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(INSTALLED)
 				.gid("gid")
 				.build());
 		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId2)
-				.projectId(projectId)
+				.siteId(siteId2.id)
+				.projectId(projectId.id)
 				.status(INSTALLED)
 				.gid("gid")
 				.build());
 		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId)
-				.projectId(projectId2)
+				.siteId(siteId.id)
+				.projectId(projectId2.id)
 				.status(INSTALLED)
 				.gid("gid")
 				.build());
 		entityRepository.save(ProjectInstallationJobEntity.builder()
 				.correlationId(UUID.randomUUID())
-				.siteId(siteId2)
-				.projectId(projectId2)
+				.siteId(siteId2.id)
+				.projectId(projectId2.id)
 				.status(INSTALLED)
 				.gid("gid")
 				.build());
 
 		//when
-		final Set<ProjectInstallationJobStatusEntity> installed = entityRepository.findAllInstalledBySiteId(siteId);
+		final Set<ProjectInstallationJobStatusEntity> installed = entityRepository.findAllInstalledBySiteId(siteId.id);
 
 		//then
 		assertThat(installed).hasSize(2);
 		assertThat(installed.stream().allMatch(install -> install.status == INSTALLED.getPersistentId())).isTrue();
-		assertThat(installed.stream().allMatch(install -> install.siteId.equals(siteId))).isTrue();
+		assertThat(installed.stream().allMatch(install -> install.siteId.equals(siteId.id))).isTrue();
 	}
 
 	@Test
@@ -205,15 +207,15 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId)
-			.siteId(siteId)
-			.projectId(projectId)
+			.siteId(siteId.id)
+			.projectId(projectId.id)
 			.status(PENDING)
 			.gid("gid")
 			.build();
 		ProjectInstallationJobEntity secondEntityToSave = ProjectInstallationJobEntity.builder()
 			.correlationId(UUID.randomUUID())
-			.siteId(siteId)
-			.projectId(projectId2)
+			.siteId(siteId.id)
+			.projectId(projectId2.id)
 			.status(PENDING)
 			.gid("gid")
 			.build();
@@ -223,12 +225,12 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		entityRepository.save(secondEntityToSave);
 
 		//then
-		Set<ProjectInstallationJobStatusEntity> entities = entityRepository.findAllByProjectId(projectId);
+		Set<ProjectInstallationJobStatusEntity> entities = entityRepository.findAllByProjectId(projectId.id);
 		assertThat(entities).hasSize(1);
 		ProjectInstallationJobStatusEntity entity = entities.iterator().next();
-		assertThat(entity.projectId).isEqualTo(projectId);
+		assertThat(entity.projectId).isEqualTo(projectId.id);
 		assertThat(entity.status).isEqualTo(PENDING.getPersistentId());
-		assertThat(entity.siteId).isEqualTo(siteId);
+		assertThat(entity.siteId).isEqualTo(siteId.id);
 		assertThat(entity.siteName).isEqualTo("name");
 	}
 
@@ -238,8 +240,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId)
-			.siteId(siteId)
-			.projectId(projectId)
+			.siteId(siteId.id)
+			.projectId(projectId.id)
 			.status(ACKNOWLEDGED)
 			.build();
 
@@ -247,7 +249,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		entityRepository.save(entityToSave);
 
 		//then
-		assertThat(entityRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(projectId, 0, projectId,1)).isTrue();
+		assertThat(entityRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(projectId.id, 0, projectId.id,1)).isTrue();
 	}
 
 	@Test
@@ -256,8 +258,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId)
-			.siteId(siteId)
-			.projectId(projectId)
+			.siteId(siteId.id)
+			.projectId(projectId.id)
 			.status(PENDING)
 			.build();
 
@@ -265,7 +267,7 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		entityRepository.save(entityToSave);
 
 		//then
-		assertThat(entityRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(projectId, 0, projectId, 1)).isTrue();
+		assertThat(entityRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(projectId.id, 0, projectId.id, 1)).isTrue();
 	}
 
 	@Test
@@ -274,8 +276,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(PENDING)
 				.build();
 
@@ -306,8 +308,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(PENDING)
 				.build();
 
@@ -326,8 +328,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toFind = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(PENDING)
 				.build();
 
@@ -347,15 +349,15 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(PENDING)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId1)
-			.siteId(siteId2)
-			.projectId(projectId2)
+			.siteId(siteId2.id)
+			.projectId(projectId2.id)
 			.status(ACKNOWLEDGED)
 			.build();
 
@@ -375,8 +377,8 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(siteId2)
-				.projectId(projectId2)
+				.siteId(siteId2.id)
+				.projectId(projectId2.id)
 				.status(PENDING)
 				.build();
 
@@ -394,15 +396,15 @@ class ProjectInstallationEntityRepositoryTest extends DBIntegrationTest {
 		UUID correlationId = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave = ProjectInstallationJobEntity.builder()
 				.correlationId(correlationId)
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.status(PENDING)
 				.build();
 		UUID correlationId1 = UUID.randomUUID();
 		ProjectInstallationJobEntity toSave1 = ProjectInstallationJobEntity.builder()
 			.correlationId(correlationId1)
-			.siteId(siteId2)
-			.projectId(projectId2)
+			.siteId(siteId2.id)
+			.projectId(projectId2.id)
 			.status(ACKNOWLEDGED)
 			.build();
 

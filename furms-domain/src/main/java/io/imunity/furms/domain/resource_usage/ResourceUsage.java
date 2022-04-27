@@ -69,8 +69,18 @@ public class ResourceUsage {
 			return this;
 		}
 
+		public ResourceUsageBuilder projectId(ProjectId projectId) {
+			this.projectId = projectId;
+			return this;
+		}
+
 		public ResourceUsageBuilder projectAllocationId(String projectAllocationId) {
 			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
+			return this;
+		}
+
+		public ResourceUsageBuilder projectAllocationId(ProjectAllocationId projectAllocationId) {
+			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 

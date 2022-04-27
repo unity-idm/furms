@@ -5,18 +5,20 @@
 
 package io.imunity.furms.ui.views.site.resource_types;
 
+import io.imunity.furms.domain.services.InfraServiceId;
+
 import java.util.Objects;
 
 class ServiceComboBoxModel {
-	public final String id;
+	public final InfraServiceId id;
 	public final String name;
 
-	public ServiceComboBoxModel(String id) {
+	public ServiceComboBoxModel(InfraServiceId id) {
 		this.id = id;
 		this.name = null;
 	}
 
-	public ServiceComboBoxModel(String id, String name) {
+	public ServiceComboBoxModel(InfraServiceId id, String name) {
 		this.id = id;
 		this.name = name;
 	}

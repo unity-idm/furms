@@ -18,7 +18,6 @@ import java.util.UUID;
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class InfraServiceDatabaseRepository implements InfraServiceRepository {
@@ -52,24 +51,24 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 	}
 
 	@Override
-	public String create(InfraService infraService) {
+	public InfraServiceId create(InfraService infraService) {
 		InfraServiceEntity savedService = repository.save(
 			InfraServiceEntity.builder()
-				.siteId(UUID.fromString(infraService.siteId))
+				.siteId(infraService.siteId.id)
 				.name(infraService.name)
 				.description(infraService.description)
 				.policyId(infraService.policyId.id)
 				.build()
 		);
-		return savedService.getId().toString();
+		return new InfraServiceId(savedService.getId());
 	}
 
 	@Override
 	public void update(InfraService infraService) {
-		repository.findById(UUID.fromString(infraService.id))
+		repository.findById(infraService.id.id)
 			.map(oldService -> InfraServiceEntity.builder()
 				.id(oldService.getId())
-				.siteId(UUID.fromString(infraService.siteId))
+				.siteId(infraService.siteId.id)
 				.name(infraService.name)
 				.description(infraService.description)
 				.policyId(infraService.policyId.id)
@@ -102,5 +101,9 @@ class InfraServiceDatabaseRepository implements InfraServiceRepository {
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(InfraServiceId id) {
+		return id == null || id.id == null;
 	}
 }

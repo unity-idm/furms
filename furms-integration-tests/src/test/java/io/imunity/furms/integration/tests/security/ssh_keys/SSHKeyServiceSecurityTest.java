@@ -6,7 +6,10 @@
 package io.imunity.furms.integration.tests.security.ssh_keys;
 
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
+import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,15 +39,15 @@ class SSHKeyServiceSecurityTest extends SecurityTestsBase {
 	void shouldPassForSecurityRulesForMethodsInSSHKeyService() {
 		forMethods(
 				() -> service.assertIsEligibleToManageKeys(),
-				() -> service.findById(UUID.randomUUID().toString()),
+				() -> service.findById(new SSHKeyId(UUID.randomUUID())),
 				() -> service.findOwned(),
-				() -> service.findByOwnerId(UUID.randomUUID().toString()),
-				() -> service.findSiteSSHKeysByUserIdAndSite(persistentId, UUID.randomUUID().toString()),
+				() -> service.findByOwnerId(new PersistentId(UUID.randomUUID().toString())),
+				() -> service.findSiteSSHKeysByUserIdAndSite(persistentId, new SiteId(UUID.randomUUID())),
 				() -> service.create(SSHKey.builder().build()),
 				() -> service.update(SSHKey.builder().build()),
-				() -> service.delete(UUID.randomUUID().toString()),
+				() -> service.delete(new SSHKeyId(UUID.randomUUID())),
 				() -> service.isNamePresent("name"),
-				() -> service.isNamePresentIgnoringRecord("name", UUID.randomUUID().toString()))
+				() -> service.isNamePresentIgnoringRecord("name", new SSHKeyId(UUID.randomUUID())))
 				.accessFor(
 						basicUser(),
 						fenixAdmin(),

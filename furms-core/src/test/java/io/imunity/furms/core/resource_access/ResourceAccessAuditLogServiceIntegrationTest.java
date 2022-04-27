@@ -10,7 +10,10 @@ import io.imunity.furms.core.MockedTransactionManager;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.GrantId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -72,17 +75,19 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectGrantAccess() {
 		//given
-		UUID grantId = UUID.randomUUID();
+		GrantId grantId = new GrantId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("userId");
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "externalId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
+			.siteId(siteId)
+			.projectId(projectId)
 			.fenixUserId(fenixUserId)
 			.build();
 		//when
 		when(repository.create(any(), eq(grantAccess), eq(GRANT_PENDING))).thenReturn(grantId);
 		when(repository.exists(grantAccess)).thenReturn(false);
-		when(userRepository.findAdditionStatus("siteId", "projectId", fenixUserId)).thenReturn(Optional.of(UserStatus.ADDED));
+		when(userRepository.findAdditionStatus(siteId, projectId, fenixUserId)).thenReturn(Optional.of(UserStatus.ADDED));
 		when(usersDAO.findById(fenixUserId)).thenReturn(Optional.of(
 			FURMSUser.builder()
 				.id(new PersistentId("id"))
@@ -102,14 +107,17 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectRevokeAccess() {
 		FenixUserId userId = new FenixUserId("userId");
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "externalId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId allocationId = new ProjectAllocationId(UUID.randomUUID());
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
-			.allocationId("allocId")
+			.siteId(siteId)
+			.projectId(projectId)
+			.allocationId(allocationId)
 			.fenixUserId(userId)
 			.build();
 
-		when(repository.findCurrentStatus(userId, "allocId")).thenReturn(GRANTED);
+		when(repository.findCurrentStatus(userId, allocationId)).thenReturn(GRANTED);
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(
 			FURMSUser.builder()
 				.id(new PersistentId("id"))

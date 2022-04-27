@@ -25,9 +25,9 @@ public interface ProjectRepository {
 
 	Set<Project> findAll(Set<ProjectId> ids);
 
-	String create(Project community);
+	ProjectId create(Project project);
 
-	void update(Project community);
+	void update(Project project);
 
 	boolean exists(ProjectId id);
 

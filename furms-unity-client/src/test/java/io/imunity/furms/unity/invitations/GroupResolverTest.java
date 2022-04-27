@@ -9,6 +9,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,7 +86,7 @@ class GroupResolverTest {
 			.communityId(communityId.toString())
 			.build();
 
-		when(projectRepository.findById(id.toString())).thenReturn(Optional.of(project));
+		when(projectRepository.findById(new ProjectId(id))).thenReturn(Optional.of(project));
 		String group = groupResolver.resolveGroup(resourceId, role);
 
 		assertEquals("/fenix/communities/" + communityId + "/projects/" + id + "/users", group);
@@ -102,7 +103,7 @@ class GroupResolverTest {
 			.communityId(communityId.toString())
 			.build();
 
-		when(projectRepository.findById(id.toString())).thenReturn(Optional.of(project));
+		when(projectRepository.findById(new ProjectId(id))).thenReturn(Optional.of(project));
 		String group = groupResolver.resolveGroup(resourceId, role);
 
 		assertEquals("/fenix/communities/" + communityId + "/projects/" + id + "/users", group);

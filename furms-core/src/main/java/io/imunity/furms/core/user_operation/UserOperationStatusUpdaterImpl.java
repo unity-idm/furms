@@ -6,11 +6,13 @@
 package io.imunity.furms.core.user_operation;
 
 import io.imunity.furms.core.post_commit.PostCommitRunner;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -54,7 +56,7 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 
 	@Transactional
 	public void update(UserAddition userAddition){
-		UserStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId.id)
+		UserStatus status = repository.findAdditionStatusByCorrelationId(userAddition.correlationId)
 			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found"));
 		if(!status.isTransitionalTo(userAddition.status)){
 			throw new IllegalStateTransitionException(String.format("Transition between %s and %s states is not allowed, UserAddition is %s", status, userAddition.status, status));
@@ -62,13 +64,13 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 		repository.update(userAddition);
 		if(userAddition.status.equals(UserStatus.ADDED)){
 			UserAddition addition = repository.findAdditionByCorrelationId(userAddition.correlationId);
-			sendQueuedGrandAccess(addition.siteId.id, addition.projectId, new FenixUserId(addition.userId));
+			sendQueuedGrandAccess(addition.siteId, addition.projectId, addition.userId);
 		}
 
 		LOG.info("UserAddition was correlation id {} was added", userAddition.correlationId.id);
 	}
 
-	private void sendQueuedGrandAccess(String siteId, String projectId, FenixUserId userId) {
+	private void sendQueuedGrandAccess(SiteId siteId, ProjectId projectId, FenixUserId userId) {
 		Set<GrantAccess> userGrants = resourceAccessRepository.findWaitingGrantAccesses(userId, projectId, siteId);
 		Optional<FURMSUser> furmsUser = usersDAO.findById(userId);
 		for (GrantAccess grantAccess : userGrants) {
@@ -82,7 +84,7 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, UserStatus userStatus, Optional<UserAdditionErrorMessage> userErrorMessage) {
-		UserStatus status = repository.findAdditionStatusByCorrelationId(correlationId.id)
+		UserStatus status = repository.findAdditionStatusByCorrelationId(correlationId)
 			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found"));
 		if(!status.isTransitionalTo(userStatus)){
 			throw new IllegalStateTransitionException(String.format("Transition between %s and %s states is not allowed", status, userStatus));
@@ -90,9 +92,9 @@ class UserOperationStatusUpdaterImpl implements UserOperationStatusUpdater {
 
 		if(userStatus.equals(UserStatus.REMOVED)){
 			UserAddition userAddition = repository.findAdditionByCorrelationId(correlationId);
-			repository.deleteByCorrelationId(correlationId.id);
+			repository.deleteByCorrelationId(correlationId);
 			LOG.info("UserAddition with given correlation id {} was deleted", correlationId.id);
-			resourceAccessRepository.deleteByUserAndSiteIdAndProjectId(new FenixUserId(userAddition.userId), userAddition.siteId.id, userAddition.projectId);
+			resourceAccessRepository.deleteByUserAndSiteIdAndProjectId(userAddition.userId, userAddition.siteId, userAddition.projectId);
 			LOG.info("User {} grants in project {} were deleted", userAddition.userId, userAddition.projectId);
 			return;
 		}

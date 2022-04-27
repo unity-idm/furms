@@ -40,10 +40,10 @@ class Project {
 	public Project(io.imunity.furms.domain.projects.Project project,
 	               User projectLeader,
 	               Set<SiteInstalledProject> projectInstallations) {
-		this(project.getId(),
+		this(project.getId().id.toString(),
 				project.getAcronym(),
 				project.getName(),
-				project.getCommunityId(),
+				project.getCommunityId().id.toString(),
 				project.getResearchField(),
 				ofNullable(projectInstallations)
 					.map(installations -> installations.stream()

@@ -17,6 +17,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.BigMultiSelectComboBox;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -46,7 +47,7 @@ import static java.util.Collections.emptyList;
 @PageTitle(key = "view.project-admin.resource-access.page.title")
 public class ResourceAccessView extends FurmsViewComponent {
 
-	public final String projectId;
+	public final ProjectId projectId;
 	public final ResourceAccessViewService resourceAccessViewService;
 
 	public final TreeGrid<ResourceAccessModel> treeGrid;
@@ -54,7 +55,7 @@ public class ResourceAccessView extends FurmsViewComponent {
 	public final TextField searchTextField = new TextField();
 
 	ResourceAccessView(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService) {
-		this.projectId = getCurrentResourceId();
+		this.projectId = new ProjectId(getCurrentResourceId());
 		this.resourceAccessViewService = new ResourceAccessViewService(projectService, projectAllocationService, resourceAccessService, projectId);
 		this.treeGrid = new DenseTreeGrid<>();
 		fillTreeGrid();

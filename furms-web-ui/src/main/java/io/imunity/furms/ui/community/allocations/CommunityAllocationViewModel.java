@@ -5,7 +5,9 @@
 
 package io.imunity.furms.ui.community.allocations;
 
-import io.imunity.furms.ui.components.support.models.ComboBoxModel;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
+import io.imunity.furms.ui.components.support.models.SiteComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 
@@ -13,24 +15,24 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 public class CommunityAllocationViewModel {
-	private String id;
-	private String communityId;
+	private CommunityAllocationId id;
+	private CommunityId communityId;
 	private final String communityName;
-	private ComboBoxModel site;
+	private SiteComboBoxModel site;
 	private ResourceTypeComboBoxModel resourceType;
 	private ResourceCreditComboBoxModel resourceCredit;
 	private String name;
 	private BigDecimal amount;
 
-	public CommunityAllocationViewModel(String communityId, String communityName) {
+	public CommunityAllocationViewModel(CommunityId communityId, String communityName) {
 		this.communityId = communityId;
 		this.communityName = communityName;
 	}
 
-	public CommunityAllocationViewModel(String id,
-	                                    String communityId,
+	public CommunityAllocationViewModel(CommunityAllocationId id,
+	                                    CommunityId communityId,
 	                                    String communityName,
-	                                    ComboBoxModel site,
+	                                    SiteComboBoxModel site,
 	                                    ResourceTypeComboBoxModel resourceType,
 	                                    ResourceCreditComboBoxModel resourceCredit,
 	                                    String name,
@@ -45,15 +47,15 @@ public class CommunityAllocationViewModel {
 		this.amount = amount;
 	}
 
-	public String getId() {
+	public CommunityAllocationId getId() {
 		return id;
 	}
 
-	public String getCommunityId() {
+	public CommunityId getCommunityId() {
 		return communityId;
 	}
 
-	public void setCommunityId(String communityId) {
+	public void setCommunityId(CommunityId communityId) {
 		this.communityId = communityId;
 	}
 
@@ -61,11 +63,11 @@ public class CommunityAllocationViewModel {
 		return communityName;
 	}
 
-	public ComboBoxModel getSite() {
+	public SiteComboBoxModel getSite() {
 		return site;
 	}
 
-	public void setSite(ComboBoxModel site) {
+	public void setSite(SiteComboBoxModel site) {
 		this.site = site;
 	}
 
@@ -133,10 +135,10 @@ public class CommunityAllocationViewModel {
 	}
 
 	public static final class CommunityAllocationViewModelBuilder {
-		private String id;
-		private String communityId;
+		private CommunityAllocationId id;
+		private CommunityId communityId;
 		private String communityName;
-		private ComboBoxModel site;
+		private SiteComboBoxModel site;
 		private ResourceTypeComboBoxModel resourceType;
 		private ResourceCreditComboBoxModel resourceCredit;
 		private String name;
@@ -145,17 +147,17 @@ public class CommunityAllocationViewModel {
 		private CommunityAllocationViewModelBuilder() {
 		}
 
-		public CommunityAllocationViewModelBuilder id(String id) {
+		public CommunityAllocationViewModelBuilder id(CommunityAllocationId id) {
 			this.id = id;
 			return this;
 		}
 
-		public CommunityAllocationViewModelBuilder communityId(String communityId) {
+		public CommunityAllocationViewModelBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}
 
-		public CommunityAllocationViewModelBuilder site(ComboBoxModel site) {
+		public CommunityAllocationViewModelBuilder site(SiteComboBoxModel site) {
 			this.site = site;
 			return this;
 		}

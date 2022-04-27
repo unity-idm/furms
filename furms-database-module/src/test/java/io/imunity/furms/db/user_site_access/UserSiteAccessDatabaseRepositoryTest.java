@@ -7,8 +7,10 @@ package io.imunity.furms.db.user_site_access;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -24,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -44,11 +45,11 @@ class UserSiteAccessDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectRepository projectRepository;
 
-	private UUID siteId;
-	private UUID projectId;
+	private SiteId siteId;
+	private ProjectId projectId;
 
-	private UUID siteId1;
-	private UUID projectId1;
+	private SiteId siteId1;
+	private ProjectId projectId1;
 
 	@BeforeEach
 	void setUp() {
@@ -58,16 +59,16 @@ class UserSiteAccessDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -76,22 +77,22 @@ class UserSiteAccessDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 
 		Site site1 = Site.builder()
 			.name("name1")
 			.build();
 
-		siteId1 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id1")));
+		siteId1 = siteRepository.create(site1, new SiteExternalId("id1"));
 
 		Community community1 = Community.builder()
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId1 = UUID.fromString(communityRepository.create(community1));
+		CommunityId communityId1 = communityRepository.create(community1);
 
 		Project project1 = Project.builder()
-			.communityId(communityId1.toString())
+			.communityId(communityId1)
 			.name("name1")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -100,82 +101,83 @@ class UserSiteAccessDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
-		projectId1 = UUID.fromString(projectRepository.create(project1));
+		projectId1 = projectRepository.create(project1);
 	}
 
 	@Test
 	void shouldAdd(){
 		FenixUserId userId = new FenixUserId("userId");
-		userSiteAccessDatabaseRepository.add(siteId.toString(), projectId.toString(), userId);
+		userSiteAccessDatabaseRepository.add(siteId, projectId, userId);
 
-		assertTrue(userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId, projectId, userId.id));
+		assertTrue(userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId.id, projectId.id,
+			userId.id));
 	}
 
 	@Test
 	void shouldFindAllUserGroupedBySiteId(){
 		FenixUserId userId = new FenixUserId("userId");
 		FenixUserId userId1 = new FenixUserId("userId1");
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId, projectId, userId.id));
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1, projectId, userId.id));
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1, projectId, userId1.id));
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1, projectId1, userId1.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId.id, projectId.id, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1.id, projectId.id, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1.id, projectId.id, userId1.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1.id, projectId1.id, userId1.id));
 
 		Map<SiteId, Set<FenixUserId>> allUserGroupedBySiteId =
-			userSiteAccessDatabaseRepository.findAllUserGroupedBySiteId(projectId.toString());
+			userSiteAccessDatabaseRepository.findAllUserGroupedBySiteId(projectId);
 
-		assertEquals(Set.of(siteId.toString(), siteId1.toString()), allUserGroupedBySiteId.keySet());
-		assertEquals(Set.of(userId), allUserGroupedBySiteId.get(siteId.toString()));
-		assertEquals(Set.of(userId, userId1), allUserGroupedBySiteId.get(siteId1.toString()));
+		assertEquals(Set.of(siteId, siteId1), allUserGroupedBySiteId.keySet());
+		assertEquals(Set.of(userId), allUserGroupedBySiteId.get(siteId));
+		assertEquals(Set.of(userId, userId1), allUserGroupedBySiteId.get(siteId1));
 	}
 
 	@Test
 	void shouldFindAllUserProjectIds(){
 		FenixUserId userId = new FenixUserId("userId");
 		FenixUserId userId1 = new FenixUserId("userId1");
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId, projectId, userId.id));
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1, projectId, userId1.id));
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId, projectId1, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId.id, projectId.id, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1.id, projectId.id, userId1.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId.id, projectId1.id, userId.id));
 
-		Set<String> allUserProjectIds = userSiteAccessDatabaseRepository.findAllUserProjectIds(siteId.toString(), userId);
+		Set<ProjectId> allUserProjectIds = userSiteAccessDatabaseRepository.findAllUserProjectIds(siteId, userId);
 
-		assertEquals(Set.of(projectId.toString(), projectId1.toString()), allUserProjectIds);
+		assertEquals(Set.of(projectId, projectId1), allUserProjectIds);
 	}
 
 	@Test
 	void shouldRemoveByProjectIdAndUserId(){
 		FenixUserId userId = new FenixUserId("userId");
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId, projectId, userId.id));
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1, projectId, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId.id, projectId.id, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId1.id, projectId.id, userId.id));
 
-		userSiteAccessDatabaseRepository.remove(projectId.toString(), userId);
+		userSiteAccessDatabaseRepository.remove(projectId, userId);
 
-		assertFalse(userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId, projectId, userId.id));
-		assertFalse(userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId1, projectId, userId.id));
+		assertFalse(userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId.id, projectId.id, userId.id));
+		assertFalse(userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId1.id, projectId.id, userId.id));
 	}
 
 	@Test
 	void shouldRemoveBySiteIdAndProjectIdAndUserId(){
 		FenixUserId userId = new FenixUserId("userId");
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId, projectId, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId.id, projectId.id, userId.id));
 
-		userSiteAccessDatabaseRepository.remove(siteId.toString(), projectId.toString(), userId);
+		userSiteAccessDatabaseRepository.remove(siteId, projectId, userId);
 
-		assertFalse(userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId, projectId, userId.id));
+		assertFalse(userSiteAccessEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId.id, projectId.id, userId.id));
 	}
 
 	@Test
 	void shouldExistBySiteIdAndProjectIdAndUserId(){
 		FenixUserId userId = new FenixUserId("userId");
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId, projectId, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId.id, projectId.id, userId.id));
 
-		assertTrue(userSiteAccessDatabaseRepository.exists(siteId.toString(), projectId.toString(), userId));
+		assertTrue(userSiteAccessDatabaseRepository.exists(siteId, projectId, userId));
 	}
 
 	@Test
 	void shouldNotExistBySiteIdAndProjectIdAndUserId(){
 		FenixUserId userId = new FenixUserId("userId");
-		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId, projectId, userId.id));
+		userSiteAccessEntityRepository.save(new UserSiteAccessEntity(siteId.id, projectId.id, userId.id));
 
-		assertFalse(userSiteAccessDatabaseRepository.exists(siteId.toString(), projectId1.toString(), userId));
+		assertFalse(userSiteAccessDatabaseRepository.exists(siteId, projectId1, userId));
 	}
 }

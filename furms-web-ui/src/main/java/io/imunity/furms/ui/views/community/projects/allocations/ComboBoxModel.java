@@ -5,20 +5,23 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.util.Objects;
 
 public class ComboBoxModel {
-	private final String id;
-	private final String communityId;
+	private final ProjectId id;
+	private final CommunityId communityId;
 	private final String name;
 
-	public ComboBoxModel(String id, String communityId, String name) {
+	public ComboBoxModel(ProjectId id, CommunityId communityId, String name) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
 	}
 
-	public String getId() {
+	public ProjectId getId() {
 		return id;
 	}
 
@@ -26,7 +29,7 @@ public class ComboBoxModel {
 		return name;
 	}
 
-	public String getCommunityId() {
+	public CommunityId getCommunityId() {
 		return communityId;
 	}
 

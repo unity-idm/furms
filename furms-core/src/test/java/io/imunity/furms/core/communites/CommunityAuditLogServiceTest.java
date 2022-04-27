@@ -15,6 +15,7 @@ import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
@@ -76,9 +77,11 @@ class CommunityAuditLogServiceTest {
 	@Test
 	void shouldDetectCommunityDeletion() {
 		//given
-		String id = "id";
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		when(communityRepository.exists(id)).thenReturn(true);
-		Community community = Community.builder().build();
+		Community community = Community.builder()
+			.id(id)
+			.build();
 		when(communityRepository.findById(id)).thenReturn(Optional.of(community));
 
 		//when
@@ -93,13 +96,14 @@ class CommunityAuditLogServiceTest {
 	@Test
 	void shouldDetectCommunityUpdate() {
 		//given
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		Community request = Community.builder()
-			.id("id")
+			.id(id)
 			.name("userFacingName")
 			.build();
 		when(communityRepository.exists(request.getId())).thenReturn(true);
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
-		when(communityRepository.findById("id")).thenReturn(Optional.of(request));
+		when(communityRepository.findById(id)).thenReturn(Optional.of(request));
 
 		//when
 		service.update(request);
@@ -113,13 +117,14 @@ class CommunityAuditLogServiceTest {
 	@Test
 	void shouldDetectCommunityCreation() {
 		//given
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		Community request = Community.builder()
-			.id("id")
+			.id(id)
 			.name("userFacingName")
 			.build();
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
-		when(communityRepository.findById("id")).thenReturn(Optional.of(request));
-		when(communityRepository.create(request)).thenReturn("id");
+		when(communityRepository.findById(id)).thenReturn(Optional.of(request));
+		when(communityRepository.create(request)).thenReturn(id);
 
 		//when
 		service.create(request);
@@ -133,7 +138,7 @@ class CommunityAuditLogServiceTest {
 	@Test
 	void shouldDetectAdminAddition() {
 		//given
-		String communityId = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		Community community = Community.builder().build();
 		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
@@ -155,7 +160,7 @@ class CommunityAuditLogServiceTest {
 	@Test
 	void shouldDetectAdminRemoval() {
 		//given
-		String communityId = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		Community community = Community.builder()
 			.name("name")

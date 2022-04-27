@@ -73,13 +73,28 @@ public class ProjectUpdateJob {
 			return this;
 		}
 
+		public ProjectUpdateJobBuilder id(ProjectUpdateId id) {
+			this.id = id;
+			return this;
+		}
+
 		public ProjectUpdateJobBuilder siteId(String siteId) {
 			this.siteId = new SiteId(siteId);
 			return this;
 		}
 
+		public ProjectUpdateJobBuilder siteId(SiteId siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public ProjectUpdateJobBuilder projectId(String projectId) {
 			this.projectId = new ProjectId(projectId);
+			return this;
+		}
+
+		public ProjectUpdateJobBuilder projectId(ProjectId projectId) {
+			this.projectId = projectId;
 			return this;
 		}
 

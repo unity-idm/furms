@@ -83,7 +83,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public UUID create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus accessStatus) {
+	public GrantId create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus accessStatus) {
 		UserGrantEntity save = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
 				.siteId(grantAccess.siteId.id)
@@ -98,7 +98,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 			.status(accessStatus)
 			.build()
 		);
-		return save.getId();
+		return new GrantId(save.getId());
 	}
 
 	public boolean exists(GrantAccess grantAccess) {
@@ -189,8 +189,8 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public void deleteByUserAndAllocationId(FenixUserId userId, String allocationId){
-		userGrantEntityRepository.findByUserIdAndProjectAllocationId(userId.id, UUID.fromString(allocationId))
+	public void deleteByUserAndAllocationId(FenixUserId userId, ProjectAllocationId allocationId){
+		userGrantEntityRepository.findByUserIdAndProjectAllocationId(userId.id, allocationId.id)
 			.ifPresent(x -> userGrantEntityRepository.deleteById(x.allocation.getId()));
 	}
 

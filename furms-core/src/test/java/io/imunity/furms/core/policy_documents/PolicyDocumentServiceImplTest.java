@@ -16,8 +16,10 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -89,28 +91,31 @@ class PolicyDocumentServiceImplTest {
 
 	@Test
 	void shouldFindById() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		service.findById("siteId", policyId);
+		service.findById(siteId, policyId);
 
 		orderVerifier.verify(repository).findById(policyId);
 	}
 
 	@Test
 	void shouldFindAllBySiteId() {
-		service.findAllBySiteId("siteId");
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		service.findAllBySiteId(siteId);
 
-		orderVerifier.verify(repository).findAllBySiteId("siteId");
+		orderVerifier.verify(repository).findAllBySiteId(siteId);
 	}
 
 	@Test
 	void shouldResendPolicyInfo() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PersistentId persistentId = new PersistentId("id");
 		PolicyDocument policyDocument = PolicyDocument.builder().build();
 
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
-		service.resendPolicyInfo("siteId", persistentId, policyId);
+		service.resendPolicyInfo(siteId, persistentId, policyId);
 
 		orderVerifier.verify(policyNotificationService).notifyUserAboutNewPolicy(persistentId, policyDocument);
 	}
@@ -148,17 +153,19 @@ class PolicyDocumentServiceImplTest {
 
 	@Test
 	void shouldUpdateWithRevision() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(siteId)
 			.build();
 		Site site = Site.builder()
+			.id(siteId)
 			.build();
 
 		when(repository.update(policyDocument, true)).thenReturn(policyId);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
+		when(siteRepository.findById(siteId)).thenReturn(Optional.of(site));
 
 		service.updateWithRevision(policyDocument);
 
@@ -170,59 +177,62 @@ class PolicyDocumentServiceImplTest {
 
 	@Test
 	void shouldSendUpdateSitePolicyDocument() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		SiteExternalId externalId = new SiteExternalId("id");
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(siteId)
 			.build();
 		Site site = Site.builder()
+			.id(siteId)
 			.policyId(policyId)
-			.externalId(externalId)
 			.build();
 
 		when(repository.update(policyDocument, true)).thenReturn(policyId);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
+		when(siteRepository.findById(siteId)).thenReturn(Optional.of(site));
 
 		service.updateWithRevision(policyDocument);
 
-		Mockito.verify(siteAgentPolicyDocumentService).updatePolicyDocument(externalId, policyDocument);
+		Mockito.verify(siteAgentPolicyDocumentService).updatePolicyDocument(siteId.externalId, policyDocument);
 	}
 
 	@Test
 	void shouldSendUpdateServicePolicyDocument() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		InfraServiceId serviceId = new InfraServiceId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		SiteExternalId externalId = new SiteExternalId("id");
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(siteId)
 			.build();
 		Site site = Site.builder()
-			.externalId(externalId)
+			.id(siteId)
 			.build();
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder()
 			.id(policyId)
-			.serviceId("serviceId")
+			.serviceId(serviceId)
 			.build();
 
 		when(repository.update(policyDocument, true)).thenReturn(policyId);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
+		when(repository.findAllAssignPoliciesBySiteId(siteId)).thenReturn(Set.of(servicePolicyDocument));
+		when(siteRepository.findById(siteId)).thenReturn(Optional.of(site));
 
 		service.updateWithRevision(policyDocument);
 
-		Mockito.verify(siteAgentPolicyDocumentService).updatePolicyDocument(externalId, policyDocument, "serviceId");
+		Mockito.verify(siteAgentPolicyDocumentService).updatePolicyDocument(siteId.externalId, policyDocument,
+			Optional.of(serviceId));
 	}
 
 	@Test
 	void shouldDelete() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder().build();
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
-		service.delete("siteId", policyId);
+		service.delete(siteId, policyId);
 
 		orderVerifier.verify(repository).deleteById(policyId);
 		orderVerifier.verify(publisher).publishEvent(new PolicyDocumentRemovedEvent(policyDocument));
@@ -230,7 +240,7 @@ class PolicyDocumentServiceImplTest {
 
 	@Test
 	void shouldFindAllUsersPolicyAcceptances() {
-		String siteId = "siteId";
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("id");
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
@@ -250,7 +260,7 @@ class PolicyDocumentServiceImplTest {
 		when(repository.findAllPolicyUsers(siteId, policyId)).thenReturn(Set.of(fenixUserId));
 		when(policyDocumentDAO.getUserPolicyAcceptances(siteId)).thenReturn(Set.of(firstUserPolicyAcceptances, secondUserPolicyAcceptances));
 
-		Set<UserPolicyAcceptances> usersPolicyAcceptances = service.findAllUsersPolicyAcceptances(policyId, "siteId");
+		Set<UserPolicyAcceptances> usersPolicyAcceptances = service.findAllUsersPolicyAcceptances(policyId, siteId);
 
 		assertEquals(1, usersPolicyAcceptances.size());
 		assertEquals(firstUserPolicyAcceptances, usersPolicyAcceptances.iterator().next());
@@ -282,6 +292,7 @@ class PolicyDocumentServiceImplTest {
 
 	@Test
 	void shouldAddPolicyToUser() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
@@ -294,7 +305,7 @@ class PolicyDocumentServiceImplTest {
 			.build();
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id((policyId))
-			.siteId("siteId")
+			.siteId(siteId)
 			.revision(1)
 			.build();
 
@@ -302,7 +313,7 @@ class PolicyDocumentServiceImplTest {
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
-		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
+		service.addUserPolicyAcceptance(siteId, userId, policyAcceptance);
 
 		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 		orderVerifier.verify(publisher).publishEvent(new UserAcceptedPolicyEvent(userId, policyAcceptance));
@@ -311,12 +322,13 @@ class PolicyDocumentServiceImplTest {
 
 	@Test
 	void shouldSendUserPolicyAcceptance() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.revision(1)
-			.siteId("siteId")
+			.siteId(siteId)
 			.build();
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
@@ -329,19 +341,20 @@ class PolicyDocumentServiceImplTest {
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
-		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
+		service.addUserPolicyAcceptance(siteId, userId, policyAcceptance);
 
 		orderVerifier.verify(policyDocumentDAO).addUserPolicyAcceptance(userId, policyAcceptance);
 	}
 
 	@Test
 	void shouldAddPolicyToUserWithCurrentRevision() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.revision(1)
-			.siteId("siteId")
+			.siteId(siteId)
 			.build();
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
@@ -353,7 +366,7 @@ class PolicyDocumentServiceImplTest {
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
-		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
+		service.addUserPolicyAcceptance(siteId, userId, policyAcceptance);
 
 		policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
@@ -364,6 +377,7 @@ class PolicyDocumentServiceImplTest {
 
 	@Test
 	void shouldUpdateUsersPolicyAcceptances() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
@@ -376,24 +390,23 @@ class PolicyDocumentServiceImplTest {
 			.build();
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id((policyId))
-			.siteId("siteId")
+			.siteId(siteId)
 			.revision(1)
 			.build();
 		Site site = Site.builder()
-			.id("siteId")
-			.externalId(new SiteExternalId("id"))
+			.id(siteId)
 			.build();
 
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder().build();
 
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(furmsUser));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(repository.findAllAssignPoliciesBySiteId("siteId")).thenReturn(Set.of(servicePolicyDocument));
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(userRepository.isUserInstalledOnSite(userId, "siteId")).thenReturn(true);
+		when(repository.findAllAssignPoliciesBySiteId(siteId)).thenReturn(Set.of(servicePolicyDocument));
+		when(siteRepository.findById(siteId)).thenReturn(Optional.of(site));
+		when(userRepository.isUserInstalledOnSite(userId, siteId)).thenReturn(true);
 		when(policyDocumentDAO.getPolicyAcceptances(userId)).thenReturn(Set.of(policyAcceptance));
 
-		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
+		service.addUserPolicyAcceptance(siteId, userId, policyAcceptance);
 
 		Mockito.verify(siteAgentPolicyDocumentService).updateUsersPolicyAcceptances(site.getExternalId(), new UserPolicyAcceptancesWithServicePolicies(
 			furmsUser,

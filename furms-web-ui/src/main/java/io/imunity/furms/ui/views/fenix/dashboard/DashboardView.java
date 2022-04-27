@@ -20,11 +20,10 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
-import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGrid;
-import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
 import io.imunity.furms.ui.components.support.models.CheckboxModel;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
@@ -151,13 +150,13 @@ public class DashboardView extends FurmsViewComponent {
 		return textField;
 	}
 
-	private void allocateButtonAction(ResourceAllocationsGridItem item) {
-		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, item);
+	private void allocateButtonAction(ResourceCreditAllocationsGridItem item) {
+		ComponentUtil.setData(UI.getCurrent(), ResourceCreditAllocationsGridItem.class, item);
 		ComponentUtil.setData(UI.getCurrent(), DashboardViewFilters.class, filters);
 		UI.getCurrent().navigate(DashboardResourceAllocateFormView.class);
 	}
 
-	private Stream<ResourceAllocationsGridItem> loadCredits() {
+	private Stream<ResourceCreditAllocationsGridItem> loadCredits() {
 		return creditService.findAllWithAllocations(
 					filters.getName(),
 					filters.isIncludeFullyDistributed(),
@@ -166,12 +165,12 @@ public class DashboardView extends FurmsViewComponent {
 				.map(this::buildItem);
 	}
 
-	private ResourceAllocationsGridItem buildItem(ResourceCreditWithAllocations credit) {
+	private ResourceCreditAllocationsGridItem buildItem(ResourceCreditWithAllocations credit) {
 		final ResourceMeasureUnit unit = resourceTypeService.findById(credit.getResourceType().id, credit.getSiteId())
 				.map(type -> type.unit)
 				.orElse(ResourceMeasureUnit.NONE);
 
-		return ResourceAllocationsGridItem.builder()
+		return ResourceCreditAllocationsGridItem.builder()
 				.id(credit.getId())
 				.siteId(credit.getSiteId())
 				.siteName(findSiteName(credit.getSiteId()))
@@ -194,7 +193,7 @@ public class DashboardView extends FurmsViewComponent {
 		return credit.getAmount().subtract(credit.getRemaining());
 	}
 
-	private String findSiteName(String siteId) {
+	private String findSiteName(SiteId siteId) {
 		return siteService.findById(siteId)
 				.map(Site::getName)
 				.orElseThrow(() -> new IllegalArgumentException("Incorrect Site ID. Site has not been found."));

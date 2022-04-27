@@ -6,17 +6,18 @@
 package io.imunity.furms.domain.services;
 
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 
 public class InfraService {
-	public final String id;
+	public final InfraServiceId id;
 	public final String name;
 	public final String description;
-	public final String siteId;
+	public final SiteId siteId;
 	public final PolicyId policyId;
 
-	public InfraService(String id, String name, String description, String siteId, PolicyId policyId) {
+	public InfraService(InfraServiceId id, String name, String description, SiteId siteId, PolicyId policyId) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -57,16 +58,16 @@ public class InfraService {
 	}
 
 	public static final class ServiceBuilder {
-		public String id;
+		public InfraServiceId id;
 		public String name;
 		public String description;
-		public String siteId;
+		public SiteId siteId;
 		public PolicyId policyId = PolicyId.empty();
 
 		private ServiceBuilder() {
 		}
 
-		public ServiceBuilder id(String id) {
+		public ServiceBuilder id(InfraServiceId id) {
 			this.id = id;
 			return this;
 		}
@@ -86,7 +87,7 @@ public class InfraService {
 			return this;
 		}
 
-		public ServiceBuilder siteId(String siteId) {
+		public ServiceBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

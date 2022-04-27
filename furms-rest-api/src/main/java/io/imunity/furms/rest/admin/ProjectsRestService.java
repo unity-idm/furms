@@ -8,6 +8,9 @@ package io.imunity.furms.rest.admin;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
 import io.imunity.furms.utils.UTCTimeUtils;
@@ -36,7 +39,7 @@ class ProjectsRestService {
 	                    ProjectsRestConverter converter) {
 		this.projectService = projectService;
 		this.projectAllocationService = projectAllocationService;
-		this.resourceChecker = new ResourceChecker(projectService::existsById);
+		this.resourceChecker = new ResourceChecker(id -> projectService.existsById(new ProjectId(id)));
 		this.projectInstallationsService = projectInstallationsService;
 		this.converter = converter;
 	}
@@ -50,19 +53,19 @@ class ProjectsRestService {
 				.collect(toList());
 	}
 
-	ProjectWithUsers findOneById(String projectId) {
-		return resourceChecker.performIfExists(projectId, () -> findProjectById(projectId)).get();
+	ProjectWithUsers findOneById(ProjectId projectId) {
+		return resourceChecker.performIfExists(projectId.id, () -> findProjectById(projectId)).get();
 	}
 
-	void delete(String projectId) {
+	void delete(ProjectId projectId) {
 		final io.imunity.furms.domain.projects.Project project = resourceChecker.performIfExists(
-				projectId, () -> projectService.findById(projectId)).get();
+				projectId.id, () -> projectService.findById(projectId)).get();
 		projectService.delete(projectId, project.getCommunityId());
 	}
 
-	Project update(String projectId, ProjectUpdateRequest request) {
+	Project update(ProjectId projectId, ProjectUpdateRequest request) {
 		final io.imunity.furms.domain.projects.Project project = resourceChecker.performIfExists(
-				projectId, () -> projectService.findById(projectId))
+				projectId.id, () -> projectService.findById(projectId))
 				.get();
 
 		projectService.update(io.imunity.furms.domain.projects.Project.builder()
@@ -85,7 +88,7 @@ class ProjectsRestService {
 	}
 
 	Project create(ProjectCreateRequest request) {
-		final String projectId = projectService.create(io.imunity.furms.domain.projects.Project.builder()
+		final ProjectId projectId = projectService.create(io.imunity.furms.domain.projects.Project.builder()
 				.communityId(request.communityId)
 				.name(request.name)
 				.description(request.description)
@@ -102,8 +105,8 @@ class ProjectsRestService {
 						"with specific id"));
 	}
 
-	List<ProjectAllocation> findAllProjectAllocationsByProjectId(String projectId) {
-		return resourceChecker.performIfExistsAndMatching(projectId,
+	List<ProjectAllocation> findAllProjectAllocationsByProjectId(ProjectId projectId) {
+		return resourceChecker.performIfExistsAndMatching(projectId.id,
 					() -> projectAllocationService.findAllWithRelatedObjects(projectId),
 					project -> isProjectAdminOrIsProjectInstalledOnUserSites(projectId))
 				.stream()
@@ -111,9 +114,9 @@ class ProjectsRestService {
 				.collect(toList());
 	}
 
-	ProjectAllocation findByIdAndProjectAllocationId(String projectId, String projectAllocationId) {
+	ProjectAllocation findByIdAndProjectAllocationId(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		try {
-			return resourceChecker.performIfExists(projectId,
+			return resourceChecker.performIfExists(projectId.id,
 					() -> projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId))
 					.map(ProjectAllocation::new)
 					.get();
@@ -128,12 +131,12 @@ class ProjectsRestService {
 		}
 	}
 
-	List<ProjectAllocation> addAllocation(String projectId, ProjectAllocationAddRequest request) {
+	List<ProjectAllocation> addAllocation(ProjectId projectId, ProjectAllocationAddRequest request) {
 		if (request == null) {
 			throw new IllegalArgumentException("Could not create Project Allocation due to empty request body.");
 		}
 		projectAllocationService.create(
-				request.communityId,
+				new CommunityId(request.communityId),
 				io.imunity.furms.domain.project_allocation.ProjectAllocation.builder()
 						.projectId(projectId)
 						.communityAllocationId(request.communityAllocationId)
@@ -144,7 +147,7 @@ class ProjectsRestService {
 		return findAllProjectAllocationsByProjectId(projectId);
 	}
 
-	private Optional<ProjectWithUsers> findProjectById(String projectId) {
+	private Optional<ProjectWithUsers> findProjectById(ProjectId projectId) {
 		try {
 			return projectService.findById(projectId)
 					.map(converter::convertToProjectWithUsers);
@@ -161,7 +164,7 @@ class ProjectsRestService {
 		}
 	}
 
-	private boolean isProjectAdminOrIsProjectInstalledOnUserSites(String projectId) {
+	private boolean isProjectAdminOrIsProjectInstalledOnUserSites(ProjectId projectId) {
 		try {
 			return projectService.hasAdminRights(projectId);
 		} catch (AccessDeniedException e) {

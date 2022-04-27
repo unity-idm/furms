@@ -6,6 +6,7 @@
 package io.imunity.furms.integration.tests.security.ssh_keys;
 
 import io.imunity.furms.api.ssh_keys.SSHKeyOperationService;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.integration.tests.security.SecurityTestsBase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,8 @@ class SSHKeyOperationServiceSecurityTest extends SecurityTestsBase {
 	@Test
 	void shouldPassForSecurityRulesForMethodsInSSHKeyOperationService() {
 		forMethods(
-				() -> service.findBySSHKeyIdAndSiteId(UUID.randomUUID().toString(), site),
-				() -> service.findBySSHKeyId(UUID.randomUUID().toString()))
+				() -> service.findBySSHKeyIdAndSiteId(new SSHKeyId(UUID.randomUUID()), site),
+				() -> service.findBySSHKeyId(new SSHKeyId(UUID.randomUUID())))
 				.accessFor(
 						basicUser(),
 						fenixAdmin(),

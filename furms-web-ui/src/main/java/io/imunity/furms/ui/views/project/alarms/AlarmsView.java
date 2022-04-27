@@ -21,6 +21,8 @@ import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.validation.exceptions.AssignedPolicyRemovingException;
 import io.imunity.furms.domain.alarms.AlarmId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -51,13 +53,13 @@ public class AlarmsView extends FurmsViewComponent {
 	private final AlarmService alarmService;
 	private final ProjectAllocationService projectAllocationService;
 	private final Grid<AlarmGridModel> grid;
-	private final String projectId;
+	private final ProjectId projectId;
 
 	AlarmsView(AlarmService alarmService, ProjectAllocationService projectAllocationService) {
 		this.alarmService = alarmService;
 		this.projectAllocationService = projectAllocationService;
 		this.grid = createAlarmGrid();
-		this.projectId = getCurrentResourceId();
+		this.projectId = new ProjectId(getCurrentResourceId());
 
 		loadGridContent();
 		ViewHeaderLayout viewHeaderLayout = new ViewHeaderLayout(getTranslation("view.project-admin.alarms.page.header"), createAddButton());
@@ -75,7 +77,7 @@ public class AlarmsView extends FurmsViewComponent {
 	}
 
 	private List<AlarmGridModel> loadPolicyDocumentsGridModels() {
-		Map<String, String> collect = projectAllocationService.findAllWithRelatedObjects(projectId).stream()
+		Map<ProjectAllocationId, String> collect = projectAllocationService.findAllWithRelatedObjects(projectId).stream()
 			.collect(Collectors.toMap(x -> x.id, x -> x.name));
 		return handleExceptions(() -> alarmService.findAll(projectId))
 			.orElseGet(Collections::emptySet)
@@ -141,7 +143,7 @@ public class AlarmsView extends FurmsViewComponent {
 	}
 
 
-	private Component createContextMenu(String projectId, AlarmId alarmId, String alarmName) {
+	private Component createContextMenu(ProjectId projectId, AlarmId alarmId, String alarmName) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
@@ -159,7 +161,7 @@ public class AlarmsView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String projectId, AlarmId alarmId, String alarmName) {
+	private Dialog createConfirmDialog(ProjectId projectId, AlarmId alarmId, String alarmName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.project-admin.alarms.page.dialog.text", alarmName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			try {

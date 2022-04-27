@@ -87,8 +87,18 @@ public class SSHKeyOperationJob {
 			return this;
 		}
 
+		public SSHKeyOperationJobBuilder siteId(SiteId siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public SSHKeyOperationJobBuilder sshkeyId(String sshkeyId) {
 			this.sshkeyId = new SSHKeyId(sshkeyId);
+			return this;
+		}
+
+		public SSHKeyOperationJobBuilder sshkeyId(SSHKeyId sshkeyId) {
+			this.sshkeyId = sshkeyId;
 			return this;
 		}
 

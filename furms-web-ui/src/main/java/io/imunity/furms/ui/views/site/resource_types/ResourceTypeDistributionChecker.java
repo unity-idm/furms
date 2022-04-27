@@ -6,6 +6,7 @@ package io.imunity.furms.ui.views.site.resource_types;
 
 import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,7 +26,7 @@ class ResourceTypeDistributionChecker {
 	}
 
 	boolean isDistributed(ResourceTypeViewModel resourceType) {
-		String resourceTypeId = resourceType.getId();
+		ResourceTypeId resourceTypeId = resourceType.getId();
 		return resourceCreditService.findAllWithAllocations(resourceType.getSiteId()).stream()
 			.filter(credit -> credit.getResourceType().id.equals(resourceTypeId))
 			.anyMatch(distributed());

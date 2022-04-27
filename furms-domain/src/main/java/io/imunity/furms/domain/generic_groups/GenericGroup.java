@@ -77,6 +77,11 @@ public class GenericGroup {
 			return this;
 		}
 
+		public GenericGroupBuilder communityId(CommunityId communityId) {
+			this.communityId = communityId;
+			return this;
+		}
+
 		public GenericGroupBuilder name(String name) {
 			this.name = name;
 			return this;

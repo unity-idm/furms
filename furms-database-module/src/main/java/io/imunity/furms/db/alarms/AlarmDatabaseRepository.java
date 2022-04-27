@@ -67,8 +67,8 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	private AlarmWithUserIds map(AlarmEntity alarmEntity) {
 		return AlarmWithUserIds.builder()
 			.id(new AlarmId(alarmEntity.getId()))
-			.projectId(alarmEntity.projectId.toString())
-			.projectAllocationId(alarmEntity.projectAllocationId.toString())
+			.projectId(new ProjectId(alarmEntity.projectId))
+			.projectAllocationId(new ProjectAllocationId(alarmEntity.projectAllocationId))
 			.name(alarmEntity.name)
 			.threshold(alarmEntity.threshold)
 			.allUsers(alarmEntity.allUsers)
@@ -83,8 +83,8 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	private FiredAlarm map(ExtendedAlarmEntity alarmEntity) {
 		return FiredAlarm.builder()
 			.alarmId(new AlarmId(alarmEntity.getId()))
-			.projectId(alarmEntity.projectId.toString())
-			.projectAllocationId(alarmEntity.projectAllocationId.toString())
+			.projectId(new ProjectId(alarmEntity.projectId))
+			.projectAllocationId(new ProjectAllocationId(alarmEntity.projectAllocationId))
 			.alarmName(alarmEntity.name)
 			.projectAllocationName(alarmEntity.projectAllocationName)
 			.build();
@@ -93,8 +93,8 @@ class AlarmDatabaseRepository implements AlarmRepository {
 	@Override
 	public AlarmId create(AlarmWithUserIds alarm) {
 		AlarmEntity alarmEntity = AlarmEntity.builder()
-			.projectId(UUID.fromString(alarm.projectId))
-			.projectAllocationId(UUID.fromString(alarm.projectAllocationId))
+			.projectId(alarm.projectId.id)
+			.projectAllocationId(alarm.projectAllocationId.id)
 			.name(alarm.name)
 			.threshold(alarm.threshold)
 			.allUsers(alarm.allUsers)

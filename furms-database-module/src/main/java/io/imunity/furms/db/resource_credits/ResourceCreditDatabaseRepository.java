@@ -23,7 +23,6 @@ import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
@@ -80,7 +79,7 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	}
 
 	@Override
-	public String create(ResourceCredit resourceCredit) {
+	public ResourceCreditId create(ResourceCredit resourceCredit) {
 		ResourceCreditEntity savedResourceCredit = repository.save(
 			ResourceCreditEntity.builder()
 				.siteId(resourceCredit.siteId.id)
@@ -93,7 +92,7 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 				.endTime(resourceCredit.utcEndTime)
 				.build()
 		);
-		return savedResourceCredit.getId().toString();
+		return new ResourceCreditId(savedResourceCredit.getId());
 	}
 
 	@Override
@@ -165,5 +164,17 @@ class ResourceCreditDatabaseRepository implements ResourceCreditRepository {
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(ResourceTypeId id) {
+		return id == null || id.id == null;
+	}
+
+	private boolean isEmpty(ResourceCreditId id) {
+		return id == null || id.id == null;
+	}
+
+	private boolean isEmpty(SiteId id) {
+		return id == null || id.id == null;
 	}
 }

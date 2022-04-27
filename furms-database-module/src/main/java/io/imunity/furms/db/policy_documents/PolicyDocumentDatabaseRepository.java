@@ -144,7 +144,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	public PolicyId create(PolicyDocument policyDocument) {
 		PolicyDocumentEntity savedProjectAllocation = repository.save(
 			PolicyDocumentEntity.builder()
-				.siteId(UUID.fromString(policyDocument.siteId))
+				.siteId(policyDocument.siteId.id)
 				.name(policyDocument.name)
 				.workflow(policyDocument.workflow.getPersistentId())
 				.contentType(policyDocument.contentType.getPersistentId())

@@ -27,9 +27,9 @@ public interface ProjectOperationRepository {
 	ProjectInstallation findProjectInstallation(ProjectAllocationId projectAllocationId,
 	                                            Function<PersistentId, Optional<FURMSUser>> userGetter);
 
-	String createOrUpdate(ProjectInstallationJob projectInstallationJob);
+	void createOrUpdate(ProjectInstallationJob projectInstallationJob);
 
-	String createOrUpdate(ProjectUpdateJob projectUpdateJob);
+	void createOrUpdate(ProjectUpdateJob projectUpdateJob);
 
 	void update(ProjectInstallationId id, ProjectInstallationResult result);
 

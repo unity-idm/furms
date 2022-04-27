@@ -5,12 +5,16 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationId;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
@@ -27,6 +31,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -67,13 +72,14 @@ class ProjectAllocationInstallationServiceTest {
 	@Test
 	void shouldCreateProjectAllocationInstallation() {
 		//given
-		when(projectAllocationRepository.findByIdWithRelatedObjects("projectAllocationId"))
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+		when(projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId))
 			.thenReturn(Optional.of(ProjectAllocationResolved.builder()
-				.site(Site.builder().build())
+				.site(Site.builder().id(new SiteId(UUID.randomUUID())).build())
 				.build()));
 
 		//when
-		service.createAllocation("projectAllocationId");
+		service.createAllocation(projectAllocationId);
 
 		//then
 		orderVerifier.verify(repository).create(any(ProjectAllocationInstallation.class));
@@ -81,7 +87,7 @@ class ProjectAllocationInstallationServiceTest {
 
 	@Test
 	void shouldUpdateAndStartAllocation() {
-		String projectAllocationId = "allocationId";
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder().build();
 
 		when(projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId))
@@ -99,9 +105,9 @@ class ProjectAllocationInstallationServiceTest {
 
 	@Test
 	void shouldCreateAndStartAllocation() {
-		String projectAllocationId = "allocationId";
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
-			.site(Site.builder().build())
+			.site(Site.builder().id(new SiteId(UUID.randomUUID())).build())
 			.build();
 		when(projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId))
 			.thenReturn(Optional.of(projectAllocationResolved));
@@ -118,40 +124,47 @@ class ProjectAllocationInstallationServiceTest {
 	void shouldStartProjectAllocationInstallation() {
 		//given
 		CorrelationId correlationId = CorrelationId.randomID();
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID());
 
-		when(repository.findAll("projectId", "siteId"))
+		when(repository.findAll(projectId, siteId))
 			.thenReturn(Set.of(ProjectAllocationInstallation.builder()
 				.correlationId(correlationId)
-				.siteId("siteId")
-				.projectAllocationId("projectAllocationId")
+				.siteId(siteId)
+				.projectAllocationId(projectAllocationId)
 				.build()));
-		when(projectAllocationRepository.findByIdWithRelatedObjects("projectAllocationId"))
+		when(projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId))
 			.thenReturn(Optional.of(ProjectAllocationResolved.builder()
-				.site(Site.builder().build())
+				.site(Site.builder().id(new SiteId(UUID.randomUUID())).build())
 				.build()));
 
 		//when
-		service.startWaitingAllocations("projectId", "siteId");
+		service.startWaitingAllocations(projectId, siteId);
 
 		//then
-		orderVerifier.verify(repository).update(correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
+		orderVerifier.verify(repository).update(correlationId, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
 		orderVerifier.verify(siteAgentProjectAllocationInstallationService).allocateProject(eq(correlationId), any());
 	}
 
 	@Test
 	void shouldCreateProjectDeallocation() {
 		//given
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		ProjectAllocationResolved projectAllocationInstallation = ProjectAllocationResolved.builder()
-			.id("id")
+			.id(projectAllocationId)
 			.site(Site.builder()
-				.id("id")
+				.id(siteId)
 				.build())
 			.build();
 
 		//when
-		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
+		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
 			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
-			.build());
+			.siteId(siteId)
+			.build()
+		);
 		service.createDeallocation(projectAllocationInstallation);
 
 		//then
@@ -162,22 +175,24 @@ class ProjectAllocationInstallationServiceTest {
 	@Test
 	void shouldDeleteProjectAllocationIfFailed() {
 		//given
+		ProjectAllocationInstallationId projectAllocationInstallationId = new ProjectAllocationInstallationId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocationResolved projectAllocationInstallation = ProjectAllocationResolved.builder()
-			.id("id")
+			.id(projectAllocationId)
 			.site(Site.builder()
-				.id("id")
+				.id(new SiteId(UUID.randomUUID()))
 				.build())
 			.build();
 
 		//when
-		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
-			.id("id")
-			.projectAllocationId("id")
+		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
+			.id(projectAllocationInstallationId)
+			.projectAllocationId(projectAllocationId)
 			.status(ProjectAllocationInstallationStatus.PROJECT_INSTALLATION_FAILED)
 			.build());
 		service.createDeallocation(projectAllocationInstallation);
 
 		//then
-		orderVerifier.verify(projectAllocationRepository).deleteById("id");
+		orderVerifier.verify(projectAllocationRepository).deleteById(projectAllocationId);
 	}
 }

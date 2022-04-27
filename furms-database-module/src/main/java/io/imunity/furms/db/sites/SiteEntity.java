@@ -10,6 +10,7 @@ import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Arrays;
@@ -46,14 +47,13 @@ public class SiteEntity extends UUIDIdentifiable {
 
 	public Site toSite() {
 		return Site.builder()
-				.id(id.toString())
+				.id(new SiteId(id.toString(), new SiteExternalId(externalId)))
 				.name(name)
 				.oauthClientId(oauthClientId)
 				.connectionInfo(connectionInfo)
 				.logo(new FurmsImage(logo, logoType))
 				.sshKeyFromOptionMandatory(sshKeyFromOptionMandatory)
 				.sshKeyHistoryLength(sshKeyHistoryLength)
-				.externalId(new SiteExternalId(externalId))
 				.policyId(new PolicyId(policyId))
 				.build();
 	}

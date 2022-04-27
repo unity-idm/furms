@@ -7,12 +7,14 @@ package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -56,23 +58,23 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
-	public ProjectInstallation findProjectInstallationOfProjectAllocation(String projectAllocationId) {
+	public ProjectInstallation findProjectInstallationOfProjectAllocation(ProjectAllocationId projectAllocationId) {
 		return projectOperationRepository.findProjectInstallation(projectAllocationId, usersDAO::findById);
 	}
 
 	@Override
-	public boolean isProjectInstalled(String siteId, String projectId) {
+	public boolean isProjectInstalled(SiteId siteId, ProjectId projectId) {
 		return projectOperationRepository.installedProjectExistsBySiteIdAndProjectId(siteId, projectId);
 	}
 
 	@Override
-	public boolean isProjectInTerminalState(String projectId) {
+	public boolean isProjectInTerminalState(ProjectId projectId) {
 		return projectOperationRepository.areAllProjectOperationInTerminateState(projectId);
 	}
 
 	@Override
 	@Transactional
-	public void createOrUpdate(String projectId, ProjectInstallation projectInstallation) {
+	public void createOrUpdate(ProjectId projectId, ProjectInstallation projectInstallation) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 			.correlationId(correlationId)
@@ -96,8 +98,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			.get();
 		ProjectInstallation projectInstallation = ProjectInstallation.builder()
 			.id(project.getId())
-			.siteId(siteId.id)
-			.siteExternalId(siteId.externalId.id)
+			.siteId(siteId)
 			.name(project.getName())
 			.description(project.getDescription())
 			.communityId(project.getCommunityId())
@@ -114,7 +115,8 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	@Override
 	@Transactional
 	public void update(Project project) {
-		Map<String, ProjectInstallationJob> siteIdToInstallationJob = projectOperationRepository.findProjectInstallation(project.getId()).stream()
+		Map<SiteId, ProjectInstallationJob> siteIdToInstallationJob =
+			projectOperationRepository.findProjectInstallation(project.getId()).stream()
 			.collect(Collectors.toMap(x -> x.siteId, x -> x));
 		Set<ProjectUpdateStatus> updateStatues = projectOperationRepository.findProjectUpdateStatues(project.getId());
 
@@ -122,7 +124,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 			throw new IllegalStateException("Project updating while project installing is not supported");
 
 		siteRepository.findByProjectId(project.getId()).forEach(siteId -> {
-			ProjectInstallationJob job = siteIdToInstallationJob.get(siteId.id);
+			ProjectInstallationJob job = siteIdToInstallationJob.get(siteId);
 			if(ProjectInstallationStatus.FAILED.equals(job.status)){
 				createOrUpdate(siteId, project);
 				return;
@@ -130,7 +132,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 			ProjectUpdateJob projectUpdateJob = ProjectUpdateJob.builder()
 				.correlationId(CorrelationId.randomID())
-				.siteId(siteId.id)
+				.siteId(siteId)
 				.projectId(project.getId())
 				.status(ProjectUpdateStatus.PENDING)
 				.build();
@@ -148,7 +150,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	private boolean hasProjectNotTerminalStateInAnySite(Set<ProjectUpdateStatus> updateStatuses,
-	                                                    Map<String, ProjectInstallationJob> siteIdToInstallStatues) {
+	                                                    Map<SiteId, ProjectInstallationJob> siteIdToInstallStatues) {
 		return 
 			(!siteIdToInstallStatues.isEmpty() && siteIdToInstallStatues.values().stream().noneMatch(job -> job.status.isTerminal()))
 			|| (!updateStatuses.isEmpty() && updateStatuses.stream().noneMatch(ProjectUpdateStatus::isTerminal));
@@ -156,7 +158,7 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 
 	@Override
 	@Transactional
-	public void remove(String projectId) {
+	public void remove(ProjectId projectId) {
 		siteRepository.findByProjectId(projectId).forEach(siteId -> {
 			CorrelationId correlationId = CorrelationId.randomID();
 			siteAgentProjectOperationService.removeProject(

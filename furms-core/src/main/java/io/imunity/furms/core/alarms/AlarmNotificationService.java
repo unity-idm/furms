@@ -8,6 +8,7 @@ package io.imunity.furms.core.alarms;
 import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.notification.UserAlarmListChangedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -16,7 +17,6 @@ import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,26 +37,24 @@ class AlarmNotificationService {
 	private final ProjectAllocationRepository projectAllocationRepository;
 	private final EmailNotificationSender emailNotificationSender;
 	private final UsersDAO usersDAO;
-	private final ApplicationEventPublisher publisher;
 	private final PostCommitRunner postCommitRunner;
 
 	AlarmNotificationService(ProjectGroupsDAO projectGroupsDAO,
 	                         ProjectRepository projectRepository, ProjectAllocationRepository projectAllocationRepository,
 	                         EmailNotificationSender emailNotificationSender,
-	                         UsersDAO usersDAO, ApplicationEventPublisher publisher, PostCommitRunner postCommitRunner) {
+	                         UsersDAO usersDAO, PostCommitRunner postCommitRunner) {
 		this.projectGroupsDAO = projectGroupsDAO;
 		this.projectRepository = projectRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.emailNotificationSender = emailNotificationSender;
 		this.usersDAO = usersDAO;
-		this.publisher = publisher;
 		this.postCommitRunner = postCommitRunner;
 	}
 
 	@Transactional
 	public void sendNotification(AlarmWithUserIds alarm) {
 		String projectAllocationName = projectAllocationRepository.findById(alarm.projectAllocationId).get().name;
-		String communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
+		CommunityId communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
 		getAlarmUserStream(alarm, communityId)
 			.distinct()
 			.filter(userNotificationWrapper -> userNotificationWrapper.user.id.isPresent())
@@ -92,7 +90,7 @@ class AlarmNotificationService {
 
 	@Transactional
 	public void cleanNotification(AlarmWithUserIds alarm) {
-		String communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
+		CommunityId communityId = projectRepository.findById(alarm.projectId).get().getCommunityId();
 		getAlarmUserStream(alarm, communityId)
 			.distinct()
 			.filter(userNotificationWrapper -> userNotificationWrapper.user.fenixUserId.isPresent())
@@ -101,7 +99,7 @@ class AlarmNotificationService {
 			);
 	}
 
-	private Stream<UserNotificationWrapper> getAlarmUserStream(AlarmWithUserIds alarm, String communityId) {
+	private Stream<UserNotificationWrapper> getAlarmUserStream(AlarmWithUserIds alarm, CommunityId communityId) {
 		Map<FenixUserId, FURMSUser> furmsUserMap = usersDAO.getAllUsers().stream()
 			.filter(user -> user.fenixUserId.isPresent())
 			.collect(Collectors.toMap(user -> user.fenixUserId.get(), Function.identity()));

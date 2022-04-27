@@ -41,7 +41,7 @@ class UnityPolicyDocumentDAO implements PolicyDocumentDAO {
 	}
 
 	public Set<UserPolicyAcceptances> getUserPolicyAcceptances(SiteId siteId) {
-		Map<String, Set<String>> relatedCommunityAndProjectIds = siteRepository.findRelatedProjectIds(new SiteId(siteId));
+		Map<String, Set<String>> relatedCommunityAndProjectIds = siteRepository.findRelatedProjectIds(siteId);
 		if(relatedCommunityAndProjectIds.isEmpty())
 			return Set.of();
 

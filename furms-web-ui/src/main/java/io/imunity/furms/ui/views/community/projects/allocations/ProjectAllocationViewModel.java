@@ -5,6 +5,9 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 
@@ -12,24 +15,24 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 class ProjectAllocationViewModel {
-	private String id;
-	private String projectId;
+	private ProjectAllocationId id;
+	private ProjectId projectId;
 	private final String projectName;
-	private String communityId;
+	private CommunityId communityId;
 	private ResourceTypeComboBoxModel resourceType;
 	private AllocationCommunityComboBoxModel allocationCommunity;
 	private String name;
 	private BigDecimal amount;
 
-	ProjectAllocationViewModel(String projectId, String projectName) {
+	ProjectAllocationViewModel(ProjectId projectId, String projectName) {
 		this.projectId = projectId;
 		this.projectName = projectName;
 	}
 
-	ProjectAllocationViewModel(String id,
-	                           String projectId,
+	ProjectAllocationViewModel(ProjectAllocationId id,
+	                           ProjectId projectId,
 	                           String projectName,
-	                           String communityId,
+	                           CommunityId communityId,
 	                           ResourceTypeComboBoxModel resourceType,
 	                           AllocationCommunityComboBoxModel allocationCommunity,
 	                           String name,
@@ -44,15 +47,15 @@ class ProjectAllocationViewModel {
 		this.amount = amount;
 	}
 
-	public String getId() {
+	public ProjectAllocationId getId() {
 		return id;
 	}
 
-	public String getProjectId() {
+	public ProjectId getProjectId() {
 		return projectId;
 	}
 
-	void setProjectId(String projectId) {
+	void setProjectId(ProjectId projectId) {
 		this.projectId = projectId;
 	}
 
@@ -60,15 +63,15 @@ class ProjectAllocationViewModel {
 		return projectName;
 	}
 
-	void setId(String id) {
+	void setId(ProjectAllocationId id) {
 		this.id = id;
 	}
 
-	String getCommunityId() {
+	CommunityId getCommunityId() {
 		return communityId;
 	}
 
-	void setCommunityId(String communityId) {
+	void setCommunityId(CommunityId communityId) {
 		this.communityId = communityId;
 	}
 
@@ -136,10 +139,10 @@ class ProjectAllocationViewModel {
 	}
 
 	public static final class ProjectAllocationViewModelBuilder {
-		private String id;
-		private String projectId;
+		private ProjectAllocationId id;
+		private ProjectId projectId;
 		private String projectName;
-		private String communityId;
+		private CommunityId communityId;
 		private ResourceTypeComboBoxModel resourceType;
 		private AllocationCommunityComboBoxModel allocationCommunity;
 		private String name;
@@ -148,12 +151,12 @@ class ProjectAllocationViewModel {
 		private ProjectAllocationViewModelBuilder() {
 		}
 
-		public ProjectAllocationViewModelBuilder id(String id) {
+		public ProjectAllocationViewModelBuilder id(ProjectAllocationId id) {
 			this.id = id;
 			return this;
 		}
 
-		public ProjectAllocationViewModelBuilder projectId(String projectId) {
+		public ProjectAllocationViewModelBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}
@@ -163,7 +166,7 @@ class ProjectAllocationViewModel {
 			return this;
 		}
 
-		public ProjectAllocationViewModelBuilder communityId(String communityId) {
+		public ProjectAllocationViewModelBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}

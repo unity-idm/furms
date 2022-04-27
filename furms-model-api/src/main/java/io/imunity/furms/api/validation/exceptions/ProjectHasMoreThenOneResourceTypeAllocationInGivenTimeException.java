@@ -5,15 +5,18 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+
 import static java.lang.String.format;
 
 public class ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException extends IllegalArgumentException {
-    public final String projectId;
-    public final String resourceTypeId;
+    public final ProjectId projectId;
+    public final ResourceTypeId resourceTypeId;
 
-    public ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException(String projectId, String resourceTypeId) {
+    public ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException(ProjectId projectId, ResourceTypeId resourceTypeId) {
         super(format("Project has more than one Resource Type allocation in (projectId: %s, resourceTypeId: %s)",
-                projectId, resourceTypeId));
+                projectId.id, resourceTypeId.id));
         this.projectId = projectId;
         this.resourceTypeId = resourceTypeId;
     }

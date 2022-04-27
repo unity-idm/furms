@@ -204,7 +204,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public String create(ProjectAllocationChunk projectAllocationChunk) {
+	public void create(ProjectAllocationChunk projectAllocationChunk) {
 		ProjectAllocationChunkEntity chunk = ProjectAllocationChunkEntity.builder()
 			.projectAllocationId(projectAllocationChunk.projectAllocationId.id)
 			.chunkId(projectAllocationChunk.chunkId.id)
@@ -213,7 +213,7 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 			.validTo(projectAllocationChunk.validTo)
 			.receivedTime(projectAllocationChunk.receivedTime)
 			.build();
-		return chunkRepository.save(chunk).getId().toString();
+		chunkRepository.save(chunk);
 	}
 
 	@Override

@@ -9,8 +9,16 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
@@ -41,18 +49,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SecurityTestsBase extends IntegrationTestBase {
 
-	protected String site;
-	protected String otherSite = UUID.randomUUID().toString();
+	protected SiteId site;
+	protected SiteId otherSite = new SiteId(UUID.randomUUID());
 	protected PolicyId policy;
-	protected String resourceCredit;
-	protected String resourceType;
-	protected String infraService;
-	protected String community;
-	protected String otherCommunity = UUID.randomUUID().toString();
-	protected String communityAllocation;
-	protected String project;
-	protected String otherProject = UUID.randomUUID().toString();
-	protected String projectAllocation;
+	protected ResourceCreditId resourceCredit;
+	protected ResourceTypeId resourceType;
+	protected InfraServiceId infraService;
+	protected CommunityId community;
+	protected CommunityId otherCommunity = new CommunityId(UUID.randomUUID());
+	protected CommunityAllocationId communityAllocation;
+	protected ProjectId project;
+	protected ProjectId otherProject = new ProjectId(UUID.randomUUID());
+	protected ProjectAllocationId projectAllocation;
 	protected PersistentId persistentId = new PersistentId("id");
 	protected FenixUserId fenixId = new FenixUserId("id");
 

@@ -8,14 +8,19 @@ package io.imunity.furms.db.community_allocation;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -26,12 +31,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,11 +57,11 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private CommunityAllocationReadEntityRepository entityReadRepository;
 
-	private UUID communityId;
-	private UUID communityId2;
+	private CommunityId communityId;
+	private CommunityId communityId2;
 
-	private UUID resourceCreditId;
-	private UUID resourceCreditId2;
+	private ResourceCreditId resourceCreditId;
+	private ResourceCreditId resourceCreditId2;
 
 	@BeforeEach
 	void init() {
@@ -68,8 +71,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		UUID siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		SiteId siteId = siteRepository.create(site, new SiteExternalId("id"));
+		SiteId siteId2 = siteRepository.create(site1, new SiteExternalId("id2"));
 
 		Community community = Community.builder()
 			.name("name")
@@ -79,66 +82,66 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		communityId = UUID.fromString(communityRepository.create(community));
-		communityId2 = UUID.fromString(communityRepository.create(community2));
+		communityId = communityRepository.create(community);
+		communityId2 = communityRepository.create(community2);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 		InfraService service1 = InfraService.builder()
-			.siteId(siteId2.toString())
+			.siteId(siteId2)
 			.name("name1")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
-		UUID serviceId2 = UUID.fromString(infraServiceRepository.create(service1));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
+		InfraServiceId serviceId2 = infraServiceRepository.create(service1);
 
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
 		ResourceType resourceType2 = ResourceType.builder()
-			.siteId(siteId2.toString())
-			.serviceId(serviceId2.toString())
+			.siteId(siteId2)
+			.serviceId(serviceId2)
 			.name("name2")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.MB)
 			.build();
 
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
-		UUID resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
+		ResourceTypeId resourceTypeId2 = resourceTypeRepository.create(resourceType2);
 
-		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		resourceCreditId2 = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId2.toString())
-			.resourceTypeId(resourceTypeId2.toString())
+		resourceCreditId2 = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId2)
+			.resourceTypeId(resourceTypeId2)
 			.name("name2")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 	}
 
 	@Test
 	void shouldReturnAvailableAmountWhenCommunityAllocationsDoesntExist() {
-		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId).getAmount();
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId.id).getAmount();
 		assertThat(sum).isEqualTo(new BigDecimal(100));
 	}
 
@@ -146,22 +149,22 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldReturnAvailableAmount() {
 		entityRepository.save(
 			CommunityAllocationEntity.builder()
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
 		);
 		entityRepository.save(
 			CommunityAllocationEntity.builder()
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
 				.name("anem2")
 				.amount(new BigDecimal(30))
 				.build()
 		);
 
-		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId).getAmount();
+		BigDecimal sum = entityReadRepository.calculateAvailableAmount(resourceCreditId.id).getAmount();
 		assertThat(sum).isEqualTo(new BigDecimal(60));
 	}
 
@@ -169,8 +172,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldReturnAllocationWithRelatedObjects() {
 		CommunityAllocationEntity save = entityRepository.save(
 			CommunityAllocationEntity.builder()
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
@@ -192,14 +195,14 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldReturnAllocationsWithRelatedObjects() {
 		entityRepository.save(
 			CommunityAllocationEntity.builder()
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
 		);
 
-		Set<CommunityAllocationReadEntity> entities = entityReadRepository.findAllByCommunityId(communityId);
+		Set<CommunityAllocationReadEntity> entities = entityReadRepository.findAllByCommunityId(communityId.id);
 		assertThat(entities.size()).isEqualTo(1);
 		CommunityAllocationReadEntity entity = entities.iterator().next();
 		assertThat(entity.name).isEqualTo("anem");
@@ -217,8 +220,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldCreateResourceType() {
 		//given
 		CommunityAllocationEntity entityToSave = CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build();
@@ -230,8 +233,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(entityRepository.findAll()).hasSize(1);
 		Optional<CommunityAllocationEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().communityId).isEqualTo(communityId);
-		assertThat(byId.get().resourceCreditId).isEqualTo(resourceCreditId);
+		assertThat(byId.get().communityId).isEqualTo(communityId.id);
+		assertThat(byId.get().resourceCreditId).isEqualTo(resourceCreditId.id);
 		assertThat(byId.get().name).isEqualTo("name");
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(10));
 	}
@@ -240,15 +243,15 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateCommunityAllocation() {
 		//given
 		CommunityAllocationEntity old = CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem")
 			.amount(new BigDecimal(10))
 			.build();
 		entityRepository.save(old);
 		CommunityAllocationEntity toUpdate = CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem2")
 			.amount(new BigDecimal(102))
 			.build();
@@ -259,8 +262,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 		//then
 		Optional<CommunityAllocationEntity> byId = entityRepository.findById(toUpdate.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().communityId).isEqualTo(communityId);
-		assertThat(byId.get().resourceCreditId).isEqualTo(resourceCreditId);
+		assertThat(byId.get().communityId).isEqualTo(communityId.id);
+		assertThat(byId.get().resourceCreditId).isEqualTo(resourceCreditId.id);
 		assertThat(byId.get().name).isEqualTo("anem2");
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(102));
 	}
@@ -269,8 +272,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedCommunityAllocations() {
 		//given
 		CommunityAllocationEntity toFind = CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem")
 			.amount(new BigDecimal(10))
 			.build();
@@ -287,15 +290,15 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllAvailableCommunityAllocations() {
 		//given
 		entityRepository.save(CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 		entityRepository.save(CommunityAllocationEntity.builder()
-			.communityId(communityId2)
-			.resourceCreditId(resourceCreditId2)
+			.communityId(communityId2.id)
+			.resourceCreditId(resourceCreditId2.id)
 			.name("anem2")
 			.amount(new BigDecimal(120))
 			.build()
@@ -312,8 +315,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void savedServiceExistsByCommunityAllocationId() {
 		//given
 		CommunityAllocationEntity service = entityRepository.save(CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem")
 			.amount(new BigDecimal(10))
 			.build());
@@ -327,8 +330,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void savedCommunityAllocationExistsByName() {
 		//given
 		CommunityAllocationEntity service = entityRepository.save(CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem")
 			.amount(new BigDecimal(10))
 			.build());
@@ -344,8 +347,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void savedCommunityAllocationDoesNotExistByName() {
 		//given
 		entityRepository.save(CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem")
 			.amount(new BigDecimal(10))
 			.build());
@@ -361,8 +364,8 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteService() {
 		//given
 		CommunityAllocationEntity entityToRemove = entityRepository.save(CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem")
 			.amount(new BigDecimal(10))
 			.build());
@@ -378,14 +381,14 @@ class CommunityAllocationEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteAllServices() {
 		//given
 		entityRepository.save(CommunityAllocationEntity.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditId)
+			.communityId(communityId.id)
+			.resourceCreditId(resourceCreditId.id)
 			.name("anem")
 			.amount(new BigDecimal(10))
 			.build());
 		entityRepository.save(CommunityAllocationEntity.builder()
-			.communityId(communityId2)
-			.resourceCreditId(resourceCreditId2)
+			.communityId(communityId2.id)
+			.resourceCreditId(resourceCreditId2.id)
 			.name("anem2")
 			.amount(new BigDecimal(10))
 			.build());

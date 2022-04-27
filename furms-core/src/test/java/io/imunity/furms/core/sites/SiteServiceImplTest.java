@@ -104,7 +104,7 @@ class SiteServiceImplTest {
 	@Test
 	void shouldReturnSiteIfExistsInRepository(  ) {
 		//given
-		final String id = "id";
+		SiteId id = new SiteId(UUID.randomUUID());
 		when(repository.findById(id)).thenReturn(Optional.of(Site.builder()
 				.id(id)
 				.name("name")
@@ -112,7 +112,7 @@ class SiteServiceImplTest {
 
 		//when
 		final Optional<Site> byId = service.findById(id);
-		final Optional<Site> otherId = service.findById("otherId");
+		final Optional<Site> otherId = service.findById(new SiteId(UUID.randomUUID()));
 
 		//then
 		assertThat(byId).isPresent();
@@ -124,8 +124,8 @@ class SiteServiceImplTest {
 	void shouldReturnAllSitesIfExistsInRepository() {
 		//given
 		when(repository.findAll()).thenReturn(Set.of(
-				Site.builder().id("id1").name("name").build(),
-				Site.builder().id("id2").name("name").build()));
+				Site.builder().id(new SiteId(UUID.randomUUID())).name("name").build(),
+				Site.builder().id(new SiteId(UUID.randomUUID())).name("name").build()));
 
 		//when
 		final Set<Site> allSites = service.findAll();
@@ -137,21 +137,23 @@ class SiteServiceImplTest {
 	@Test
 	void shouldReturnOnlyUserSites() {	
 		//given
+		SiteId id = new SiteId(UUID.randomUUID());
+		SiteId id1 = new SiteId(UUID.randomUUID());
 		PersistentId pId = new PersistentId("id");
 		FenixUserId fId = new FenixUserId("fenixId");
 		when(repository.findAll()).thenReturn(Set.of(
-				Site.builder().id("id1").name("name").build(),
-				Site.builder().id("id2").name("name").build()));
+				Site.builder().id(id).name("name").build(),
+				Site.builder().id(id1).name("name").build()));
 		when(usersDAO.getFenixUserId(pId)).thenReturn(fId);
-		when(userOperationRepository.isUserAdded("id1", fId.id)).thenReturn(true);
-		when(userOperationRepository.isUserAdded("id2", fId.id)).thenReturn(false);
+		when(userOperationRepository.isUserAdded(id, fId)).thenReturn(true);
+		when(userOperationRepository.isUserAdded(id1, fId)).thenReturn(false);
 		
 		//when
 		final Set<Site> allSites = service.findUserSites(new PersistentId("id"));
 
 		//then
 		assertThat(allSites).hasSize(1);
-		assertThat(allSites.iterator().next().getId()).isEqualTo("id1");
+		assertThat(allSites.iterator().next().getId()).isEqualTo(id);
 	}
 
 	
@@ -159,7 +161,7 @@ class SiteServiceImplTest {
 	void shouldAllowToCreateSite() {
 		//given
 		final Site request = Site.builder()
-				.id("id")
+				.id(new SiteId(UUID.randomUUID()))
 				.name("name")
 				.build();
 		when(repository.isNamePresent(request.getName())).thenReturn(false);
@@ -178,8 +180,9 @@ class SiteServiceImplTest {
 	@Test
 	void shouldNotAllowToCreateSiteDueToNonUniqueName() {
 		//given
+		SiteId id = new SiteId(UUID.randomUUID());
 		final Site request = Site.builder()
-				.id("id")
+				.id(id)
 				.name("name")
 				.build();
 		when(repository.isNamePresent(request.getName())).thenReturn(true);
@@ -194,8 +197,9 @@ class SiteServiceImplTest {
 	@Test
 	void shouldAllowToUpdateSite() {
 		//given
+		SiteId id = new SiteId(UUID.randomUUID());
 		final Site request = Site.builder()
-				.id("id")
+				.id(id)
 				.name("name")
 				.build();
 		when(repository.exists(request.getId())).thenReturn(true);
@@ -215,25 +219,24 @@ class SiteServiceImplTest {
 	@Test
 	void shouldSendUpdateToSiteAgent() {
 		//given
+		SiteId id = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		SiteExternalId siteExternalId = new SiteExternalId("id");
 		Site oldSite = Site.builder()
-			.id("id")
+			.id(id)
 			.name("name")
-			.externalId(siteExternalId)
 			.build();
 		Site newSite = Site.builder()
-			.id("id")
+			.id(id)
 			.name("name")
 			.policyId(policyId)
-			.externalId(siteExternalId)
 			.build();
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.name("policyName")
 			.revision(1)
 			.build();
-		final String tempId = "tempId";
+		final SiteId tempId = new SiteId(UUID.randomUUID());
 		when(repository.exists(newSite.getId())).thenReturn(true);
 		when(repository.isNamePresentIgnoringRecord(any(), any())).thenReturn(false);
 		when(repository.findById(eq(oldSite.getId()))).thenReturn(Optional.of(oldSite));
@@ -250,32 +253,30 @@ class SiteServiceImplTest {
 			.name("policyName")
 			.revision(1)
 			.build());
-		verify(policyNotificationService, times(1)).notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
+		verify(policyNotificationService, times(1)).notifyAllUsersAboutPolicyAssignmentChange(oldSite.getId());
 	}
 
 	@Test
 	void shouldSendUpdateToSiteAgentWhenPolicyIdIsSetToNull() {
 		//given
+		SiteId id = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		SiteExternalId siteExternalId = new SiteExternalId("id");
 		Site oldSite = Site.builder()
-			.id("id")
+			.id(id)
 			.name("name")
 			.policyId(policyId)
-			.externalId(siteExternalId)
 			.build();
 		Site newSite = Site.builder()
-			.id("id")
+			.id(id)
 			.name("name")
 			.policyId(null)
-			.externalId(siteExternalId)
 			.build();
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.name("policyName")
 			.revision(1)
 			.build();
-		final String tempId = "tempId";
+		final SiteId tempId = new SiteId(UUID.randomUUID());
 		when(repository.exists(newSite.getId())).thenReturn(true);
 		when(repository.isNamePresentIgnoringRecord(any(), any())).thenReturn(false);
 		when(repository.findById(oldSite.getId())).thenReturn(Optional.of(oldSite));
@@ -287,7 +288,7 @@ class SiteServiceImplTest {
 		service.update(newSite);
 
 		//then
-		verify(siteAgentPolicyDocumentService).updatePolicyDocument(siteExternalId, PolicyDocument.builder()
+		verify(siteAgentPolicyDocumentService).updatePolicyDocument(id.externalId, PolicyDocument.builder()
 			.id(policyId)
 			.name("policyName")
 			.revision(-1)
@@ -298,14 +299,15 @@ class SiteServiceImplTest {
 	@Test
 	void shouldUpdateOnlySentFields() {
 		//given
+		SiteId id = new SiteId(UUID.randomUUID());
 		final Site oldSite = Site.builder()
-				.id("id")
+				.id(id)
 				.name("name")
 				.logo(new FurmsImage(new byte[0], "png"))
 				.connectionInfo("connectionInfo")
 				.build();
 		final Site request = Site.builder()
-				.id("id")
+				.id(id)
 				.name("brandNewName")
 				.build();
 		final Site expectedSite = Site.builder()
@@ -333,9 +335,11 @@ class SiteServiceImplTest {
 	@Test
 	void shouldAllowToDeleteSite() {
 		//given
-		final String id = "id";
+		SiteId id = new SiteId(UUID.randomUUID());
 		when(repository.exists(id)).thenReturn(true);
-		Site site = Site.builder().build();
+		Site site = Site.builder()
+			.id(id)
+			.build();
 		when(repository.findById(id)).thenReturn(Optional.of(site));
 
 		//when
@@ -349,7 +353,7 @@ class SiteServiceImplTest {
 	@Test
 	void shouldNotAllowToDeleteSiteDueToSiteNotExists() {
 		//given
-		final String id = "id";
+		SiteId id = new SiteId(UUID.randomUUID());
 		when(repository.exists(id)).thenReturn(false);
 
 		//when
@@ -382,8 +386,9 @@ class SiteServiceImplTest {
 	@Test
 	void shouldReturnTrueIfNamePresentOutOfSpecificRecord() {
 		//given
+		SiteId id = new SiteId(UUID.randomUUID());
 		final Site site = Site.builder()
-				.id("id")
+				.id(id)
 				.name("name")
 				.build();
 		when(repository.isNamePresentIgnoringRecord(site.getName(), site.getId())).thenReturn(true);
@@ -395,8 +400,9 @@ class SiteServiceImplTest {
 	@Test
 	void shouldReturnFalseIfNamePresentInSpecificRecord() {
 		//given
+		SiteId id = new SiteId(UUID.randomUUID());
 		final Site site = Site.builder()
-				.id("id")
+				.id(id)
 				.name("name")
 				.build();
 		when(repository.isNamePresentIgnoringRecord(site.getName(), site.getId())).thenReturn(false);
@@ -408,8 +414,8 @@ class SiteServiceImplTest {
 	@Test
 	void shouldReturnAllSiteAdmins() {
 		//given
-		String siteId = "id";
-		when(webClient.getAllUsersAndSiteAdmins(siteId)).thenReturn(
+		SiteId id = new SiteId(UUID.randomUUID());
+		when(webClient.getAllUsersAndSiteAdmins(id)).thenReturn(
 			new AllUsersAndSiteAdmins(
 				List.of(),
 				List.of(FURMSUser.builder()
@@ -421,7 +427,7 @@ class SiteServiceImplTest {
 	);
 
 		//when
-		AllUsersAndSiteAdmins allAdmins = service.findAllUsersAndSiteAdmins(siteId);
+		AllUsersAndSiteAdmins allAdmins = service.findAllUsersAndSiteAdmins(id);
 
 		//then
 		assertThat(allAdmins.siteAdmins).hasSize(1);
@@ -431,15 +437,16 @@ class SiteServiceImplTest {
 	void shouldThrowExceptionWhenSiteIdIsEmptyForFindAllAdmins() {
 		//then
 		assertThrows(IllegalArgumentException.class, () -> service.findAllUsersAndSiteAdmins(null));
-		assertThrows(IllegalArgumentException.class, () -> service.findAllUsersAndSiteAdmins(""));
+		assertThrows(IllegalArgumentException.class, () -> service.findAllUsersAndSiteAdmins(new SiteId((UUID) null)));
 	}
 
 	@Test
 	void shouldAddAdminToSite() {
 		//given
-		String siteId = UUID.randomUUID().toString();
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		Site site = Site.builder()
+			.id(siteId)
 			.name("name")
 			.build();
 		when(repository.findById(siteId)).thenReturn(Optional.of(site));
@@ -455,17 +462,17 @@ class SiteServiceImplTest {
 	void shouldThrowExceptionWhenSiteIdOrUserIdAreEmptyForAddAdmin() {
 		//then
 		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, null));
-		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("", null));
-		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("testId", null));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(new SiteId((UUID) null), null));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(new SiteId(UUID.randomUUID()), null));
 		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, new PersistentId("")));
 		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(null, new PersistentId("testId")));
-		assertThrows(IllegalArgumentException.class, () -> service.addAdmin("", new PersistentId("")));
+		assertThrows(IllegalArgumentException.class, () -> service.addAdmin(new SiteId((UUID) null), new PersistentId("")));
 	}
 
 	@Test
 	void shouldTryRollbackAndThrowExceptionWhenWebClientFailedForAddAdmin() {
 		//given
-		String siteId = UUID.randomUUID().toString();
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		doThrow(UnityFailureException.class).when(webClient).addSiteUser(siteId, userId, SITE_ADMIN);
 		when(webClient.get(siteId)).thenReturn(Optional.of(Site.builder().id(siteId).build()));
@@ -474,16 +481,18 @@ class SiteServiceImplTest {
 		assertThrows(UnityFailureException.class, () -> service.addAdmin(siteId, userId));
 		verify(webClient, times(1)).get(siteId);
 		verify(webClient, times(1)).removeSiteUser(siteId, userId);
-		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), null, SITE_ADMIN));
+		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId.id, SITE), null
+			, SITE_ADMIN));
 	}
 
 	@Test
 	void shouldRemoveAdminFromSite() {
 		//given
-		String siteId = UUID.randomUUID().toString();
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 
 		Site site = Site.builder()
+			.id(siteId)
 			.name("name")
 			.build();
 		when(service.findById(siteId)).thenReturn(Optional.of(site));
@@ -492,26 +501,28 @@ class SiteServiceImplTest {
 
 		//then
 		verify(webClient, times(1)).removeSiteUser(siteId, userId);
-		verify(publisher, times(1)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), "name", SITE_ADMIN));
+		verify(publisher, times(1)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId.id, SITE),
+			"name", SITE_ADMIN));
 	}
 
 	@Test
 	void shouldThrowExceptionWhenSiteIdOrUserIdAreEmptyForRemoveAdmin() {
 		//then
 		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(null, null));
-		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser("", null));
-		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser("testId", null));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(new SiteId((UUID) null), null));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(new SiteId(UUID.randomUUID()), null));
 		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(null, new PersistentId("")));
 		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(null, new PersistentId("testId")));
-		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser("", new PersistentId("")));
+		assertThrows(IllegalArgumentException.class, () -> service.removeSiteUser(new SiteId((UUID) null), new PersistentId("")));
 	}
 
 	@Test
 	void shouldThrowExceptionWhenWebClientFailedForRemoveAdmin() {
 		//given
-		String siteId = UUID.randomUUID().toString();
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		Site site = Site.builder()
+			.id(siteId)
 			.name("name")
 			.build();
 		when(repository.findById(siteId)).thenReturn(Optional.of(site));
@@ -519,7 +530,8 @@ class SiteServiceImplTest {
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeSiteUser(siteId, userId));
-		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), "name", SITE_ADMIN));
+		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId.id, SITE),
+			"name", SITE_ADMIN));
 	}
 
 	@Test

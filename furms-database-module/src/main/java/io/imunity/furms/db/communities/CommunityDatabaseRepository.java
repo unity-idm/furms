@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class CommunityDatabaseRepository implements CommunityRepository {
@@ -100,5 +99,9 @@ class CommunityDatabaseRepository implements CommunityRepository {
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(CommunityId id) {
+		return id == null || id.id == null;
 	}
 }

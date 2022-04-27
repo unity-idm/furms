@@ -7,8 +7,10 @@ package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.GrantId;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -26,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_ACKNOWLEDGED;
@@ -174,9 +177,11 @@ class UserAllocationStatusUpdaterTest {
 	@EnumSource(value = AccessStatus.class, names = {"REVOKE_PENDING", "REVOKE_ACKNOWLEDGED"})
 	void shouldRemoveUsersGrant(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
-
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		GrantId grantId = new GrantId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
+		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant(siteId,grantId,projectId, new FenixUserId("userId"))));
 		service.update(correlationId, REVOKED, "msg");
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
@@ -188,16 +193,20 @@ class UserAllocationStatusUpdaterTest {
 	void shouldRemoveUsersGrantAndUserAdditionWhenItIsLastGrant(AccessStatus status) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		FenixUserId fenixUserId = new FenixUserId("userId");
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		GrantId grantId = new GrantId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 
 		when(repository.findCurrentStatus(correlationId)).thenReturn(Optional.of(status));
-		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant("siteId","grantId","projectId", new FenixUserId("userId"))));
+		when(repository.findUsersGrantsByCorrelationId(correlationId)).thenReturn(Optional.of(new ProjectUserGrant(siteId, grantId, projectId,
+			new FenixUserId("userId"))));
 
 		service.update(correlationId, REVOKED, "msg");
 
 		orderVerifier.verify(repository).deleteByCorrelationId(correlationId);
 		orderVerifier.verify(userSiteAccessInnerService).revokeAccessToSite(GrantAccess.builder()
-				.siteId(new SiteId("siteId"))
-				.projectId("projectId")
+				.siteId(siteId)
+				.projectId(projectId)
 				.fenixUserId(fenixUserId)
 				.build()
 		);

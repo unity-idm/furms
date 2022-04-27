@@ -153,8 +153,8 @@ public class ResourceCreditWithAllocations {
 		private ResourceCreditWithAllocationsBuilder() {
 		}
 
-		public ResourceCreditWithAllocationsBuilder id(String id) {
-			this.id = new ResourceCreditId(id);
+		public ResourceCreditWithAllocationsBuilder id(ResourceCreditId id) {
+			this.id = id;
 			return this;
 		}
 
@@ -163,8 +163,8 @@ public class ResourceCreditWithAllocations {
 			return this;
 		}
 
-		public ResourceCreditWithAllocationsBuilder siteId(String siteId) {
-			this.siteId = new SiteId(siteId);
+		public ResourceCreditWithAllocationsBuilder siteId(SiteId siteId) {
+			this.siteId = siteId;
 			return this;
 		}
 

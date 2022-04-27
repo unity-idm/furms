@@ -6,6 +6,7 @@
 package io.imunity.furms.core.generic_groups;
 
 import io.imunity.furms.api.validation.exceptions.GroupNotBelongingToCommunityException;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
 import io.imunity.furms.domain.generic_groups.GenericGroupCreatedEvent;
@@ -64,41 +65,47 @@ class GenericGroupServiceImplTest {
 
 	@Test
 	void shouldFindAll() {
-		genericGroupService.findAll("communityId");
-		Mockito.verify(genericGroupRepository).findAllBy("communityId");
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		genericGroupService.findAll(communityId);
+		Mockito.verify(genericGroupRepository).findAllBy(communityId);
 	}
 
 	@Test
 	void shouldFindGroupWithAssignments() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
-		genericGroupService.findGroupWithAssignments("communityId", genericGroupId);
-		Mockito.verify(genericGroupRepository).findGroupWithAssignments("communityId", genericGroupId);
+		genericGroupService.findGroupWithAssignments(communityId, genericGroupId);
+		Mockito.verify(genericGroupRepository).findGroupWithAssignments(communityId, genericGroupId);
 	}
 
 	@Test
 	void shouldFindBy() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
-		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(communityId, genericGroupId)).thenReturn(true);
 
-		genericGroupService.findBy("communityId", genericGroupId);
+		genericGroupService.findBy(communityId, genericGroupId);
 		Mockito.verify(genericGroupRepository).findBy(genericGroupId);
 	}
 
 	@Test
 	void shouldNotFindBy() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 
-		assertThrows(GroupNotBelongingToCommunityException.class, () -> genericGroupService.findBy("communityId2", genericGroupId));
+		assertThrows(GroupNotBelongingToCommunityException.class, () -> genericGroupService.findBy(communityId, genericGroupId));
 	}
 
 	@Test
 	void shouldFindAllGroupWithAssignmentsAmount() {
-		genericGroupService.findAllGroupWithAssignmentsAmount("communityId");
-		Mockito.verify(genericGroupRepository).findAllGroupWithAssignmentsAmount("communityId");
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		genericGroupService.findAllGroupWithAssignmentsAmount(communityId);
+		Mockito.verify(genericGroupRepository).findAllGroupWithAssignmentsAmount(communityId);
 	}
 
 	@Test
 	void shouldFindAllGenericGroupAssignmentWithUser() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		FURMSUser furmsUser = FURMSUser.builder()
 			.email("email")
@@ -109,11 +116,11 @@ class GenericGroupServiceImplTest {
 			.fenixUserId("userId")
 			.build();
 
-		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(communityId, genericGroupId)).thenReturn(true);
 		when(genericGroupRepository.findAllBy(genericGroupId)).thenReturn(Set.of(genericGroupMembership));
 		when(usersDAO.getAllUsers()).thenReturn(List.of(furmsUser));
 
-		Set<GenericGroupAssignmentWithUser> genericGroupServiceAll = genericGroupService.findAll("communityId", genericGroupId);
+		Set<GenericGroupAssignmentWithUser> genericGroupServiceAll = genericGroupService.findAll(communityId, genericGroupId);
 		assertEquals(1, genericGroupServiceAll.size());
 		GenericGroupAssignmentWithUser next = genericGroupServiceAll.iterator().next();
 		assertEquals(furmsUser, next.furmsUser);
@@ -122,9 +129,10 @@ class GenericGroupServiceImplTest {
 
 	@Test
 	void shouldCreateGroup() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		GenericGroup genericGroup = GenericGroup.builder()
-			.communityId("communityId")
+			.communityId(communityId)
 			.name("name")
 			.description("description")
 			.build();
@@ -140,17 +148,18 @@ class GenericGroupServiceImplTest {
 
 	@Test
 	void shouldCreateAssignment() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("fenixUserId");
 
-		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(communityId, genericGroupId)).thenReturn(true);
 		when(genericGroupRepository.existsBy(genericGroupId, userId)).thenReturn(false);
 		when(genericGroupRepository.findBy(genericGroupId)).thenReturn(Optional.of(GenericGroup.builder().build()));
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
 			.email("email")
 			.build()));
 
-		genericGroupService.createMembership("communityId", genericGroupId, userId);
+		genericGroupService.createMembership(communityId, genericGroupId, userId);
 
 		verify(genericGroupRepository).createMembership(GenericGroupMembership.builder()
 			.genericGroupId(genericGroupId)
@@ -162,10 +171,11 @@ class GenericGroupServiceImplTest {
 
 	@Test
 	void update() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		GenericGroup genericGroup = GenericGroup.builder()
 			.id(genericGroupId)
-			.communityId("communityId")
+			.communityId(communityId)
 			.name("name")
 			.description("description")
 			.build();
@@ -179,12 +189,13 @@ class GenericGroupServiceImplTest {
 
 	@Test
 	void deleteGenericGroup() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId groupId = new GenericGroupId(UUID.randomUUID());
-		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(communityId, groupId)).thenReturn(true);
 		GenericGroup genericGroup = GenericGroup.builder().build();
 		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(genericGroup));
 
-		genericGroupService.delete("communityId", groupId);
+		genericGroupService.delete(communityId, groupId);
 
 		verify(genericGroupRepository).delete(groupId);
 		verify(publisher).publishEvent(new GenericGroupRemovedEvent(genericGroup));
@@ -192,16 +203,17 @@ class GenericGroupServiceImplTest {
 
 	@Test
 	void deleteGenericGroupAssignment() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId groupId = new GenericGroupId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
 
-		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(communityId, groupId)).thenReturn(true);
 		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(GenericGroup.builder().build()));
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
 			.email("email")
 			.build()));
 
-		genericGroupService.deleteMembership("communityId", groupId, userId);
+		genericGroupService.deleteMembership(communityId, groupId, userId);
 
 		verify(genericGroupRepository).deleteMembership(groupId, userId);
 	}

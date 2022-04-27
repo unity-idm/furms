@@ -18,7 +18,7 @@ public class ResourceUsageByCredit {
 		this.idToSum = Map.copyOf(idToSum);
 	}
 
-	public BigDecimal get(String id){
+	public BigDecimal get(ResourceCreditId id){
 		return Optional.ofNullable(idToSum.get(id))
 			.orElse(BigDecimal.ZERO);
 	}

@@ -8,6 +8,7 @@ package io.imunity.furms.unity.invitations;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.springframework.stereotype.Component;
 
@@ -36,8 +37,8 @@ class GroupResolver {
 				return COMMUNITY_PREFIX + resourceId.id.toString() + USERS_PATTERN;
 			case PROJECT_ADMIN:
 			case PROJECT_USER:
-				Project project = projectRepository.findById(resourceId.id.toString()).get();
-				return COMMUNITY_PREFIX + project.getCommunityId() + PROJECT_PREFIX + project.getId()+ USERS_PATTERN;
+				Project project = projectRepository.findById(new ProjectId(resourceId.id)).get();
+				return COMMUNITY_PREFIX + project.getCommunityId().id + PROJECT_PREFIX + project.getId().id + USERS_PATTERN;
 			default:
 				throw new IllegalArgumentException("This shouldn't happen, invitation always need role");
 		}

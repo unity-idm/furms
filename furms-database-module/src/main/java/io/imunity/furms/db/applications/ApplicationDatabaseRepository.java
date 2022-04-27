@@ -48,9 +48,9 @@ class ApplicationDatabaseRepository implements ApplicationRepository {
 	}
 
 	@Override
-	public Set<String> findAllAppliedProjectsIds(FenixUserId userId) {
+	public Set<ProjectId> findAllAppliedProjectsIds(FenixUserId userId) {
 		return repository.findAllByUserId(userId.id).stream()
-			.map(applicationEntity -> applicationEntity.projectId.toString())
+			.map(applicationEntity -> new ProjectId(applicationEntity.projectId))
 			.collect(toSet());
 	}
 

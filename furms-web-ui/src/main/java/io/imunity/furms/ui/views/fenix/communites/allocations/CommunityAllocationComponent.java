@@ -19,6 +19,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.ui.components.AllocationDetailsComponentFactory;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
@@ -47,9 +49,9 @@ public class CommunityAllocationComponent extends Composite<Div> {
 
 	private final Grid<CommunityAllocationGridModel> grid;
 	private final CommunityAllocationService service;
-	private final String communityId;
+	private final CommunityId communityId;
 
-	public CommunityAllocationComponent(CommunityAllocationService service, String communityId) {
+	public CommunityAllocationComponent(CommunityAllocationService service, CommunityId communityId) {
 		this.grid = createCommunityGrid();
 		this.service = service;
 		this.communityId = communityId;
@@ -66,7 +68,7 @@ public class CommunityAllocationComponent extends Composite<Div> {
 				null,
 				CommunityAllocationFormView.class,
 				"communityId",
-				communityId
+				communityId.id.toString()
 			)
 		);
 
@@ -82,7 +84,7 @@ public class CommunityAllocationComponent extends Composite<Div> {
 		})
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.1"))
 			.setSortable(true);
-		grid.addComponentColumn(model -> new RouterLink(model.name, CommunityAllocationFormView.class, model.id))
+		grid.addComponentColumn(model -> new RouterLink(model.name, CommunityAllocationFormView.class, model.id.id.toString()))
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.2"))
 			.setSortable(true)
 			.setComparator(model -> model.name.toLowerCase());
@@ -120,20 +122,20 @@ public class CommunityAllocationComponent extends Composite<Div> {
 
 	private HorizontalLayout createLastColumnContent(CommunityAllocationGridModel model) {
 		return new GridActionsButtonLayout(
-			new RouterGridLink(SPLINE_CHART, model.id, CommunityAllocationsDetailsView.class),
+			new RouterGridLink(SPLINE_CHART, model.id.id.toString(), CommunityAllocationsDetailsView.class),
 			createContextMenu(model.id, model.name)
 		);
 	}
 
-	private Component createContextMenu(String CommunityAllocationId, String CommunityAllocation) {
+	private Component createContextMenu(CommunityAllocationId communityAllocationId, String communityAllocation) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.fenix-admin.resource-credits-allocation.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(CommunityAllocationFormView.class, CommunityAllocationId)
+			event -> UI.getCurrent().navigate(CommunityAllocationFormView.class, communityAllocationId.id.toString())
 		);
 
-		Dialog confirmDialog = createConfirmDialog(CommunityAllocationId, CommunityAllocation);
+		Dialog confirmDialog = createConfirmDialog(communityAllocationId, communityAllocation);
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.fenix-admin.resource-credits-allocation.menu.delete"), TRASH),
@@ -144,10 +146,10 @@ public class CommunityAllocationComponent extends Composite<Div> {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String CommunityAllocationId, String communityAllocationName) {
+	private Dialog createConfirmDialog(CommunityAllocationId communityAllocationId, String communityAllocationName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.fenix-admin.resource-credits-allocation.dialog.text", communityAllocationName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			getResultOrException(() -> service.delete(CommunityAllocationId))
+			getResultOrException(() -> service.delete(communityAllocationId))
 				.getException().ifPresent(t -> showErrorNotification(getTranslation(t.getMessage(), communityAllocationName)));
 			loadGridContent();
 		});

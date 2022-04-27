@@ -114,20 +114,19 @@ public class Site {
 	}
 
 	public static class SiteBuilder {
-		private String id;
+		private SiteId id;
 		private String name;
 		private String oauthClientId;
 		private String connectionInfo;
 		private FurmsImage logo;
 		private Boolean sshKeyFromOptionMandatory;
-		private SiteExternalId externalId;
 		private Integer sshKeyHistoryLength;
 		private PolicyId policyId = PolicyId.empty();
 
 		private SiteBuilder() {
 		}
 
-		public SiteBuilder id(String id) {
+		public SiteBuilder id(SiteId id) {
 			this.id = id;
 			return this;
 		}
@@ -161,11 +160,6 @@ public class Site {
 			this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 			return this;
 		}
-
-		public SiteBuilder externalId(SiteExternalId externalId) {
-			this.externalId = externalId;
-			return this;
-		}
 		
 		public SiteBuilder sshKeyHistoryLength(Integer sshKeyHistoryLength) {
 			this.sshKeyHistoryLength = sshKeyHistoryLength;
@@ -173,7 +167,7 @@ public class Site {
 		}
 
 		public Site build() {
-			return new Site(new SiteId(id, externalId), name, oauthClientId, connectionInfo, logo, sshKeyFromOptionMandatory,
+			return new Site(id, name, oauthClientId, connectionInfo, logo, sshKeyFromOptionMandatory,
 					sshKeyHistoryLength, policyId);
 		}
 

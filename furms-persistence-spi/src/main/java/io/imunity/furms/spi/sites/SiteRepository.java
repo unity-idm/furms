@@ -30,9 +30,9 @@ public interface SiteRepository {
 
 	Set<Site> findAll();
 
-	String create(Site site, SiteExternalId externalId);
+	SiteId create(Site site, SiteExternalId externalId);
 
-	String update(Site site);
+	SiteId update(Site site);
 
 	boolean exists(SiteId id);
 
@@ -40,7 +40,7 @@ public interface SiteRepository {
 
 	boolean isNamePresent(String name);
 
-	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
+	boolean isNamePresentIgnoringRecord(String name, SiteId siteId);
 
 	void delete(SiteId id);
 	

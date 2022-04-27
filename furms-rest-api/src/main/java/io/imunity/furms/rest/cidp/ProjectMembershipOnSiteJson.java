@@ -16,7 +16,7 @@ public class ProjectMembershipOnSiteJson {
 
 	public ProjectMembershipOnSiteJson(ProjectMembershipOnSite project) {
 		this.localUserId = project.localUserId;
-		this.projectId = project.projectId;
+		this.projectId = project.projectId.id.toString();
 	}
 
 	@Override

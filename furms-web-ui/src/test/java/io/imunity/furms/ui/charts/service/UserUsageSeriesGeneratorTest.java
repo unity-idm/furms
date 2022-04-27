@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.charts.service;
 
 import io.imunity.furms.api.users.UserService;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -61,15 +63,19 @@ class UserUsageSeriesGeneratorTest {
 		));
 
 		LocalDateTime date = startDate.atStartOfDay();
+		ProjectAllocationId allocationId = new ProjectAllocationId(UUID.randomUUID());
+		ProjectAllocationId allocationId2 = new ProjectAllocationId(UUID.randomUUID());
+
 		Set<io.imunity.furms.domain.resource_usage.UserResourceUsage> allocations = Set.of(
-			createUserUsage("alloc1", date.plusDays(1), BigDecimal.valueOf(2), new FenixUserId("id")),
-			createUserUsage("alloc1", date.plusDays(2), BigDecimal.valueOf(5), new FenixUserId("id")),
-			createUserUsage("alloc1", date.plusDays(4), BigDecimal.valueOf(10), new FenixUserId("id")),
-			createUserUsage("alloc1", date.plusDays(6), BigDecimal.valueOf(12), new FenixUserId("id")),
-			createUserUsage("alloc2", date.plusDays(1), BigDecimal.valueOf(2), new FenixUserId("id2")),
-			createUserUsage("alloc2", date.plusDays(2), BigDecimal.valueOf(5), new FenixUserId("id2")),
-			createUserUsage("alloc2", date.plusDays(4), BigDecimal.valueOf(10), new FenixUserId("id2")),
-			createUserUsage("alloc2", date.plusDays(6), BigDecimal.valueOf(12), new FenixUserId("id2"))
+			createUserUsage(allocationId.id.toString(), date.plusDays(1), BigDecimal.valueOf(2), new FenixUserId("id")),
+			createUserUsage(allocationId.id.toString(), date.plusDays(2), BigDecimal.valueOf(5), new FenixUserId("id")),
+			createUserUsage(allocationId.id.toString(), date.plusDays(4), BigDecimal.valueOf(10), new FenixUserId("id")),
+			createUserUsage(allocationId.id.toString(), date.plusDays(6), BigDecimal.valueOf(12), new FenixUserId("id")),
+			createUserUsage(allocationId2.id.toString(), date.plusDays(1), BigDecimal.valueOf(2), new FenixUserId(
+				"id2")),
+			createUserUsage(allocationId2.id.toString(), date.plusDays(2), BigDecimal.valueOf(5), new FenixUserId("id2")),
+			createUserUsage(allocationId2.id.toString(), date.plusDays(4), BigDecimal.valueOf(10), new FenixUserId("id2")),
+			createUserUsage(allocationId2.id.toString(), date.plusDays(6), BigDecimal.valueOf(12), new FenixUserId("id2"))
 		);
 
 		List<UserResourceUsage> values = usageSeriesGenerator.prepareYValesForUsersUsagesLines(xTimeAxis, allocations, startDate.plusDays(5));

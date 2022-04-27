@@ -8,11 +8,13 @@ package io.imunity.furms.core.services;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.services.InfraServiceCreatedEvent;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceCreatedEvent;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.services.InfraServiceRemovedEvent;
 import io.imunity.furms.domain.services.InfraServiceUpdatedEvent;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
@@ -73,7 +75,8 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldReturnInfraService() {
 		//given
-		String id = "id";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId id = new InfraServiceId(UUID.randomUUID());
 		when(infraServiceRepository.findById(id)).thenReturn(Optional.of(InfraService.builder()
 			.id(id)
 			.name("userFacingName")
@@ -81,7 +84,7 @@ class InfraServiceServiceImplTest {
 		);
 
 		//when
-		Optional<InfraService> byId = service.findById(id, "");
+		Optional<InfraService> byId = service.findById(id, siteId);
 
 		//then
 		assertThat(byId).isPresent();
@@ -91,7 +94,9 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldNotReturnInfraService() {
 		//when
-		Optional<InfraService> otherId = service.findById("otherId", "");
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId id = new InfraServiceId(UUID.randomUUID());
+		Optional<InfraService> otherId = service.findById(id, siteId);
 
 		//then
 		assertThat(otherId).isEmpty();
@@ -100,12 +105,15 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldReturnAllInfraServicesIfExistsInRepository() {
 		//given
-		when(infraServiceRepository.findAll("1")).thenReturn(Set.of(
-			InfraService.builder().id("id1").name("userFacingName").build(),
-			InfraService.builder().id("id2").name("userFacingName2").build()));
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
+		InfraServiceId infraServiceId1 = new InfraServiceId(UUID.randomUUID());
+		when(infraServiceRepository.findAll(siteId)).thenReturn(Set.of(
+			InfraService.builder().id(infraServiceId).name("userFacingName").build(),
+			InfraService.builder().id(infraServiceId1).name("userFacingName2").build()));
 
 		//when
-		Set<InfraService> allInfraServices = service.findAll("1");
+		Set<InfraService> allInfraServices = service.findAll(siteId);
 
 		//then
 		assertThat(allInfraServices).hasSize(2);
@@ -114,15 +122,17 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldAllowToCreateInfraService() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		InfraService request = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(infraServiceId)
+			.siteId(siteId)
 			.name("userFacingName")
 			.build();
 
-		when(siteRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.findById("id")).thenReturn(Optional.of(request));
-		when(infraServiceRepository.create(request)).thenReturn("id");
+		when(siteRepository.exists(siteId)).thenReturn(true);
+		when(infraServiceRepository.findById(infraServiceId)).thenReturn(Optional.of(request));
+		when(infraServiceRepository.create(request)).thenReturn(infraServiceId);
 
 		//when
 		service.create(request);
@@ -134,6 +144,8 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldUpdateSiteAgentWhenCreatingInfraService() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 				.id(policyId)
@@ -142,17 +154,17 @@ class InfraServiceServiceImplTest {
 				.build();
 		SiteExternalId siteExternalId = new SiteExternalId("id");
 		InfraService request = InfraService.builder()
-				.id("id")
-				.siteId("id")
+				.id(infraServiceId)
+				.siteId(siteId)
 				.name("userFacingName")
 				.policyId(policyId)
 				.build();
 
-		when(infraServiceRepository.create(request)).thenReturn("id");
+		when(infraServiceRepository.create(request)).thenReturn(infraServiceId);
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
-		when(siteRepository.exists("id")).thenReturn(true);
-		when(infraServiceRepository.findById("id")).thenReturn(Optional.of(request));
+		when(siteRepository.findByIdExternalId(siteId)).thenReturn(siteExternalId);
+		when(siteRepository.exists(siteId)).thenReturn(true);
+		when(infraServiceRepository.findById(infraServiceId)).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
@@ -164,13 +176,15 @@ class InfraServiceServiceImplTest {
 				.name("policyName")
 				.revision(1)
 				.build(),
-			"id"
+			Optional.of(infraServiceId)
 		);
 	}
 
 	@Test
 	void shouldSentNotificationWhenPolicyDocumentsHaveBeenChanged() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyId policyId1 = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
@@ -180,24 +194,24 @@ class InfraServiceServiceImplTest {
 				.build();
 		SiteExternalId siteExternalId = new SiteExternalId("id");
 		InfraService oldService = InfraService.builder()
-				.id("id")
-				.siteId("id")
+				.id(infraServiceId)
+				.siteId(siteId)
 				.name("userFacingName")
 				.policyId(policyId)
 				.build();
 
 		InfraService newService = InfraService.builder()
-				.id("id")
-				.siteId("id")
+				.id(infraServiceId)
+				.siteId(siteId)
 				.name("userFacingName")
 				.policyId(policyId1)
 				.build();
 
-		when(siteRepository.exists(oldService.id)).thenReturn(true);
+		when(siteRepository.exists(oldService.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(oldService.id)).thenReturn(true);
 		when(infraServiceRepository.findById(oldService.id)).thenReturn(Optional.of(oldService));
 		when(policyDocumentRepository.findById(policyId1)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
+		when(siteRepository.findByIdExternalId(siteId)).thenReturn(siteExternalId);
 
 		//when
 		service.update(newService);
@@ -208,6 +222,8 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldUpdateSiteAgentWhenUpdatingInfraService() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyId policyId1 = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
@@ -217,24 +233,24 @@ class InfraServiceServiceImplTest {
 			.build();
 		SiteExternalId siteExternalId = new SiteExternalId("id");
 		InfraService oldService = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(infraServiceId)
+			.siteId(siteId)
 			.name("userFacingName")
 			.policyId(policyId)
 			.build();
 
 		InfraService newService = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(infraServiceId)
+			.siteId(siteId)
 			.name("userFacingName")
 			.policyId(policyId1)
 			.build();
 
-		when(siteRepository.exists(oldService.id)).thenReturn(true);
+		when(siteRepository.exists(oldService.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(oldService.id)).thenReturn(true);
 		when(infraServiceRepository.findById(oldService.id)).thenReturn(Optional.of(oldService));
 		when(policyDocumentRepository.findById(policyId1)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
+		when(siteRepository.findByIdExternalId(siteId)).thenReturn(siteExternalId);
 
 		//when
 		service.update(newService);
@@ -246,13 +262,15 @@ class InfraServiceServiceImplTest {
 				.name("policyName")
 				.revision(1)
 				.build(),
-			"id"
+			Optional.of(infraServiceId)
 		);
 	}
 
 	@Test
 	void shouldUpdateSiteAgentWhenUpdatingInfraServicePolicyToNull() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
@@ -261,24 +279,24 @@ class InfraServiceServiceImplTest {
 			.build();
 		SiteExternalId siteExternalId = new SiteExternalId("id");
 		InfraService oldService = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(infraServiceId)
+			.siteId(siteId)
 			.name("userFacingName")
 			.policyId(policyId)
 			.build();
 
 		InfraService newService = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(infraServiceId)
+			.siteId(siteId)
 			.name("userFacingName")
 			.policyId(null)
 			.build();
 
-		when(siteRepository.exists(oldService.id)).thenReturn(true);
+		when(siteRepository.exists(oldService.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(oldService.id)).thenReturn(true);
 		when(infraServiceRepository.findById(oldService.id)).thenReturn(Optional.of(oldService));
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
+		when(siteRepository.findByIdExternalId(siteId)).thenReturn(siteExternalId);
 
 		//when
 		service.update(newService);
@@ -290,20 +308,22 @@ class InfraServiceServiceImplTest {
 				.name("policyName")
 				.revision(-1)
 				.build(),
-			"id"
+			Optional.of(infraServiceId)
 		);
 	}
 
 	@Test
 	void shouldNotAllowToCreateInfraServiceDueToNonUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		InfraService request = InfraService.builder()
-			.id("id")
-			.siteId("siteId")
+			.id(infraServiceId)
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
+		when(siteRepository.exists(siteId)).thenReturn(true);
 		when(infraServiceRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 
 		//when
@@ -315,13 +335,15 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldAllowToUpdateInfraService() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		InfraService request = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(infraServiceId)
+			.siteId(siteId)
 			.name("userFacingName")
 			.build();
 
-		when(siteRepository.exists(request.id)).thenReturn(true);
+		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.id)).thenReturn(true);
 		when(infraServiceRepository.findById(request.id)).thenReturn(Optional.of(request));
 
@@ -335,13 +357,15 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldAllowToDisengagePolicyFromInfraService() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		InfraService request = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(infraServiceId)
+			.siteId(siteId)
 			.name("userFacingName")
 			.build();
 
-		when(siteRepository.exists(request.id)).thenReturn(true);
+		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.id)).thenReturn(true);
 		when(infraServiceRepository.findById(request.id)).thenReturn(Optional.of(request));
 
@@ -355,13 +379,14 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldAllowToDeleteInfraService() {
 		//given
-		String id = "id";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId id = new InfraServiceId(UUID.randomUUID());
 		when(infraServiceRepository.exists(id)).thenReturn(true);
 		InfraService infraService = InfraService.builder().build();
 		when(infraServiceRepository.findById(id)).thenReturn(Optional.of(infraService));
 
 		//when
-		service.delete(id, "");
+		service.delete(id, siteId);
 
 		orderVerifier.verify(infraServiceRepository).delete(eq(id));
 		orderVerifier.verify(publisher).publishEvent(eq(new InfraServiceRemovedEvent(infraService)));
@@ -370,11 +395,12 @@ class InfraServiceServiceImplTest {
 	@Test
 	void shouldNotAllowToDeleteInfraServiceDueToInfraServiceNotExists() {
 		//given
-		String id = "id";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId id = new InfraServiceId(UUID.randomUUID());
 		when(infraServiceRepository.exists(id)).thenReturn(false);
 
 		//when
-		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
+		assertThrows(IllegalArgumentException.class, () -> service.delete(id, siteId));
 		orderVerifier.verify(infraServiceRepository, times(0)).delete(eq(id));
 		orderVerifier.verify(publisher, times(0)).publishEvent(any());
 	}

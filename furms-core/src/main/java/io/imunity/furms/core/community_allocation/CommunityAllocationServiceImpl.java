@@ -8,11 +8,14 @@ package io.imunity.furms.core.community_allocation;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
-import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationCreatedEvent;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationRemovedEvent;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationUpdatedEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_usage.ResourceUsageByCommunityAllocation;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
@@ -58,19 +61,19 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
-	public Optional<CommunityAllocation> findById(String id) {
+	public Optional<CommunityAllocation> findById(CommunityAllocationId id) {
 		return communityAllocationRepository.findById(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
-	public Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(String id) {
+	public Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(CommunityAllocationId id) {
 		return communityAllocationRepository.findByIdWithRelatedObjects(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Optional<CommunityAllocationResolved> findByCommunityIdAndIdWithRelatedObjects(String communityId, String id) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Optional<CommunityAllocationResolved> findByCommunityIdAndIdWithRelatedObjects(CommunityId communityId, CommunityAllocationId id) {
 		return communityAllocationRepository.findByIdWithRelatedObjects(id)
 				.map(credit -> credit.copyBuilder()
 						.remaining(projectAllocationService.getAvailableAmount(communityId, credit.id))
@@ -85,22 +88,22 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<CommunityAllocation> findAllByCommunityId(String communityId) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Set<CommunityAllocation> findAllByCommunityId(CommunityId communityId) {
 		return communityAllocationRepository.findAllByCommunityId(communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<String> getOccupiedNames(String communityId) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Set<String> getOccupiedNames(CommunityId communityId) {
 		return communityAllocationRepository.findAllByCommunityId(communityId).stream()
 			.map(communityAllocation -> communityAllocation.name)
 			.collect(toSet());
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(CommunityId communityId) {
 		ResourceUsageByCommunityAllocation resourceUsageSum = resourceUsageRepository.findResourceUsagesSumsByCommunityId(communityId);
 		return communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId).stream()
 			.map(credit -> credit.copyBuilder()
@@ -111,8 +114,8 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(String communityId,
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(CommunityId communityId,
 	                                                                  String name,
 	                                                                  boolean includedFullyDistributed,
 	                                                                  boolean includedExpired) {
@@ -135,21 +138,21 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(CommunityId communityId) {
 		return communityAllocationRepository.findAllNotExpiredByCommunityIdWithRelatedObjects(communityId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
-	public BigDecimal getAvailableAmountForNew(String resourceCreditId) {
+	public BigDecimal getAvailableAmountForNew(ResourceCreditId resourceCreditId) {
 		return communityAllocationRepository.getAvailableAmount(resourceCreditId);
 	}
 
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY)
-	public BigDecimal getAvailableAmountForUpdate(String resourceCreditId, String communityAllocationId) {
+	public BigDecimal getAvailableAmountForUpdate(ResourceCreditId resourceCreditId, CommunityAllocationId communityAllocationId) {
 		BigDecimal free = communityAllocationRepository.getAvailableAmount(resourceCreditId);
 		BigDecimal currentlyAllocated = communityAllocationRepository.findById(communityAllocationId).get().amount;
 		return free.add(currentlyAllocated);
@@ -160,7 +163,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
 	public void create(CommunityAllocation communityAllocation) {
 		validator.validateCreate(communityAllocation);
-		String id = communityAllocationRepository.create(communityAllocation);
+		CommunityAllocationId id = communityAllocationRepository.create(communityAllocation);
 		CommunityAllocation allocation = communityAllocationRepository.findById(id).get();
 		publisher.publishEvent(new CommunityAllocationCreatedEvent(allocation));
 		LOG.info("CommunityAllocation with given ID: {} was created: {}", id, communityAllocation);
@@ -180,7 +183,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY)
-	public void delete(String id) {
+	public void delete(CommunityAllocationId id) {
 		validator.validateDelete(id);
 		CommunityAllocation allocation = communityAllocationRepository.findById(id).get();
 		communityAllocationRepository.delete(id);

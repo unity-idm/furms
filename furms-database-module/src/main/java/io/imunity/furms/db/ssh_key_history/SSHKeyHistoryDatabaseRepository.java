@@ -7,6 +7,7 @@ package io.imunity.furms.db.ssh_key_history;
 
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
+import io.imunity.furms.domain.ssh_keys.SSHKeyHistoryId;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
@@ -30,14 +31,14 @@ class SSHKeyHistoryDatabaseRepository implements SSHKeyHistoryRepository {
 	}
 
 	@Override
-	public String create(SSHKeyHistory sshKeyHistory) {
+	public SSHKeyHistoryId create(SSHKeyHistory sshKeyHistory) {
 		SSHKeyHistoryEntity sshkeyHistoryEntity = SSHKeyHistoryEntity.builder()
 				.siteId(sshKeyHistory.siteId.id)
 				.sshkeyFingerprint(sshKeyHistory.sshkeyFingerprint)
 				.sshkeyOwnerId(sshKeyHistory.sshkeyOwnerId.id)
 				.originationTime(sshKeyHistory.originationTime).build();
 		SSHKeyHistoryEntity history = repository.save(sshkeyHistoryEntity);
-		return history.getId().toString();
+		return new SSHKeyHistoryId(history.getId());
 	}
 
 	@Override

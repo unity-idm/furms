@@ -10,6 +10,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -39,12 +40,12 @@ public class CommunityAdminsView extends FurmsViewComponent {
 
 	private final CommunityService communityService;
 	private final UsersGridComponent grid;
-	private final String communityId;
+	private final CommunityId communityId;
 	private final UsersDAO usersDAO;
 
 	public CommunityAdminsView(CommunityService communityService, AuthzService authzService) {
 		this.communityService = communityService;
-		communityId = getCurrentResourceId();
+		communityId = new CommunityId(getCurrentResourceId());
 		PersistentId currentUserId = authzService.getCurrentUserId();
 
 		usersDAO = new UsersDAO(() -> communityService.findAllCommunityAdminsAllUsers(communityId));

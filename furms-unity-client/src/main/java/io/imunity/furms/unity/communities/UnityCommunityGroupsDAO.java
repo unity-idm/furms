@@ -121,7 +121,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	public List<FURMSUser> getAllAdmins(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
-		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
+		String communityPath = getCommunityPath(Map.of(ID, communityId.id), COMMUNITY_PATTERN);
 		return userService.getAllUsersByRole(communityPath, COMMUNITY_ADMIN);
 	}
 
@@ -129,7 +129,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	public AllUsersAndCommunityAdmins getAllUsersAndCommunityAdmins(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
-		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
+		String communityPath = getCommunityPath(Map.of(ID, communityId.id), COMMUNITY_PATTERN);
 		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(Map.of(
 				FENIX_PATTERN,
 				Set.of(),
@@ -143,7 +143,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	public List<FURMSUser> getAllUsers(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
-		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_GROUP_PATTERN);
+		String communityPath = getCommunityPath(Map.of(ID, communityId.id), COMMUNITY_GROUP_PATTERN);
 		return userService.getAllUsersFromGroup(communityPath, attributeExt -> true);
 	}
 
@@ -151,8 +151,8 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 	public CommunityUsersAndAdmins getCommunityAdminsAndUsers(CommunityId communityId) {
 		assertTrue(!isEmpty(communityId),
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
-		String communityAdminPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
-		String communityUserPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_GROUP_PATTERN);
+		String communityAdminPath = getCommunityPath(Map.of(ID, communityId.id), COMMUNITY_PATTERN);
+		String communityUserPath = getCommunityPath(Map.of(ID, communityId.id), COMMUNITY_GROUP_PATTERN);
 		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(
 			Map.of(
 				communityAdminPath,
@@ -172,7 +172,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not add Community Admin in Unity. Missing Community ID or User ID"));
 
-		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
+		String communityPath = getCommunityPath(Map.of(ID, communityId.id), COMMUNITY_PATTERN);
 		userService.addUserToGroup(userId, communityPath);
 		userService.addUserRole(userId, communityPath, COMMUNITY_ADMIN);
 	}
@@ -182,7 +182,7 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		assertTrue(!isEmpty(communityId) && !isEmpty(userId),
 			() -> new IllegalArgumentException("Could not remove Community Admin in Unity. Missing Community ID or User ID"));
 
-		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
+		String communityPath = getCommunityPath(Map.of(ID, communityId.id), COMMUNITY_PATTERN);
 		if(userService.getRoleValues(userId, communityPath, COMMUNITY_ADMIN).size() > 1)
 			userService.removeUserRole(userId, communityPath, COMMUNITY_ADMIN);
 		else

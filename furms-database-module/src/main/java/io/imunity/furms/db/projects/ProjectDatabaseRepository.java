@@ -20,7 +20,6 @@ import static java.util.Optional.ofNullable;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ProjectDatabaseRepository implements ProjectRepository {
@@ -50,7 +49,7 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	@Override
 	public Set<Project> findAllByCommunityIds(Set<CommunityId> communityIds) {
 		return stream(repository.findAll().spliterator(), false)
-			.filter(x -> communityIds.contains(x.getCommunityId().toString()))
+			.filter(entity -> communityIds.contains(new CommunityId(entity.getCommunityId())))
 			.map(ProjectEntity::toProject)
 			.collect(toSet());
 	}
@@ -83,9 +82,9 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	}
 
 	@Override
-	public String create(Project project) {
+	public ProjectId create(Project project) {
 		ProjectEntity saved = repository.save(ProjectEntity.builder()
-			.communityId(UUID.fromString(project.getCommunityId()))
+			.communityId(project.getCommunityId().id)
 			.name(project.getName())
 			.description(project.getDescription())
 			.logo(project.getLogo())
@@ -95,15 +94,15 @@ class ProjectDatabaseRepository implements ProjectRepository {
 			.endTime(project.getUtcEndTime())
 			.leaderId(ofNullable(project.getLeaderId()).map(leader -> leader.id).orElse(null))
 			.build());
-		return saved.getId().toString();
+		return new ProjectId(saved.getId());
 	}
 
 	@Override
 	public void update(Project project) {
-		repository.findById(UUID.fromString(project.getId()))
+		repository.findById(project.getId().id)
 			.map(oldEntity -> ProjectEntity.builder()
-				.id(UUID.fromString(project.getId()))
-				.communityId(UUID.fromString(project.getCommunityId()))
+				.id(project.getId().id)
+				.communityId(project.getCommunityId().id)
 				.name(project.getName())
 				.description(project.getDescription())
 				.logo(project.getLogo())
@@ -143,5 +142,9 @@ class ProjectDatabaseRepository implements ProjectRepository {
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(ProjectId id) {
+		return id == null || id.id == null;
 	}
 }

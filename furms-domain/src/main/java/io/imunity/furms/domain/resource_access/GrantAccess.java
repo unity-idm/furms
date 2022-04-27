@@ -79,8 +79,18 @@ public class GrantAccess {
 			return this;
 		}
 
+		public RevokeAccessBuilder projectId(ProjectId projectId) {
+			this.projectId = projectId;
+			return this;
+		}
+
 		public RevokeAccessBuilder allocationId(String allocationId) {
 			this.allocationId = new ProjectAllocationId(allocationId);
+			return this;
+		}
+
+		public RevokeAccessBuilder allocationId(ProjectAllocationId allocationId) {
+			this.allocationId = allocationId;
 			return this;
 		}
 

@@ -6,8 +6,11 @@
 package io.imunity.furms.integration.tests.rest.site;
 
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,29 +45,28 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
 		Site.SiteBuilder darkSiteBuilder = defaultSite()
-				.name("Dark Site")
-				.externalId(new SiteExternalId("dsid"));
+				.name("Dark Site");
 		darkSite = darkSiteBuilder
-				.id(siteRepository.create(darkSiteBuilder.build(), darkSiteBuilder.build().getExternalId()))
+				.id(siteRepository.create(darkSiteBuilder.build(), new SiteExternalId("dsid")))
 				.build();
 	}
 
 	@Test
 	void shouldFindAllResourceCreditsForSpecificSite() throws Exception {
 		//given
-		final String resourceType1 = createResourceType(site.getId(), "Test 1");
-		final String resourceType2 = createResourceType(site.getId(),"Test 2");
+		final ResourceTypeId resourceType1 = createResourceType(site.getId(), "Test 1");
+		final ResourceTypeId resourceType2 = createResourceType(site.getId(),"Test 2");
 		createResourceType(darkSite.getId(),"Test 3");
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].typeId", in(Set.of(resourceType1, resourceType2))))
+				.andExpect(jsonPath("$.[0].typeId", in(Set.of(resourceType1.id.toString(), resourceType2.id.toString()))))
 				.andExpect(jsonPath("$.[0].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[0].serviceId", notNullValue()))
-				.andExpect(jsonPath("$.[1].typeId", in(Set.of(resourceType1, resourceType2))))
+				.andExpect(jsonPath("$.[1].typeId", in(Set.of(resourceType1.id.toString(), resourceType2.id.toString()))))
 				.andExpect(jsonPath("$.[1].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[1].serviceId", notNullValue()));
 	}
@@ -80,7 +82,7 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnEmptyArrayWhenThereAreNoBelongsResourceTypes() throws Exception {
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$").isArray())
@@ -95,7 +97,7 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/resourceTypes", darkSite.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/resourceTypes", darkSite.getId().id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -104,14 +106,14 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindResourceTypeThatBelongsToSite() throws Exception {
 		//given
-		final String resourceType = createResourceType(site.getId(), "Test 1");
+		final ResourceTypeId resourceType = createResourceType(site.getId(), "Test 1");
 		createResourceType(darkSite.getId(),"Test 2");
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes/{resourceTypeId}", site.getId(), resourceType))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes/{resourceTypeId}", site.getId().id, resourceType.id))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.typeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.typeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.name", equalTo("Test 1")))
 				.andExpect(jsonPath("$.serviceId", notNullValue()));
 	}
@@ -119,7 +121,7 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnForbiddenIfResourceTypeNotBelongsToSite() throws Exception {
 		//given
-		final String resourceType = createResourceType(site.getId(), "Test 1");
+		final ResourceTypeId resourceType = createResourceType(site.getId(), "Test 1");
 		createResourceType(darkSite.getId(),"Test 2");
 
 		final TestUser testUser = basicUser();
@@ -127,7 +129,7 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/resourceTypes/{resourceTypeId}", darkSite.getId(), resourceType)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/resourceTypes/{resourceTypeId}", darkSite.getId().id, resourceType.id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -137,7 +139,8 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 	void shouldReturnNotFoundIfResourceTypeDoesNotExists() throws Exception {
 		final String resourceType = UUID.randomUUID().toString();
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes/{resourceTypeId}", site.getId(), resourceType))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/resourceTypes/{resourceTypeId}", site.getId().id,
+				resourceType))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}
@@ -152,11 +155,11 @@ public class SiteResourceTypeIntegrationTest extends IntegrationTestBase {
 				.andExpect(status().isNotFound());
 	}
 
-	private String createResourceType(String siteId, String name) {
+	private ResourceTypeId createResourceType(SiteId siteId, String name) {
 		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
 				.siteId(siteId)
 				.build());
-		final String serviceId = infraServiceRepository.create(defaultService()
+		final InfraServiceId serviceId = infraServiceRepository.create(defaultService()
 				.siteId(siteId)
 				.name(UUID.randomUUID().toString())
 				.policyId(policyId)

@@ -46,7 +46,7 @@ class ProjectAllocationAuditLogService {
 	void onProjectAllocationCreatedEvent(ProjectAllocationCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.projectAllocation.id)
+			.resourceId(event.projectAllocation.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.PROJECT_ALLOCATION)
@@ -61,7 +61,7 @@ class ProjectAllocationAuditLogService {
 	void onProjectAllocationRemovedEvent(ProjectAllocationRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.projectAllocation.id)
+			.resourceId(event.projectAllocation.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.PROJECT_ALLOCATION)
@@ -76,7 +76,7 @@ class ProjectAllocationAuditLogService {
 	void onProjectAllocationUpdatedEvent(ProjectAllocationUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.newProjectAllocation.id)
+			.resourceId(event.newProjectAllocation.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.PROJECT_ALLOCATION)

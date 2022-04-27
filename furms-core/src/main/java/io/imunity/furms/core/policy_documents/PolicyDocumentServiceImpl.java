@@ -21,7 +21,9 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -91,8 +93,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Optional<PolicyDocument> findById(String siteId, PolicyId id) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Optional<PolicyDocument> findById(SiteId siteId, PolicyId id) {
 		LOG.debug("Getting Policy Document with id={}", id);
 		return policyDocumentRepository.findById(id);
 	}
@@ -105,28 +107,28 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(SiteId siteId) {
 		LOG.debug("Getting all user's Policy Document for site id={}", siteId);
 		return policyDocumentRepository.findAllUsersPolicies(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<PolicyDocument> findAllBySiteId(String siteId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<PolicyDocument> findAllBySiteId(SiteId siteId) {
 		LOG.debug("Getting all Policy Document for site id={}", siteId);
 		return policyDocumentRepository.findAllBySiteId(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
-	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(String siteId) {
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(SiteId siteId) {
 		return policyDocumentDAO.getUserPolicyAcceptances(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
-	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(PolicyId policyId, String siteId) {
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(PolicyId policyId, SiteId siteId) {
 		Set<FenixUserId> allPolicyUsers = policyDocumentRepository.findAllPolicyUsers(siteId, policyId);
 		return policyDocumentDAO.getUserPolicyAcceptances(siteId)
 			.stream()
@@ -156,8 +158,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
-	public void resendPolicyInfo(String siteId, PersistentId persistentId, PolicyId policyId) {
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId.id")
+	public void resendPolicyInfo(SiteId siteId, PersistentId persistentId, PolicyId policyId) {
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
 		policyNotificationService.notifyUserAboutNewPolicy(persistentId, policyDocument);
@@ -173,8 +175,8 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId")
-	public void addUserPolicyAcceptance(String siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId.id")
+	public void addUserPolicyAcceptance(SiteId siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		FURMSUser user = usersDAO.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", userId)));
 		Optional<PolicyDocument> policyDocument = policyDocumentRepository.findById(policyAcceptance.policyDocumentId);
@@ -231,7 +233,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId.id")
 	public void create(PolicyDocument policyDocument) {
 		LOG.debug("Creating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateCreate(policyDocument);
@@ -241,7 +243,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId.id")
 	public void update(PolicyDocument policyDocument) {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
@@ -252,7 +254,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId.id")
 	public void updateWithRevision(PolicyDocument policyDocument) {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
@@ -265,19 +267,22 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		if(policyId.equals(site.getPolicyId()))
 			siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(), updatedPolicyDocument);
 
-		Map<PolicyId, Set<String>> policyIdToRelatedServiceIds = policyDocumentRepository.findAllAssignPoliciesBySiteId(policyDocument.siteId).stream()
-			.collect(groupingBy(policy -> policy.id, mapping(policy -> policy.serviceId, toSet())));
+		Map<PolicyId, Set<InfraServiceId>> policyIdToRelatedServiceIds =
+			policyDocumentRepository.findAllAssignPoliciesBySiteId(policyDocument.siteId).stream()
+				.filter(document -> document.serviceId.isPresent())
+				.collect(groupingBy(policy -> policy.id, mapping(policy -> policy.serviceId.get(), toSet())));
 		Optional.ofNullable(policyIdToRelatedServiceIds.get(policyDocument.id))
 			.orElseGet(Set::of)
-			.forEach(serviceId -> siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(), updatedPolicyDocument, serviceId));
+			.forEach(serviceId -> siteAgentPolicyDocumentService.updatePolicyDocument(site.getExternalId(),
+				updatedPolicyDocument, Optional.ofNullable(serviceId)));
 
 		policyNotificationService.notifyAboutChangedPolicy(policyDocument);
 		publisher.publishEvent(new PolicyDocumentUpdatedEvent(oldPolicyDocument, updatedPolicyDocument));
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
-	public void delete(String siteId, PolicyId policyId) {
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId.id")
+	public void delete(SiteId siteId, PolicyId policyId) {
 		LOG.debug("Deleting Policy Document {} for site id={}", policyId.id, siteId);
 		boolean isAssigned = policyDocumentRepository.findAllAssignPoliciesBySiteId(siteId).stream()
 			.anyMatch(policy -> policy.id.equals(policyId));
@@ -288,7 +293,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 		publisher.publishEvent(new PolicyDocumentRemovedEvent(policyDocument));
 	}
 
-	private void assertPolicyBelongsToSite(String siteId, Optional<PolicyDocument> policyDocument) {
+	private void assertPolicyBelongsToSite(SiteId siteId, Optional<PolicyDocument> policyDocument) {
 		if (policyDocument.isEmpty() || !policyDocument.get().siteId.equals(siteId)) {
 			throw new IllegalArgumentException("Policy doesn't belong to Site.");
 		}

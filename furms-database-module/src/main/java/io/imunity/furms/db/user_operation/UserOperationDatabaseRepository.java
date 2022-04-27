@@ -10,6 +10,7 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
+import io.imunity.furms.domain.user_operation.UserAdditionId;
 import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -105,7 +106,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public String create(UserAddition userAddition) {
+	public UserAdditionId create(UserAddition userAddition) {
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
 				.siteId(userAddition.siteId.id)
@@ -120,7 +121,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.status(userAddition.status)
 				.build()
 		);
-		return userAdditionSaveEntity.getId().toString();
+		return new UserAdditionId(userAdditionSaveEntity.getId());
 	}
 
 	@Override

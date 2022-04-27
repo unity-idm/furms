@@ -34,7 +34,7 @@ class ProjectInstallationMapper {
 
 	static AgentProjectUpdateRequest map(Project project, FURMSUser user){
 		return AgentProjectUpdateRequest.builder()
-			.identifier(project.getId())
+			.identifier(project.getId().id.toString())
 			.name(project.getName())
 			.description(project.getDescription())
 			.researchField(project.getResearchField())

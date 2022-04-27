@@ -20,7 +20,7 @@ public interface InfraServiceRepository {
 
 	Set<InfraService> findAll();
 
-	String create(InfraService infraService);
+	InfraServiceId create(InfraService infraService);
 
 	void update(InfraService infraService);
 

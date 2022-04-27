@@ -41,10 +41,10 @@ class CommunityAllocation {
 	}
 
 	CommunityAllocation(CommunityAllocationResolved communityAllocation) {
-		this(communityAllocation.id, communityAllocation.name,
-				communityAllocation.resourceCredit.id, communityAllocation.resourceType.unit.getSuffix(),
-				communityAllocation.site.getId(), communityAllocation.site.getName(),
-				communityAllocation.resourceType.serviceId, communityAllocation.resourceType.serviceName,
+		this(communityAllocation.id.id.toString(), communityAllocation.name,
+				communityAllocation.resourceCredit.id.id.toString(), communityAllocation.resourceType.unit.getSuffix(),
+				communityAllocation.site.getId().id.toString(), communityAllocation.site.getName(),
+				communityAllocation.resourceType.serviceId.id.toString(), communityAllocation.resourceType.serviceName,
 				communityAllocation.remaining);
 	}
 

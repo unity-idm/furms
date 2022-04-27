@@ -20,7 +20,7 @@ class InfraService {
 	}
 
 	InfraService(io.imunity.furms.domain.services.InfraService infraService) {
-		this(infraService.id,
+		this(infraService.id.id.toString(),
 			infraService.name,
 			Optional.ofNullable(infraService.policyId)
 				.map(policy -> policy.id)

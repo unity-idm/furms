@@ -9,12 +9,13 @@ import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 
 public class SiteSettingsDto implements Cloneable {
 
-	private String id;
+	private SiteId id;
 	private String name;
 	private FurmsImage logo;
 	private String oauthClientId;
@@ -36,7 +37,7 @@ public class SiteSettingsDto implements Cloneable {
 		this.policyId = site.getPolicyId();
 	}
 
-	SiteSettingsDto(String id, String name, FurmsImage logo, String oauthClientId, String connectionInfo,
+	SiteSettingsDto(SiteId id, String name, FurmsImage logo, String oauthClientId, String connectionInfo,
 			Boolean sshKeyFromOptionMandatory, Boolean prohibitOldsshKeys, SiteExternalId externalId, PolicyId policyId) {
 		this.id = id;
 		this.name = name;
@@ -49,11 +50,11 @@ public class SiteSettingsDto implements Cloneable {
 		this.policyId = policyId;
 	}
 
-	public String getId() {
+	public SiteId getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(SiteId id) {
 		this.id = id;
 	}
 

@@ -5,8 +5,10 @@
 
 package io.imunity.furms.site.api.message_resolver;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 
 public interface ResourceUsageSiteIdResolver {
-	SiteExternalId getSiteId(String projectId, String projectAllocationId);
+	SiteExternalId getSiteId(ProjectId projectId, ProjectAllocationId projectAllocationId);
 }

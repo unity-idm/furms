@@ -5,17 +5,6 @@
 
 package io.imunity.furms.core.site_agent_pending_message;
 
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
-import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
-import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
-
-import java.time.Clock;
-import java.time.ZonedDateTime;
-import java.util.Set;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.imunity.furms.api.site_agent_pending_message.SiteAgentConnectionService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -30,6 +19,16 @@ import io.imunity.furms.site.api.site_agent.SiteAgentStatusService;
 import io.imunity.furms.spi.site_agent_pending_message.SiteAgentPendingMessageRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.utils.UTCTimeUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Clock;
+import java.time.ZonedDateTime;
+import java.util.Set;
+
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
+import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 
 @Service
 class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
@@ -78,7 +77,7 @@ class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
 	}
 
 	private Boolean isMessageRelatedToSite(SiteId siteId, SiteAgentPendingMessage message) {
-		return siteRepository.findById(siteId.id).map(site -> site.getExternalId().equals(message.siteExternalId))
+		return siteRepository.findById(siteId).map(site -> site.getExternalId().equals(message.siteExternalId))
 			.orElse(false);
 	}
 
@@ -102,7 +101,7 @@ class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
 	@Transactional
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId.id")
 	public PendingJob<SiteAgentStatus> getSiteAgentStatus(SiteId siteId) {
-		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId.id);
+		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId);
 		return siteAgentStatusService.getStatus(externalId);
 	}
 }

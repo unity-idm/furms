@@ -69,7 +69,7 @@ public class UsersSitesAccesses {
 		return users;
 	}
 
-	public UserSiteAccessStatusWithMessage getStatus(String siteId, FenixUserId userId){
+	public UserSiteAccessStatusWithMessage getStatus(SiteId siteId, FenixUserId userId){
 		return Optional.ofNullable(userInstallationBySite.get(siteId))
 			.flatMap(map -> Optional.ofNullable(map.get(userId)))
 			.orElse(

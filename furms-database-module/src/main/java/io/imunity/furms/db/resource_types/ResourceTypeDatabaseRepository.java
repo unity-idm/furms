@@ -19,7 +19,6 @@ import java.util.UUID;
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
@@ -62,7 +61,7 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	}
 
 	@Override
-	public String create(ResourceType resourceType) {
+	public ResourceTypeId create(ResourceType resourceType) {
 		ResourceTypeEntity savedResourceType = repository.save(
 			ResourceTypeEntity.builder()
 				.siteId(resourceType.siteId.id)
@@ -73,7 +72,7 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 				.accessible(resourceType.accessibleForAllProjectMembers)
 				.build()
 		);
-		return savedResourceType.getId().toString();
+		return new ResourceTypeId(savedResourceType.getId());
 	}
 
 	@Override
@@ -116,5 +115,9 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(ResourceTypeId id) {
+		return id == null || id.id == null;
 	}
 }

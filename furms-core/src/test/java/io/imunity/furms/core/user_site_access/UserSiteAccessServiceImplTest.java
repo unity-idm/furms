@@ -6,6 +6,7 @@
 package io.imunity.furms.core.user_site_access;
 
 import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -14,6 +15,7 @@ import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationEvent;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.sites.Site;
@@ -86,63 +88,71 @@ class UserSiteAccessServiceImplTest {
 
 	@Test
 	void shouldAddAccessAndCreateUserInstallation() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("siteExternalId"));
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
 		Site site = Site.builder()
-			.externalId(new SiteExternalId("siteExternalId"))
+			.id(siteId)
 			.build();
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(false);
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,"siteId")).thenReturn(true);
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(false);
+		when(siteRepository.findById(siteId)).thenReturn(Optional.of(site));
+		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,siteId)).thenReturn(true);
 
-		userSiteAccessService.addAccess("siteId", "projectId", userId);
+		userSiteAccessService.addAccess(siteId, projectId, userId);
 
-		verify(userSiteAccessRepository).add("siteId", "projectId", userId);
-		verify(userOperationService).createUserAdditions(new SiteId("siteId", site.getExternalId()), "projectId", null);
+		verify(userSiteAccessRepository).add(siteId, projectId, userId);
+		verify(userOperationService).createUserAdditions(siteId, projectId, null);
 	}
 
 	@Test
 	void shouldAddAccessAndNotCreateUserInstallationWhenPolicyIsNotAccepted() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("siteExternalId"));
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
 		Site site = Site.builder()
-			.externalId(new SiteExternalId("siteExternalId"))
+			.id(siteId)
 			.build();
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(false);
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
-		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,"siteId")).thenReturn(false);
-		when(policyDocumentService.hasSitePolicy("siteId")).thenReturn(true);
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(false);
+		when(siteRepository.findById(siteId)).thenReturn(Optional.of(site));
+		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,siteId)).thenReturn(false);
+		when(policyDocumentService.hasSitePolicy(siteId)).thenReturn(true);
 
-		userSiteAccessService.addAccess("siteId", "projectId", userId);
+		userSiteAccessService.addAccess(siteId, projectId, userId);
 
-		verify(userSiteAccessRepository).add("siteId", "projectId", userId);
-		verify(userOperationService, times(0)).createUserAdditions(new SiteId("siteId", site.getExternalId()), "projectId", null);
+		verify(userSiteAccessRepository).add(siteId, projectId, userId);
+		verify(userOperationService, times(0)).createUserAdditions(siteId, projectId, null);
 	}
 
 	@Test
 	void shouldRemoveAccess() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("siteExternalId"));
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(true);
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(true);
 
-		userSiteAccessService.removeAccess("siteId", "projectId", userId);
+		userSiteAccessService.removeAccess(siteId, projectId, userId);
 
-		verify(userSiteAccessRepository).remove("siteId", "projectId", userId);
-		verify(userOperationService).createUserRemovals("siteId", "projectId", userId);
+		verify(userSiteAccessRepository).remove(siteId, projectId, userId);
+		verify(userOperationService).createUserRemovals(siteId, projectId, userId);
 	}
 
 	@Test
 	void shouldNotRemoveAccessWhenAccessNotExisting() {
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("siteExternalId"));
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(false);
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(false);
 
-		userSiteAccessService.removeAccess("siteId", "projectId", userId);
+		userSiteAccessService.removeAccess(siteId, projectId, userId);
 
-		verify(userSiteAccessRepository, times(0)).remove("siteId", "projectId", userId);
-		verify(userOperationService, times(0)).createUserRemovals("siteId", "projectId", userId);
+		verify(userSiteAccessRepository, times(0)).remove(siteId, projectId, userId);
+		verify(userOperationService, times(0)).createUserRemovals(siteId, projectId, userId);
 	}
 
 	@Test
 	void shouldGetUsersSitesAccesses() {
-		String communityId = "communityId";
-		String projectId = "projectId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		when(projectRepository.findById(projectId)).thenReturn(Optional.of(
 			Project.builder()
 				.id(projectId)
@@ -160,6 +170,9 @@ class UserSiteAccessServiceImplTest {
 	@Test
 	void shouldCreateUserAdditionAfterPolicyAcceptance() {
 		FenixUserId userId = new FenixUserId("id");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
+
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(new PolicyId(UUID.randomUUID()))
 			.policyDocumentRevision(0)
@@ -171,22 +184,23 @@ class UserSiteAccessServiceImplTest {
 			.build();
 		when(policyDocumentService.findById(policyAcceptance.policyDocumentId)).thenReturn(policyDocument);
 		Site site = Site.builder()
-			.id("id")
-			.externalId(new SiteExternalId("id"))
+			.id(siteId)
 			.policyId(policyAcceptance.policyDocumentId)
 			.build();
 		when(policyDocumentService.getPolicySite(policyDocument)).thenReturn(site);
-		when(userSiteAccessRepository.findAllUserProjectIds(site.getId(), userId)).thenReturn(Set.of("projectId"));
-		when(userRepository.findAdditionStatus(site.getId(), "projectId", userId)).thenReturn(Optional.empty());
+		when(userSiteAccessRepository.findAllUserProjectIds(site.getId(), userId)).thenReturn(Set.of(projectId));
+		when(userRepository.findAdditionStatus(site.getId(), projectId, userId)).thenReturn(Optional.empty());
 
 		userSiteAccessService.onUserPolicyAcceptance(new UserAcceptedPolicyEvent(userId, policyAcceptance));
 
-		verify(userOperationService).createUserAdditions(new SiteId("id", "id"), "projectId", null);
+		verify(userOperationService).createUserAdditions(siteId, projectId, null);
 	}
 
 	@Test
 	void shouldNotCreateUserAdditionAfterPolicyAcceptanceWhenUserHasNoRelatedProjects() {
 		FenixUserId userId = new FenixUserId("id");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(new PolicyId(UUID.randomUUID()))
 			.policyDocumentRevision(0)
@@ -198,8 +212,7 @@ class UserSiteAccessServiceImplTest {
 			.build();
 		when(policyDocumentService.findById(policyAcceptance.policyDocumentId)).thenReturn(policyDocument);
 		Site site = Site.builder()
-			.id("id")
-			.externalId(new SiteExternalId("id"))
+			.id(siteId)
 			.policyId(policyAcceptance.policyDocumentId)
 			.build();
 		when(policyDocumentService.getPolicySite(policyDocument)).thenReturn(site);
@@ -207,12 +220,14 @@ class UserSiteAccessServiceImplTest {
 
 		userSiteAccessService.onUserPolicyAcceptance(new UserAcceptedPolicyEvent(userId, policyAcceptance));
 
-		verify(userOperationService, times(0)).createUserAdditions(new SiteId("id", "id"), "projectId", null);
+		verify(userOperationService, times(0)).createUserAdditions(siteId, projectId, null);
 	}
 
 	@Test
 	void shouldNotCreateUserAdditionAfterPolicyAcceptanceWhenUserAdditionAlreadyExist() {
 		FenixUserId userId = new FenixUserId("id");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(new PolicyId(UUID.randomUUID()))
 			.policyDocumentRevision(0)
@@ -224,106 +239,115 @@ class UserSiteAccessServiceImplTest {
 			.build();
 		when(policyDocumentService.findById(policyAcceptance.policyDocumentId)).thenReturn(policyDocument);
 		Site site = Site.builder()
-			.id("id")
-			.externalId(new SiteExternalId("id"))
+			.id(siteId)
 			.policyId(policyAcceptance.policyDocumentId)
 			.build();
 		when(policyDocumentService.getPolicySite(policyDocument)).thenReturn(site);
-		when(userSiteAccessRepository.findAllUserProjectIds(site.getId(), userId)).thenReturn(Set.of("projectId"));
-		when(userRepository.findAdditionStatus(site.getId(), "projectId", userId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
+		when(userSiteAccessRepository.findAllUserProjectIds(site.getId(), userId)).thenReturn(Set.of(projectId));
+		when(userRepository.findAdditionStatus(site.getId(), projectId, userId)).thenReturn(Optional.of(UserStatus.ADDING_PENDING));
 
 		userSiteAccessService.onUserPolicyAcceptance(new UserAcceptedPolicyEvent(userId, policyAcceptance));
 
-		verify(userOperationService, times(0)).createUserAdditions(new SiteId("id", "id"), "projectId", null);
+		verify(userOperationService, times(0)).createUserAdditions(siteId, projectId, null);
 	}
 
 	@Test
 	void shouldCreateUserAdditionAfterUserGrant() {
 		FenixUserId userId = new FenixUserId("userId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
+			.siteId(siteId)
+			.projectId(projectId)
 			.fenixUserId(userId)
 			.build();
 
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(false);
-		when(userRepository.findAdditionStatus("siteId", "projectId", userId)).thenReturn(Optional.empty());
-		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,"siteId")).thenReturn(true);
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(false);
+		when(userRepository.findAdditionStatus(siteId, projectId, userId)).thenReturn(Optional.empty());
+		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,siteId)).thenReturn(true);
 
 		userSiteAccessService.addAccessToSite(grantAccess);
 
-		verify(userSiteAccessRepository).add("siteId", "projectId", userId);
-		verify(userOperationService).createUserAdditions(new SiteId("siteId", "externalId"), "projectId", null);
+		verify(userSiteAccessRepository).add(siteId, projectId, userId);
+		verify(userOperationService).createUserAdditions(siteId, projectId, null);
 	}
 
 	@Test
 	void shouldNotCreateUserAdditionAfterUserGrantWhenUserHasNotAcceptedPolicy() {
 		FenixUserId userId = new FenixUserId("userId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
+			.siteId(siteId)
+			.projectId(projectId)
 			.fenixUserId(userId)
 			.build();
 
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(false);
-		when(userRepository.findAdditionStatus("siteId", "projectId", userId)).thenReturn(Optional.empty());
-		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,"siteId")).thenReturn(false);
-		when(policyDocumentService.hasSitePolicy("siteId")).thenReturn(true);
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(false);
+		when(userRepository.findAdditionStatus(siteId, projectId, userId)).thenReturn(Optional.empty());
+		when(policyDocumentService.hasUserSitePolicyAcceptance(userId,siteId)).thenReturn(false);
+		when(policyDocumentService.hasSitePolicy(siteId)).thenReturn(true);
 
 		userSiteAccessService.addAccessToSite(grantAccess);
 
-		verify(userSiteAccessRepository).add("siteId", "projectId", userId);
-		verify(userOperationService, times(0)).createUserAdditions(new SiteId("siteId", "externalId"), "projectId", null);
+		verify(userSiteAccessRepository).add(siteId, projectId, userId);
+		verify(userOperationService, times(0)).createUserAdditions(siteId, projectId, null);
 	}
 
 	@Test
 	void shouldNotCreateUserAdditionAfterUserGrantWhenUserAdditionAlreadyExist() {
 		FenixUserId userId = new FenixUserId("userId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
+			.siteId(siteId)
+			.projectId(projectId)
 			.fenixUserId(userId)
 			.build();
 
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(false);
-		when(userRepository.findAdditionStatus("siteId", "projectId", userId)).thenReturn(Optional.of(UserStatus.ADDED));
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(false);
+		when(userRepository.findAdditionStatus(siteId, projectId, userId)).thenReturn(Optional.of(UserStatus.ADDED));
 
 		userSiteAccessService.addAccessToSite(grantAccess);
 
-		verify(userSiteAccessRepository).add("siteId", "projectId", userId);
-		verify(userOperationService, times(0)).createUserAdditions(new SiteId("siteId", "externalId"), "projectId", null);
+		verify(userSiteAccessRepository).add(siteId, projectId, userId);
+		verify(userOperationService, times(0)).createUserAdditions(siteId, projectId, null);
 	}
 
 	@Test
 	void shouldRemoveAccessWhenUserGrantRevoke() {
 		FenixUserId userId = new FenixUserId("userId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
+			.siteId(siteId)
+			.projectId(projectId)
 			.fenixUserId(userId)
 			.build();
 
-		when(resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId("siteId", "projectId", userId)).thenReturn(false);
-		when(projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId)).thenReturn(Set.of());
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(true);
+		when(resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(siteId, projectId, userId)).thenReturn(false);
+		when(projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId, grantAccess.projectId)).thenReturn(Set.of());
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(true);
 
 		userSiteAccessService.revokeAccessToSite(grantAccess);
 
-		verify(userSiteAccessRepository).remove("siteId", "projectId", userId);
-		verify(userOperationService).createUserRemovals("siteId", "projectId", userId);
+		verify(userSiteAccessRepository).remove(siteId, projectId, userId);
+		verify(userOperationService).createUserRemovals(siteId, projectId, userId);
 	}
 
 	@Test
 	void shouldNotRemoveAccessAfterUserGrantRevokeWhenThereIsProjectAllocationAccessibleForAll() {
 		FenixUserId userId = new FenixUserId("userId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
+			.siteId(siteId)
+			.projectId(projectId)
 			.fenixUserId(userId)
 			.build();
 
-		when(resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId("siteId", "projectId", userId)).thenReturn(false);
-		when(projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId)).thenReturn(Set.of(
+		when(resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(siteId, projectId, userId)).thenReturn(false);
+		when(projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId, grantAccess.projectId)).thenReturn(Set.of(
 			ProjectAllocationResolved.builder()
 				.resourceType(ResourceType.builder()
 					.accessibleForAllProjectMembers(true)
@@ -333,26 +357,28 @@ class UserSiteAccessServiceImplTest {
 
 		userSiteAccessService.revokeAccessToSite(grantAccess);
 
-		verify(userSiteAccessRepository, times(0)).remove("siteId", "projectId", userId);
-		verify(userOperationService, times(0)).createUserRemovals("siteId", "projectId", userId);
+		verify(userSiteAccessRepository, times(0)).remove(siteId, projectId, userId);
+		verify(userOperationService, times(0)).createUserRemovals(siteId, projectId, userId);
 	}
 
 	@Test
 	void shouldRemoveAccessWhenProjectAllocationRemoved() {
 		FenixUserId userId = new FenixUserId("userId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), "id");
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("siteId", "externalId"))
-			.projectId("projectId")
+			.siteId(siteId)
+			.projectId(projectId)
 			.fenixUserId(userId)
 			.build();
 
-		when(resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId("siteId", "projectId", userId)).thenReturn(false);
-		when(projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId.id, grantAccess.projectId)).thenReturn(Set.of());
-		when(userSiteAccessRepository.exists("siteId", "projectId", userId)).thenReturn(true);
+		when(resourceAccessRepository.existsBySiteIdAndProjectIdAndFenixUserId(siteId, projectId, userId)).thenReturn(false);
+		when(projectAllocationRepository.findAllWithRelatedObjects(grantAccess.siteId, grantAccess.projectId)).thenReturn(Set.of());
+		when(userSiteAccessRepository.exists(siteId, projectId, userId)).thenReturn(true);
 
 		userSiteAccessService.onProjectAllocationRemove(new ProjectDeallocationEvent(Set.of(grantAccess)));
 
-		verify(userSiteAccessRepository).remove("siteId", "projectId", userId);
-		verify(userOperationService).createUserRemovals("siteId", "projectId", userId);
+		verify(userSiteAccessRepository).remove(siteId, projectId, userId);
+		verify(userOperationService).createUserRemovals(siteId, projectId, userId);
 	}
 }

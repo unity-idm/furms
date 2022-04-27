@@ -12,13 +12,16 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
 import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.core.user_site_access.UserSiteAccessInnerService;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.GrantId;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.resource_access.UserGrantAddedEvent;
 import io.imunity.furms.domain.resource_access.UserGrantRemovedCommissionEvent;
 import io.imunity.furms.domain.resource_access.UsersWithProjectAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
@@ -34,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.PROJECT_LIMITED_WRITE;
@@ -83,14 +85,14 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public Set<String> findAddedUser(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<String> findAddedUser(ProjectId projectId) {
 		return userRepository.findUserIds(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<UsersWithProjectAccess> findAddedUserBySiteId(String siteId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<UsersWithProjectAccess> findAddedUserBySiteId(SiteId siteId) {
 		return userRepository.findAllUserAdditionsBySiteId(siteId).stream()
 				.collect(groupingBy(userAddition -> userAddition.projectId))
 				.entrySet().stream()
@@ -104,33 +106,33 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public Set<UserGrant> findUsersGrants(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<UserGrant> findUsersGrants(ProjectId projectId) {
 		return repository.findUsersGrantsByProjectId(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Set<UserGrant> findCurrentUserGrants(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<UserGrant> findCurrentUserGrants(ProjectId projectId) {
 		return repository.findUserGrantsByProjectIdAndFenixUserId(projectId, authzService.getCurrentAuthNUser().fenixUserId.orElseThrow(UserWithoutFenixIdValidationError::new));
 	}
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId.id")
 	public void grantAccess(GrantAccess grantAccess) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		if(repository.exists(grantAccess))
 			throw new IllegalArgumentException("Trying to create GrantAccess, which already exists: " + grantAccess);
 
-		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId.id, grantAccess.projectId, grantAccess.fenixUserId);
-		UUID grantId = createGrant(grantAccess, correlationId, userAdditionStatus);
-		policyNotificationService.notifyAboutAllNotAcceptedPolicies(grantAccess.siteId.id, grantAccess.fenixUserId, grantId.toString());
+		Optional<UserStatus> userAdditionStatus = userRepository.findAdditionStatus(grantAccess.siteId, grantAccess.projectId, grantAccess.fenixUserId);
+		GrantId grantId = createGrant(grantAccess, correlationId, userAdditionStatus);
+		policyNotificationService.notifyAboutAllNotAcceptedPolicies(grantAccess.siteId, grantAccess.fenixUserId, grantId);
 		LOG.info("UserAllocation with correlation id {} was created {}", correlationId.id, grantAccess);
 	}
 
-	private UUID createGrant(GrantAccess grantAccess, CorrelationId correlationId, Optional<UserStatus> userAdditionStatus) {
-		UUID grantId;
+	private GrantId createGrant(GrantAccess grantAccess, CorrelationId correlationId, Optional<UserStatus> userAdditionStatus) {
+		GrantId grantId;
 		if(isUserProvisioned(userAdditionStatus)) {
 			grantId = repository.create(correlationId, grantAccess, AccessStatus.GRANT_PENDING);
 			FURMSUser furmsUser = usersDAO.findById(grantAccess.fenixUserId).get();
@@ -152,7 +154,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId.id")
 	public void revokeAccess(GrantAccess grantAccess) {
 		AccessStatus currentStatus = repository.findCurrentStatus(grantAccess.fenixUserId, grantAccess.allocationId);
 		if(currentStatus.equals(GRANT_FAILED)) {

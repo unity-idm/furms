@@ -7,9 +7,10 @@ package io.imunity.furms.db.generic_groups;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
-import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
+import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignmentAmount;
 import io.imunity.furms.domain.generic_groups.GenericGroupWithAssignments;
 import io.imunity.furms.domain.generic_groups.GroupAccess;
@@ -25,7 +26,6 @@ import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -45,31 +45,31 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private GenericGroupDatabaseRepository databaseRepository;
 
-	private UUID communityId;
-	private UUID communityId2;
+	private CommunityId communityId;
+	private CommunityId communityId2;
 
 	@BeforeEach
 	void setUp() {
-		String id = communityRepository.create(Community.builder()
+		CommunityId id = communityRepository.create(Community.builder()
 			.name("name")
 			.description("description")
 			.logo(FurmsImage.empty())
 			.build()
 		);
-		communityId = UUID.fromString(id);
-		String id2 = communityRepository.create(Community.builder()
+		communityId = id;
+		CommunityId id2 = communityRepository.create(Community.builder()
 			.name("new_name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
 			.build()
 		);
-		communityId2 = UUID.fromString(id2);
+		communityId2 = id2;
 	}
 
 	@Test
 	void shouldFindByGenericGroupId() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
@@ -86,7 +86,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindGroupWithAssignments() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
@@ -107,10 +107,10 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 		membershipEntityRepository.save(membershipEntity1);
 
 
-		GenericGroupWithAssignments groupWithAssignments = databaseRepository.findGroupWithAssignments(communityId.toString(), new GenericGroupId(saved.getId())).get();
+		GenericGroupWithAssignments groupWithAssignments = databaseRepository.findGroupWithAssignments(communityId, new GenericGroupId(saved.getId())).get();
 
 		assertThat(groupWithAssignments.group.id.id).isEqualTo(saved.getId());
-		assertEquals(groupWithAssignments.group.communityId, communityId.toString());
+		assertEquals(groupWithAssignments.group.communityId, communityId);
 		assertThat(groupWithAssignments.group.name).isEqualTo("name");
 		assertThat(groupWithAssignments.group.description).isEqualTo("description");
 		assertEquals(2, groupWithAssignments.memberships.size());
@@ -119,13 +119,13 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllGroupWithAssignmentsAmount() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
 		);
 		GenericGroupEntity saved2 = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name2")
 			.description("description2")
 			.build()
@@ -159,21 +159,21 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 		membershipEntityRepository.save(membershipEntity3);
 
 
-		Set<GenericGroupWithAssignmentAmount> groupsWithAssignmentsAmount = databaseRepository.findAllGroupWithAssignmentsAmount(communityId.toString());
+		Set<GenericGroupWithAssignmentAmount> groupsWithAssignmentsAmount = databaseRepository.findAllGroupWithAssignmentsAmount(communityId);
 
 		assertEquals(2, groupsWithAssignmentsAmount.size());
 		Iterator<GenericGroupWithAssignmentAmount> iterator = groupsWithAssignmentsAmount.iterator();
 
 		GenericGroupWithAssignmentAmount genericGroup = iterator.next();
 		assertThat(genericGroup.group.id.id).isIn(saved.getId(), saved2.getId());
-		assertEquals(genericGroup.group.communityId, communityId.toString());
+		assertEquals(genericGroup.group.communityId, communityId);
 		assertThat(genericGroup.group.name).isIn("name", "name2");
 		assertThat(genericGroup.group.description).isIn("description", "description2");
 		assertEquals(2, genericGroup.amount);
 
 		GenericGroupWithAssignmentAmount genericGroup2 = iterator.next();
 		assertThat(genericGroup2.group.id.id).isIn(saved.getId(), saved2.getId());
-		assertEquals(genericGroup2.group.communityId, communityId.toString());
+		assertEquals(genericGroup2.group.communityId, communityId);
 		assertThat(genericGroup2.group.name).isIn("name", "name2");
 		assertThat(genericGroup2.group.description).isIn("description", "description2");
 		assertEquals(2, genericGroup2.amount);
@@ -182,29 +182,29 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllByCommunityId() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
 		);
 		GenericGroupEntity saved2 = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name2")
 			.description("description2")
 			.build()
 		);
-		Set<GenericGroup> genericGroups = databaseRepository.findAllBy(communityId.toString());
+		Set<GenericGroup> genericGroups = databaseRepository.findAllBy(communityId);
 
 		assertEquals(2, genericGroups.size());
 		GenericGroup genericGroup = genericGroups.iterator().next();
 		assertThat(genericGroup.id.id).isIn(saved.getId(), saved2.getId());
-		assertEquals(saved.communityId.toString(), genericGroup.communityId);
+		assertEquals(saved.communityId, genericGroup.communityId.id);
 		assertThat(genericGroup.name).isIn("name", "name2");
 		assertThat(genericGroup.description).isIn("description", "description2");
 
 		GenericGroup genericGroup1 = genericGroups.iterator().next();
 		assertThat(genericGroup1.id.id).isIn(saved.getId(), saved2.getId());
-		assertEquals(saved2.communityId.toString(), genericGroup1.communityId);
+		assertEquals(saved2.communityId, genericGroup1.communityId.id);
 		assertThat(genericGroup1.name).isIn("name", "name2");
 		assertThat(genericGroup1.description).isIn("description", "description2");
 	}
@@ -212,7 +212,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllByGenericGroup() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
@@ -248,13 +248,13 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllByFenixUserId() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
 		);
 		GenericGroupEntity saved2 = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name2")
 			.description("description")
 			.build()
@@ -278,7 +278,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 		Set<GroupAccess> groupAccesses = databaseRepository.findAllBy(new FenixUserId("userId"));
 		assertEquals(1, groupAccesses.size());
 		GroupAccess next = groupAccesses.iterator().next();
-		assertEquals(communityId.toString(), next.communityId);
+		assertEquals(communityId, next.communityId);
 		assertThat(next.groups).isEqualTo(Set.of("name", "name2"));
 	}
 
@@ -286,7 +286,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldCreateGenericGroup() {
 		GenericGroupEntity genericGroupEntity = GenericGroupEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.build();
 		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
@@ -309,7 +309,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldCreateGenericGroupAssignment() {
 		GenericGroup genericGroupEntity = GenericGroup.builder()
 			.name("name")
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.description("description")
 			.build();
 
@@ -318,7 +318,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 		GenericGroup group = databaseRepository.findBy(groupId).get();
 
 		assertEquals(groupId, group.id);
-		assertEquals(genericGroupEntity.communityId, communityId.toString());
+		assertEquals(genericGroupEntity.communityId, communityId);
 		assertEquals(genericGroupEntity.name, "name");
 		assertEquals(genericGroupEntity.description, "description");
 	}
@@ -327,7 +327,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateGenericGroup() {
 		GenericGroupEntity genericGroupEntity = GenericGroupEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.build();
 		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
@@ -335,7 +335,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 		GenericGroup genericGroupToUpdate = GenericGroup.builder()
 			.id(savedGroup.getId())
 			.name("name")
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.description("description")
 			.build();
 
@@ -350,7 +350,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteGenericGroupMembership() {
 		GenericGroupEntity genericGroupEntity = GenericGroupEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.build();
 		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
@@ -373,7 +373,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteGenericGroup() {
 		GenericGroupEntity genericGroupEntity = GenericGroupEntity.builder()
 			.name("name")
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.description("description")
 			.build();
 		GenericGroupEntity savedGroup = entityRepository.save(genericGroupEntity);
@@ -388,13 +388,13 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldExistByCommunityIdAndGroupId() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
 		);
 
-		boolean existsBy = databaseRepository.existsBy(communityId.toString(), new GenericGroupId(saved.getId()));
+		boolean existsBy = databaseRepository.existsBy(communityId, new GenericGroupId(saved.getId()));
 
 		assertTrue(existsBy);
 	}
@@ -402,13 +402,13 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotExistByCommunityIdAndGroupId() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
 		);
 
-		boolean existsBy = databaseRepository.existsBy(communityId2.toString(), new GenericGroupId(saved.getId()));
+		boolean existsBy = databaseRepository.existsBy(communityId2, new GenericGroupId(saved.getId()));
 
 		assertFalse(existsBy);
 	}
@@ -416,7 +416,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldExistByGenericGroupIdAndUserId() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
@@ -437,7 +437,7 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotExistByGenericGroupIdAndUserId() {
 		GenericGroupEntity saved = entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
@@ -451,13 +451,13 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldExistByCommunityIdAndName() {
 		entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name")
 			.description("description")
 			.build()
 		);
 
-		boolean existsBy = databaseRepository.existsBy(communityId.toString(), "name");
+		boolean existsBy = databaseRepository.existsBy(communityId, "name");
 
 		assertTrue(existsBy);
 	}
@@ -465,13 +465,13 @@ class GenericGroupDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotExistByCommunityIdAndName() {
 		entityRepository.save(GenericGroupEntity.builder()
-			.communityId(communityId)
+			.communityId(communityId.id)
 			.name("name2")
 			.description("description")
 			.build()
 		);
 
-		boolean existsBy = databaseRepository.existsBy(communityId.toString(), "name");
+		boolean existsBy = databaseRepository.existsBy(communityId, "name");
 
 		assertFalse(existsBy);
 	}

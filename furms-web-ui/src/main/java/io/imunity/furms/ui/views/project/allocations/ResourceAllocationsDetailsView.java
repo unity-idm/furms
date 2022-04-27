@@ -13,6 +13,8 @@ import io.imunity.furms.api.export.ResourceUsageCSVExporter;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.charts.service.ChartPoweringService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -34,7 +36,7 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 	private final ChartPoweringService chartPoweringService;
 	private final ResourceUsageJSONExporter jsonExporter;
 	private final ResourceUsageCSVExporter csvExporter;
-	private final String projectId;
+	private final ProjectId projectId;
 	private BreadCrumbParameter breadCrumbParameter;
 
 	ResourceAllocationsDetailsView(ProjectAllocationService projectAllocationService,
@@ -44,12 +46,13 @@ public class ResourceAllocationsDetailsView extends FurmsViewComponent {
 		this.chartPoweringService = chartPoweringService;
 		this.jsonExporter = jsonExporter;
 		this.csvExporter = csvExporter;
-		this.projectId = getCurrentResourceId();
+		this.projectId = new ProjectId(getCurrentResourceId());
 	}
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		Optional<ProjectAllocation> projectAllocation = ofNullable(parameter)
+			.map(ProjectAllocationId::new)
 			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByProjectIdAndId(projectId, id)))
 			.flatMap(Function.identity());
 

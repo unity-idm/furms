@@ -4,11 +4,11 @@
  */
 package io.imunity.furms.rest.cidp;
 
-import static java.util.stream.Collectors.toList;
+import io.imunity.furms.domain.users.ProjectMembership;
 
 import java.util.List;
 
-import io.imunity.furms.domain.users.ProjectMembership;
+import static java.util.stream.Collectors.toList;
 
 public class ProjectMembershipJson {
 	public final String id;
@@ -22,7 +22,7 @@ public class ProjectMembershipJson {
 	}
 	
 	ProjectMembershipJson(ProjectMembership membership) {
-		this(membership.id, membership.name, 
+		this(membership.id.id.toString(), membership.name,
 				membership.attributes.stream().map(AttributeJson::new).collect(toList()));
 	}
 	

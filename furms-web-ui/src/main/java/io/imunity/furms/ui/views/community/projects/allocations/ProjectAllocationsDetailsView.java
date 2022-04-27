@@ -12,6 +12,8 @@ import io.imunity.furms.api.export.ResourceUsageCSVExporter;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.charts.service.ChartPoweringService;
 import io.imunity.furms.ui.charts.ResourceAllocationChart;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -45,14 +47,16 @@ public class ProjectAllocationsDetailsView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-		Optional<String> projectId = event.getLocation()
+		Optional<ProjectId> projectId = event.getLocation()
 			.getQueryParameters()
 			.getParameters()
 			.getOrDefault("projectId", List.of())
-			.stream().findAny();
+			.stream().findAny()
+			.map(ProjectId::new);
 
 		Optional<ProjectAllocation> projectAllocation = ofNullable(parameter)
 			.filter(id -> projectId.isPresent())
+			.map(ProjectAllocationId::new)
 			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByProjectIdAndId(projectId.get(), id)))
 			.flatMap(Function.identity());
 

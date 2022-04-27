@@ -16,6 +16,7 @@ import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
@@ -94,9 +95,11 @@ class SiteAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectInfraServiceDeletion() {
 		//given
-		String id = "id";
+		SiteId id = new SiteId(UUID.randomUUID());
 		when(repository.exists(id)).thenReturn(true);
-		Site site = Site.builder().build();
+		Site site = Site.builder()
+			.id(id)
+			.build();
 		when(repository.findById(id)).thenReturn(Optional.of(site));
 
 		//when
@@ -112,7 +115,7 @@ class SiteAuditLogServiceIntegrationTest {
 	void shouldDetectInfraServiceUpdate() {
 		//given
 		Site request = Site.builder()
-			.id("id")
+			.id(new SiteId(UUID.randomUUID()))
 			.name("name")
 			.build();
 		when(repository.exists(request.getId())).thenReturn(true);
@@ -133,7 +136,7 @@ class SiteAuditLogServiceIntegrationTest {
 	void shouldDetectInfraServiceCreation() {
 		//given
 		Site request = Site.builder()
-			.id("id")
+			.id(new SiteId(UUID.randomUUID()))
 			.name("name")
 			.build();
 		when(repository.isNamePresent(request.getName())).thenReturn(false);
@@ -152,9 +155,10 @@ class SiteAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectAdminAddition() {
 		//given
-		String siteId = UUID.randomUUID().toString();
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		Site site = Site.builder()
+			.id(siteId)
 			.name("name")
 			.build();
 		when(repository.findById(siteId)).thenReturn(Optional.of(site));
@@ -176,9 +180,10 @@ class SiteAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectSupportAddition() {
 		//given
-		String siteId = UUID.randomUUID().toString();
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		Site site = Site.builder()
+			.id(siteId)
 			.name("name")
 			.build();
 		when(repository.findById(siteId)).thenReturn(Optional.of(site));
@@ -200,10 +205,11 @@ class SiteAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectUserRemoval() {
 		//given
-		String siteId = UUID.randomUUID().toString();
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 
 		Site site = Site.builder()
+			.id(siteId)
 			.name("name")
 			.build();
 		when(service.findById(siteId)).thenReturn(Optional.of(site));

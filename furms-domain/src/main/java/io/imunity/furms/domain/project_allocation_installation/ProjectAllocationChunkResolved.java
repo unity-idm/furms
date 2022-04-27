@@ -84,13 +84,13 @@ public class ProjectAllocationChunkResolved {
 		private ProjectAllocationChunkResolvedBuilder() {
 		}
 
-		public ProjectAllocationChunkResolvedBuilder id(String id) {
-			this.id = new ProjectAllocationInstallationId(id);
+		public ProjectAllocationChunkResolvedBuilder id(ProjectAllocationInstallationId id) {
+			this.id = id;
 			return this;
 		}
 
-		public ProjectAllocationChunkResolvedBuilder chunkId(String chunkId) {
-			this.chunkId = new ChunkId(chunkId);
+		public ProjectAllocationChunkResolvedBuilder chunkId(ChunkId chunkId) {
+			this.chunkId = chunkId;
 			return this;
 		}
 

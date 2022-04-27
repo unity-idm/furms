@@ -10,8 +10,11 @@ import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAlloca
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationCreatedEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationRemovedEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationUpdatedEvent;
@@ -20,6 +23,8 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,30 +71,31 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public Optional<ProjectAllocation> findByProjectIdAndId(String projectId, String id) {
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	public Optional<ProjectAllocation> findByProjectIdAndId(ProjectId projectId, ProjectAllocationId id) {
 		validator.validateProjectIdAndProjectAllocationId(projectId, id);
 		return projectAllocationRepository.findById(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Optional<ProjectAllocationResolved> findByIdValidatingProjectsWithRelatedObjects(String allocationId,
-	                                                                                        String projectId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	public Optional<ProjectAllocationResolved> findByIdValidatingProjectsWithRelatedObjects(ProjectAllocationId allocationId,
+	                                                                                        ProjectId projectId) {
 		validator.validateProjectIdAndProjectAllocationId(projectId, allocationId);
 		return projectAllocationRepository.findByIdWithRelatedObjects(allocationId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String communityId, String id) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(CommunityId communityId,
+	                                                                      ProjectAllocationId id) {
 		validator.validateCommunityIdAndProjectAllocationId(communityId, id);
 		return projectAllocationRepository.findByIdWithRelatedObjects(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<String> getOccupiedNames(String communityId, String id) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Set<String> getOccupiedNames(CommunityId communityId, ProjectId id) {
 		validator.validateCommunityIdAndProjectId(communityId, id);
 		return projectAllocationRepository.findAll(id).stream()
 			.map(projectAllocation -> projectAllocation.name)
@@ -97,41 +103,41 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public BigDecimal getAvailableAmount(String communityId, String communityAllocationId) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public BigDecimal getAvailableAmount(CommunityId communityId, CommunityAllocationId communityAllocationId) {
 		validator.validateCommunityIdAndCommunityAllocationId(communityId, communityAllocationId);
 		return projectAllocationRepository.getAvailableAmount(communityAllocationId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String communityId, String projectId) {
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(CommunityId communityId, ProjectId projectId) {
 		validator.validateCommunityIdAndProjectId(communityId, projectId);
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Set<ProjectDeallocation> findAllUninstallations(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<ProjectDeallocation> findAllUninstallations(ProjectId projectId) {
 		return projectAllocationInstallationService.findAllUninstallation(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Set<ProjectAllocationChunk> findAllChunks(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<ProjectAllocationChunk> findAllChunks(ProjectId projectId) {
 		return projectAllocationInstallationService.findAllChunks(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Set<ProjectAllocationChunk> findAllChunks(String projectId, String projectAllocationId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<ProjectAllocationChunk> findAllChunks(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		validator.validateProjectIdAndProjectAllocationId(projectId, projectAllocationId);
 		return projectAllocationInstallationService.findAllChunksByAllocationId(projectAllocationId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<ProjectAllocationChunkResolved> findAllChunksBySiteId(String siteId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<ProjectAllocationChunkResolved> findAllChunksBySiteId(SiteId siteId) {
 		final Set<ProjectAllocationResolved> allocations = projectAllocationRepository.findAllWithRelatedObjectsBySiteId(siteId);
 		return allocations.stream()
 				.map(allocation -> projectAllocationInstallationService.findAllChunks(allocation.projectId))
@@ -154,8 +160,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<ProjectAllocationChunkResolved> findAllChunksBySiteIdAndProjectId(String siteId, String projectId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<ProjectAllocationChunkResolved> findAllChunksBySiteIdAndProjectId(SiteId siteId, ProjectId projectId) {
 		final Set<ProjectAllocationResolved> allocations = projectAllocationRepository.findAllWithRelatedObjects(projectId);
 		return allocations.stream()
 				.map(allocation -> projectAllocationInstallationService.findAllChunks(allocation.projectId))
@@ -175,44 +181,44 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Set<ProjectAllocationInstallation> findAllInstallations(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<ProjectAllocationInstallation> findAllInstallations(ProjectId projectId) {
 		return projectAllocationInstallationService.findAll(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjects(ProjectId projectId) {
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteId(String siteId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteId(SiteId siteId) {
 		return projectAllocationRepository.findAllWithRelatedObjectsBySiteId(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteIdAndProjectId(String siteId, String projectId) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	public Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId) {
 		return projectAllocationRepository.findAllWithRelatedObjects(projectId).stream()
 				.filter(projectAllocation -> projectAllocation.site.getId().equals(siteId))
 				.collect(toSet());
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public Set<ProjectAllocation> findAll(String communityId, String projectId) {
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	public Set<ProjectAllocation> findAll(CommunityId communityId, ProjectId projectId) {
 		validator.validateCommunityIdAndProjectId(communityId, projectId);
 		return projectAllocationRepository.findAll(projectId);
 	}
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void create(String communityId, ProjectAllocation projectAllocation) {
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId.id")
+	public void create(CommunityId communityId, ProjectAllocation projectAllocation) {
 		validator.validateCreate(communityId, projectAllocation);
-		String id = projectAllocationRepository.create(projectAllocation);
+		ProjectAllocationId id = projectAllocationRepository.create(projectAllocation);
 		ProjectAllocation created = projectAllocationRepository.findById(id).get();
 
 		allocateProject(projectAllocation, id);
@@ -221,7 +227,7 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 		LOG.info("ProjectAllocation with given ID: {} was created: {}", id, projectAllocation);
 	}
 
-	private void allocateProject(ProjectAllocation projectAllocation, String id) {
+	private void allocateProject(ProjectAllocation projectAllocation, ProjectAllocationId id) {
 		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallationOfProjectAllocation(id);
 		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId)) {
 			projectInstallationService.createOrUpdate(projectAllocation.projectId, projectInstallation);
@@ -234,8 +240,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void update(String communityId, ProjectAllocation projectAllocation) {
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId.id")
+	public void update(CommunityId communityId, ProjectAllocation projectAllocation) {
 		validator.validateUpdate(communityId, projectAllocation);
 		ProjectAllocation oldProjectAllocation = projectAllocationRepository.findById(projectAllocation.id).get();
 		projectAllocationRepository.update(projectAllocation);
@@ -256,8 +262,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void delete(String communityId, String id) {
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId.id")
+	public void delete(CommunityId communityId, ProjectAllocationId id) {
 		validator.validateDelete(communityId, id);
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(id).get();
 		if(projectAllocationResolved.consumed.compareTo(BigDecimal.ZERO) > 0) {

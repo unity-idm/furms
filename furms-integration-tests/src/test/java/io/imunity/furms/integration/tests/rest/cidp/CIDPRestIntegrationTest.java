@@ -5,17 +5,25 @@
 
 package io.imunity.furms.integration.tests.rest.cidp;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -84,20 +92,21 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 		final TestUser testUser = basicUser();
 		final CidpRequiredData data = createCidpRequiredData(testUser);
 
-		userSiteAccessRepository.add(data.siteId, data.projectId, data.grantAccess.fenixUserId);
+		userSiteAccessRepository.add(data.siteId, data.projectId,
+			data.grantAccess.fenixUserId);
 		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), data.grantAccess, GRANT_PENDING);
 
-		final String path = "/fenix/communities/"+data.communityId+"/projects/"+data.projectId+"/users";
+		final String path = "/fenix/communities/" + data.communityId.id + "/projects/" + data.projectId.id + "/users";
 		policyAcceptanceMockUtils.createPolicyAcceptancesMock(Map.of(
 			path,
-			List.of(new PolicyAcceptanceMockUtils.PolicyUser(data.policyId, testUser))
+			List.of(new PolicyAcceptanceMockUtils.PolicyUser(data.policyId.id.toString(), testUser))
 		));
 
 		testUser.getAttributes().put(path, Set.of(new Attribute(
 						FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
 						path,
 						List.of(objectMapper.writeValueAsString(new PolicyAcceptanceMockUtils.PolicyAcceptanceUnityMock(
-								data.policyId,
+								data.policyId.id.toString(),
 								1,
 								ACCEPTED.name(),
 								LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
@@ -122,22 +131,22 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.user.affiliation.name").value("Ahsoka"))
 				.andExpect(jsonPath("$.user.affiliation.email", containsString("jedi_office@domain.com")))
 				.andExpect(jsonPath("$.userStatus").value("ENABLED"))
-				.andExpect(jsonPath("$.siteAccess.[0].siteId").value(data.siteId))
+				.andExpect(jsonPath("$.siteAccess.[0].siteId").value(data.siteId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess.[0].siteOauthClientId").value(data.oauthClientId))
 				.andExpect(jsonPath("$.siteAccess.[0].projectMemberships.[0].localUserId").value(testUser.getFenixId()))
-				.andExpect(jsonPath("$.siteAccess.[0].projectMemberships.[0].projectId").value(data.projectId))
-				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.policyId").value(data.policyId))
+				.andExpect(jsonPath("$.siteAccess.[0].projectMemberships.[0].projectId").value(data.projectId.id.toString()))
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.policyId").value(data.policyId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.acceptanceStatus").value(ACCEPTED.name()))
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.processedOn").isNotEmpty())
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.currentVersion").value(1))
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.processedVersion").value(1))
-				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].policyId").value(data.policyId))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].policyId").value(data.policyId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].acceptanceStatus").value(ACCEPTED.name()))
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedOn").isNotEmpty())
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].currentVersion").value(1))
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedVersion").value(1))
 				.andExpect(jsonPath("$.siteAccess.[0].sshKeys", equalTo(List.of("ssh-key"))))
-				.andExpect(jsonPath("$.groupAccess.[0].communityId").value(data.communityId))
+				.andExpect(jsonPath("$.groupAccess.[0].communityId").value(data.communityId.id.toString()))
 				.andExpect(jsonPath("$.groupAccess.[0].groups", equalTo(List.of(groupName))));
 	}
 
@@ -147,21 +156,20 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 		final TestUser testUser = basicUser();
 		final CidpRequiredData data = createCidpRequiredData(testUser);
 
-		userSiteAccessRepository.add(data.siteId, data.projectId, data.grantAccess.fenixUserId);
+		userSiteAccessRepository.add(data.siteId, data.projectId,
+			data.grantAccess.fenixUserId);
 		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), data.grantAccess, GRANT_PENDING);
 
 		final String path = "/fenix/communities/"+data.communityId+"/projects/"+data.projectId+"/users";
-//		policyAcceptanceMockUtils.createPolicyAcceptancesMock(path, List.of(
-//				new PolicyAcceptanceMockUtils.PolicyUser(data.policyId, testUser)));
 
-		final Optional<PolicyDocument> oldRevision = policyDocumentRepository.findById(new PolicyId(data.policyId));
+		final Optional<PolicyDocument> oldRevision = policyDocumentRepository.findById(data.policyId);
 		policyDocumentRepository.update(oldRevision.get(), true);
 
 		testUser.getAttributes().put(path, Set.of(new Attribute(
 				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
 				path,
 				List.of(objectMapper.writeValueAsString(new PolicyAcceptanceMockUtils.PolicyAcceptanceUnityMock(
-						data.policyId,
+						data.policyId.id.toString(),
 						1,
 						ACCEPTED.name(),
 						LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
@@ -178,19 +186,19 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.with(httpBasic(centralIdPUser, centralIdPSecret)))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.policyId").value(data.policyId))
+				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.policyId").value(data.policyId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.acceptanceStatus").value(ACCEPTED.name()))
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.processedOn").isNotEmpty())
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.currentVersion").value(2))
 				.andExpect(jsonPath("$.siteAccess.[0].sitePolicyAcceptance.processedVersion").value(1))
-				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].policyId").value(data.policyId))
+				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].policyId").value(data.policyId.id.toString()))
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].acceptanceStatus").value(ACCEPTED.name()))
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedOn").isNotEmpty())
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].currentVersion").value(2))
 				.andExpect(jsonPath("$.siteAccess.[0].servicesPolicyAcceptance.[0].processedVersion").value(1));
 	}
 
-	private void createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
+	private void createSiteInstalledProject(ProjectId projectId, SiteId siteId, ProjectInstallationStatus status) {
 		projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
 			.projectId(projectId)
 			.siteId(siteId)
@@ -198,11 +206,11 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 			.build());
 	}
 
-	private void createUserSite(String projectId, String siteId, TestUser testUser) {
+	private void createUserSite(ProjectId projectId, SiteId siteId, TestUser testUser) {
 		final String correlationId = UUID.randomUUID().toString();
 		userOperationRepository.create(defaultUserAddition()
 				.projectId(projectId)
-				.siteId(new SiteId(siteId))
+				.siteId(siteId)
 				.userId(testUser.getFenixId())
 				.correlationId(new CorrelationId(correlationId))
 				.build());
@@ -218,7 +226,7 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private String createProject(String communityId) {
+	private ProjectId createProject(CommunityId communityId) {
 		return projectRepository.create(defaultProject()
 				.communityId(communityId)
 				.name(UUID.randomUUID().toString())
@@ -226,8 +234,8 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private void createSSHKey(String siteId, String value, TestUser user) {
-		final String sshKeyId = sshKeyRepository.create(SSHKey.builder()
+	private void createSSHKey(SiteId siteId, String value, TestUser user) {
+		final SSHKeyId sshKeyId = sshKeyRepository.create(SSHKey.builder()
 				.sites(Set.of(siteId))
 				.name(UUID.randomUUID().toString())
 				.ownerId(new PersistentId(user.getUserId()))
@@ -241,14 +249,14 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private PolicyId createPolicy(String siteId) {
+	private PolicyId createPolicy(SiteId siteId) {
 		return policyDocumentRepository.create(defaultPolicy()
 				.siteId(siteId)
 				.name(UUID.randomUUID().toString())
 				.build());
 	}
 
-	private void createGroup(String communityId, String groupName, TestUser testUser) {
+	private void createGroup(CommunityId communityId, String groupName, TestUser testUser) {
 		final GenericGroupId genericGroupId = genericGroupRepository.create(defaultGenericGroup()
 				.communityId(communityId)
 				.name(groupName)
@@ -263,13 +271,14 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 	private CidpRequiredData createCidpRequiredData(TestUser testUser) {
 		final CidpRequiredData relatedData = new CidpRequiredData();
 		Site.SiteBuilder siteBuilder = defaultSite();
-		relatedData.siteId = siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId());
-		relatedData.policyId = createPolicy(relatedData.siteId).id.toString();
+		SiteId siteId = siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId());
+		relatedData.siteId = siteId;
+		relatedData.policyId = createPolicy(relatedData.siteId);
 		relatedData.oauthClientId = "siteOauth";
 		final Site site = siteBuilder
-				.id(relatedData.siteId)
+				.id(siteId)
 				.oauthClientId(relatedData.oauthClientId)
-				.policyId(new PolicyId(relatedData.policyId))
+				.policyId(relatedData.policyId)
 				.name("site1")
 				.build();
 		//just to save oauthClientId and policy
@@ -308,7 +317,7 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 				.name(UUID.randomUUID().toString())
 				.build());
 		relatedData.grantAccess = GrantAccess.builder()
-				.siteId(new SiteId(site.getId(), "mock"))
+				.siteId(new SiteId(site.getId().id.toString(), "mock"))
 				.allocationId(relatedData.projectAllocationId)
 				.projectId(relatedData.projectId)
 				.fenixUserId(new FenixUserId(testUser.getFenixId()))
@@ -318,16 +327,16 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 	}
 
 	private static class CidpRequiredData {
-		String siteId;
+		SiteId siteId;
 		String oauthClientId;
-		String policyId;
-		String communityId;
-		String projectId;
-		String serviceId;
-		String resourceTypeId;
-		String resourceCreditId;
-		String communityAllocationId;
-		String projectAllocationId;
+		PolicyId policyId;
+		CommunityId communityId;
+		ProjectId projectId;
+		InfraServiceId serviceId;
+		ResourceTypeId resourceTypeId;
+		ResourceCreditId resourceCreditId;
+		CommunityAllocationId communityAllocationId;
+		ProjectAllocationId projectAllocationId;
 		GrantAccess grantAccess;
 	}
 

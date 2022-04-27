@@ -31,7 +31,7 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 
 	@Override
 	public Set<SiteAgentPendingMessage> findAll(SiteId siteId) {
-		return repository.findAllBySiteId(UUID.fromString(siteId.id)).stream()
+		return repository.findAllBySiteId(siteId.id).stream()
 			.map(message ->
 				SiteAgentPendingMessage.builder()
 					.siteExternalId(new SiteExternalId(message.siteExternalId))
@@ -63,7 +63,7 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 	@Override
 	public void create(SiteAgentPendingMessage message) {
 		repository.save(SiteAgentPendingMessageEntity.builder()
-			.siteId(UUID.fromString(siteRepository.findByExternalId(message.siteExternalId).id))
+			.siteId(siteRepository.findByExternalId(message.siteExternalId).id)
 			.siteExternalId(message.siteExternalId.id)
 			.correlationId(UUID.fromString(message.correlationId.id))
 			.jsonContent(message.jsonContent)

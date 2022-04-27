@@ -8,6 +8,7 @@ package io.imunity.furms.db.sites;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,24 +45,24 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		Optional<Site> byId = repository.findById(entity.getId().toString());
+		Optional<Site> byId = repository.findById(new SiteId(entity.getId()));
 
 		//then
 		assertThat(byId).isPresent();
-		assertThat(byId.get().getId()).isEqualTo(entity.getId().toString());
+		assertThat(byId.get().getId().id).isEqualTo(entity.getId());
 	}
 
 	@Test
 	void shouldNotFindByIdIfDoesntExist() {
 		//given
-		UUID wrongId = generateId();
+		SiteId wrongId = new SiteId(generateId());
 		entityRepository.save(SiteEntity.builder()
 				.name("random_site")
 				.externalId("id")
 				.build());
 
 		//when
-		Optional<Site> byId = repository.findById(wrongId.toString());
+		Optional<Site> byId = repository.findById(wrongId);
 
 		//then
 		assertThat(byId).isEmpty();
@@ -94,7 +95,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 				.build();
 
 		//when
-		String newSiteId = repository.create(request, new SiteExternalId("id"));
+		SiteId newSiteId = repository.create(request, new SiteExternalId("id"));
 
 		//then
 		Optional<Site> byId = repository.findById(newSiteId);
@@ -124,8 +125,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 			.externalId("id")
 			.build());
 		Site requestToUpdate = Site.builder()
-			.id(old.getId().toString())
-			.externalId(new SiteExternalId("id"))
+			.id(new SiteId(old.getId().toString(), new SiteExternalId("id")))
 			.name("new_name")
 			.build();
 
@@ -133,7 +133,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 		repository.update(requestToUpdate);
 
 		//then
-		Optional<Site> byId = repository.findById(old.getId().toString());
+		Optional<Site> byId = repository.findById(new SiteId(old.getId()));
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 	}
@@ -149,18 +149,18 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when + then
-		assertThat(repository.exists(entity.getId().toString())).isTrue();
+		assertThat(repository.exists(new SiteId(entity.getId()))).isTrue();
 	}
 
 	@Test
 	void shouldNotExistsDueToEmptyOrWrongId() {
 		//given
-		String nonExistedId = generateId().toString();
+		SiteId nonExistedId = new SiteId(generateId());
 
 		//when + then
 		assertThat(repository.exists(nonExistedId)).isFalse();
 		assertThat(repository.exists(null)).isFalse();
-		assertThat(repository.exists("")).isFalse();
+		assertThat(repository.exists(new SiteId((UUID) null))).isFalse();
 	}
 
 	@Test
@@ -201,7 +201,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when + then
-		assertThat(repository.isNamePresentIgnoringRecord(existedSite.getName(), existedSite2.getId().toString())).isTrue();
+		assertThat(repository.isNamePresentIgnoringRecord(existedSite.getName(), new SiteId(existedSite2.getId()))).isTrue();
 	}
 
 	@Test
@@ -213,7 +213,7 @@ class SiteDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when + then
-		assertThat(repository.isNamePresentIgnoringRecord(existedSite.getName(), existedSite.getId().toString())).isFalse();
+		assertThat(repository.isNamePresentIgnoringRecord(existedSite.getName(), new SiteId(existedSite.getId()))).isFalse();
 	}
 
 

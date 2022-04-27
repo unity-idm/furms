@@ -7,18 +7,25 @@ package io.imunity.furms.db.resource_access;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -37,14 +44,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.resource_access.AccessStatus.*;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_PENDING;
+import static io.imunity.furms.domain.resource_access.AccessStatus.REVOKE_PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -74,9 +82,9 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceAccessDatabaseRepository resourceAccessDatabaseRepository;
 
-	private UUID siteId;
-	private UUID projectId;
-	private UUID projectAllocationId;
+	private SiteId siteId;
+	private ProjectId projectId;
+	private ProjectAllocationId projectAllocationId;
 
 
 	@BeforeEach
@@ -85,17 +93,17 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
 
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -105,52 +113,52 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
+		);
 
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
+		projectAllocationId = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(5))
 				.build()
-		));
+		);
 	}
 
 	@Test
@@ -158,9 +166,9 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -172,15 +180,15 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId(siteId.toString(), "mock"))
-			.allocationId(projectAllocationId.toString())
-			.projectId(projectId.toString())
+			.siteId(new SiteId(siteId.id.toString(), "mock"))
+			.allocationId(projectAllocationId)
+			.projectId(projectId)
 			.fenixUserId(new FenixUserId("userId"))
 			.build();
 
 		resourceAccessDatabaseRepository.update(correlationId, grantAccess, REVOKE_PENDING);
 
-		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId.id);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation).isEqualTo(userAllocation);
 		assertThat(userAllocationResolved.get().job.status).isEqualTo(REVOKE_PENDING.getPersistentId());
@@ -191,9 +199,9 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -215,9 +223,9 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -230,7 +238,7 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		resourceAccessDatabaseRepository.update(correlationId, GRANT_FAILED, "msg");
 
-		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId.id);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation).isEqualTo(userAllocation);
 		assertThat(userAllocationResolved.get().job.status).isEqualTo(GRANT_FAILED.getPersistentId());
@@ -241,15 +249,15 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldCreate(){
 		CorrelationId correlationId = CorrelationId.randomID();
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId(siteId.toString(), "mock"))
-			.allocationId(projectAllocationId.toString())
-			.projectId(projectId.toString())
+			.siteId(new SiteId(siteId.id.toString(), "mock"))
+			.allocationId(projectAllocationId)
+			.projectId(projectId)
 			.fenixUserId(new FenixUserId("userId"))
 			.build();
 
 		resourceAccessDatabaseRepository.create(correlationId, grantAccess, GRANT_PENDING);
 
-		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId);
+		Optional<UserGrantResolved> userAllocationResolved = userGrantEntityRepository.findByUserIdAndProjectAllocationId("userId", projectAllocationId.id);
 		assertThat(userAllocationResolved).isPresent();
 		assertThat(userAllocationResolved.get().allocation.userId).isEqualTo("userId");
 		assertThat(userAllocationResolved.get().job.status).isEqualTo(GRANT_PENDING.getPersistentId());
@@ -260,9 +268,9 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserGrantEntity userAllocation = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.userId("userId")
 				.build()
 		);
@@ -274,11 +282,11 @@ class ResourceAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		userGrantJobEntityRepository.save(userGrantJobEntity);
 
-		Set<UserGrant> userGrants = resourceAccessDatabaseRepository.findUsersGrantsByProjectId(projectId.toString());
+		Set<UserGrant> userGrants = resourceAccessDatabaseRepository.findUsersGrantsByProjectId(projectId);
 		assertThat(userGrants.size()).isEqualTo(1);
 		UserGrant userGrant = userGrants.iterator().next();
-		assertThat(userGrant.userId).isEqualTo("userId");
-		assertThat(userGrant.projectAllocationId).isEqualTo(projectAllocationId.toString());
+		assertThat(userGrant.userId.id).isEqualTo("userId");
+		assertThat(userGrant.projectAllocationId.id).isEqualTo(projectAllocationId.id);
 		assertThat(userGrant.status).isEqualTo(AccessStatus.GRANTED);
 		assertThat(userGrant.errorMessage.get().message).isEqualTo("text");
 	}

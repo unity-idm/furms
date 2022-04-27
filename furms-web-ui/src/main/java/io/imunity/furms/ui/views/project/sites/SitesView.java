@@ -14,6 +14,8 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.user_site_access.UserSiteAccessService;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_site_access.UsersSitesAccesses;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -42,20 +44,21 @@ public class SitesView extends FurmsViewComponent {
 	public final UserSiteAccessService userSiteAccessService;
 	public final ProjectInstallationsService projectInstallationsService;
 	public final TreeGrid<SiteTreeGridModel> grid;
-	public final String projectId;
+	public final ProjectId projectId;
 
 	SitesView(UserSiteAccessService userSiteAccessService, ProjectInstallationsService projectInstallationsService) {
 		this.userSiteAccessService = userSiteAccessService;
 		this.projectInstallationsService = projectInstallationsService;
 		this.grid = new DenseTreeGrid<>();
-		this.projectId = getCurrentResourceId();
+		this.projectId = new ProjectId(getCurrentResourceId());
 		fillGrid();
 		getContent().add(new ViewHeaderLayout(getTranslation("view.community-admin.projects.header")), grid);
 	}
 
 	private Set<SiteTreeGridModel> loadData() {
-		String projectId = getCurrentResourceId();
-		Map<String, ProjectUpdateJobStatus> collect = projectInstallationsService.findAllUpdatesByProjectId(projectId).stream()
+		ProjectId projectId = new ProjectId(getCurrentResourceId());
+		Map<SiteId, ProjectUpdateJobStatus> collect =
+			projectInstallationsService.findAllUpdatesByProjectId(projectId).stream()
 			.collect(Collectors.toMap(x -> x.siteId, x -> x));
 
 		return projectInstallationsService.findAllByProjectId(projectId).stream()
@@ -79,7 +82,7 @@ public class SitesView extends FurmsViewComponent {
 	private Set<SiteTreeGridModel> loadNextLevelData(UsersSitesAccesses usersSitesAccesses, SiteTreeGridModel model) {
 		if(model.userId != null)
 			return Set.of();
-		String siteId = model.siteId;
+		SiteId siteId = model.siteId;
 		return  usersSitesAccesses.getUsersInstalledOnSite().stream()
 			.map(furmsUser -> SiteTreeGridModel.builder()
 				.siteId(siteId)

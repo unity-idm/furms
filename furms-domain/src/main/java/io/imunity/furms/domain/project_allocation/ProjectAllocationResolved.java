@@ -135,8 +135,18 @@ public class ProjectAllocationResolved {
 			return this;
 		}
 
+		public CommunityAllocationResolvedBuilder id(ProjectAllocationId id) {
+			this.id = id;
+			return this;
+		}
+
 		public CommunityAllocationResolvedBuilder projectId(String projectId) {
 			this.projectId = new ProjectId(projectId);
+			return this;
+		}
+
+		public CommunityAllocationResolvedBuilder projectId(ProjectId projectId) {
+			this.projectId = projectId;
 			return this;
 		}
 

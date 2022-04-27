@@ -23,8 +23,11 @@ import io.imunity.furms.api.validation.exceptions.ProjectAllocationIncreaseInExp
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
 import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -50,8 +53,8 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 	private final Binder<ProjectAllocationViewModel> binder = new BeanValidationBinder<>(ProjectAllocationViewModel.class);
 	private final ProjectAllocationFormComponent projectAllocationFormComponent;
 
-	private final String communityId;
-	private String projectId;
+	private final CommunityId communityId;
+	private ProjectId projectId;
 	private BreadCrumbParameter breadCrumbParameter;
 
 	ProjectAllocationFormView(ProjectAllocationService projectAllocationService,
@@ -59,12 +62,12 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 	                          ProjectService projectService) {
 		this.projectAllocationService = projectAllocationService;
 		this.projectService = projectService;
+		this.communityId = new CommunityId(getCurrentResourceId());
 		ProjectAllocationComboBoxesModelsResolver resolver = new ProjectAllocationComboBoxesModelsResolver(
-			communityAllocationService.findAllNotExpiredByCommunityIdWithRelatedObjects(getCurrentResourceId()),
+			communityAllocationService.findAllNotExpiredByCommunityIdWithRelatedObjects(communityId),
 			projectAllocationService::getAvailableAmount
 		);
 		this.projectAllocationFormComponent = new ProjectAllocationFormComponent(binder, resolver);
-		this.communityId = getCurrentResourceId();
 
 		Button saveButton = createSaveButton();
 		binder.addStatusChangeListener(status -> saveButton.setEnabled(binder.isValid()));
@@ -78,7 +81,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 		Button closeButton = new Button(getTranslation("view.community-admin.project-allocation.form.button.cancel"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		closeButton.addClickShortcut(Key.ESCAPE);
-		closeButton.addClickListener(x -> UI.getCurrent().navigate(ProjectView.class, projectId));
+		closeButton.addClickListener(x -> UI.getCurrent().navigate(ProjectView.class, projectId.id.toString()));
 		return closeButton;
 	}
 
@@ -102,7 +105,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			else
 				projectAllocationService.update(communityId, projectAllocation);
 
-			UI.getCurrent().navigate(ProjectView.class, projectId);
+			UI.getCurrent().navigate(ProjectView.class, projectId.id.toString());
 		} catch (ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException e) {
 			showErrorNotification(getTranslation("project.allocation.resource.type.unique.message"));
 		} catch (ProjectAllocationWrongAmountException e) {
@@ -129,15 +132,16 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		ProjectAllocationViewModel projectAllocationModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByIdWithRelatedObjects(communityId, id)))
+			.flatMap(id -> handleExceptions(() -> projectAllocationService.findByIdWithRelatedObjects(communityId,
+			new ProjectAllocationId(id))))
 			.flatMap(Function.identity())
 			.map(ProjectAllocationModelsMapper::map)
 			.orElseGet(() -> {
-				String projectId = event.getLocation()
+				ProjectId projectId = new ProjectId(event.getLocation()
 					.getQueryParameters()
 					.getParameters()
 					.get("projectId")
-					.iterator().next();
+					.iterator().next());
 				Project project = projectService.findById(projectId).get();
 				return new ProjectAllocationViewModel(projectId, project.getName());
 			});

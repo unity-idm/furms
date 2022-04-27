@@ -63,7 +63,7 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 		try {
 			Group group = unityClient.get(path, Group.class);
 			return Optional.ofNullable(Site.builder()
-					.id(id.id.toString())
+					.id(id)
 					.name(group.getDisplayedName().getDefaultValue())
 					.build());
 		} catch (WebClientResponseException e) {

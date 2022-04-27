@@ -5,22 +5,6 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Optional.ofNullable;
-
-import java.lang.invoke.MethodHandles;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
-
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -30,7 +14,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
@@ -39,12 +22,28 @@ import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.api.validation.exceptions.UserWithoutSitesError;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
+
+import java.lang.invoke.MethodHandles;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Optional.ofNullable;
 
 @Route(value = "users/settings/ssh/keys/form", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.ssh-keys.form.page.title")
@@ -124,6 +123,7 @@ class SSHKeyFormView extends FurmsViewComponent {
 		}
 
 		SSHKeyUpdateModel serviceViewModel = ofNullable(parameter)
+				.map(SSHKeyId::new)
 				.flatMap(id -> handleExceptions(() -> sshKeyService.findById(id)))
 				.flatMap(Function.identity()).map(k -> SSHKeyViewModelMapper.mapToUpdate(k, zoneId))
 				.orElseGet(() -> new SSHKeyUpdateModel(authzService.getCurrentUserId()));

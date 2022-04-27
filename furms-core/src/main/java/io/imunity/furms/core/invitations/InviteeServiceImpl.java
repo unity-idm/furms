@@ -11,11 +11,14 @@ import io.imunity.furms.api.validation.exceptions.InvitationNotExistingException
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationAcceptedEvent;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.UserRoleGrantedByInvitationEvent;
@@ -80,14 +83,14 @@ class InviteeServiceImpl implements InviteeService {
 				fenixUsersDAO.addFenixAdminRole(user.id.get());
 				break;
 			case SITE:
-				siteGroupDAO.addSiteUser(invitation.resourceId.id.toString(), user.id.get(), invitation.role);
+				siteGroupDAO.addSiteUser(new SiteId(invitation.resourceId.id), user.id.get(), invitation.role);
 				break;
 			case COMMUNITY:
-				communityGroupsDAO.addAdmin(invitation.resourceId.id.toString(), user.id.get());
+				communityGroupsDAO.addAdmin(new CommunityId(invitation.resourceId.id), user.id.get());
 				break;
 			case PROJECT:
-				String projectId = invitation.resourceId.id.toString();
-				String communityId = projectRepository.findById(projectId).get().getCommunityId();
+				ProjectId projectId = new ProjectId(invitation.resourceId.id);
+				CommunityId communityId = projectRepository.findById(projectId).get().getCommunityId();
 				projectGroupsDAO.addProjectUser(communityId, projectId, user.id.get(), invitation.role);
 				break;
 		}
@@ -104,15 +107,17 @@ class InviteeServiceImpl implements InviteeService {
 				adminsToNotify = fenixUsersDAO.getAdminUsers();
 				break;
 			case SITE:
-				adminsToNotify = siteGroupDAO.getSiteUsers(invitation.resourceId.id.toString(), Set.of(Role.SITE_ADMIN));
+				SiteId siteId = new SiteId(invitation.resourceId.id);
+				adminsToNotify = siteGroupDAO.getSiteUsers(siteId, Set.of(Role.SITE_ADMIN));
 				break;
 			case COMMUNITY:
-				adminsToNotify = communityGroupsDAO.getAllAdmins(invitation.resourceId.id.toString());
+				CommunityId communityId = new CommunityId(invitation.resourceId.id);
+				adminsToNotify = communityGroupsDAO.getAllAdmins(communityId);
 				break;
 			case PROJECT:
-				String projectId = invitation.resourceId.id.toString();
-				String communityId = projectRepository.findById(projectId).get().getCommunityId();
-				adminsToNotify = projectGroupsDAO.getAllAdmins(communityId, projectId);
+				ProjectId projectId = new ProjectId(invitation.resourceId.id);
+				CommunityId comId = projectRepository.findById(projectId).get().getCommunityId();
+				adminsToNotify = projectGroupsDAO.getAllAdmins(comId, projectId);
 				break;
 			default:
 				adminsToNotify = List.of();

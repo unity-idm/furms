@@ -8,12 +8,15 @@ package io.imunity.furms.server;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -22,16 +25,21 @@ import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
@@ -85,13 +93,13 @@ class DemoDataInitializer implements CommandLineRunner {
 	private final ProjectOperationRepository projectOperationRepository;
 	private final ResourceUsageRepository resourceUsageRepository;
 
-	private String communityId;
-	private String community2Id;
+	private CommunityId communityId;
+	private CommunityId community2Id;
 
-	private String projectId;
-	private String project2Id;
-	private String project3Id;
-	private String project4Id;
+	private ProjectId projectId;
+	private ProjectId project2Id;
+	private ProjectId project3Id;
+	private ProjectId project4Id;
 
 	DemoDataInitializer(CommunityRepository communityRepository, CommunityGroupsDAO communityGroupsDAO,
 	                    SiteRepository siteRepository, SiteGroupDAO siteGroupDAO, UsersDAO usersDAO,
@@ -246,9 +254,9 @@ class DemoDataInitializer implements CommandLineRunner {
 			SiteExternalId fzjExternalId = new SiteExternalId("fzj-x");
 			SiteExternalId bscExternalId = new SiteExternalId("bsc-x");
 
-			String cinecaId = siteRepository.create(cineca, ciencaExternalId);
-			String fzjId = siteRepository.create(fzj, fzjExternalId);
-			String bscId = siteRepository.create(bsc, bscExternalId);
+			SiteId cinecaId = siteRepository.create(cineca, ciencaExternalId);
+			SiteId fzjId = siteRepository.create(fzj, fzjExternalId);
+			SiteId bscId = siteRepository.create(bsc, bscExternalId);
 
 			siteAgentService.initializeSiteConnection(ciencaExternalId);
 			siteAgentService.initializeSiteConnection(fzjExternalId);
@@ -283,7 +291,6 @@ class DemoDataInitializer implements CommandLineRunner {
 
 			Site updateCineca = Site.builder()
 				.id(cinecaId)
-				.externalId(ciencaExternalId)
 				.policyId(policyId)
 				.name("CINECA")
 				.build();
@@ -322,12 +329,12 @@ class DemoDataInitializer implements CommandLineRunner {
 				.description("Archive Bsc")
 				.build();
 
-			String serviceCinecaId = infraServiceRepository.create(infraServiceCineca);
-			String serviceCinecaId1 = infraServiceRepository.create(infraServiceCineca1);
-			String serviceFzjId = infraServiceRepository.create(infraServiceFzj);
-			String serviceFzjId1 = infraServiceRepository.create(infraServiceFzj1);
-			String serviceBscId = infraServiceRepository.create(infraServiceBsc);
-			String serviceBscId1 = infraServiceRepository.create(infraServiceBsc1);
+			InfraServiceId serviceCinecaId = infraServiceRepository.create(infraServiceCineca);
+			InfraServiceId serviceCinecaId1 = infraServiceRepository.create(infraServiceCineca1);
+			InfraServiceId serviceFzjId = infraServiceRepository.create(infraServiceFzj);
+			InfraServiceId serviceFzjId1 = infraServiceRepository.create(infraServiceFzj1);
+			InfraServiceId serviceBscId = infraServiceRepository.create(infraServiceBsc);
+			InfraServiceId serviceBscId1 = infraServiceRepository.create(infraServiceBsc1);
 
 			ResourceType resourceTypeCineca = ResourceType.builder()
 				.siteId(cinecaId)
@@ -372,12 +379,12 @@ class DemoDataInitializer implements CommandLineRunner {
 				.unit(ResourceMeasureUnit.KB)
 				.build();
 
-			String resourceTypeCinecaId = resourceTypeRepository.create(resourceTypeCineca);
-			String resourceTypeCinecaId1 = resourceTypeRepository.create(resourceTypeCineca1);
-			String resourceTypeFzjId = resourceTypeRepository.create(resourceTypeFzj);
-			String resourceTypeFzjId1 = resourceTypeRepository.create(resourceTypeFzj1);
-			String resourceTypeBscId = resourceTypeRepository.create(resourceTypeBsc);
-			String resourceTypeBscId1 = resourceTypeRepository.create(resourceTypeBsc1);
+			ResourceTypeId resourceTypeCinecaId = resourceTypeRepository.create(resourceTypeCineca);
+			ResourceTypeId resourceTypeCinecaId1 = resourceTypeRepository.create(resourceTypeCineca1);
+			ResourceTypeId resourceTypeFzjId = resourceTypeRepository.create(resourceTypeFzj);
+			ResourceTypeId resourceTypeFzjId1 = resourceTypeRepository.create(resourceTypeFzj1);
+			ResourceTypeId resourceTypeBscId = resourceTypeRepository.create(resourceTypeBsc);
+			ResourceTypeId resourceTypeBscId1 = resourceTypeRepository.create(resourceTypeBsc1);
 
 			ResourceCredit resourceCreditCineca = ResourceCredit.builder()
 				.siteId(cinecaId)
@@ -428,12 +435,12 @@ class DemoDataInitializer implements CommandLineRunner {
 				.utcEndTime(LocalDateTime.of(2024, 12, 8, 17, 32))
 				.build();
 
-			String resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca);
+			ResourceCreditId resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca);
 			resourceCreditRepository.create(resourceCreditCineca1);
 			resourceCreditRepository.create(resourceCreditFzj);
-			String resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
+			ResourceCreditId resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
 			resourceCreditRepository.create(resourceCreditBsc);
-			String resourceCreditBscId1 = resourceCreditRepository.create(resourceCreditBsc1);
+			ResourceCreditId resourceCreditBscId1 = resourceCreditRepository.create(resourceCreditBsc1);
 
 			CommunityAllocation communityAllocation = CommunityAllocation.builder()
 				.communityId(communityId)
@@ -462,8 +469,8 @@ class DemoDataInitializer implements CommandLineRunner {
 
 			communityAllocationRepository.create(communityAllocation);
 			communityAllocationRepository.create(communityAllocation1);
-			String communityAllocationId = communityAllocationRepository.create(communityAllocation2);
-			String communityAllocationId1 = communityAllocationRepository.create(communityAllocation3);
+			CommunityAllocationId communityAllocationId = communityAllocationRepository.create(communityAllocation2);
+			CommunityAllocationId communityAllocationId1 = communityAllocationRepository.create(communityAllocation3);
 
 			ProjectAllocation projectAllocation = ProjectAllocation.builder()
 				.projectId(projectId)
@@ -472,7 +479,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.communityAllocationId(communityAllocationId)
 				.build();
 
-			String projectAllocationId = projectAllocationRepository.create(projectAllocation);
+			ProjectAllocationId projectAllocationId = projectAllocationRepository.create(projectAllocation);
 
 			ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
 				.projectAllocationId(projectAllocationId)
@@ -697,7 +704,7 @@ class DemoDataInitializer implements CommandLineRunner {
 				.communityAllocationId(communityAllocationId)
 				.build();
 
-			String projectAllocationId1 = projectAllocationRepository.create(projectAllocation1);
+			ProjectAllocationId projectAllocationId1 = projectAllocationRepository.create(projectAllocation1);
 
 			ProjectAllocationInstallation projectAllocationInstallation1 = ProjectAllocationInstallation.builder()
 				.projectAllocationId(projectAllocationId1)

@@ -86,7 +86,7 @@ class SSHKeyEntity extends UUIDIdentifiable {
 	SSHKey toSSHKey() {
 		return new SSHKey.SSHKeyBuilder().id(id.toString()).name(name).value(value).createTime(createTime)
 				.updateTime(updateTime).ownerId(new PersistentId(ownerId))
-				.sites(sites.stream().map(s -> s.getSiteId().toString()).collect(Collectors.toSet()))
+				.sites(sites.stream().map(s -> new SiteId(s.getSiteId())).collect(Collectors.toSet()))
 				.build();
 	}
 

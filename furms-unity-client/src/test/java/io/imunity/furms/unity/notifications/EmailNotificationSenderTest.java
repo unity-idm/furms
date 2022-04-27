@@ -9,6 +9,9 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -60,7 +63,7 @@ class EmailNotificationSenderTest {
 	void shouldNotifyAboutChangedPolicy() {
 		PersistentId id = new PersistentId(UUID.randomUUID().toString());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		String siteId = "siteId";
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.siteId(siteId)
@@ -94,7 +97,7 @@ class EmailNotificationSenderTest {
 	void shouldNotNotifyAboutChangedPolicy() {
 		PersistentId id = new PersistentId(UUID.randomUUID().toString());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		String siteId = "siteId";
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.siteId(siteId)
@@ -154,13 +157,18 @@ class EmailNotificationSenderTest {
 	@Test
 	void shouldNotifyProjectAdminAboutResourceUsage() {
 		PersistentId id = new PersistentId(UUID.randomUUID().toString());
-
-		emailNotificationDAO.notifyProjectAdminAboutResourceUsage(id, "projectId", "projectAllocationId","projectAllocationName", "alarmName");
+		UUID projectId = UUID.randomUUID();
+		UUID projectAllocationId = UUID.randomUUID();
+		emailNotificationDAO.notifyProjectAdminAboutResourceUsage(id, new ProjectId(projectId),
+			new ProjectAllocationId(projectAllocationId),
+			"projectAllocationName", "alarmName");
 
 		verify(userService).sendUserNotification(id, "resourceUsageAlarm",
 			Map.of("custom.projectAllocationName", "projectAllocationName",
 				"custom.alarmName", "alarmName",
-				"custom.furmsUrl", FURMS_BASE_URL + "/front/project/admin/resource/allocations/details/" + "projectAllocationId?resourceId=projectId"
+				"custom.furmsUrl",
+				FURMS_BASE_URL + "/front/project/admin/resource/allocations/details/" + projectAllocationId +
+					"?resourceId=" + projectId
 			)
 		);
 	}
@@ -168,13 +176,18 @@ class EmailNotificationSenderTest {
 	@Test
 	void shouldNotifyProjectUserAboutResourceUsage() {
 		PersistentId id = new PersistentId(UUID.randomUUID().toString());
+		UUID projectId = UUID.randomUUID();
+		UUID projectAllocationId = UUID.randomUUID();
 
-		emailNotificationDAO.notifyProjectUserAboutResourceUsage(id, "projectId", "projectAllocationId","projectAllocationName", "alarmName");
+		emailNotificationDAO.notifyProjectUserAboutResourceUsage(id, new ProjectId(projectId),
+			new ProjectAllocationId(projectAllocationId),
+			"projectAllocationName"
+			, "alarmName");
 
 		verify(userService).sendUserNotification(id, "resourceUsageAlarm",
 			Map.of("custom.projectAllocationName", "projectAllocationName",
 				"custom.alarmName", "alarmName",
-				"custom.furmsUrl", FURMS_BASE_URL + "/front/users/settings/project/projectId"
+				"custom.furmsUrl", FURMS_BASE_URL + "/front/users/settings/project/" + projectId
 			)
 		);
 	}
@@ -182,8 +195,12 @@ class EmailNotificationSenderTest {
 	@Test
 	void shouldNotifyUserAboutResourceUsage() {
 		PersistentId id = new PersistentId(UUID.randomUUID().toString());
+		UUID projectId = UUID.randomUUID();
+		UUID projectAllocationId = UUID.randomUUID();
 
-		emailNotificationDAO.notifyUserAboutResourceUsage(id, "projectId", "projectAllocationId","projectAllocationName", "alarmName");
+		emailNotificationDAO.notifyUserAboutResourceUsage(id, new ProjectId(projectId), new ProjectAllocationId(projectAllocationId),
+			"projectAllocationName",
+			"alarmName");
 
 		verify(userService).sendUserNotification(id, "resourceUsageAlarmWithoutUrl",
 			Map.of("custom.projectAllocationName", "projectAllocationName",

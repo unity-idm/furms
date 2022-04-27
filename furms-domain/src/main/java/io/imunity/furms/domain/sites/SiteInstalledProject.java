@@ -5,15 +5,17 @@
 
 package io.imunity.furms.domain.sites;
 
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.util.Objects;
 
 public class SiteInstalledProject {
-	public final String siteId;
+	public final SiteId siteId;
 	public final String siteName;
-	public final String projectId;
+	public final ProjectId projectId;
 	public final Gid gid;
 
-	public SiteInstalledProject(String siteId, String siteName, String projectId, Gid gid) {
+	public SiteInstalledProject(SiteId siteId, String siteName, ProjectId projectId, Gid gid) {
 		this.siteId = siteId;
 		this.siteName = siteName;
 		this.projectId = projectId;
@@ -51,15 +53,15 @@ public class SiteInstalledProject {
 	}
 
 	public static final class SiteInstalledProjectBuilder {
-		public String siteId;
+		public SiteId siteId;
 		public String siteName;
-		public String projectId;
+		public ProjectId projectId;
 		public Gid gid;
 
 		private SiteInstalledProjectBuilder() {
 		}
 
-		public SiteInstalledProjectBuilder siteId(String siteId) {
+		public SiteInstalledProjectBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}
@@ -69,7 +71,7 @@ public class SiteInstalledProject {
 			return this;
 		}
 
-		public SiteInstalledProjectBuilder projectId(String projectId) {
+		public SiteInstalledProjectBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}

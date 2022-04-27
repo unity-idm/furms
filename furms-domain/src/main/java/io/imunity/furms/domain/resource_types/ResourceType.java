@@ -88,6 +88,11 @@ public class ResourceType {
 			return this;
 		}
 
+		public ResourceTypeBuilder id(ResourceTypeId id) {
+			this.id = id;
+			return this;
+		}
+
 		public ResourceTypeBuilder name(String name) {
 			this.name = name;
 			return this;
@@ -98,8 +103,18 @@ public class ResourceType {
 			return this;
 		}
 
+		public ResourceTypeBuilder siteId(SiteId siteId) {
+			this.siteId = siteId;
+			return this;
+		}
+
 		public ResourceTypeBuilder serviceId(String serviceId) {
 			this.serviceId = new InfraServiceId(serviceId);
+			return this;
+		}
+
+		public ResourceTypeBuilder serviceId(InfraServiceId serviceId) {
+			this.serviceId = serviceId;
 			return this;
 		}
 

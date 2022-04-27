@@ -4,12 +4,12 @@
  */
 package io.imunity.furms.rest.admin;
 
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCZoned;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunkResolved;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunkResolved;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCZoned;
 
 class SiteAllocatedResources {
 	public final String allocationId;
@@ -27,7 +27,8 @@ class SiteAllocatedResources {
 	}
 
 	public SiteAllocatedResources(ProjectAllocationChunkResolved chunk) {
-		this(chunk.projectAllocation.id, chunk.projectAllocation.site.getId(), chunk.projectAllocation.projectId,
+		this(chunk.projectAllocation.id.id.toString(), chunk.projectAllocation.site.getId().id.toString(),
+			chunk.projectAllocation.projectId.id.toString(),
 				chunk.amount, new Validity(convertToUTCZoned(chunk.validFrom), convertToUTCZoned(chunk.validTo)));
 	}
 

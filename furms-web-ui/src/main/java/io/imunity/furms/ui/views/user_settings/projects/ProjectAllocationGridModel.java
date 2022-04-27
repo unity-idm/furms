@@ -5,6 +5,8 @@
 
 package io.imunity.furms.ui.views.user_settings.projects;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_types.AmountWithUnit;
 import io.imunity.furms.domain.resource_types.PositiveAmountWithUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
@@ -13,8 +15,8 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 class ProjectAllocationGridModel {
-	public final String id;
-	public final String projectId;
+	public final ProjectAllocationId id;
+	public final ProjectId projectId;
 	public final String siteName;
 	public final String resourceTypeName;
 	public final String name;
@@ -23,7 +25,7 @@ class ProjectAllocationGridModel {
 	public final PositiveAmountWithUnit remainingWithUnit;
 	public final boolean accessibleForAllProjectMembers;
 
-	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName,
+	ProjectAllocationGridModel(ProjectAllocationId id, ProjectId projectId, String siteName, String resourceTypeName,
 	                           ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed, boolean accessibleForAllProjectMembers) {
 		this.id = id;
 		this.projectId = projectId;
@@ -67,8 +69,8 @@ class ProjectAllocationGridModel {
 	}
 
 	public static final class ProjectAllocationGridModelBuilder {
-		public String id;
-		public String projectId;
+		public ProjectAllocationId id;
+		public ProjectId projectId;
 		public String siteName;
 		public String resourceTypeName;
 		public ResourceMeasureUnit resourceTypeUnit;
@@ -80,12 +82,12 @@ class ProjectAllocationGridModel {
 		private ProjectAllocationGridModelBuilder() {
 		}
 
-		public ProjectAllocationGridModelBuilder id(String id) {
+		public ProjectAllocationGridModelBuilder id(ProjectAllocationId id) {
 			this.id = id;
 			return this;
 		}
 
-		public ProjectAllocationGridModelBuilder projectId(String projectId) {
+		public ProjectAllocationGridModelBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}

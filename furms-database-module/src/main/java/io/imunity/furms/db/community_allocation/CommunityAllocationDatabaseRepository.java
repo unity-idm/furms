@@ -25,7 +25,6 @@ import static java.util.Optional.empty;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class CommunityAllocationDatabaseRepository implements CommunityAllocationRepository {
@@ -171,6 +170,14 @@ class CommunityAllocationDatabaseRepository implements CommunityAllocationReposi
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(ResourceCreditId id) {
+		return id == null || id.id == null;
+	}
+
+	private boolean isEmpty(CommunityAllocationId id) {
+		return id == null || id.id == null;
 	}
 }
 

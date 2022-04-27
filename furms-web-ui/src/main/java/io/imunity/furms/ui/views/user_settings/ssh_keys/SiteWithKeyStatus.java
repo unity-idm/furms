@@ -5,20 +5,21 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-import java.util.Objects;
-import java.util.Optional;
-
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 
+import java.util.Objects;
+import java.util.Optional;
+
 class SiteWithKeyStatus {
-	public final String id;
+	public final SiteId id;
 	public final SSHKeyOperation keyOperation;
 	public final SSHKeyOperationStatus keyOperationStatus;
 	public final Optional<String> error;
 
-	SiteWithKeyStatus(String id, SSHKeyOperation keyOperation, SSHKeyOperationStatus keyOperationStatus,
-			String error) {
+	SiteWithKeyStatus(SiteId id, SSHKeyOperation keyOperation, SSHKeyOperationStatus keyOperationStatus,
+	                  String error) {
 		this.id = id;
 		this.keyOperation = keyOperation;
 		this.keyOperationStatus = keyOperationStatus;
