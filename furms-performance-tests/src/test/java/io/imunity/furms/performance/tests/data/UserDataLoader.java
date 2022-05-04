@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -120,15 +122,15 @@ class UserDataLoader {
 	}
 
 	public Data.User createProjectsAdmin(Data.User admin, Data.Community bigCommunity, Set<Data.Community> communities) {
-		Set<Pair<String,String>> communityAndProjectIds = new HashSet<>();
+		Set<Pair<CommunityId,ProjectId>> communityAndProjectIds = new HashSet<>();
 		Random random = new Random();
 
-		String[] objects = bigCommunity.projectIds.toArray(new String[0]);
+		ProjectId[] objects = bigCommunity.projectIds.toArray(new ProjectId[0]);
 		for(int i = 0; i < BIG_COMMUNITY_ADMINS_AMOUNT; i++){
 			communityAndProjectIds.add(Pair.of(bigCommunity.communityId, objects[random.nextInt(bigCommunity.projectIds.size())]));
 		}
 		for(Data.Community community : communities){
-			String[] tempIds = community.projectIds.toArray(new String[0]);
+			ProjectId[] tempIds = community.projectIds.toArray(new ProjectId[0]);
 			communityAndProjectIds.add(Pair.of(community.communityId, tempIds[random.nextInt(community.projectIds.size())]));
 		}
 
