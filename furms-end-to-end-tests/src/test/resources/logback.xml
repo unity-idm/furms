@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%date [%13.13thread] [%X{queueName}] [%X{userId}] %-5level %60.60logger - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<root level="INFO">
+		<appender-ref ref="CONSOLE" />
+	</root>
+	
+	
+	<logger name="org.springframework" level="INFO"/>
+	<logger name="org.springframework.web.filter" level="DEBUG"/>
+	<logger name="org.springframework.security" level="INFO"/>
+	<logger name="io.imunity.furms" level="DEBUG"/>
+		
+</configuration>
