@@ -9,6 +9,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
+import io.imunity.furms.domain.users.AllUsersAndFenixAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -32,6 +33,7 @@ public interface UsersDAO {
 	Optional<FURMSUser> findById(PersistentId userId);
 	Optional<FURMSUser> findById(FenixUserId userId);
 	UserAttributes getUserAttributes(FenixUserId fenixUserId);
+	AllUsersAndFenixAdmins getAllUsersAndFenixAdmins();
 	PersistentId getPersistentId(FenixUserId userId);
 	FenixUserId getFenixUserId(PersistentId userId);
 }

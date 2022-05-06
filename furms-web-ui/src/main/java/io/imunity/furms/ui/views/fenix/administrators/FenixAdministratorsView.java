@@ -11,9 +11,7 @@ import io.imunity.furms.api.users.FenixUserService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.ResourceType;
-import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.users.AllUsersAndFenixAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
@@ -27,10 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
@@ -48,7 +44,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 
 	FenixAdministratorsView(UserService userService, FenixUserService fenixUserService, AuthzService authzService) {
 		this.fenixUserService = fenixUserService;
-		this.usersDAO = new UsersDAO(userService::getAllUsers);
+		this.usersDAO = new UsersDAO(userService::getAllUsersAndFenixAdmins);
 
 		InviteUserComponent inviteUser = new InviteUserComponent(
 			usersDAO::getAllUsers,
@@ -103,34 +99,24 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 	}
 
 	private static class UsersDAO {
-		private static final ResourceId resourceId = new ResourceId((String) null, ResourceType.APP_LEVEL);
-		private final Supplier<List<FURMSUser>> allUsersGetter;
-		private List<FURMSUser> allUsers;
-		private List<FURMSUser> fenixAdmins;
+		private final Supplier<AllUsersAndFenixAdmins> allUsersGetter;
+		private AllUsersAndFenixAdmins allUsersAndFenixAdmins;
 
-		UsersDAO(Supplier<List<FURMSUser>> allUsersGetter) {
+		UsersDAO(Supplier<AllUsersAndFenixAdmins> allUsersGetter) {
 			this.allUsersGetter = allUsersGetter;
-			this.allUsers = allUsersGetter.get();
-			this.fenixAdmins = getFenixAdmins(allUsers);
+			this.allUsersAndFenixAdmins = allUsersGetter.get();
 		}
 
 		void reload(){
-			allUsers = allUsersGetter.get();
-			fenixAdmins = getFenixAdmins(allUsers);
+			allUsersAndFenixAdmins = allUsersGetter.get();
 		}
 
 		List<FURMSUser> getAllUsers() {
-			return allUsers;
+			return allUsersAndFenixAdmins.allUsers;
 		}
 
 		List<FURMSUser> getFenixAdmins() {
-			return fenixAdmins;
-		}
-
-		static List<FURMSUser> getFenixAdmins(List<FURMSUser> allUsers) {
-			return allUsers.stream()
-				.filter(user -> user.roles.getOrDefault(resourceId, Collections.emptySet()).contains(Role.FENIX_ADMIN))
-				.collect(Collectors.toList());
+			return allUsersAndFenixAdmins.fenixAdmins;
 		}
 	}
 }

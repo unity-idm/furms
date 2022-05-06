@@ -27,7 +27,7 @@ import java.util.Set;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_GROUP_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_PATTERN;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityConst.RECURSIVE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
@@ -130,12 +130,12 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 			() -> new IllegalArgumentException("Could not get Community Admin from Unity. Missing Community ID"));
 		String communityPath = getCommunityPath(Map.of(ID, communityId), COMMUNITY_PATTERN);
 		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(Map.of(
-				FENIX_PATTERN,
+				FENIX_GROUP,
 				Set.of(),
 				communityPath,
 				Set.of(COMMUNITY_ADMIN)
 			));
-		return new AllUsersAndCommunityAdmins(groupedUsers.getUsers(FENIX_PATTERN), groupedUsers.getUsers(communityPath));
+		return new AllUsersAndCommunityAdmins(groupedUsers.getUsers(FENIX_GROUP), groupedUsers.getUsers(communityPath));
 	}
 
 	@Override

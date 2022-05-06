@@ -10,6 +10,7 @@ import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.generic_groups.GroupAccess;
 import io.imunity.furms.domain.sites.SiteUser;
+import io.imunity.furms.domain.users.AllUsersAndFenixAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -58,6 +59,12 @@ class UserServiceImpl implements UserService {
 	@FurmsAuthorize(capability = READ_ALL_USERS)
 	public List<FURMSUser> getAllUsers(){
 		return usersDAO.getAllUsers();
+	}
+
+	@Override
+	@FurmsAuthorize(capability = READ_ALL_USERS)
+	public AllUsersAndFenixAdmins getAllUsersAndFenixAdmins() {
+		return usersDAO.getAllUsersAndFenixAdmins();
 	}
 
 	@Override
