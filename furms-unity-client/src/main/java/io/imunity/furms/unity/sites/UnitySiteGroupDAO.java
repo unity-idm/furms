@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityConst.SITE_PATTERN;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_BASE;
@@ -150,12 +150,12 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 		String sitePath = getSitePath(siteId);
 		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(
 			Map.of(
-				FENIX_PATTERN,
+				FENIX_GROUP,
 				Set.of(),
 				sitePath,
 				Set.of(Role.SITE_ADMIN)
 			));
-		return new AllUsersAndSiteAdmins(groupedUsers.getUsers(FENIX_PATTERN), groupedUsers.getUsers(sitePath));
+		return new AllUsersAndSiteAdmins(groupedUsers.getUsers(FENIX_GROUP), groupedUsers.getUsers(sitePath));
 	}
 
 	@Override

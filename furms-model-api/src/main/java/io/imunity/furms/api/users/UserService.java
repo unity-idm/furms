@@ -5,6 +5,7 @@
 
 package io.imunity.furms.api.users;
 
+import io.imunity.furms.domain.users.AllUsersAndFenixAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 public interface UserService {
 	List<FURMSUser> getAllUsers();
+	AllUsersAndFenixAdmins getAllUsersAndFenixAdmins();
 	void setUserStatus(FenixUserId fenixUserId, UserStatus status);
 	UserStatus getUserStatus(FenixUserId fenixUserId);
 	Optional<FURMSUser> findById(PersistentId userId);

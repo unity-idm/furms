@@ -10,8 +10,10 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
+import io.imunity.furms.domain.users.AllUsersAndFenixAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.GroupedUsers;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
@@ -42,8 +44,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.imunity.furms.domain.authz.roles.Role.FENIX_ADMIN;
 import static io.imunity.furms.unity.client.UnityGroupParser.usersGroupPredicate4Attr;
 import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ID;
 import static io.imunity.furms.unity.common.UnityPaths.ENTITY_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
@@ -158,6 +162,17 @@ class UnityUsersDAO implements UsersDAO {
 				resourceToAttributesMap, userGroups);
 		List<Attribute> rootAttributes = userAttributes.getOrDefault(UnityConst.ROOT_GROUP, emptyList()); 
 		return new UserAttributes(toFurmsAttributes(rootAttributes), toFurmsAttributesMap(resourceToAttributesMapComplete));
+	}
+
+	@Override
+	public AllUsersAndFenixAdmins getAllUsersAndFenixAdmins() {
+		GroupedUsers groupedUsers = userService.getUsersFromGroupsFilteredByRoles(Map.of(
+			FENIX_PATTERN,
+			Set.of(FENIX_ADMIN),
+			FENIX_GROUP,
+			Set.of()
+		));
+		return new AllUsersAndFenixAdmins(groupedUsers.getUsers(FENIX_GROUP), groupedUsers.getUsers(FENIX_PATTERN));
 	}
 
 	private Map<ResourceId, Set<Attribute>> addEmptyMemberships(

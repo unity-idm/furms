@@ -34,6 +34,7 @@ class UserServiceSecurityTest extends SecurityTestsBase {
 	void shouldPassForSecurityRulesForMethodsInUserService() {
 		forMethods(
 				() -> service.getAllUsers(),
+				() -> service.getAllUsersAndFenixAdmins(),
 				() -> service.findById(persistentId),
 				() -> service.findByFenixUserId(fenixId))
 				.accessFor(
