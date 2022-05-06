@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
@@ -128,7 +129,14 @@ class SiteRoleInviteUserComponent extends HorizontalLayout {
 
 	private List<FurmsViewUserModel> getAvailableUsers() {
 		List<FURMSUser> users = fetchAllUsersAction.get();
-		users.removeAll(fetchCurrentUsersAction.get());
-		return FurmsViewUserModelMapper.mapList(users);
+		List<String> currentEmails = fetchCurrentUsersAction.get().stream()
+			.map(user -> user.email)
+			.collect(Collectors.toList());
+
+		return FurmsViewUserModelMapper.mapList(
+			users.stream()
+				.filter(user -> !currentEmails.contains(user.email))
+				.collect(Collectors.toList())
+		);
 	}
 }
