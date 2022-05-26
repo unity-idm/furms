@@ -156,13 +156,13 @@ public class UserOperationService implements UserAllocationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserAddition> findUserAdditionsBySiteId(SiteId siteId) {
 		return repository.findAllUserAdditionsBySiteId(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<UserAddition> findUserAdditionsByProjectId(ProjectId projectId) {
 		return repository.findAllUserAdditionsByProjectId(projectId);
 	}

@@ -81,7 +81,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void addAccess(SiteId siteId, ProjectId projectId, FenixUserId userId) {
 		if(!userSiteAccessRepository.exists(siteId, projectId, userId)) {
 			Site site = siteRepository.findById(siteId)
@@ -103,7 +103,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void removeAccess(SiteId siteId, ProjectId projectId, FenixUserId userId) {
 		LOG.info("Manual removing user {} access to project {} on site {}", userId, projectId, siteId);
 		if(userSiteAccessRepository.exists(siteId, projectId, userId)) {
@@ -115,7 +115,7 @@ class UserSiteAccessServiceImpl implements UserSiteAccessService, UserSiteAccess
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public UsersSitesAccesses getUsersSitesAccesses(ProjectId projectId) {
 		Project project = projectRepository.findById(projectId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Project id %s doesn't exist", projectId)));

@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.resource_types;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ResourceTypeId {
+public class ResourceTypeId implements Id {
 	public final UUID id;
 
 	public ResourceTypeId(UUID id) {
@@ -46,5 +48,10 @@ public class ResourceTypeId {
 		return "ResourceTypeId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

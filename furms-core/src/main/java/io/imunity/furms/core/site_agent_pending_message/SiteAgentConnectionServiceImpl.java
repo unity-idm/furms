@@ -55,14 +55,14 @@ class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public Set<SiteAgentPendingMessage> findAll(SiteId siteId) {
 		return repository.findAll(siteId);
 	}
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public boolean retry(SiteId siteId, CorrelationId correlationId) {
 		return repository.find(correlationId)
 			.map(message -> {
@@ -83,7 +83,7 @@ class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
 	public boolean delete(SiteId siteId, CorrelationId correlationId) {
 		return repository.find(correlationId)
 			.map(message -> {
@@ -99,7 +99,7 @@ class SiteAgentConnectionServiceImpl implements SiteAgentConnectionService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
 	public PendingJob<SiteAgentStatus> getSiteAgentStatus(SiteId siteId) {
 		SiteExternalId externalId = siteRepository.findByIdExternalId(siteId);
 		return siteAgentStatusService.getStatus(externalId);

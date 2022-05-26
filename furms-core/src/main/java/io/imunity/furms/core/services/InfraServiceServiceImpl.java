@@ -63,13 +63,13 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Optional<InfraService> findById(InfraServiceId id, SiteId siteId) {
 		return infraServiceRepository.findById(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<InfraService> findAll(SiteId siteId) {
 		return infraServiceRepository.findAll(siteId);
 	}
@@ -81,7 +81,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "infraService.siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "infraService.siteId")
 	public void create(InfraService infraService) {
 		validator.validateCreate(infraService);
 		InfraServiceId id = infraServiceRepository.create(infraService);
@@ -93,7 +93,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "infraService.siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "infraService.siteId")
 	public void update(InfraService infraService) {
 		validator.validateUpdate(infraService);
 		InfraService oldInfraService = infraServiceRepository.findById(infraService.id)
@@ -160,7 +160,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
 	public void delete(InfraServiceId infraServiceId, SiteId siteId) {
 		validator.validateDelete(infraServiceId);
 		InfraService infraService = infraServiceRepository.findById(infraServiceId).get();

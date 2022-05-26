@@ -67,33 +67,33 @@ class GenericGroupServiceImpl implements GenericGroupService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<GenericGroup> findAll(CommunityId communityId) {
 		return genericGroupRepository.findAllBy(communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Optional<GenericGroupWithAssignments> findGroupWithAssignments(CommunityId communityId,
 	                                                                      GenericGroupId genericGroupId) {
 		return genericGroupRepository.findGroupWithAssignments(communityId, genericGroupId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Optional<GenericGroup> findBy(CommunityId communityId, GenericGroupId genericGroupId) {
 		assertGroupBelongsToCommunity(communityId, genericGroupId);
 		return genericGroupRepository.findBy(genericGroupId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(CommunityId communityId) {
 		return genericGroupRepository.findAllGroupWithAssignmentsAmount(communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<GenericGroupAssignmentWithUser> findAll(CommunityId communityId, GenericGroupId id) {
 		assertGroupBelongsToCommunity(communityId, id);
 		Map<FenixUserId, FURMSUser> collect = usersDAO.getAllUsers().stream()
@@ -106,7 +106,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "group.communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "group.communityId")
 	public GenericGroupId create(GenericGroup group) {
 		assertNotNull(group);
 		assertUniqueness(group.communityId, group.name);
@@ -119,7 +119,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_WRITE, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void createMembership(CommunityId communityId, GenericGroupId groupId, FenixUserId userId) {
 		assertNotNull(communityId, groupId, userId);
 		assertUniqueness(groupId, userId);
@@ -137,7 +137,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "group.communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "group.communityId")
 	public void update(GenericGroup group) {
 		assertNotNull(group);
 		assertUniqueness(group.id, group.communityId, group.name);
@@ -149,7 +149,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void delete(CommunityId communityId, GenericGroupId id) {
 		assertGroupBelongsToCommunity(communityId, id);
 		GenericGroup genericGroup = genericGroupRepository.findBy(id).get();
@@ -160,7 +160,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_WRITE, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_WRITE, resourceType = COMMUNITY, id = "communityId")
 	public void deleteMembership(CommunityId communityId,  GenericGroupId groupId, FenixUserId fenixUserId) {
 		assertNotNull(communityId, groupId, fenixUserId);
 		assertGroupBelongsToCommunity(communityId, groupId);

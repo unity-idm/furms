@@ -41,7 +41,7 @@ class ProjectInstallationsServiceImpl implements ProjectInstallationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<SiteInstalledProjectResolved> findAllSiteInstalledProjectsBySiteId(SiteId siteId) {
 		return projectOperationRepository.findAllSiteInstalledProjectsBySiteId(siteId).stream()
 				.map(this::toSiteInstalledProjectResolved)
@@ -59,37 +59,37 @@ class ProjectInstallationsServiceImpl implements ProjectInstallationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<SiteInstalledProject> findAllSiteInstalledProjectsByProjectId(ProjectId projectId) {
 		return projectOperationRepository.findAllSiteInstalledProjectsByProjectId(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<ProjectInstallationJobStatus> findAllBySiteId(SiteId siteId) {
 		return projectOperationRepository.findAllBySiteId(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ProjectInstallationJobStatus> findAllByCommunityId(CommunityId communityId) {
 		return projectOperationRepository.findAllByCommunityId(communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ProjectUpdateJobStatus> findAllUpdatesByCommunityId(CommunityId communityId) {
 		return projectOperationRepository.findAllUpdatesByCommunityId(communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectInstallationJobStatus> findAllByProjectId(ProjectId projectId) {
 		return projectOperationRepository.findAllByProjectId(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ProjectUpdateJobStatus> findAllUpdatesByProjectId(ProjectId projectId) {
 		return projectOperationRepository.findAllUpdatesByProjectId(projectId);
 	}

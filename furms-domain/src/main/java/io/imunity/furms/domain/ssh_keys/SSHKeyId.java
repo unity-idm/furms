@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.ssh_keys;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SSHKeyId {
+public class SSHKeyId implements Id {
 	public final UUID id;
 
 	public SSHKeyId(UUID id) {
@@ -46,5 +48,10 @@ public class SSHKeyId {
 		return "SSHKeyId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

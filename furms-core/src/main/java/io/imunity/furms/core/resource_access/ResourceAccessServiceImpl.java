@@ -85,13 +85,13 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<String> findAddedUser(ProjectId projectId) {
 		return userRepository.findUserIds(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<UsersWithProjectAccess> findAddedUserBySiteId(SiteId siteId) {
 		return userRepository.findAllUserAdditionsBySiteId(siteId).stream()
 				.collect(groupingBy(userAddition -> userAddition.projectId))
@@ -106,20 +106,20 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public Set<UserGrant> findUsersGrants(ProjectId projectId) {
 		return repository.findUsersGrantsByProjectId(projectId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Set<UserGrant> findCurrentUserGrants(ProjectId projectId) {
 		return repository.findUserGrantsByProjectIdAndFenixUserId(projectId, authzService.getCurrentAuthNUser().fenixUserId.orElseThrow(UserWithoutFenixIdValidationError::new));
 	}
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
 	public void grantAccess(GrantAccess grantAccess) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		if(repository.exists(grantAccess))
@@ -154,7 +154,7 @@ class ResourceAccessServiceImpl implements ResourceAccessService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "grantAccess.projectId")
 	public void revokeAccess(GrantAccess grantAccess) {
 		AccessStatus currentStatus = repository.findCurrentStatus(grantAccess.fenixUserId, grantAccess.allocationId);
 		if(currentStatus.equals(GRANT_FAILED)) {

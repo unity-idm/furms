@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.community_allocation;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class CommunityAllocationId {
+public class CommunityAllocationId implements Id {
 	public final UUID id;
 
 	public CommunityAllocationId(UUID id) {
@@ -46,5 +48,10 @@ public class CommunityAllocationId {
 		return "CommunityAllocationId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

@@ -5,10 +5,12 @@
 
 package io.imunity.furms.domain.sites;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.UUID;
 
-public class SiteId {
+public class SiteId implements Id {
 	public final UUID id;
 	public final SiteExternalId externalId;
 
@@ -55,5 +57,10 @@ public class SiteId {
 			"id='" + id + '\'' +
 			", externalId=" + externalId +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

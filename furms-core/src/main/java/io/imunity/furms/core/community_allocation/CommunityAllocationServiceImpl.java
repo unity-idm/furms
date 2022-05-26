@@ -72,7 +72,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Optional<CommunityAllocationResolved> findByCommunityIdAndIdWithRelatedObjects(CommunityId communityId, CommunityAllocationId id) {
 		return communityAllocationRepository.findByIdWithRelatedObjects(id)
 				.map(credit -> credit.copyBuilder()
@@ -88,13 +88,13 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<CommunityAllocation> findAllByCommunityId(CommunityId communityId) {
 		return communityAllocationRepository.findAllByCommunityId(communityId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<String> getOccupiedNames(CommunityId communityId) {
 		return communityAllocationRepository.findAllByCommunityId(communityId).stream()
 			.map(communityAllocation -> communityAllocation.name)
@@ -102,7 +102,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(CommunityId communityId) {
 		ResourceUsageByCommunityAllocation resourceUsageSum = resourceUsageRepository.findResourceUsagesSumsByCommunityId(communityId);
 		return communityAllocationRepository.findAllByCommunityIdWithRelatedObjects(communityId).stream()
@@ -114,7 +114,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<CommunityAllocationResolved> findAllWithRelatedObjects(CommunityId communityId,
 	                                                                  String name,
 	                                                                  boolean includedFullyDistributed,
@@ -138,7 +138,7 @@ class CommunityAllocationServiceImpl implements CommunityAllocationService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(CommunityId communityId) {
 		return communityAllocationRepository.findAllNotExpiredByCommunityIdWithRelatedObjects(communityId);
 	}

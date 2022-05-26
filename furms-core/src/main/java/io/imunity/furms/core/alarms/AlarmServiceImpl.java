@@ -60,7 +60,7 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
 	public Set<AlarmWithUserEmails> findAll(ProjectId projectId) {
 		Map<FenixUserId, String> groupedUsers = getUserEmails();
 		return alarmRepository.findAll(projectId).stream()
@@ -69,7 +69,7 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
 	public Optional<AlarmWithUserEmails> find(ProjectId projectId, AlarmId id) {
 		if(!alarmRepository.exist(projectId, id))
 			throw new IllegalArgumentException(String.format("Alarm %s and project %s are not related", id.id, projectId));
@@ -80,7 +80,7 @@ class AlarmServiceImpl implements AlarmService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id="projectId")
 	public Optional<AlarmWithUserEmails> find(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		projectAllocationRepository.findById(projectAllocationId)
 			.filter(allocation -> allocation.projectId.equals(projectId))
@@ -113,7 +113,7 @@ class AlarmServiceImpl implements AlarmService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId")
 	public void create(AlarmWithUserEmails alarm) {
 		assertUniquenessForCreate(alarm.projectId, alarm.name);
 		assertThresholdIsNotExceeded(alarm);
@@ -141,7 +141,7 @@ class AlarmServiceImpl implements AlarmService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="alarm.projectId")
 	public void update(AlarmWithUserEmails alarm) {
 		assertExist(alarm.projectId, alarm.id);
 		assertUniquenessForUpdate(alarm.projectId, alarm.id, alarm.name);
@@ -190,7 +190,7 @@ class AlarmServiceImpl implements AlarmService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void remove(ProjectId projectId, AlarmId id) {
 		assertExist(projectId, id);
 		AlarmWithUserIds alarm = alarmRepository.find(id).get();

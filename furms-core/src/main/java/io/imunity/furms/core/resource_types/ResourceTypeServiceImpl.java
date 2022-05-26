@@ -42,13 +42,13 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Optional<ResourceType> findById(ResourceTypeId id, SiteId siteId) {
 		return resourceTypeRepository.findById(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<ResourceType> findAll(SiteId siteId) {
 		return resourceTypeRepository.findAllBySiteId(siteId);
 	}
@@ -60,7 +60,7 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.siteId")
 	public void create(ResourceType resourceType) {
 		validator.validateCreate(resourceType);
 		ResourceTypeId id = resourceTypeRepository.create(resourceType);
@@ -70,7 +70,7 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.siteId")
 	public void update(ResourceType resourceType) {
 		validator.validateUpdate(resourceType);
 		ResourceType oldResourceType = resourceTypeRepository.findById(resourceType.id).get();
@@ -80,7 +80,7 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
 	public void delete(ResourceTypeId id, SiteId siteId) {
 		validator.validateDelete(id);
 		ResourceType resourceType = resourceTypeRepository.findById(id).get();

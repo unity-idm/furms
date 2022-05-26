@@ -42,7 +42,7 @@ class ResourceUsageServiceImpl implements ResourceUsageService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserResourceUsage> findAllUserUsages(SiteId siteId,
 	                                                Set<ProjectAllocationId> projectAllocationIds,
 	                                                LocalDateTime from,
@@ -51,21 +51,21 @@ class ResourceUsageServiceImpl implements ResourceUsageService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = PROJECT, id = "projectId")
 	public Set<ResourceUsage> findAllResourceUsageHistory(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		validProjectAndAllocationAreRelated(projectId, projectAllocationId);
 		return resourceUsageRepository.findResourceUsagesHistory(projectAllocationId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = PROJECT, id = "projectId")
 	public Set<UserResourceUsage> findAllUserUsagesHistory(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		validProjectAndAllocationAreRelated(projectId, projectAllocationId);
 		return resourceUsageRepository.findUserResourceUsagesHistory(projectAllocationId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = RESOURCE_USAGE_READ, resourceType = COMMUNITY, id = "communityId")
 	public Set<ResourceUsage> findAllResourceUsageHistoryByCommunity(CommunityId communityId,
 	                                                                 CommunityAllocationId communityAllocationId) {
 		communityAllocationRepository.findById(communityAllocationId)

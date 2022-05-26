@@ -5,10 +5,12 @@
 
 package io.imunity.furms.domain.invitations;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.UUID;
 
-public class InvitationId {
+public class InvitationId implements Id {
 	public final UUID id;
 
 	public InvitationId(UUID id) {
@@ -37,5 +39,10 @@ public class InvitationId {
 		return "InvitationId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

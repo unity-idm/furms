@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.user_operation;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UserAdditionJobId {
+public class UserAdditionJobId implements Id {
 	public final UUID id;
 
 	public UserAdditionJobId(UUID id) {
@@ -46,5 +48,10 @@ public class UserAdditionJobId {
 		return "UserAdditionJobId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

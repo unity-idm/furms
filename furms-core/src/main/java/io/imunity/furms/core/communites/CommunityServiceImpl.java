@@ -88,7 +88,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "id.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "id")
 	public Optional<Community> findById(CommunityId id) {
 		return communityRepository.findById(id);
 	}
@@ -122,7 +122,7 @@ class CommunityServiceImpl implements CommunityService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "community.id.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "community.id")
 	public void update(Community community) {
 		validator.validateUpdate(community);
 		Community oldCommunity = communityRepository.findById(community.getId()).get();
@@ -145,19 +145,19 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
 	public List<FURMSUser> findAllAdmins(CommunityId id) {
 		return communityGroupsDAO.getAllAdmins(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
 	public CommunityUsersAndAdmins findAllCommunityAdminsAllUsers(CommunityId id) {
 		return communityGroupsDAO.getCommunityAdminsAndUsers(id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="id")
 	public List<FURMSUser> findAllUsers(CommunityId id) {
 		return communityGroupsDAO.getAllUsers(id).stream()
 			.filter(furmsUser -> furmsUser.fenixUserId.isPresent())
@@ -171,13 +171,13 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public Set<Invitation> findAllInvitations(CommunityId communityId) {
 		return invitatoryService.getInvitations(COMMUNITY_ADMIN, communityId.id);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void inviteAdmin(CommunityId communityId, PersistentId userId) {
 		communityRepository.findById(communityId).ifPresent(community ->
 			invitatoryService.inviteUser(userId, new ResourceId(communityId.id, COMMUNITY), COMMUNITY_ADMIN,
@@ -186,7 +186,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void inviteAdmin(CommunityId communityId, String email) {
 		communityRepository.findById(communityId).ifPresent(community ->
 			invitatoryService.inviteUser(email, new ResourceId(communityId.id, COMMUNITY), COMMUNITY_ADMIN,
@@ -195,7 +195,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void resendInvitation(CommunityId communityId, InvitationId invitationId) {
 		if(!invitatoryService.checkAssociation(communityId.id.toString(), invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", communityId, invitationId));
@@ -203,7 +203,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void removeInvitation(CommunityId communityId, InvitationId invitationId) {
 		if(!invitatoryService.checkAssociation(communityId.id.toString(), invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", communityId, invitationId));
@@ -211,7 +211,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void addAdmin(CommunityId communityId, PersistentId userId) {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
@@ -221,7 +221,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void removeAdmin(CommunityId communityId, PersistentId userId) {
 		communityGroupsDAO.removeAdmin(communityId, userId);
 		String communityName = communityRepository.findById(communityId).get().getName();
@@ -231,7 +231,7 @@ class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="communityId")
 	public boolean isAdmin(CommunityId communityId) {
 		return authzService.isResourceMember(communityId.id.toString(), COMMUNITY_ADMIN);
 	}

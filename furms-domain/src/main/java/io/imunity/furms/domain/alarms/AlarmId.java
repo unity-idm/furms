@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.alarms;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class AlarmId {
+public class AlarmId implements Id {
 	public final UUID id;
 
 	public AlarmId(UUID id) {
@@ -40,5 +42,10 @@ public class AlarmId {
 		return "AlarmId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

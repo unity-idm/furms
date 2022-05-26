@@ -5,10 +5,12 @@
 
 package io.imunity.furms.domain.policy_documents;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.UUID;
 
-public class PolicyId {
+public class PolicyId implements Id {
 	public final UUID id;
 
 	public PolicyId(UUID id) {
@@ -41,5 +43,10 @@ public class PolicyId {
 		return "PolicyId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

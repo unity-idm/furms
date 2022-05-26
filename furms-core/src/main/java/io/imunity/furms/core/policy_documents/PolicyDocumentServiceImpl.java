@@ -93,7 +93,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Optional<PolicyDocument> findById(SiteId siteId, PolicyId id) {
 		LOG.debug("Getting Policy Document with id={}", id);
 		return policyDocumentRepository.findById(id);
@@ -107,27 +107,27 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(SiteId siteId) {
 		LOG.debug("Getting all user's Policy Document for site id={}", siteId);
 		return policyDocumentRepository.findAllUsersPolicies(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
 	public Set<PolicyDocument> findAllBySiteId(SiteId siteId) {
 		LOG.debug("Getting all Policy Document for site id={}", siteId);
 		return policyDocumentRepository.findAllBySiteId(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(SiteId siteId) {
 		return policyDocumentDAO.getUserPolicyAcceptances(siteId);
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
 	public Set<UserPolicyAcceptances> findAllUsersPolicyAcceptances(PolicyId policyId, SiteId siteId) {
 		Set<FenixUserId> allPolicyUsers = policyDocumentRepository.findAllPolicyUsers(siteId, policyId);
 		return policyDocumentDAO.getUserPolicyAcceptances(siteId)
@@ -158,7 +158,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_READ, resourceType = SITE, id = "siteId")
 	public void resendPolicyInfo(SiteId siteId, PersistentId persistentId, PolicyId policyId) {
 		PolicyDocument policyDocument = policyDocumentRepository.findById(policyId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
@@ -175,7 +175,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_POLICY_ACCEPTANCE_WRITE, resourceType = SITE, id = "siteId")
 	public void addUserPolicyAcceptance(SiteId siteId, FenixUserId userId, PolicyAcceptance policyAcceptance) {
 		FURMSUser user = usersDAO.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Fenix user id %s doesn't exist", userId)));
@@ -233,7 +233,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId")
 	public void create(PolicyDocument policyDocument) {
 		LOG.debug("Creating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateCreate(policyDocument);
@@ -243,7 +243,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId")
 	public void update(PolicyDocument policyDocument) {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
@@ -254,7 +254,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "policyDocument.siteId")
 	public void updateWithRevision(PolicyDocument policyDocument) {
 		LOG.debug("Updating Policy Document for site id={}", policyDocument.siteId);
 		validator.validateUpdate(policyDocument);
@@ -281,7 +281,7 @@ class PolicyDocumentServiceImpl implements PolicyDocumentService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId.id")
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
 	public void delete(SiteId siteId, PolicyId policyId) {
 		LOG.debug("Deleting Policy Document {} for site id={}", policyId.id, siteId);
 		boolean isAssigned = policyDocumentRepository.findAllAssignPoliciesBySiteId(siteId).stream()

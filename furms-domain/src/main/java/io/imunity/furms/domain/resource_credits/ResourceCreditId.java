@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.resource_credits;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ResourceCreditId {
+public class ResourceCreditId implements Id {
 	public final UUID id;
 
 	public ResourceCreditId(UUID id) {
@@ -46,5 +48,10 @@ public class ResourceCreditId {
 		return "ResourceCreditId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

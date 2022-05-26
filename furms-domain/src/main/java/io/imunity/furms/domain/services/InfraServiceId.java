@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.services;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class InfraServiceId {
+public class InfraServiceId implements Id {
 	public final UUID id;
 
 	public InfraServiceId(UUID id) {
@@ -46,5 +48,10 @@ public class InfraServiceId {
 		return "InfraServiceId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

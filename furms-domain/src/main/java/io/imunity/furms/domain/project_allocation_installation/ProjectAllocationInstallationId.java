@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.project_allocation_installation;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ProjectAllocationInstallationId {
+public class ProjectAllocationInstallationId implements Id {
 	public final UUID id;
 
 	public ProjectAllocationInstallationId(UUID id) {
@@ -46,5 +48,10 @@ public class ProjectAllocationInstallationId {
 		return "ProjectAllocationInstallationId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

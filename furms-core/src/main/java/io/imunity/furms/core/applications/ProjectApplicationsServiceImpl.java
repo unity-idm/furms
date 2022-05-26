@@ -76,7 +76,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public List<FURMSUser> findAllApplyingUsers(ProjectId projectId) {
 		Set<FenixUserId> usersIds = applicationRepository.findAllApplyingUsers(projectId);
 		return usersDAO.getAllUsers().stream()
@@ -148,7 +148,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 
 	@Override
 	@Transactional
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void accept(ProjectId projectId, FenixUserId fenixUserId) {
 		if(applicationRepository.existsBy(projectId, fenixUserId)) {
 			projectRepository.findById(projectId).ifPresent(project -> {
@@ -169,7 +169,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
 	public void remove(ProjectId projectId, FenixUserId fenixUserId) {
 		if(applicationRepository.existsBy(projectId, fenixUserId)) {
 			projectRepository.findById(projectId).ifPresent(project -> {
