@@ -10,6 +10,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.users.FenixUserService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.users.AllUsersAndFenixAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -92,6 +93,8 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 				showErrorNotification(getTranslation("invite.error.duplicate"));
 		} catch (UserAlreadyHasRoleError e) {
 			showErrorNotification(getTranslation("invite.error.role.own"));
+		} catch (InvalidEmailException e) {
+			showErrorNotification(getTranslation("invite.error.email"));
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("invite.error.unexpected"));
 			LOG.error("Could not invite user. ", e);

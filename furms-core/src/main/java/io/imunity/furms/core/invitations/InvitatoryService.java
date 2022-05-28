@@ -7,6 +7,7 @@ package io.imunity.furms.core.invitations;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
 import io.imunity.furms.api.validation.exceptions.UnsupportedUserException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
@@ -177,7 +178,7 @@ public class InvitatoryService {
 		}
 
 		if(!isEmailValid(email))
-			throw new IllegalArgumentException("Email is not valid");
+			throw new InvalidEmailException("Email is not valid");
 		if(invitationRepository.findBy(email, role, resourceId).isPresent())
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(isSupportRoleCheckExistingAlsoForAdminRole(resourceId, role, email))

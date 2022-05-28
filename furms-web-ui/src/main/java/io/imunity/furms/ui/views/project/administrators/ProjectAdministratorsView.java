@@ -9,6 +9,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
@@ -100,6 +101,8 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 			showErrorNotification(getTranslation("invite.error.duplicate"));
 		} catch (UserAlreadyHasRoleError e) {
 			showErrorNotification(getTranslation("invite.error.role.own"));
+		} catch (InvalidEmailException e) {
+			showErrorNotification(getTranslation("invite.error.email"));
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("invite.error.unexpected"));
 			LOG.error("Could not invite user. ", e);

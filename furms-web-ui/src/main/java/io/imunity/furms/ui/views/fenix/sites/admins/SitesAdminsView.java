@@ -11,6 +11,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
@@ -148,6 +149,8 @@ public class SitesAdminsView extends FurmsViewComponent {
 			showErrorNotification(getTranslation("invite.error.duplicate"));
 		} catch (UserAlreadyHasRoleError e) {
 			showErrorNotification(getTranslation("invite.error.role.own"));
+		} catch (InvalidEmailException e) {
+			showErrorNotification(getTranslation("invite.error.email"));
 		} catch (RuntimeException e) {
 			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
 			LOG.error("Could not invite Site Administrator. ", e);

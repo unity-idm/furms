@@ -9,6 +9,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -92,6 +93,8 @@ public class CommunityAdminsView extends FurmsViewComponent {
 			gridReload();
 		} catch (DuplicatedInvitationError e) {
 			showErrorNotification(getTranslation("invite.error.duplicate"));
+		} catch (InvalidEmailException e) {
+			showErrorNotification(getTranslation("invite.error.email"));
 		} catch (UserAlreadyHasRoleError e) {
 			showErrorNotification(getTranslation("invite.error.role.own"));
 		} catch (RuntimeException e) {

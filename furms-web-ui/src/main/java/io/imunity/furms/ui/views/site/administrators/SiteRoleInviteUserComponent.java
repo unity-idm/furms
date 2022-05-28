@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.EmailValidator;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
+import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.api.validation.exceptions.UserIsSiteAdmin;
 import io.imunity.furms.api.validation.exceptions.UserIsSiteSupport;
@@ -107,6 +108,8 @@ class SiteRoleInviteUserComponent extends HorizontalLayout {
 				showErrorNotification(getTranslation("invite.error.role.own"));
 			} catch (UserIsSiteAdmin e) {
 				showErrorNotification(getTranslation("invite.error.role.site.admin"));
+			} catch (InvalidEmailException e) {
+				showErrorNotification(getTranslation("invite.error.email"));
 			} catch (UserIsSiteSupport e) {
 				showErrorNotification(getTranslation("invite.error.role.site.support"));
 			} catch (RuntimeException e) {
