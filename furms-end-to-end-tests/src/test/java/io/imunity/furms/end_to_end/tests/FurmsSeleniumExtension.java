@@ -24,7 +24,7 @@ public class FurmsSeleniumExtension implements BeforeAllCallback, ExtensionConte
 				Setuper.main(new String[]{});
 			}
 		}
-        finally {
+		finally {
 			LOCK.unlock();
 		}
 	}

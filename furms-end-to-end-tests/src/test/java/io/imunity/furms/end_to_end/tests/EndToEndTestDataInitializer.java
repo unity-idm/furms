@@ -60,15 +60,17 @@ import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import static io.imunity.furms.domain.resource_types.ResourceMeasureType.DATA;
+import static io.imunity.furms.domain.resource_types.ResourceMeasureType.TIME;
+import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.H;
+import static io.imunity.furms.domain.resource_types.ResourceMeasureUnit.PB;
 import static java.util.function.Function.identity;
 
 @Component
@@ -133,14 +135,18 @@ class EndToEndTestDataInitializer implements CommandLineRunner {
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
 		initCommunitiesAndProjects();
-		initSites();
+		initSitesWithContent();
 	}
 
-	private void initCommunitiesAndProjects() throws IOException {
-
+	private void initCommunitiesAndProjects() {
 		PersistentId testAdminId = getPersistentId();
+		initCommunities(testAdminId);
+		initProjects(testAdminId);
+	}
+
+	private void initCommunities(PersistentId testAdminId) {
 		Community community = Community.builder()
 			.name("HBP")
 			.description("Human Brain Project")
@@ -158,7 +164,9 @@ class EndToEndTestDataInitializer implements CommandLineRunner {
 		community2Id = communityRepository.create(community2);
 		communityGroupsDAO.create(new CommunityGroup(community2Id, community2.getName()));
 		communityGroupsDAO.addAdmin(communityId, testAdminId);
+	}
 
+	private void initProjects(PersistentId testAdminId) {
 		Project project = Project.builder()
 			.name("Neuroinforamtics")
 			.communityId(communityId)
@@ -226,184 +234,53 @@ class EndToEndTestDataInitializer implements CommandLineRunner {
 			.orElse(null);
 	}
 
-	private void initSites() {
+	private void initSitesWithContent() {
 		PersistentId testAdminId = getPersistentId();
 
-		Site cineca = Site.builder()
-			.name("CINECA")
-			.build();
-		Site fzj = Site.builder()
-			.name("FZJ")
-			.build();
-
-		SiteExternalId ciencaExternalId = new SiteExternalId("cin-x");
-		SiteExternalId fzjExternalId = new SiteExternalId("fzj-x");
-
-		SiteId cinecaId = siteRepository.create(cineca, ciencaExternalId);
-		SiteId fzjId = siteRepository.create(fzj, fzjExternalId);
-
-		siteAgentService.initializeSiteConnection(ciencaExternalId);
-		siteAgentService.initializeSiteConnection(fzjExternalId);
-
-		siteGroupDAO.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
-		siteGroupDAO.create(Site.builder().id(fzjId).name(fzj.getName()).build());
+		SiteId cinecaId = createSite("CINECA", "cin-x");
+		SiteId fzjId = createSite("FZJ", "fzj-x");
 
 		siteGroupDAO.addSiteUser(cinecaId, testAdminId, Role.SITE_ADMIN);
 
-		PolicyDocument policyDocument = PolicyDocument.builder()
-			.name("Cineca site policy")
-			.workflow(PolicyWorkflow.WEB_BASED)
-			.contentType(PolicyContentType.EMBEDDED)
-			.wysiwygText("<div><p>TEXT</p></div>")
-			.revision(1)
-			.siteId(cinecaId)
-			.build();
+		PolicyId policyId = createPolicy("Cineca site policy", PolicyWorkflow.WEB_BASED, cinecaId);
+		PolicyId policyId1 = createPolicy("Service policy", PolicyWorkflow.PAPER_BASED, cinecaId);
 
-		PolicyDocument policyDocument1 = PolicyDocument.builder()
-			.name("Service policy")
-			.workflow(PolicyWorkflow.PAPER_BASED)
-			.contentType(PolicyContentType.EMBEDDED)
-			.wysiwygText("<div><p>TEXT</p></div>")
-			.revision(1)
-			.siteId(cinecaId)
-			.build();
+		addPolicyToSite(cinecaId, policyId);
 
-		PolicyId policyId = policyDocumentRepository.create(policyDocument);
-		PolicyId policyId1 = policyDocumentRepository.create(policyDocument1);
+		InfraServiceId serviceCinecaId = createInfraService(cinecaId, policyId1, "Virtual Machines", "Service for deploying virtual machines");
+		InfraServiceId serviceFzjId1 = createInfraService(fzjId, PolicyId.empty(), "Archive Fzj", "Archive Fzj");
 
-		Site updateCineca = Site.builder()
-			.id(cinecaId)
-			.policyId(policyId)
-			.name("CINECA")
-			.build();
-		siteRepository.update(updateCineca);
+		ResourceTypeId resourceTypeCinecaId = createResourceType(cinecaId, serviceCinecaId, "Cineca Vector CPU Time", TIME, H);
+		ResourceTypeId resourceTypeFzjId1 = createResourceType(fzjId, serviceFzjId1, "Fzj Storage", DATA, PB);
 
-		InfraService infraServiceCineca = InfraService.builder()
-			.name("Virtual Machines")
-			.siteId(cinecaId)
-			.description("Service for deploying virtual machines")
-			.policyId(policyId1)
-			.build();
-		InfraService infraServiceCineca1 = InfraService.builder()
-			.name("Archive Cineca")
-			.siteId(cinecaId)
-			.description("Archive Cineca")
-			.policyId(policyId1)
-			.build();
-		InfraService infraServiceFzj = InfraService.builder()
-			.name("Cluster Fzj")
-			.siteId(fzjId)
-			.description("Cluster Fzj")
-			.build();
-		InfraService infraServiceFzj1 = InfraService.builder()
-			.name("Archive Fzj")
-			.siteId(fzjId)
-			.description("Archive Fzj")
-			.build();
+		ResourceCreditId resourceCreditCinecaId1 = createResourceCredit(cinecaId, resourceTypeCinecaId, "First Cineca " +
+			"pool", 100, 2, 11, 11, 11, 11, 16, 16, 2025, 4);
+		ResourceCreditId resourceCreditFzjId1 = createResourceCredit(fzjId, resourceTypeFzjId1, "Second Fzj pool", 754
+			, 4, 23, 22, 12, 32, 3, 5, 2024, 8);
 
-		InfraServiceId serviceCinecaId = infraServiceRepository.create(infraServiceCineca);
-		InfraServiceId serviceCinecaId1 = infraServiceRepository.create(infraServiceCineca1);
-		InfraServiceId serviceFzjId = infraServiceRepository.create(infraServiceFzj);
-		InfraServiceId serviceFzjId1 = infraServiceRepository.create(infraServiceFzj1);
+		CommunityAllocationId communityAllocationId = createCommunityAllocation(communityId, resourceCreditCinecaId1,
+			"HBP Cineca Allocation", 50);
+		createCommunityAllocation(communityId, resourceCreditCinecaId1, "HBP Cineca Allocation 2", 50);
+		createCommunityAllocation(community2Id, resourceCreditFzjId1, "Second Allocation", 500);
 
-		ResourceType resourceTypeCineca = ResourceType.builder()
-			.siteId(cinecaId)
-			.serviceId(serviceCinecaId)
-			.name("Cineca Vector CPU Time")
-			.type(ResourceMeasureType.TIME)
-			.unit(ResourceMeasureUnit.H)
-			.build();
-		ResourceType resourceTypeCineca1 = ResourceType.builder()
-			.siteId(cinecaId)
-			.serviceId(serviceCinecaId1)
-			.name("Cineca Disk Space")
-			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.GB)
-			.build();
-		ResourceType resourceTypeFzj = ResourceType.builder()
-			.siteId(fzjId)
-			.serviceId(serviceFzjId)
-			.name("Fzj Vector GPU Time")
-			.type(ResourceMeasureType.TIME)
-			.unit(ResourceMeasureUnit.MIN)
-			.build();
-		ResourceType resourceTypeFzj1 = ResourceType.builder()
-			.siteId(fzjId)
-			.serviceId(serviceFzjId1)
-			.name("Fzj Storage")
-			.type(ResourceMeasureType.DATA)
-			.unit(ResourceMeasureUnit.PB)
-			.build();
+		ProjectAllocationId projectAllocationId = createProjectAllocation("Neuroinforamtics Cineca Allocation",
+			communityAllocationId, cinecaId);
+		createProjectAllocationChunks(projectAllocationId);
+		createResourceUsages(projectAllocationId, projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get());
 
-		ResourceTypeId resourceTypeCinecaId = resourceTypeRepository.create(resourceTypeCineca);
-		ResourceTypeId resourceTypeCinecaId1 = resourceTypeRepository.create(resourceTypeCineca1);
-		ResourceTypeId resourceTypeFzjId = resourceTypeRepository.create(resourceTypeFzj);
-		ResourceTypeId resourceTypeFzjId1 = resourceTypeRepository.create(resourceTypeFzj1);
+		ProjectAllocationId projectAllocationId1 = createProjectAllocation("Neuroinforamtics Cineca Allocation 2",
+			communityAllocationId, cinecaId);
+		createProjectAllocationChunks(projectAllocationId1);
+		createResourceUsages(projectAllocationId1, projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId1).get());
 
-		ResourceCredit resourceCreditCineca = ResourceCredit.builder()
-			.siteId(cinecaId)
-			.resourceTypeId(resourceTypeCinecaId)
-			.name("First Cineca pool")
-			.amount(new BigDecimal(100))
-			.utcStartTime(LocalDateTime.of(2021, 2, 11, 16, 11))
-			.utcEndTime(LocalDateTime.of(2025, 4, 11, 16, 11))
-			.build();
-		ResourceCredit resourceCreditCineca1 = ResourceCredit.builder()
-			.siteId(cinecaId)
-			.resourceTypeId(resourceTypeCinecaId1)
-			.name("Second Cineca pool")
-			.amount(new BigDecimal(546))
-			.utcStartTime(LocalDateTime.of(2021, 3, 9, 1, 22))
-			.utcEndTime(LocalDateTime.of(2024, 5, 3, 6, 32))
-			.build();
-		ResourceCredit resourceCreditFzj = ResourceCredit.builder()
-			.siteId(fzjId)
-			.resourceTypeId(resourceTypeFzjId)
-			.name("First Fzj pool")
-			.amount(new BigDecimal(643))
-			.utcStartTime(LocalDateTime.of(2021, 2, 7, 4, 22))
-			.utcEndTime(LocalDateTime.of(2021, 4, 9, 7, 32))
-			.build();
-		ResourceCredit resourceCreditFzj1 = ResourceCredit.builder()
-			.siteId(fzjId)
-			.resourceTypeId(resourceTypeFzjId1)
-			.name("Second Fzj pool")
-			.amount(new BigDecimal(754))
-			.utcStartTime(LocalDateTime.of(2021, 4, 23, 3, 22))
-			.utcEndTime(LocalDateTime.of(2024, 8, 12, 5, 32))
-			.build();
+		crateProjectInstallationJobs(cinecaId);
+	}
 
-		ResourceCreditId resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca);
-		resourceCreditRepository.create(resourceCreditCineca1);
-		resourceCreditRepository.create(resourceCreditFzj);
-		ResourceCreditId resourceCreditFzjId1 = resourceCreditRepository.create(resourceCreditFzj1);
-
-		CommunityAllocation communityAllocation1 = CommunityAllocation.builder()
-			.communityId(community2Id)
-			.resourceCreditId(resourceCreditFzjId1)
-			.name("Second Allocation")
-			.amount(new BigDecimal(500))
-			.build();
-		CommunityAllocation communityAllocation2 = CommunityAllocation.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditCinecaId1)
-			.name("HBP Cineca Allocation")
-			.amount(new BigDecimal(50))
-			.build();
-		CommunityAllocation communityAllocation3 = CommunityAllocation.builder()
-			.communityId(communityId)
-			.resourceCreditId(resourceCreditCinecaId1)
-			.name("HBP Cineca Allocation 2")
-			.amount(new BigDecimal(50))
-			.build();
-
-		communityAllocationRepository.create(communityAllocation1);
-		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(communityAllocation2);
-		communityAllocationRepository.create(communityAllocation3);
-
+	private ProjectAllocationId createProjectAllocation(String Neuroinforamtics_Cineca_Allocation,
+	                                                    CommunityAllocationId communityAllocationId, SiteId cinecaId) {
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.projectId(projectId)
-			.name("Neuroinforamtics Cineca Allocation")
+			.name(Neuroinforamtics_Cineca_Allocation)
 			.amount(new BigDecimal(20))
 			.communityAllocationId(communityAllocationId)
 			.build();
@@ -418,233 +295,38 @@ class EndToEndTestDataInitializer implements CommandLineRunner {
 			.build();
 
 		projectAllocationInstallationRepository.create(projectAllocationInstallation);
+		return projectAllocationId;
+	}
 
-		ProjectAllocationChunk projectAllocationChunk = ProjectAllocationChunk.builder()
-			.amount(new BigDecimal(5))
-			.projectAllocationId(projectAllocationId)
-			.chunkId("1")
-			.validFrom(LocalDateTime.now().minusMonths(2))
-			.validTo(LocalDateTime.now().plusDays(20))
-			.receivedTime(LocalDateTime.now().minusMonths(2))
+	private CommunityAllocationId createCommunityAllocation(CommunityId communityId,
+	                                                        ResourceCreditId resourceCreditCinecaId1,
+	                                                        String HBP_Cineca_Allocation, int val) {
+		CommunityAllocation communityAllocation2 = CommunityAllocation.builder()
+			.communityId(communityId)
+			.resourceCreditId(resourceCreditCinecaId1)
+			.name(HBP_Cineca_Allocation)
+			.amount(new BigDecimal(val))
 			.build();
-		projectAllocationInstallationRepository.create(projectAllocationChunk);
+		return communityAllocationRepository.create(communityAllocation2);
+	}
 
-		ProjectAllocationChunk projectAllocationChunk1 = ProjectAllocationChunk.builder()
-			.amount(new BigDecimal(3))
-			.projectAllocationId(projectAllocationId)
-			.chunkId("2")
-			.validFrom(LocalDateTime.now().minusMonths(1))
-			.validTo(LocalDateTime.now().plusDays(25))
-			.receivedTime(LocalDateTime.now().minusMonths(1))
-			.build();
-		projectAllocationInstallationRepository.create(projectAllocationChunk1);
-
-		ProjectAllocationChunk projectAllocationChunk2 = ProjectAllocationChunk.builder()
-			.amount(new BigDecimal(4))
-			.projectAllocationId(projectAllocationId)
-			.chunkId("3")
-			.validFrom(LocalDateTime.now().minusDays(15))
-			.validTo(LocalDateTime.now().plusDays(27))
-			.receivedTime(LocalDateTime.now().minusDays(15))
-			.build();
-		projectAllocationInstallationRepository.create(projectAllocationChunk2);
-
-		ProjectAllocationChunk projectAllocationChunk3 = ProjectAllocationChunk.builder()
-			.amount(new BigDecimal(3))
-			.projectAllocationId(projectAllocationId)
-			.chunkId("3")
-			.validFrom(LocalDateTime.now().minusDays(2))
-			.validTo(LocalDateTime.now().plusDays(35))
-			.receivedTime(LocalDateTime.now().minusDays(2))
-			.build();
-		projectAllocationInstallationRepository.create(projectAllocationChunk3);
-
-		ProjectAllocationResolved projectAllocationResolved =
-			projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(1))
-				.probedAt(LocalDateTime.now().minusDays(59))
-				.build(),
-			projectAllocationResolved
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(2))
-				.probedAt(LocalDateTime.now().minusDays(50))
-				.build(),
-			projectAllocationResolved
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(5))
-				.probedAt(LocalDateTime.now().minusDays(40))
-				.build(),
-			projectAllocationResolved
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(8))
-				.probedAt(LocalDateTime.now().minusDays(25))
-				.build(),
-			projectAllocationResolved
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(10))
-				.probedAt(LocalDateTime.now().minusDays(15))
-				.build(),
-			projectAllocationResolved
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(13))
-				.probedAt(LocalDateTime.now().minusDays(5))
-				.build(),
-			projectAllocationResolved
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(16))
-				.probedAt(LocalDateTime.now().minusDays(1))
-				.build(),
-			projectAllocationResolved
-		);
-
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(1))
-				.fenixUserId(new FenixUserId("usr1@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(59))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(1))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(54))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(2))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(49))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(2))
-				.fenixUserId(new FenixUserId("usr1@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(45))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(1))
-				.fenixUserId(new FenixUserId("usr3@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(42))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(4))
-				.fenixUserId(new FenixUserId("usr3@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(28))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(3))
-				.fenixUserId(new FenixUserId("usr1@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(17))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(3))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(16))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(5))
-				.fenixUserId(new FenixUserId("usr1@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(10))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(5))
-				.fenixUserId(new FenixUserId("usr3@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(7))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(4))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(4))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
-				.cumulativeConsumption(new BigDecimal(5))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(2))
-				.build()
-		);
-
-		ProjectAllocation projectAllocation1 = ProjectAllocation.builder()
-			.projectId(projectId)
-			.name("Neuroinforamtics Cineca Allocation 2")
-			.amount(new BigDecimal(20))
-			.communityAllocationId(communityAllocationId)
-			.build();
-
-		ProjectAllocationId projectAllocationId1 = projectAllocationRepository.create(projectAllocation1);
-
-		ProjectAllocationInstallation projectAllocationInstallation1 = ProjectAllocationInstallation.builder()
-			.projectAllocationId(projectAllocationId1)
+	private ResourceCreditId createResourceCredit(SiteId cinecaId, ResourceTypeId resourceTypeCinecaId,
+	                                              String First_Cineca_pool, int val, int month, int dayOfMonth,
+	                                              int dayOfMonth1, int dayOfMonth2, int dayOfMonth3, int hour,
+	                                              int hour1, int year, int month1) {
+		ResourceCredit resourceCreditCineca = ResourceCredit.builder()
 			.siteId(cinecaId)
-			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
-			.correlationId(new CorrelationId(UUID.randomUUID().toString()))
+			.resourceTypeId(resourceTypeCinecaId)
+			.name(First_Cineca_pool)
+			.amount(new BigDecimal(val))
+			.utcStartTime(LocalDateTime.of(2021, month, dayOfMonth, hour, dayOfMonth1))
+			.utcEndTime(LocalDateTime.of(year, month1, dayOfMonth2, hour1, dayOfMonth3))
 			.build();
+		ResourceCreditId resourceCreditCinecaId1 = resourceCreditRepository.create(resourceCreditCineca);
+		return resourceCreditCinecaId1;
+	}
 
-		projectAllocationInstallationRepository.create(projectAllocationInstallation1);
-
+	private void createProjectAllocationChunks(ProjectAllocationId projectAllocationId1) {
 		ProjectAllocationChunk projectAllocationChunk10 = ProjectAllocationChunk.builder()
 			.amount(new BigDecimal(5))
 			.projectAllocationId(projectAllocationId1)
@@ -684,175 +366,9 @@ class EndToEndTestDataInitializer implements CommandLineRunner {
 			.receivedTime(LocalDateTime.now().minusDays(2))
 			.build();
 		projectAllocationInstallationRepository.create(projectAllocationChunk13);
+	}
 
-		ProjectAllocationResolved projectAllocationResolved1 =
-			projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId1).get();
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(1))
-				.probedAt(LocalDateTime.now().minusDays(59))
-				.build(),
-			projectAllocationResolved1
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(2))
-				.probedAt(LocalDateTime.now().minusDays(50))
-				.build(),
-			projectAllocationResolved1
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(5))
-				.probedAt(LocalDateTime.now().minusDays(40))
-				.build(),
-			projectAllocationResolved1
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(8))
-				.probedAt(LocalDateTime.now().minusDays(25))
-				.build(),
-			projectAllocationResolved1
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(10))
-				.probedAt(LocalDateTime.now().minusDays(15))
-				.build(),
-			projectAllocationResolved1
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(13))
-				.probedAt(LocalDateTime.now().minusDays(5))
-				.build(),
-			projectAllocationResolved1
-		);
-		resourceUsageRepository.create(ResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(16))
-				.probedAt(LocalDateTime.now().minusDays(1))
-				.build(),
-			projectAllocationResolved1
-		);
-
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(1))
-				.fenixUserId(new FenixUserId("usr1@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(59))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(1))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(54))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(2))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(49))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(2))
-				.fenixUserId(new FenixUserId("usr1@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(45))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(1))
-				.fenixUserId(new FenixUserId("usr3@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(42))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(4))
-				.fenixUserId(new FenixUserId("usr3@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(28))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(3))
-				.fenixUserId(new FenixUserId("usr1@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(17))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(3))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(16))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(5))
-				.fenixUserId(new FenixUserId("usr1@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(10))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(5))
-				.fenixUserId(new FenixUserId("usr3@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(7))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(4))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(4))
-				.build()
-		);
-		resourceUsageRepository.create(
-			UserResourceUsage.builder()
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId1)
-				.cumulativeConsumption(new BigDecimal(5))
-				.fenixUserId(new FenixUserId("usr2@email.com"))
-				.consumedUntil(LocalDateTime.now().minusDays(2))
-				.build()
-		);
-
+	private void crateProjectInstallationJobs(SiteId cinecaId) {
 		ProjectInstallationJob projectInstallationJob = ProjectInstallationJob.builder()
 			.gid("gid")
 			.siteId(cinecaId)
@@ -888,5 +404,228 @@ class EndToEndTestDataInitializer implements CommandLineRunner {
 			.status(ProjectInstallationStatus.INSTALLED)
 			.build();
 		projectOperationRepository.createOrUpdate(projectInstallationJob4);
+	}
+
+	private void createResourceUsages(ProjectAllocationId projectAllocationId,
+	                                  ProjectAllocationResolved projectAllocationResolved) {
+		resourceUsageRepository.create(ResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(1))
+				.probedAt(LocalDateTime.now().minusDays(59))
+				.build(),
+			projectAllocationResolved
+		);
+		resourceUsageRepository.create(ResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(2))
+				.probedAt(LocalDateTime.now().minusDays(50))
+				.build(),
+			projectAllocationResolved
+		);
+		resourceUsageRepository.create(ResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(5))
+				.probedAt(LocalDateTime.now().minusDays(40))
+				.build(),
+			projectAllocationResolved
+		);
+		resourceUsageRepository.create(ResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(8))
+				.probedAt(LocalDateTime.now().minusDays(25))
+				.build(),
+			projectAllocationResolved
+		);
+		resourceUsageRepository.create(ResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(10))
+				.probedAt(LocalDateTime.now().minusDays(15))
+				.build(),
+			projectAllocationResolved
+		);
+		resourceUsageRepository.create(ResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(13))
+				.probedAt(LocalDateTime.now().minusDays(5))
+				.build(),
+			projectAllocationResolved
+		);
+		resourceUsageRepository.create(ResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(16))
+				.probedAt(LocalDateTime.now().minusDays(1))
+				.build(),
+			projectAllocationResolved
+		);
+
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(1))
+				.fenixUserId(new FenixUserId("usr1@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(59))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(1))
+				.fenixUserId(new FenixUserId("usr2@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(54))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(2))
+				.fenixUserId(new FenixUserId("usr2@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(49))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(2))
+				.fenixUserId(new FenixUserId("usr1@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(45))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(1))
+				.fenixUserId(new FenixUserId("usr3@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(42))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(4))
+				.fenixUserId(new FenixUserId("usr3@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(28))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(3))
+				.fenixUserId(new FenixUserId("usr1@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(17))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(3))
+				.fenixUserId(new FenixUserId("usr2@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(16))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(5))
+				.fenixUserId(new FenixUserId("usr1@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(10))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(5))
+				.fenixUserId(new FenixUserId("usr3@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(7))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(4))
+				.fenixUserId(new FenixUserId("usr2@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(4))
+				.build()
+		);
+		resourceUsageRepository.create(
+			UserResourceUsage.builder()
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
+				.cumulativeConsumption(new BigDecimal(5))
+				.fenixUserId(new FenixUserId("usr2@email.com"))
+				.consumedUntil(LocalDateTime.now().minusDays(2))
+				.build()
+		);
+	}
+
+	private ResourceTypeId createResourceType(SiteId cinecaId, InfraServiceId serviceCinecaId, String name,
+	                                          ResourceMeasureType type, ResourceMeasureUnit unit) {
+		ResourceType resourceTypeCineca = ResourceType.builder()
+			.siteId(cinecaId)
+			.serviceId(serviceCinecaId)
+			.name(name)
+			.type(type)
+			.unit(unit)
+			.build();
+		return resourceTypeRepository.create(resourceTypeCineca);
+	}
+
+	private InfraServiceId createInfraService(SiteId cinecaId, PolicyId policyId1, String name, String description) {
+		InfraService infraServiceCineca = InfraService.builder()
+			.name(name)
+			.siteId(cinecaId)
+			.description(description)
+			.policyId(policyId1)
+			.build();
+		return infraServiceRepository.create(infraServiceCineca);
+	}
+
+	private SiteId createSite(String CINECA, String id) {
+		Site cineca = Site.builder()
+			.name(CINECA)
+			.build();
+		SiteExternalId ciencaExternalId = new SiteExternalId(id);
+		SiteId cinecaId = siteRepository.create(cineca, ciencaExternalId);
+		siteAgentService.initializeSiteConnection(ciencaExternalId);
+		siteGroupDAO.create(Site.builder().id(cinecaId).name(cineca.getName()).build());
+		return cinecaId;
+	}
+
+	private void addPolicyToSite(SiteId cinecaId, PolicyId policyId) {
+		Site updateCineca = Site.builder()
+			.id(cinecaId)
+			.policyId(policyId)
+			.name("CINECA")
+			.build();
+		siteRepository.update(updateCineca);
+	}
+
+	private PolicyId createPolicy(String Cineca_site_policy, PolicyWorkflow webBased, SiteId cinecaId) {
+		PolicyDocument policyDocument = PolicyDocument.builder()
+			.name(Cineca_site_policy)
+			.workflow(webBased)
+			.contentType(PolicyContentType.EMBEDDED)
+			.wysiwygText("<div><p>TEXT</p></div>")
+			.revision(1)
+			.siteId(cinecaId)
+			.build();
+		return policyDocumentRepository.create(policyDocument);
 	}
 }
