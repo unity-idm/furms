@@ -11,6 +11,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -117,7 +118,7 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		Throwable throwable = catchThrowable(() -> mockService.findById(uuid.toString()));
+		Throwable throwable = catchThrowable(() -> mockService.findById(new SiteId(uuid)));
 		assertThat(throwable).isNull();
 	}
 
@@ -159,7 +160,7 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		assertThrows(AccessDeniedException.class, () -> mockService.findById(uuid1.toString()));
+		assertThrows(AccessDeniedException.class, () -> mockService.findById(new SiteId(uuid1)));
 	}
 
 	@Test
@@ -178,7 +179,7 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		assertThrows(AccessDeniedException.class, () -> mockService.findById(uuid.toString()));
+		assertThrows(AccessDeniedException.class, () -> mockService.findById(new SiteId(uuid)));
 	}
 
 	@Test
