@@ -22,13 +22,13 @@ import io.imunity.furms.api.validation.exceptions.ProjectAllocationDecreaseBeyon
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationIncreaseInExpiredProjectException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
 import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
-import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.projects.Project;
-import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.ProjectView;
 
@@ -103,8 +103,6 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 				projectAllocationService.update(communityId, projectAllocation);
 
 			UI.getCurrent().navigate(ProjectView.class, projectId);
-		} catch (ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException e) {
-			showErrorNotification(getTranslation("project.allocation.resource.type.unique.message"));
 		} catch (ProjectAllocationWrongAmountException e) {
 			showErrorNotification(getTranslation("project.allocation.wrong.amount.message"));
 		} catch (ProjectAllocationIncreaseInExpiredProjectException e) {
@@ -120,8 +118,8 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			}
 			else
 				showErrorNotification(getTranslation("name.duplicated.error.message"));
-		} catch (Exception e) {
-			showErrorNotification(getTranslation("base.error.message"));
+		} catch (RuntimeException e) {
+			CommonExceptionsHandler.handleInDefaultWay(e);
 		}
 
 	}

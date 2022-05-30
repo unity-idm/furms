@@ -30,6 +30,7 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.DashboardView;
 
@@ -132,10 +133,8 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 		try {
 			projectAllocationService.create(viewModel.getCommunityId(), projectAllocation);
 			UI.getCurrent().navigate(DashboardView.class);
-		}catch (ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException e) {
-			showErrorNotification(getTranslation("project.allocation.resource.type.unique.message"));
-		} catch (Exception e) {
-			showErrorNotification(getTranslation("base.error.message"));
+		} catch (RuntimeException e) {
+			CommonExceptionsHandler.handleInDefaultWay(e);
 		}
 	}
 

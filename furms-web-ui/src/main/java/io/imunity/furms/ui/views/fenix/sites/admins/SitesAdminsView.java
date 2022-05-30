@@ -10,9 +10,6 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -26,6 +23,7 @@ import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,15 +143,8 @@ public class SitesAdminsView extends FurmsViewComponent {
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			gridReload();
-		} catch (DuplicatedInvitationError e) {
-			showErrorNotification(getTranslation("invite.error.duplicate"));
-		} catch (UserAlreadyHasRoleError e) {
-			showErrorNotification(getTranslation("invite.error.role.own"));
-		} catch (InvalidEmailException e) {
-			showErrorNotification(getTranslation("invite.error.email"));
 		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
-			LOG.error("Could not invite Site Administrator. ", e);
+			CommonExceptionsHandler.handleInDefaultWay(e);
 		}
 	}
 

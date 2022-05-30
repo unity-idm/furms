@@ -17,9 +17,6 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -34,6 +31,7 @@ import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationComponent;
 import org.slf4j.Logger;
@@ -190,15 +188,8 @@ public class ProjectView extends FurmsViewComponent {
 			gridReload();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
-		} catch (DuplicatedInvitationError e) {
-			showErrorNotification(getTranslation("invite.error.duplicate"));
-		} catch (UserAlreadyHasRoleError e) {
-			showErrorNotification(getTranslation("invite.error.role.own"));
-		} catch (InvalidEmailException e) {
-			showErrorNotification(getTranslation("invite.error.email"));
 		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("invite.error.unexpected"));
-			LOG.error("Could not invite user. ", e);
+			CommonExceptionsHandler.handleInDefaultWay(e);
 		}
 	}
 

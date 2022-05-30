@@ -19,7 +19,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.alarms.AlarmService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
-import io.imunity.furms.api.validation.exceptions.AssignedPolicyRemovingException;
 import io.imunity.furms.domain.alarms.AlarmId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
@@ -29,6 +28,7 @@ import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 
 import java.util.Collections;
@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -165,10 +164,8 @@ public class AlarmsView extends FurmsViewComponent {
 			try {
 				alarmService.remove(projectId, alarmId);
 				loadGridContent();
-			} catch (AssignedPolicyRemovingException e) {
-				showErrorNotification(getTranslation("policy.document.assigned.removing"));
-			} catch (Exception e) {
-				showErrorNotification(getTranslation("base.error.message"));
+			} catch (RuntimeException e) {
+				CommonExceptionsHandler.handleInDefaultWay(e);
 			}
 		});
 		return furmsDialog;
