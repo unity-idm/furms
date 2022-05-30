@@ -5,45 +5,48 @@
 
 package io.imunity.furms.spi.community_allocation;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
 public interface CommunityAllocationRepository {
-	Optional<CommunityAllocation> findById(String id);
+	Optional<CommunityAllocation> findById(CommunityAllocationId id);
 
-	Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(String id);
+	Optional<CommunityAllocationResolved> findByIdWithRelatedObjects(CommunityAllocationId id);
 
-	Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(String communityId);
+	Set<CommunityAllocationResolved> findAllByCommunityIdWithRelatedObjects(CommunityId communityId);
 
-	Set<CommunityAllocation> findAllByCommunityId(String communityId);
+	Set<CommunityAllocation> findAllByCommunityId(CommunityId communityId);
 
-	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(String communityId);
+	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdWithRelatedObjects(CommunityId communityId);
 
-	Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
+	Set<CommunityAllocationResolved> findAllByCommunityIdAndNameOrSiteNameWithRelatedObjects(CommunityId communityId,
 	                                                                                         String name);
 
-	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(String communityId,
+	Set<CommunityAllocationResolved> findAllNotExpiredByCommunityIdAndNameOrSiteNameWithRelatedObjects(CommunityId communityId,
 	                                                                                                   String name);
 
-	BigDecimal getAvailableAmount(String resourceCreditId);
+	BigDecimal getAvailableAmount(ResourceCreditId resourceCreditId);
 
 	Set<CommunityAllocation> findAll();
 
-	String create(CommunityAllocation resourceType);
+	CommunityAllocationId create(CommunityAllocation resourceType);
 
 	void update(CommunityAllocation resourceType);
 
-	boolean exists(String id);
+	boolean exists(CommunityAllocationId id);
 
-	boolean existsByResourceCreditId(String id);
+	boolean existsByResourceCreditId(ResourceCreditId id);
 
 	boolean isUniqueName(String name);
 
-	void delete(String id);
+	void delete(CommunityAllocationId id);
 
 	void deleteAll();
 }

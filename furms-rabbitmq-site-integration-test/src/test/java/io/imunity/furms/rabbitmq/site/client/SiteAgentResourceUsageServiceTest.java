@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 import static org.mockito.Mockito.timeout;
@@ -33,8 +34,8 @@ class SiteAgentResourceUsageServiceTest extends IntegrationTestBase {
 	@Test
 	void shouldReceivedResourceUsage() {
 		CumulativeResourceUsageRecord record = new CumulativeResourceUsageRecord(
-			"projectIdentifier",
-			"allocationIdentifier",
+			UUID.randomUUID().toString(),
+			UUID.randomUUID().toString(),
 			BigDecimal.ONE,
 			OffsetDateTime.now()
 		);
@@ -53,8 +54,8 @@ class SiteAgentResourceUsageServiceTest extends IntegrationTestBase {
 	@Test
 	void shouldReceivedUserResourceUsage() {
 		UserResourceUsageRecord record = new UserResourceUsageRecord(
-			"projectIdentifier",
-			"allocationIdentifier",
+			UUID.randomUUID().toString(),
+			UUID.randomUUID().toString(),
 			"fenixUserId",
 			BigDecimal.ONE,
 			OffsetDateTime.now()

@@ -5,21 +5,23 @@
 
 package io.imunity.furms.domain.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ProjectAllocationChunk {
-	public final String id;
-	public final String projectAllocationId;
-	public final String chunkId;
+	public final ProjectAllocationInstallationId id;
+	public final ProjectAllocationId projectAllocationId;
+	public final ChunkId chunkId;
 	public final BigDecimal amount;
 	public final LocalDateTime validFrom;
 	public final LocalDateTime validTo;
 	public final LocalDateTime receivedTime;
 
-	ProjectAllocationChunk(String id, String projectAllocationId, String chunkId, BigDecimal amount,
-	                       LocalDateTime validFrom, LocalDateTime validTo, LocalDateTime receivedTime) {
+	ProjectAllocationChunk(ProjectAllocationInstallationId id, ProjectAllocationId projectAllocationId, ChunkId chunkId,
+	                       BigDecimal amount, LocalDateTime validFrom, LocalDateTime validTo, LocalDateTime receivedTime) {
 		this.id = id;
 		this.projectAllocationId = projectAllocationId;
 		this.chunkId = chunkId;
@@ -66,9 +68,9 @@ public class ProjectAllocationChunk {
 	}
 
 	public static final class ProjectAllocationChunkBuilder {
-		public String id;
-		public String projectAllocationId;
-		public String chunkId;
+		public ProjectAllocationInstallationId id;
+		public ProjectAllocationId projectAllocationId;
+		public ChunkId chunkId;
 		public BigDecimal amount;
 		public LocalDateTime validFrom;
 		public LocalDateTime validTo;
@@ -78,17 +80,22 @@ public class ProjectAllocationChunk {
 		}
 
 		public ProjectAllocationChunkBuilder id(String id) {
-			this.id = id;
+			this.id = new ProjectAllocationInstallationId(id);
 			return this;
 		}
 
 		public ProjectAllocationChunkBuilder projectAllocationId(String projectAllocationId) {
+			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
+			return this;
+		}
+
+		public ProjectAllocationChunkBuilder projectAllocationId(ProjectAllocationId projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}
 
 		public ProjectAllocationChunkBuilder chunkId(String chunkId) {
-			this.chunkId = chunkId;
+			this.chunkId = new ChunkId(chunkId);
 			return this;
 		}
 

@@ -8,10 +8,13 @@ package io.imunity.furms.integration.tests.rest.project;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.project_installation.Error;
+import io.imunity.furms.domain.project_installation.ProjectInstallationId;
 import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -76,12 +79,11 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		final Site.SiteBuilder siteBuilder = defaultSite();
 		final Site site2 = siteBuilder
 				.name("site2")
-				.externalId(new SiteExternalId("s2id"))
-				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
+				.id(siteRepository.create(siteBuilder.build(), new SiteExternalId("s2id")))
 				.build();
-		final String community = createCommunity();
-		final String project1 = createProject(community);
-		final String project2 = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project1 = createProject(community);
+		final ProjectId project2 = createProject(community);
 		createProjectInstallation(project1, site.getId(), INSTALLED);
 		createProjectInstallation(project1, site2.getId(), ACKNOWLEDGED);
 		createProjectInstallation(project2, site.getId(), INSTALLED);
@@ -96,10 +98,10 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(1)))
-				.andExpect(jsonPath("$.[0].id", equalTo(project1)))
+				.andExpect(jsonPath("$.[0].id", equalTo(project1.id.toString())))
 				.andExpect(jsonPath("$.[0].acronym", equalTo(expectedProject.getAcronym())))
 				.andExpect(jsonPath("$.[0].name", equalTo(expectedProject.getName())))
-				.andExpect(jsonPath("$.[0].communityId", equalTo(expectedProject.getCommunityId())))
+				.andExpect(jsonPath("$.[0].communityId", equalTo(expectedProject.getCommunityId().id.toString())))
 				.andExpect(jsonPath("$.[0].researchField", equalTo(expectedProject.getResearchField())))
 				.andExpect(jsonPath("$.[0].installations", hasSize(2)))
 				.andExpect(jsonPath("$.[0].description", equalTo(expectedProject.getDescription())))
@@ -113,11 +115,10 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		final Site.SiteBuilder siteBuilder = defaultSite();
 		final Site site2 = siteBuilder
 				.name("site2")
-				.externalId(new SiteExternalId("s2id"))
-				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
+				.id(siteRepository.create(siteBuilder.build(), new SiteExternalId("s2id")))
 				.build();
-		final String community = createCommunity();
-		final String project1 = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project1 = createProject(community);
 		createProjectInstallation(project1, site.getId(), INSTALLED);
 		createProjectInstallation(project1, site2.getId(), INSTALLED);
 
@@ -139,11 +140,10 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		final Site.SiteBuilder siteBuilder = defaultSite();
 		final Site site2 = siteBuilder
 				.name("site2")
-				.externalId(new SiteExternalId("s2id"))
-				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
+				.id(siteRepository.create(siteBuilder.build(), new SiteExternalId("s2id")))
 				.build();
-		final String community = createCommunity();
-		final String project1 = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project1 = createProject(community);
 		final TestUser siteAdmin = basicUser();
 		createProjectInstallation(project1, site.getId(), INSTALLED);
 		createProjectInstallation(project1, site2.getId(), INSTALLED);
@@ -162,9 +162,9 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindProjectByProjectId() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project1 = createProject(community);
-		final String project2 = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project1 = createProject(community);
+		final ProjectId project2 = createProject(community);
 		createProjectInstallation(project1, site.getId(), INSTALLED);
 		createProjectInstallation(project2, site.getId(), INSTALLED);
 
@@ -176,14 +176,14 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 
 		//when
 		final Project expectedProject = projectRepository.findById(project1).get();
-		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project1)
+		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project1.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.project.id", equalTo(project1)))
+				.andExpect(jsonPath("$.project.id", equalTo(project1.id.toString())))
 				.andExpect(jsonPath("$.project.acronym", equalTo(expectedProject.getAcronym())))
 				.andExpect(jsonPath("$.project.name", equalTo(expectedProject.getName())))
-				.andExpect(jsonPath("$.project.communityId", equalTo(expectedProject.getCommunityId())))
+				.andExpect(jsonPath("$.project.communityId", equalTo(expectedProject.getCommunityId().id.toString())))
 				.andExpect(jsonPath("$.project.researchField", equalTo(expectedProject.getResearchField())))
 				.andExpect(jsonPath("$.project.installations", hasSize(1)))
 				.andExpect(jsonPath("$.project.description", equalTo(expectedProject.getDescription())))
@@ -196,8 +196,8 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotBeAbleToShowProjectWhenUserIsJustSiteAdmin() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project1 = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project1 = createProject(community);
 		createProject(community);
 
 		final TestUser siteAdmin = basicUser();
@@ -205,7 +205,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		setupUser(siteAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project1)
+		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project1.id)
 				.with(siteAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -214,9 +214,9 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindProjectWhenUserIsAlreadyInstalledEvenHeIsNotAProjectAdmin() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project1 = createProject(community);
-		final String project2 = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project1 = createProject(community);
+		final ProjectId project2 = createProject(community);
 		createProjectInstallation(project1, site.getId(), INSTALLED);
 		createProjectInstallation(project2, site.getId(), INSTALLED);
 		final TestUser siteAdmin = basicUser();
@@ -228,19 +228,19 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		setupUser(siteAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project1)
+		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project1.id)
 				.with(siteAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.project.id", equalTo(project1)));
+				.andExpect(jsonPath("$.project.id", equalTo(project1.id.toString())));
 	}
 
 	@Test
 	void shouldReturnForbiddenIfUserDoesNotHaveRightsToProjectWhileGettingProject() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project1 = createProject(community);
-		final String project2 = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project1 = createProject(community);
+		final ProjectId project2 = createProject(community);
 		createProjectInstallation(project1, site.getId(), INSTALLED);
 		createProjectInstallation(project2, site.getId(), INSTALLED);
 
@@ -248,7 +248,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project2)
+		mockMvc.perform(get("/rest-api/v1/projects/{projectId}", project2.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -269,21 +269,23 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldDeleteProjectByProjectId() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project = createProject(community);
 
-		server.stubFor(WireMock.get("/unity/group-members-attributes/%2Ffenix%2Fcommunities%2F"+community+"%2Fprojects%2F"+project+"%2Fusers")
+		server.stubFor(WireMock.get("/unity/group-members-attributes/%2Ffenix%2Fcommunities%2F" + community.id +
+				"%2Fprojects%2F" + project.id + "%2Fusers")
 				.willReturn(aResponse().withStatus(200)
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 						.withBody(new ObjectMapper().writeValueAsString(new String[0]))));
-		server.stubFor(WireMock.delete("/unity/group/%2Ffenix%2Fcommunities%2F"+community+"%2Fprojects%2F"+project+"?recursive=true")
+		server.stubFor(WireMock.delete("/unity/group/%2Ffenix%2Fcommunities%2F" + community.id + "%2Fprojects%2F" + project.id +
+				"?recursive=true")
 				.willReturn(aResponse().withStatus(200)));
 
 		projectAdmin.addCommunityAdmin(community);
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(delete("/rest-api/v1/projects/{projectId}", project)
+		mockMvc.perform(delete("/rest-api/v1/projects/{projectId}", project.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk());
@@ -294,19 +296,19 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToDeleteWhenUserDoesNotHaveCorrectRights() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project = createProject(community);
 
 		//when
 		setupUser(projectAdmin);
-		mockMvc.perform(delete("/rest-api/v1/projects/{projectId}", project)
+		mockMvc.perform(delete("/rest-api/v1/projects/{projectId}", project.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
 
 		projectAdmin.addProjectAdmin(community, project);
 		projectAdmin.registerUserMock(server);
-		mockMvc.perform(delete("/rest-api/v1/projects/{projectId}", project)
+		mockMvc.perform(delete("/rest-api/v1/projects/{projectId}", project.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -325,10 +327,11 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldUpdateProject() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project = createProject(community);
 
-		server.stubFor(WireMock.post("/unity/group/%2Ffenix%2Fcommunities%2F"+community+"%2Fprojects%2F"+project+"%2Fusers"+
+		server.stubFor(WireMock.post("/unity/group/%2Ffenix%2Fcommunities%2F" + community.id + "%2Fprojects%2F"+ project.id +
+				"%2Fusers"+
 							"/entity/"+projectAdmin.getUserId())
 				.willReturn(aResponse().withStatus(200)));
 		server.stubFor(WireMock.put("/unity/group/")
@@ -344,16 +347,16 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 		final Project old = projectRepository.findById(project).get();
 
 		//when
-		mockMvc.perform(put("/rest-api/v1/projects/{projectId}", project)
+		mockMvc.perform(put("/rest-api/v1/projects/{projectId}", project.id)
 				.content(objectMapper.writeValueAsString(request))
 				.contentType(APPLICATION_JSON)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.id", equalTo(project)))
+				.andExpect(jsonPath("$.id", equalTo(project.id.toString())))
 				.andExpect(jsonPath("$.acronym", equalTo(old.getAcronym())))
 				.andExpect(jsonPath("$.name", equalTo(request.name)))
-				.andExpect(jsonPath("$.communityId", equalTo(old.getCommunityId())))
+				.andExpect(jsonPath("$.communityId", equalTo(old.getCommunityId().id.toString())))
 				.andExpect(jsonPath("$.researchField", equalTo(request.researchField)))
 				.andExpect(jsonPath("$.description", equalTo(request.description)))
 				.andExpect(jsonPath("$.projectLeader.fenixIdentifier", equalTo(projectAdmin.getFenixId())));
@@ -362,8 +365,8 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToUpdateProjectDueToEmptyRequiredFields() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project = createProject(community);
 
 		projectAdmin.addProjectAdmin(community, project);
 		projectAdmin.addCommunityAdmin(community);
@@ -394,15 +397,15 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToUpdateProjectDueToLackOfCorrectRights() throws Exception {
 		//given
-		final String community = createCommunity();
-		final String project = createProject(community);
+		final CommunityId community = createCommunity();
+		final ProjectId project = createProject(community);
 
 		setupUser(projectAdmin);
 
 		final ProjectUpdateRequest request = defaultUpdateProject();
 
 		//when
-		mockMvc.perform(put("/rest-api/v1/projects/{projectId}", project)
+		mockMvc.perform(put("/rest-api/v1/projects/{projectId}", project.id)
 				.content(objectMapper.writeValueAsString(request))
 				.contentType(APPLICATION_JSON)
 				.with(projectAdmin.getHttpBasic()))
@@ -429,7 +432,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldCreateProject() throws Exception {
 		//given
-		final String community = createCommunity();
+		final CommunityId community = createCommunity();
 
 		server.stubFor(WireMock.post(new UrlPattern(matching(
 				"/unity/group/.*fenix.*communities.*projects.*users.*"), true))
@@ -465,13 +468,13 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToCreateProjectDueToEmptyRequiredFields() throws Exception {
 		//given
-		final String community = createCommunity();
+		final CommunityId community = createCommunity();
 
 		projectAdmin.addCommunityAdmin(community);
 		setupUser(projectAdmin);
 
 		final ProjectCreateRequest request = new ProjectCreateRequest(
-				community,
+				community.id.toString(),
 				"acronym",
 				"gid",
 				null,
@@ -498,7 +501,7 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldNotAllowToCreateProjectDueToLackOfCorrectRights() throws Exception {
 		//given
-		final String community = createCommunity();
+		final CommunityId community = createCommunity();
 
 		setupUser(projectAdmin);
 
@@ -513,13 +516,13 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				.andExpect(status().isForbidden());
 	}
 
-	private String createCommunity() {
+	private CommunityId createCommunity() {
 		return communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
 	}
 
-	private String createProject(String communityId) {
+	private ProjectId createProject(CommunityId communityId) {
 		return projectRepository.create(defaultProject()
 				.communityId(communityId)
 				.name(UUID.randomUUID().toString())
@@ -527,22 +530,26 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private void createProjectInstallation(String projectId, String siteId, ProjectInstallationStatus status) {
-		final String id = projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
+	private void createProjectInstallation(ProjectId projectId, SiteId siteId, ProjectInstallationStatus status) {
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
 				.projectId(projectId)
 				.siteId(siteId)
+				.correlationId(correlationId)
 				.status(status)
 				.build());
+		ProjectInstallationId id =
+			projectOperationRepository.findInstallationJobByCorrelationId(correlationId).get().id;
 		if (status == INSTALLED) {
 			projectOperationRepository.update(id, new ProjectInstallationResult(Map.of(
 					"gid", UUID.randomUUID().toString()), INSTALLED, new Error("", "")));
 		}
 	}
 
-	private void createUserAddition(String projectId, String siteId, TestUser testUser) {
+	private void createUserAddition(ProjectId projectId, SiteId siteId, TestUser testUser) {
 		userOperationRepository.create(defaultUserAddition()
 			.projectId(projectId)
-			.siteId(new SiteId(siteId))
+			.siteId(siteId)
 			.userId(testUser.getFenixId())
 			.correlationId(new CorrelationId(UUID.randomUUID().toString()))
 			.build());
@@ -557,9 +564,9 @@ public class ProjectsIntegrationTest extends IntegrationTestBase {
 				projectAdmin.getFenixId());
 	}
 
-	private ProjectCreateRequest defaultCreateRequest(String community) {
+	private ProjectCreateRequest defaultCreateRequest(CommunityId community) {
 		return new ProjectCreateRequest(
-				community,
+				community.id.toString(),
 				"acronym",
 				"gid",
 				"Name",

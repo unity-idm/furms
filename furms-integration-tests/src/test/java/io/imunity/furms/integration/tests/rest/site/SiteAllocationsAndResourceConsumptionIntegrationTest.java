@@ -5,10 +5,18 @@
 
 package io.imunity.furms.integration.tests.rest.site;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
@@ -57,10 +65,9 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
 		Site.SiteBuilder darkSiteBuilder = defaultSite()
-				.name("Dark Site")
-				.externalId(new SiteExternalId("dsid"));
+				.name("Dark Site");
 		darkSite = darkSiteBuilder
-				.id(siteRepository.create(darkSiteBuilder.build(), darkSiteBuilder.build().getExternalId()))
+				.id(siteRepository.create(darkSiteBuilder.build(), new SiteExternalId("dsid")))
 				.build();
 
 		projectAdmin = basicUser();
@@ -70,24 +77,25 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 	@Test
 	void shouldFindAllWhileGettingFurmsAllocationsForSpecificSite() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
-		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
-		final String communityId = createCommunity();
-		final String communityAllocation = createCommunityAllocation(communityId, resourceCredit);
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
-		final String projectId3 = createProject(communityId);
-		final String allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
-		final String allocation2 = createProjectAllocation(communityAllocation, projectId2, ONE);
-		final String allocation3 = createProjectAllocation(communityAllocation, projectId3, ONE);
-		final Set<String> expectedAllocations = Set.of(allocation1, allocation2, allocation3);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
+		final ResourceTypeId resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
+		final CommunityId communityId = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(communityId, resourceCredit);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
+		final ProjectId projectId3 = createProject(communityId);
+		final ProjectAllocationId allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ProjectAllocationId allocation2 = createProjectAllocation(communityAllocation, projectId2, ONE);
+		final ProjectAllocationId allocation3 = createProjectAllocation(communityAllocation, projectId3, ONE);
+		final Set<String> expectedAllocations = Set.of(allocation1.id.toString(), allocation2.id.toString(),
+			allocation3.id.toString());
 
-		final String darkResourceCredit = createResourceCredit(darkSite.getId(), "RC Test 2", BigDecimal.valueOf(100));
-		final String darkCommunityId = communityRepository.create(defaultCommunity()
+		final ResourceCreditId darkResourceCredit = createResourceCredit(darkSite.getId(), "RC Test 2", BigDecimal.valueOf(100));
+		final CommunityId darkCommunityId = communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String darkCommunityAllocation = createCommunityAllocation(darkCommunityId, darkResourceCredit);
-		final String darkProjectId = createProject(darkCommunityId);
+		final CommunityAllocationId darkCommunityAllocation = createCommunityAllocation(darkCommunityId, darkResourceCredit);
+		final ProjectId darkProjectId = createProject(darkCommunityId);
 		createProjectAllocation(darkCommunityAllocation, darkProjectId, ONE);
 
 		projectAdmin.addProjectAdmin(communityId, projectId1);
@@ -96,38 +104,38 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations", site.getId().id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(3)))
 				.andExpect(jsonPath("$.[0].id", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[0].communityAllocationId", equalTo(communityAllocation)))
-				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[0].communityAllocationId", equalTo(communityAllocation.id.toString())))
+				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.[0].amount", equalTo(ONE.intValue())))
 				.andExpect(jsonPath("$.[1].id", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[1].communityAllocationId", equalTo(communityAllocation)))
-				.andExpect(jsonPath("$.[1].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[1].communityAllocationId", equalTo(communityAllocation.id.toString())))
+				.andExpect(jsonPath("$.[1].resourceTypeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.[1].amount", equalTo(ONE.intValue())))
 				.andExpect(jsonPath("$.[2].id", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[2].communityAllocationId", equalTo(communityAllocation)))
-				.andExpect(jsonPath("$.[2].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[2].communityAllocationId", equalTo(communityAllocation.id.toString())))
+				.andExpect(jsonPath("$.[2].resourceTypeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.[2].amount", equalTo(ONE.intValue())));
 	}
 
 	@Test
 	void shouldReturnForbiddenForUserThatHasNotRightsWhileGettingFurmsAllocations() throws Exception {
 		//given
-		final String communityId = communityRepository.create(defaultCommunity()
+		final CommunityId communityId = communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String projectId = createProject(communityId);
+		final ProjectId projectId = createProject(communityId);
 		final TestUser noSiteAdmin = basicUser();
 		noSiteAdmin.addProjectAdmin(communityId, projectId);
 		setupUser(noSiteAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations", site.getId().id)
 				.with(noSiteAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -136,49 +144,49 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 	@Test
 	void shouldFindAllFurmsAllocationsForSpecificSiteAndProject() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
-		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
-		final String communityId = createCommunity();
-		final String communityAllocation = createCommunityAllocation(communityId, resourceCredit);
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
-		final String allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
-		final String allocation2 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
+		final ResourceTypeId resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
+		final CommunityId communityId = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(communityId, resourceCredit);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
+		final ProjectAllocationId allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ProjectAllocationId allocation2 = createProjectAllocation(communityAllocation, projectId1, ONE);
 		createProjectAllocation(communityAllocation, projectId2, ONE);
 
-		final Set<String> expectedAllocations = Set.of(allocation1, allocation2);
+		final Set<String> expectedAllocations = Set.of(allocation1.id.toString(), allocation2.id.toString());
 
 		projectAdmin.addProjectAdmin(communityId, projectId1);
 		projectAdmin.addProjectAdmin(communityId, projectId2);
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations/{projectId}", site.getId(), projectId1)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations/{projectId}", site.getId().id, projectId1.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
 				.andExpect(jsonPath("$.[0].id", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[0].communityAllocationId", equalTo(communityAllocation)))
-				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[0].communityAllocationId", equalTo(communityAllocation.id.toString())))
+				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.[0].amount", equalTo(ONE.intValue())))
 				.andExpect(jsonPath("$.[1].id", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[1].communityAllocationId", equalTo(communityAllocation)))
-				.andExpect(jsonPath("$.[1].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[1].communityAllocationId", equalTo(communityAllocation.id.toString())))
+				.andExpect(jsonPath("$.[1].resourceTypeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.[1].amount", equalTo(ONE.intValue())));
 	}
 
 	@Test
 	void shouldReturnForbiddenForUserThatHasNotRightsDuringGettingProjectAllocationsForProject() throws Exception {
 		//given
-		final String communityId = createCommunity();
-		final String projectId = createProject(communityId);
+		final CommunityId communityId = createCommunity();
+		final ProjectId projectId = createProject(communityId);
 		final TestUser noSiteAdmin = basicUser();
 		noSiteAdmin.addProjectAdmin(communityId, projectId);
 		setupUser(noSiteAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations/{projectId}", site.getId(), projectId)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations/{projectId}", site.getId().id, projectId.id)
 				.with(noSiteAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -187,14 +195,15 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 	@Test
 	void shouldNotFindFurmsAllocationsAndReturnEmptyArrayWhenProjectDoesNotExists() throws Exception {
 		//given
-		final String communityId = createCommunity();
-		final String projectId = createProject(communityId);
+		final CommunityId communityId = createCommunity();
+		final ProjectId projectId = createProject(communityId);
 
 		projectAdmin.addProjectAdmin(communityId, projectId);
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations/{projectId}", site.getId(), UUID.randomUUID().toString())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations/{projectId}", site.getId().id,
+				UUID.randomUUID().toString())
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
@@ -216,7 +225,7 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/furmsAllocations", site.getId().id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -225,25 +234,25 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 	@Test
 	void shouldFindAllSiteAllocationForSpecificSite() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
-		final String communityId = createCommunity();
-		final String communityAllocation = createCommunityAllocation(communityId, resourceCredit);
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
-		final String allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
-		final String allocation2 = createProjectAllocation(communityAllocation, projectId2, ONE);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
+		final CommunityId communityId = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(communityId, resourceCredit);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
+		final ProjectAllocationId allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ProjectAllocationId allocation2 = createProjectAllocation(communityAllocation, projectId2, ONE);
 		createProjectAllocationChunk(allocation1, BigDecimal.valueOf(0.1));
 		createProjectAllocationChunk(allocation2, BigDecimal.valueOf(0.1));
 		createProjectAllocationChunk(allocation1, BigDecimal.valueOf(0.1));
 		createProjectAllocationChunk(allocation2, BigDecimal.valueOf(0.1));
 
-		final Set<String> expectedAllocations = Set.of(allocation1, allocation2);
+		final Set<String> expectedAllocations = Set.of(allocation1.id.toString(), allocation2.id.toString());
 
-		final String darkResourceCredit = createResourceCredit(darkSite.getId(), "RC Test 2", BigDecimal.valueOf(100));
-		final String darkCommunity = createCommunity();
-		final String darkCommunityAllocation = createCommunityAllocation(darkCommunity, darkResourceCredit);
-		final String darkProjectId = createProject(darkCommunity);
-		final String darkAllocation = createProjectAllocation(darkCommunityAllocation, darkProjectId, ONE);
+		final ResourceCreditId darkResourceCredit = createResourceCredit(darkSite.getId(), "RC Test 2", BigDecimal.valueOf(100));
+		final CommunityId darkCommunity = createCommunity();
+		final CommunityAllocationId darkCommunityAllocation = createCommunityAllocation(darkCommunity, darkResourceCredit);
+		final ProjectId darkProjectId = createProject(darkCommunity);
+		final ProjectAllocationId darkAllocation = createProjectAllocation(darkCommunityAllocation, darkProjectId, ONE);
 		createProjectAllocationChunk(darkAllocation, BigDecimal.valueOf(0.1));
 		createProjectAllocationChunk(darkAllocation, BigDecimal.valueOf(0.1));
 
@@ -253,13 +262,13 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/siteAllocations", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/siteAllocations", site.getId().id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(4)))
 				.andExpect(jsonPath("$.[0].allocationId", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId().id.toString())))
 				.andExpect(jsonPath("$.[0].amount", equalTo(0.1)))
 				.andExpect(jsonPath("$.[0].validity", notNullValue()));
 	}
@@ -267,13 +276,13 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 	@Test
 	void shouldFindAllSiteAllocationForSpecificSiteAndProject() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
-		final String communityId = createCommunity();
-		final String communityAllocation = createCommunityAllocation(communityId, resourceCredit);
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
-		final String allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
-		final String allocation2 = createProjectAllocation(communityAllocation, projectId2, ONE);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
+		final CommunityId communityId = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(communityId, resourceCredit);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
+		final ProjectAllocationId allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ProjectAllocationId allocation2 = createProjectAllocation(communityAllocation, projectId2, ONE);
 		createProjectAllocationChunk(allocation1, BigDecimal.valueOf(0.1));
 		createProjectAllocationChunk(allocation2, BigDecimal.valueOf(0.1));
 		createProjectAllocationChunk(allocation1, BigDecimal.valueOf(0.1));
@@ -284,13 +293,13 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/siteAllocations/{projectId}", site.getId(), projectId1)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/siteAllocations/{projectId}", site.getId().id, projectId1.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].allocationId", equalTo(allocation1)))
-				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId())))
+				.andExpect(jsonPath("$.[0].allocationId", equalTo(allocation1.id.toString())))
+				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId().id.toString())))
 				.andExpect(jsonPath("$.[0].amount", equalTo(0.1)))
 				.andExpect(jsonPath("$.[0].validity", notNullValue()));
 	}
@@ -298,77 +307,78 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 	@Test
 	void shouldFindCumulativeProjectResourceConsumptionForSpecificSiteAndProject() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
-		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
-		final String communityId = createCommunity();
-		final String communityAllocation = createCommunityAllocation(communityId, resourceCredit);
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
-		final String allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
-		final String allocation2 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
+		final ResourceTypeId resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
+		final CommunityId communityId = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(communityId, resourceCredit);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
+		final ProjectAllocationId allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ProjectAllocationId allocation2 = createProjectAllocation(communityAllocation, projectId1, ONE);
 		createProjectAllocation(communityAllocation, projectId2, ONE);
 
 		createResourceUsage(projectId1, allocation1, BigDecimal.valueOf(0.2));
 		createResourceUsage(projectId1, allocation2, BigDecimal.valueOf(0.3));
 
-		final Set<String> expectedAllocations = Set.of(allocation1, allocation2);
+		final Set<String> expectedAllocations = Set.of(allocation1.id.toString(), allocation2.id.toString());
 
 		projectAdmin.addProjectAdmin(communityId, projectId1);
 		projectAdmin.addProjectAdmin(communityId, projectId2);
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/cumulativeResourcesConsumption/{projectId}", site.getId(), projectId1)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/cumulativeResourcesConsumption/{projectId}", site.getId().id,
+				projectId1.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
 				.andExpect(jsonPath("$.[0].projectAllocationId", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId().id.toString())))
+				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.[0].consumedAmount", in(Set.of(0.2, 0.3))))
 				.andExpect(jsonPath("$.[1].projectAllocationId", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[1].siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[1].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[1].siteId", equalTo(site.getId().id.toString())))
+				.andExpect(jsonPath("$.[1].resourceTypeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.[1].consumedAmount", in(Set.of(0.2, 0.3))));
 	}
 
 	@Test
 	void shouldFindProjectResourceRecordsForSpecificSiteAndProject() throws Exception {
 		//given
-		final String resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
-		final String resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
-		final String communityId = createCommunity();
-		final String communityAllocation = createCommunityAllocation(communityId, resourceCredit);
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
-		final String allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
-		final String allocation2 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ResourceCreditId resourceCredit = createResourceCredit(site.getId(), "RC Test 1", BigDecimal.valueOf(100));
+		final ResourceTypeId resourceType = resourceCreditRepository.findById(resourceCredit).get().resourceTypeId;
+		final CommunityId communityId = createCommunity();
+		final CommunityAllocationId communityAllocation = createCommunityAllocation(communityId, resourceCredit);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
+		final ProjectAllocationId allocation1 = createProjectAllocation(communityAllocation, projectId1, ONE);
+		final ProjectAllocationId allocation2 = createProjectAllocation(communityAllocation, projectId1, ONE);
 		createProjectAllocation(communityAllocation, projectId2, ONE);
 
 		createUserResourceUsage(projectId1, allocation1, BigDecimal.valueOf(0.2), projectAdmin);
 		createUserResourceUsage(projectId1, allocation2, BigDecimal.valueOf(0.3), projectAdmin);
 
-		final Set<String> expectedAllocations = Set.of(allocation1, allocation2);
+		final Set<String> expectedAllocations = Set.of(allocation1.id.toString(), allocation2.id.toString());
 
 		projectAdmin.addProjectAdmin(communityId, projectId1);
 		projectAdmin.addProjectAdmin(communityId, projectId2);
 		setupUser(projectAdmin);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/usageRecords/{projectId}", site.getId(), projectId1)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/usageRecords/{projectId}", site.getId().id, projectId1.id)
 				.with(projectAdmin.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
 				.andExpect(jsonPath("$.[0].projectAllocationId", in(expectedAllocations)))
-				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId())))
-				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType)))
+				.andExpect(jsonPath("$.[0].siteId", equalTo(site.getId().id.toString())))
+				.andExpect(jsonPath("$.[0].resourceTypeId", equalTo(resourceType.id.toString())))
 				.andExpect(jsonPath("$.[0].consumedAmount", in(Set.of(0.2, 0.3))))
 				.andExpect(jsonPath("$.[0].userFenixId", equalTo(projectAdmin.getFenixId())));
 	}
 
-	private String createProject(String communityId) {
+	private ProjectId createProject(CommunityId communityId) {
 		return projectRepository.create(defaultProject()
 				.communityId(communityId)
 				.name(UUID.randomUUID().toString())
@@ -376,7 +386,8 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 				.build());
 	}
 
-	private String createProjectAllocation(String communityAllocation, String projectId, BigDecimal amount) {
+	private ProjectAllocationId createProjectAllocation(CommunityAllocationId communityAllocation, ProjectId projectId,
+	                                       BigDecimal amount) {
 		return projectAllocationRepository.create(defaultProjectAllocation()
 				.communityAllocationId(communityAllocation)
 				.projectId(projectId)
@@ -385,7 +396,7 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 				.build());
 	}
 
-	private void createResourceUsage(String projectId, String projectAllocation, BigDecimal amount) {
+	private void createResourceUsage(ProjectId projectId, ProjectAllocationId projectAllocation, BigDecimal amount) {
 		final ProjectAllocationResolved projectAllocationResolved =
 				projectAllocationRepository.findByIdWithRelatedObjects(projectAllocation).get();
 		resourceUsageRepository.create(defaultResourceUsage()
@@ -396,7 +407,8 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 				projectAllocationResolved);
 	}
 
-	private void createUserResourceUsage(String projectId, String projectAllocation, BigDecimal amount, TestUser testUser) {
+	private void createUserResourceUsage(ProjectId projectId, ProjectAllocationId projectAllocation, BigDecimal amount,
+	                                     TestUser testUser) {
 		resourceUsageRepository.create(defaultUserResourceUsage()
 				.projectId(projectId)
 				.projectAllocationId(projectAllocation)
@@ -405,7 +417,7 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 				.build());
 	}
 
-	private String createCommunityAllocation(String communityId, String resourceCredit) {
+	private CommunityAllocationId createCommunityAllocation(CommunityId communityId, ResourceCreditId resourceCredit) {
 		return communityAllocationRepository.create(defaultCommunityAllocation()
 				.communityId(communityId)
 				.resourceCreditId(resourceCredit)
@@ -414,22 +426,22 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 				.build());
 	}
 
-	private String createCommunity() {
+	private CommunityId createCommunity() {
 		return communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
 	}
 
-	private String createResourceCredit(String siteId, String name, BigDecimal amount) {
+	private ResourceCreditId createResourceCredit(SiteId siteId, String name, BigDecimal amount) {
 		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
 				.siteId(siteId)
 				.build());
-		final String serviceId = infraServiceRepository.create(defaultService()
+		final InfraServiceId serviceId = infraServiceRepository.create(defaultService()
 				.siteId(siteId)
 				.name(UUID.randomUUID().toString())
 				.policyId(policyId)
 				.build());
-		final String resourceType = resourceTypeRepository.create(defaultResourceType()
+		final ResourceTypeId resourceType = resourceTypeRepository.create(defaultResourceType()
 				.siteId(siteId)
 				.serviceId(serviceId)
 				.name(UUID.randomUUID().toString())
@@ -442,7 +454,7 @@ public class SiteAllocationsAndResourceConsumptionIntegrationTest extends Integr
 				.build());
 	}
 
-	private void createProjectAllocationChunk(String allocation, BigDecimal amount) {
+	private void createProjectAllocationChunk(ProjectAllocationId allocation, BigDecimal amount) {
 		projectAllocationInstallationRepository.create(defaultProjectAllocationChunk()
 			.projectAllocationId(allocation)
 			.amount(amount)

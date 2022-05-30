@@ -5,7 +5,11 @@
 
 package io.imunity.furms.integration.tests.rest.site;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -37,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class SiteIntegrationTest extends IntegrationTestBase {
 
-	private String projectId;
+	private ProjectId projectId;
 	private Site site;
 
 	@BeforeEach
@@ -46,18 +50,18 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 		site = siteBuilder
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
-		final String communityId = communityRepository.create(defaultCommunity().build());
+		final CommunityId communityId = communityRepository.create(defaultCommunity().build());
 		projectId = projectRepository.create(defaultProject()
 				.communityId(communityId)
 				.build());
 		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
 				.siteId(site.getId())
 				.build());
-		final String serviceId = infraServiceRepository.create(defaultService()
+		final InfraServiceId serviceId = infraServiceRepository.create(defaultService()
 				.siteId(site.getId())
 				.policyId(policyId)
 				.build());
-		final String resourceTypeId = resourceTypeRepository.create(defaultResourceType()
+		final ResourceTypeId resourceTypeId = resourceTypeRepository.create(defaultResourceType()
 				.siteId(site.getId())
 				.serviceId(serviceId)
 				.build());
@@ -70,15 +74,16 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldGetAllSitesThatCurrentUserIsInstalledOnTheseSites() throws Exception {
 		//given
-		final Site notMySite = defaultSite().name("NotMySite").externalId(new SiteExternalId("nmsid")).build();
-		siteRepository.create(notMySite, notMySite.getExternalId());
+		final Site notMySite = defaultSite().name("NotMySite")
+			.build();
+		siteRepository.create(notMySite, new SiteExternalId("nmsid"));
 		final TestUser testUser = basicUser();
 		testUser.addSiteSupport(site.getId());
 		setupUser(testUser);
 
 		userOperationRepository.create(defaultUserAddition()
 				.userId(testUser.getFenixId())
-				.siteId(new SiteId(site.getId()))
+				.siteId(site.getId())
 				.projectId(projectId)
 				.build());
 
@@ -99,11 +104,13 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 	void shouldGetAllSitesForNonCentralIdpUser() throws Exception {
 		//given
 		final TestUser testUser = basicUser();
-		final Site siteWithAdmin = defaultSite().name("siteWithAdmin").externalId(new SiteExternalId("admid")).build();
-		final String siteWithAdminId = siteRepository.create(siteWithAdmin, siteWithAdmin.getExternalId());
+		final Site siteWithAdmin = defaultSite().name("siteWithAdmin")
+			.build();
+		final SiteId siteWithAdminId = siteRepository.create(siteWithAdmin, new SiteExternalId("admid"));
 		testUser.addSiteSupport(siteWithAdminId);
-		final Site siteWithSupport = defaultSite().name("siteWithSupport").externalId(new SiteExternalId("supid")).build();
-		final String siteWithSupportId = siteRepository.create(siteWithSupport, siteWithSupport.getExternalId());
+		final Site siteWithSupport = defaultSite().name("siteWithSupport")
+			.build();
+		final SiteId siteWithSupportId = siteRepository.create(siteWithSupport, new SiteExternalId("supid"));
 		testUser.addSiteSupport(siteWithSupportId);
 
 		testUser.disableCentralIDPIdentity(server);
@@ -122,12 +129,13 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldGetAllSitesForFenixAdmin() throws Exception {
 		//given
-		final Site extraSite = defaultSite().name("extraSite").externalId(new SiteExternalId("admid")).build();
-		final String extraSiteId = siteRepository.create(extraSite, extraSite.getExternalId());
-		final Site extraSite2 = defaultSite().name("extraSite2").externalId(new SiteExternalId("supid")).build();
-		final String extraSite2Id = siteRepository.create(extraSite2, extraSite2.getExternalId());
+		final Site extraSite = defaultSite().name("extraSite").build();
+		final SiteId extraSiteId = siteRepository.create(extraSite, new SiteExternalId("admid"));
+		final Site extraSite2 = defaultSite().name("extraSite2").build();
+		final SiteId extraSite2Id = siteRepository.create(extraSite2, new SiteExternalId("supid"));
 
-		final Set<String> expectedSites = Set.of(extraSiteId, extraSite2Id, site.getId());
+		final Set<String> expectedSites = Set.of(extraSiteId.id.toString(), extraSite2Id.id.toString(),
+			site.getId().id.toString());
 
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/"))
@@ -142,7 +150,7 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindSiteBySiteIdThatBelongsToUser() throws Exception {
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.name", equalTo(site.getName())));
@@ -151,11 +159,12 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldGetUnauthorizedWhileUserNotBelongsToThisSite() throws Exception {
 		//given
-		final Site notMySite = defaultSite().name("NotMySite").externalId(new SiteExternalId("nmsid")).build();
-		final String notMySiteId2 = siteRepository.create(notMySite, notMySite.getExternalId());
+		final Site notMySite = defaultSite().name("NotMySite")
+			.build();
+		final SiteId notMySiteId2 = siteRepository.create(notMySite, new SiteExternalId("nmsid"));
 		userOperationRepository.create(defaultUserAddition()
 				.userId(ADMIN_USER.getFenixId())
-				.siteId(new SiteId(site.getId()))
+				.siteId(site.getId())
 				.projectId(projectId)
 				.build());
 
@@ -163,7 +172,7 @@ public class SiteIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}", notMySiteId2)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}", notMySiteId2.id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());

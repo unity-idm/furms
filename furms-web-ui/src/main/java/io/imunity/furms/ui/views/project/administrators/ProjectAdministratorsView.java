@@ -12,6 +12,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -40,13 +41,13 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectService projectService;
-	private final String projectId;
+	private final ProjectId projectId;
 	private final UsersGridComponent grid;
 	private final UsersDAO usersDAO;
 
 	public ProjectAdministratorsView(ProjectService projectService, AuthzService authzService) {
 		this.projectService = projectService;
-		this.projectId = getCurrentResourceId();
+		this.projectId = new ProjectId(getCurrentResourceId());
 
 		PersistentId currentUserId = authzService.getCurrentUserId();
 		Project project = projectService.findById(projectId)

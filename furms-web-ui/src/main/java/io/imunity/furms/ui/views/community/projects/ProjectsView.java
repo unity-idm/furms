@@ -24,8 +24,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJobStatus;
 import io.imunity.furms.domain.project_installation.ProjectUpdateJobStatus;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -169,19 +172,20 @@ public class ProjectsView extends FurmsViewComponent {
 			return new GridActionsButtonLayout(contextMenu.getTarget());
 		}
 		return new GridActionsButtonLayout(
-			new RouterGridLink(USERS, projectViewModel.projectId, ProjectView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
-			new RouterGridLink(PIE_CHART, projectViewModel.projectId, ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM),
+			new RouterGridLink(USERS, projectViewModel.projectId.id.toString(), ProjectView.class, PARAM_NAME,
+				ADMINISTRATORS_PARAM),
+			new RouterGridLink(PIE_CHART, projectViewModel.projectId.id.toString(), ProjectView.class, PARAM_NAME, ALLOCATIONS_PARAM),
 			createContextMenu(projectViewModel.projectId, projectViewModel.name, projectViewModel.communityId)
 		);
 	}
 
-	private Component createContextMenu(String projectId, String projectName, String communityId) {
+	private Component createContextMenu(ProjectId projectId, String projectName, CommunityId communityId) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		if(projectService.isProjectInTerminalState(communityId, projectId)){
 			contextMenu.addItem(new MenuButton(
 					getTranslation("view.community-admin.projects.menu.edit"), EDIT),
-				event -> UI.getCurrent().navigate(ProjectFormView.class, projectId)
+				event -> UI.getCurrent().navigate(ProjectFormView.class, projectId.id.toString())
 			);
 
 			Dialog confirmDialog = createConfirmDialog(projectId, projectName, communityId);
@@ -196,7 +200,7 @@ public class ProjectsView extends FurmsViewComponent {
 			getTranslation("view.community-admin.projects.menu.administrators"),
 			USERS
 		);
-		RouterLink administratorsPool = new RouterGridLink(adminComponent, projectId, ProjectView.class, PARAM_NAME,
+		RouterLink administratorsPool = new RouterGridLink(adminComponent, projectId.id.toString(), ProjectView.class, PARAM_NAME,
 				ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
 
@@ -205,14 +209,14 @@ public class ProjectsView extends FurmsViewComponent {
 			PIE_CHART
 		);
 
-		RouterLink allocationsPool = new RouterGridLink(allocationComponent, projectId, ProjectView.class, PARAM_NAME,
+		RouterLink allocationsPool = new RouterGridLink(allocationComponent, projectId.id.toString(), ProjectView.class, PARAM_NAME,
 				ALLOCATIONS_PARAM);
 		contextMenu.addItem(allocationsPool);
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String projectId, String projectName, String communityId) {
+	private Dialog createConfirmDialog(ProjectId projectId, String projectName, CommunityId communityId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.projects.dialog.text", projectName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			handleExceptions(() -> projectService.delete(projectId, communityId));
@@ -244,16 +248,16 @@ public class ProjectsView extends FurmsViewComponent {
 
 	private class ProjectsViewDataSnapshot {
 		public final List<ProjectViewGridModel> projectViewGridModels;
-		private final Map<String, List<ProjectViewGridModel>> projectInstallationJobStatusByProjectId;
+		private final Map<ProjectId, List<ProjectViewGridModel>> projectInstallationJobStatusByProjectId;
 
 		ProjectsViewDataSnapshot() {
-			String communityId = getCurrentResourceId();
+			CommunityId communityId = new CommunityId(getCurrentResourceId());
 
 			this.projectViewGridModels = handleExceptions(() -> projectService.findAllByCommunityId(communityId))
 				.orElseGet(Collections::emptySet)
 				.stream()
 				.map(p -> ProjectViewGridModel.builder()
-					.id(p.getId())
+					.id(p.getId().id.toString())
 					.projectId(p.getId())
 					.communityId(p.getCommunityId())
 					.name(p.getName())
@@ -263,7 +267,8 @@ public class ProjectsView extends FurmsViewComponent {
 				.sorted(comparing(projectViewModel -> projectViewModel.name.toLowerCase()))
 				.collect(toList());
 
-			Map<String, Map<String, ProjectUpdateJobStatus>> collect = projectInstallationsService.findAllUpdatesByCommunityId(communityId).stream()
+			Map<ProjectId, Map<SiteId, ProjectUpdateJobStatus>> collect =
+				projectInstallationsService.findAllUpdatesByCommunityId(communityId).stream()
 				.collect(
 					groupingBy(
 						job -> job.projectId,
@@ -292,21 +297,22 @@ public class ProjectsView extends FurmsViewComponent {
 
 		private ProjectViewGridModel mapGrid(ProjectInstallationJobStatus jobStatus, String status, String message) {
 			return ProjectViewGridModel.builder()
-				.id(jobStatus.projectId + jobStatus.siteId)
+				.id(jobStatus.projectId.id.toString() + jobStatus.siteId.id.toString())
 				.siteName(jobStatus.siteName)
 				.status(status)
 				.message(message)
 				.build();
 		}
 
-		private String getString(Map<String, Map<String, ProjectUpdateJobStatus>> collect, ProjectInstallationJobStatus x) {
+		private String getString(Map<ProjectId, Map<SiteId, ProjectUpdateJobStatus>> collect,
+		                         ProjectInstallationJobStatus x) {
 			return Optional.ofNullable(collect.get(x.projectId))
 				.flatMap(y -> Optional.ofNullable(y.get(x.siteId)))
 				.map(y -> getTranslation("project.update.status." + y.status.getPersistentId()))
 				.orElse(getTranslation("project.installation.status." + x.status.getPersistentId()));
 		}
 
-		public List<ProjectViewGridModel> getProjectStatuses(String projectId) {
+		public List<ProjectViewGridModel> getProjectStatuses(ProjectId projectId) {
 			return projectInstallationJobStatusByProjectId.getOrDefault(projectId, emptyList());
 		}
 	}

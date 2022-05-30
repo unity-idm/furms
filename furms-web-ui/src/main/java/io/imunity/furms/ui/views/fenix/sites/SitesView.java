@@ -5,28 +5,6 @@
 
 package io.imunity.furms.ui.views.fenix.sites;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_SITES;
-import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
-import static java.util.stream.Collectors.toList;
-
-import java.lang.invoke.MethodHandles;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
@@ -42,7 +20,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
@@ -59,6 +36,27 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import io.imunity.furms.ui.views.fenix.sites.add.SitesAddView;
 import io.imunity.furms.ui.views.fenix.sites.admins.SitesAdminsView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_SITES;
+import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = FENIX_ADMIN_SITES, layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.page.title")
@@ -103,7 +101,7 @@ public class SitesView extends FurmsViewComponent {
 		siteEditor.addOpenListener(event -> onEditorOpen(event, siteBinder));
 		siteEditor.addCloseListener(event -> onEditorClose(siteBinder));
 
-		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesAdminsView.class, site.getId()))
+		siteGrid.addComponentColumn(site -> new RouterLink(site.getName(), SitesAdminsView.class, site.getId().id.toString()))
 				.setHeader(getTranslation("view.sites.main.grid.column.name"))
 				.setKey("name")
 				.setSortable(true)
@@ -123,14 +121,14 @@ public class SitesView extends FurmsViewComponent {
 	
 	private Component createLastColumnContent(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		return new GridActionsButtonLayout(
-				new RouterGridLink(USERS, site.getId(), SitesAdminsView.class),
+				new RouterGridLink(USERS, site.getId().id.toString(), SitesAdminsView.class),
 				createContextMenu(site, siteGrid)
 			);
 	}
 
 	private Component createContextMenu(SiteGridItem site, Grid<SiteGridItem> siteGrid) {
 		GridActionMenu contextMenu = new GridActionMenu();
-		contextMenu.setId(site.getId());
+		contextMenu.setId(site.getId().id.toString());
 		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
 				e -> actionEditSite(site, siteGrid));
 		contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.delete"), TRASH),
@@ -185,7 +183,7 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private void actionOpenAdministrators(SiteGridItem site) {
-		UI.getCurrent().navigate(SitesAdminsView.class, site.getId());
+		UI.getCurrent().navigate(SitesAdminsView.class, site.getId().id.toString());
 	}
 	
 	private void refreshGrid(Editor<SiteGridItem> siteEditor) {

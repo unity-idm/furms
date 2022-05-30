@@ -5,24 +5,23 @@
 
 package io.imunity.furms.db.sites;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class SiteDatabaseRepository implements SiteRepository {
@@ -34,27 +33,27 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public Optional<Site> findById(String id) {
+	public Optional<Site> findById(SiteId id) {
 		if (isEmpty(id)) {
 			return Optional.empty();
 		}
-		return repository.findById(fromString(id))
+		return repository.findById(id.id)
 				.map(SiteEntity::toSite);
 	}
 
 	@Override
-	public Set<Site> findAll(Set<String> ids) {
-		return repository.findAllByIdIn(ids.stream().map(UUID::fromString).collect(toSet())).stream()
+	public Set<Site> findAll(Set<SiteId> ids) {
+		return repository.findAllByIdIn(ids.stream().map(siteId -> siteId.id).collect(toSet())).stream()
 			.map(SiteEntity::toSite)
 			.collect(toSet());
 	}
 
 	@Override
-	public SiteExternalId findByIdExternalId(String id) {
+	public SiteExternalId findByIdExternalId(SiteId id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Id should not be null");
 		}
-		return repository.findExternalId(fromString(id))
+		return repository.findExternalId(id.id)
 			.map(SiteExternalId::new)
 			.orElseThrow(() -> new IllegalArgumentException("External Id doesn't exist"));
 	}
@@ -70,11 +69,11 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public Set<SiteId> findByProjectId(String id) {
+	public Set<SiteId> findByProjectId(ProjectId id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Id should not be null");
 		}
-		return repository.findRelatedSites(fromString(id)).stream()
+		return repository.findRelatedSites(id.id).stream()
 			.map(site -> new SiteId(site.getId().toString(), new SiteExternalId(site.getExternalId())))
 			.collect(toSet());
 	}
@@ -84,7 +83,7 @@ class SiteDatabaseRepository implements SiteRepository {
 		if (isEmpty(siteId)) {
 			throw new IllegalArgumentException("Id should not be null");
 		}
-		return repository.findRelatedProjectIds(fromString(siteId.id)).stream()
+		return repository.findRelatedProjectIds(siteId.id).stream()
 			.collect(groupingBy(x -> x.communityId.toString(), mapping(x -> x.projectId.toString(), toSet())));
 	}
 
@@ -96,7 +95,7 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public String create(Site site, SiteExternalId siteExternalId) {
+	public SiteId create(Site site, SiteExternalId siteExternalId) {
 		validateSiteName(site);
 		SiteEntity saved = repository.save(SiteEntity.builder()
 				.name(site.getName())
@@ -106,15 +105,15 @@ class SiteDatabaseRepository implements SiteRepository {
 				.externalId(siteExternalId.id)
 				.policyId(site.getPolicyId().id)
 				.build());
-		return saved.getId().toString();
+		return new SiteId(saved.getId().toString(), siteExternalId);
 	}
 
 	@Override
-	public String update(Site site) {
+	public SiteId update(Site site) {
 		validateSiteId(site);
 		validateSiteName(site);
 
-		return repository.findById(fromString(site.getId()))
+		return repository.findById(site.getId().id)
 				.map(oldEntity -> SiteEntity.builder()
 						.id(oldEntity.getId())
 						.name(site.getName())
@@ -128,21 +127,21 @@ class SiteDatabaseRepository implements SiteRepository {
 						.build())
 				.map(repository::save)
 				.map(SiteEntity::getId)
-				.map(UUID::toString)
+				.map(SiteId::new)
 				.orElseThrow(() -> new IllegalStateException("Site not found: " + site));
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(SiteId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsById(fromString(id));
+		return repository.existsById(id.id);
 	}
 
 	@Override
 	public boolean existsByExternalId(SiteExternalId siteExternalId) {
-		if (isEmpty(siteExternalId.id)) {
+		if (isEmpty(siteExternalId)) {
 			throw new IllegalArgumentException("External id should not be null");
 		}
 		return repository.existsByExternalId(siteExternalId.id);
@@ -154,15 +153,15 @@ class SiteDatabaseRepository implements SiteRepository {
 	}
 
 	@Override
-	public boolean isNamePresentIgnoringRecord(String name, String recordToIgnore) {
-		return repository.existsByNameAndIdIsNot(name, fromString(recordToIgnore));
+	public boolean isNamePresentIgnoringRecord(String name, SiteId siteId) {
+		return repository.existsByNameAndIdIsNot(name, siteId.id);
 	}
 
 	@Override
-	public void delete(String id) {
+	public void delete(SiteId id) {
 		assertTrue(!isEmpty(id), () -> new IllegalArgumentException("Incorrect delete Site input: ID is empty"));
 
-		repository.deleteById(fromString(id));
+		repository.deleteById(id.id);
 	}
 
 	@Override
@@ -172,12 +171,26 @@ class SiteDatabaseRepository implements SiteRepository {
 	
 	private void validateSiteName(final Site site) {
 		assertTrue(site != null, () -> new IllegalArgumentException("Site object is missing."));
-		assertTrue(!isEmpty(site.getName()), () -> new IllegalArgumentException("Incorrect Site name: name is empty"));
+		assertTrue(!ObjectUtils.isEmpty(site.getName()), () -> new IllegalArgumentException("Incorrect Site name: " +
+			"name is empty"));
 	}
 
 	private void validateSiteId(final Site site) {
 		assertTrue(site != null, () -> new IllegalArgumentException("Site object is missing."));
 		assertTrue(!isEmpty(site.getId()), () -> new IllegalArgumentException("Incorrect Site ID: ID is empty."));
-		assertTrue(repository.existsById(fromString(site.getId())), () -> new IllegalArgumentException("Incorrect Site ID: ID not exists in DB."));
+		assertTrue(repository.existsById(site.getId().id), () -> new IllegalArgumentException("Incorrect Site ID: ID " +
+			"not exists in DB."));
+	}
+
+	private boolean isEmpty(SiteId id) {
+		return id == null || id.id == null;
+	}
+
+	private boolean isEmpty(ProjectId id) {
+		return id == null || id.id == null;
+	}
+
+	private boolean isEmpty(SiteExternalId id) {
+		return id == null || id.id == null;
 	}
 }

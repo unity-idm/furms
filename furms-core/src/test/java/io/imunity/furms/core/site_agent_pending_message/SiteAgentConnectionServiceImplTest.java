@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
@@ -58,7 +59,7 @@ class SiteAgentConnectionServiceImplTest {
 
 	@Test
 	void findAll() {
-		SiteId id = new SiteId("id");
+		SiteId id = new SiteId(UUID.randomUUID());
 
 		service.findAll(id);
 
@@ -67,32 +68,30 @@ class SiteAgentConnectionServiceImplTest {
 
 	@Test
 	void shouldRetry() {
-		SiteId id = new SiteId("id");
-		SiteExternalId externalId = new SiteExternalId("externalId");
+		SiteId id = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("externalId"));
 		CorrelationId correlationId = CorrelationId.randomID();
 		String json = "json";
 		SiteAgentPendingMessage message = SiteAgentPendingMessage.builder()
-			.siteExternalId(externalId)
+			.siteExternalId(id.externalId)
 			.jsonContent(json)
 			.build();
 
 		when(repository.find(correlationId)).thenReturn(Optional.of(message));
-		when(siteRepository.findById(id.id)).thenReturn(Optional.of(
+		when(siteRepository.findById(id)).thenReturn(Optional.of(
 			Site.builder()
-				.externalId(externalId)
+				.id(id)
 				.build()
 		));
 
 		service.retry(id, correlationId);
 
-		verify(siteAgentRetryService).retry(externalId, json);
+		verify(siteAgentRetryService).retry(id.externalId, json);
 		verify(repository).overwriteSentTime(correlationId, ZonedDateTime.now(clock).toLocalDateTime());
 	}
 
 	@Test
 	void shouldNotRetryWhenSiteIdAndSiteExternalIdAreNotRelated() {
-		SiteId id = new SiteId("id");
-		SiteExternalId externalId = new SiteExternalId("externalId");
+		SiteId id = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("externalId"));
 		CorrelationId correlationId = CorrelationId.randomID();
 		String json = "json";
 		SiteAgentPendingMessage message = SiteAgentPendingMessage.builder()
@@ -101,33 +100,32 @@ class SiteAgentConnectionServiceImplTest {
 			.build();
 
 		when(repository.find(correlationId)).thenReturn(Optional.of(message));
-		when(siteRepository.findById(id.id)).thenReturn(Optional.of(
+		when(siteRepository.findById(id)).thenReturn(Optional.of(
 			Site.builder()
-				.externalId(externalId)
+				.id(id)
 				.build()
 		));
 
 		assertThrows(IllegalArgumentException.class, () -> service.retry(id, correlationId));
 
-		verify(siteAgentRetryService, times(0)).retry(externalId, json);
+		verify(siteAgentRetryService, times(0)).retry(id.externalId, json);
 		verify(repository, times(0)).overwriteSentTime(correlationId, ZonedDateTime.now(clock).toLocalDateTime());
 	}
 
 	@Test
 	void delete() {
-		SiteId id = new SiteId("id");
-		SiteExternalId externalId = new SiteExternalId("externalId");
+		SiteId id = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("externalId"));
 		CorrelationId correlationId = CorrelationId.randomID();
 		String json = "json";
 		SiteAgentPendingMessage message = SiteAgentPendingMessage.builder()
-			.siteExternalId(externalId)
+			.siteExternalId(id.externalId)
 			.jsonContent(json)
 			.build();
 
 		when(repository.find(correlationId)).thenReturn(Optional.of(message));
-		when(siteRepository.findById(id.id)).thenReturn(Optional.of(
+		when(siteRepository.findById(id)).thenReturn(Optional.of(
 			Site.builder()
-				.externalId(externalId)
+				.id(id)
 				.build()
 		));
 
@@ -139,8 +137,7 @@ class SiteAgentConnectionServiceImplTest {
 
 	@Test
 	void shouldNotDeleteWhenSiteIdAndSiteExternalIdAreNotRelated() {
-		SiteId id = new SiteId("id");
-		SiteExternalId externalId = new SiteExternalId("externalId");
+		SiteId id = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("externalId"));
 		CorrelationId correlationId = CorrelationId.randomID();
 		String json = "json";
 		SiteAgentPendingMessage message = SiteAgentPendingMessage.builder()
@@ -149,9 +146,9 @@ class SiteAgentConnectionServiceImplTest {
 			.build();
 
 		when(repository.find(correlationId)).thenReturn(Optional.of(message));
-		when(siteRepository.findById(id.id)).thenReturn(Optional.of(
+		when(siteRepository.findById(id)).thenReturn(Optional.of(
 			Site.builder()
-				.externalId(externalId)
+				.id(id)
 				.build()
 		));
 
@@ -163,10 +160,10 @@ class SiteAgentConnectionServiceImplTest {
 
 	@Test
 	void shouldGetSiteAgentStatus() {
-		SiteId id = new SiteId("id");
+		SiteId id = new SiteId(UUID.randomUUID());
 		SiteExternalId externalId = new SiteExternalId("externalId");
 
-		when(siteRepository.findByIdExternalId(id.id)).thenReturn(externalId);
+		when(siteRepository.findByIdExternalId(id)).thenReturn(externalId);
 
 		service.getSiteAgentStatus(id);
 

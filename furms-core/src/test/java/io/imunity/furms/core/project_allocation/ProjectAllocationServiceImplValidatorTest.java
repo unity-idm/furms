@@ -5,17 +5,33 @@
 
 package io.imunity.furms.core.project_allocation;
 
-import io.imunity.furms.api.validation.exceptions.*;
+import io.imunity.furms.api.validation.exceptions.CommunityIsNotRelatedWithCommunityAllocation;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationDecreaseBeyondUsageException;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationIncreaseInExpiredProjectException;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationIsNotInTerminalStateException;
+import io.imunity.furms.api.validation.exceptions.ProjectAllocationWrongAmountException;
+import io.imunity.furms.api.validation.exceptions.ProjectExpiredException;
+import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
+import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithCommunity;
+import io.imunity.furms.api.validation.exceptions.ProjectIsNotRelatedWithProjectAllocation;
+import io.imunity.furms.api.validation.exceptions.ProjectNotInTerminalStateException;
+import io.imunity.furms.api.validation.exceptions.ResourceCreditExpiredException;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -35,6 +51,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -66,9 +83,15 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.projectId("id")
-			.communityAllocationId("id")
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -76,31 +99,37 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
-				.resourceCreditId("id")
+				.resourceCreditId(resourceCreditId)
 				.build()
 			));
-		when(resourceCreditRepository.findById("id")).thenReturn(
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(
 			Optional.of(ResourceCredit.builder()
-				.resourceTypeId("id")
+				.resourceTypeId(resourceTypeId)
 				.build()
 			));
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
 				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateCreate("communityId", projectAllocation));
+		assertDoesNotThrow(() -> validator.validateCreate(communityId, projectAllocation));
 	}
 
 	@Test
 	void shouldThrowWhenResourceTypeReservedException() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.projectId("id")
-			.communityAllocationId("id")
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -108,19 +137,19 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
-				.resourceCreditId("id")
+				.resourceCreditId(resourceCreditId)
 				.build()
 			));
-		when(resourceCreditRepository.findById("id")).thenReturn(
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(
 			Optional.of(ResourceCredit.builder()
-				.resourceTypeId("id")
+				.resourceTypeId(resourceTypeId)
 				.utcStartTime(LocalDateTime.now().minusDays(3))
 				.utcEndTime(LocalDateTime.now().plusDays(3))
 				.build()
 			));
 		when(projectAllocationRepository.findAllWithRelatedObjects(projectAllocation.projectId)).thenReturn(Set.of(
 			ProjectAllocationResolved.builder()
-				.resourceType(ResourceType.builder().id("id").build())
+				.resourceType(ResourceType.builder().id(resourceTypeId).build())
 				.resourceCredit(ResourceCredit.builder()
 					.utcStartTime(LocalDateTime.now().minusDays(1))
 					.utcEndTime(LocalDateTime.now().plusDays(2))
@@ -128,53 +157,61 @@ class ProjectAllocationServiceImplValidatorTest {
 				.build()
 		));
 
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
 			.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 			.build()));
 
 		//when+then
-		assertThrows(ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException.class, () -> validator.validateCreate("communityId", projectAllocation));
+		assertThrows(ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException.class,
+			() -> validator.validateCreate(communityId, projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassCreateForNullAmount() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.projectId("id")
-			.communityAllocationId("id")
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 			.name("name")
 			.build();
 
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
 				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
-				.resourceCreditId("id")
+				.resourceCreditId(resourceCreditId)
 				.build()
 			));
-		when(resourceCreditRepository.findById("id")).thenReturn(
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(
 			Optional.of(ResourceCredit.builder()
-				.resourceTypeId("id")
+				.resourceTypeId(new ResourceTypeId(UUID.randomUUID()))
 				.build()
 			));
 		//when+then
 		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-				() -> validator.validateCreate("communityId", projectAllocation));
+				() -> validator.validateCreate(communityId, projectAllocation));
 		assertThat(ex.getMessage()).contains("amount cannot be null");
 	}
 
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.projectId("id")
-			.communityAllocationId("id")
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -182,76 +219,85 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(true);
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(false);
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
 				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
-				.resourceCreditId("id")
+				.resourceCreditId(resourceCreditId)
 				.build()
 			));
-		when(resourceCreditRepository.findById("id")).thenReturn(
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(
 			Optional.of(ResourceCredit.builder()
-				.resourceTypeId("id")
+				.resourceTypeId(resourceTypeId)
 				.build()
 			));
 		//when+then
 		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-				() -> validator.validateCreate("communityId", projectAllocation));
+				() -> validator.validateCreate(communityId, projectAllocation));
 		assertThat(ex.getMessage()).contains("name has to be unique");
 	}
 
 	@Test
 	void shouldNotPassCreateForNonExistingResourceCreditId() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.projectId("id")
-			.communityAllocationId("id")
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 			.name("name")
 			.build();
 
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 		when(communityAllocationRepository.exists(projectAllocation.communityAllocationId)).thenReturn(false);
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.findById(projectAllocation.projectId)).thenReturn(Optional.of(Project.builder()
 				.utcEndTime(LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).plusMinutes(1L))
 				.build()));
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
-				.resourceCreditId("id")
+				.resourceCreditId(resourceCreditId)
 				.build()
 			));
-		when(resourceCreditRepository.findById("id")).thenReturn(
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(
 			Optional.of(ResourceCredit.builder()
-				.resourceTypeId("id")
+				.resourceTypeId(new ResourceTypeId(UUID.randomUUID()))
 				.build()
 			));
 		//when+then
 		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-				() -> validator.validateCreate("communityId", projectAllocation));
+				() -> validator.validateCreate(communityId, projectAllocation));
 		assertThat(ex.getMessage()).contains("CommunityAllocation with declared ID does not exist");
 	}
 
 	@Test
 	void shouldNotPassCreateForNullResourceCreditId() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.name("name")
-			.projectId("id")
+			.projectId(projectId)
 			.build();
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate("communityId", projectAllocation));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(communityId, projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassCreateDueToExpiredResourceCredit() {
 		//given
-		final String communityId = "communityId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+
 		final ProjectAllocation projectAllocation = ProjectAllocation.builder()
-				.projectId("id")
-				.communityAllocationId("id")
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("name")
 				.amount(new BigDecimal(1))
 				.build();
@@ -270,12 +316,12 @@ class ProjectAllocationServiceImplValidatorTest {
 						.build()));
 		when(communityAllocationRepository.findById(projectAllocation.communityAllocationId)).thenReturn(
 			Optional.of(CommunityAllocation.builder()
-				.resourceCreditId("id")
+				.resourceCreditId(resourceCreditId)
 				.build()
 			));
-		when(resourceCreditRepository.findById("id")).thenReturn(
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(
 			Optional.of(ResourceCredit.builder()
-				.resourceTypeId("id")
+				.resourceTypeId(new ResourceTypeId(UUID.randomUUID()))
 				.build()
 			));
 
@@ -286,18 +332,21 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateWhenProjectIsExpiredAndAmountIsTryingToBeIncreased() {
 		//given
-		final String communityId = "communityId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		final ProjectAllocation existing = ProjectAllocation.builder()
-				.id("id")
-				.projectId("id")
-				.communityAllocationId("id")
+				.id(projectAllocationId)
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("name")
 				.amount(new BigDecimal(10))
 				.build();
 		final ProjectAllocation projectAllocation = ProjectAllocation.builder()
-				.id("id")
-				.projectId("id")
-				.communityAllocationId("id")
+				.id(projectAllocationId)
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("name2")
 				.amount(new BigDecimal(12))
 				.build();
@@ -321,17 +370,22 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
 		ProjectAllocation updatedProjectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(BigDecimal.valueOf(3))
 			.build();
@@ -341,9 +395,9 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
-		when(projectAllocationRepository.getAvailableAmount(projectAllocation.id)).thenReturn(BigDecimal.TEN);
-		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id("id").build()));
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectAllocationRepository.getAvailableAmount(projectAllocation.communityAllocationId)).thenReturn(BigDecimal.TEN);
+		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id(communityAllocationId).build()));
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(resourceUsageRepository.findCurrentResourceUsage(projectAllocation.id)).thenReturn(Optional.of(ResourceUsage.builder()
 			.cumulativeConsumption(BigDecimal.ONE)
 			.build())
@@ -354,23 +408,28 @@ class ProjectAllocationServiceImplValidatorTest {
 		);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateUpdate("communityId", updatedProjectAllocation));
+		assertDoesNotThrow(() -> validator.validateUpdate(communityId, updatedProjectAllocation));
 	}
 
 	@Test
 	void shouldNotPassUpdateWhenAllocationIsNotInTerminalState() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
 		ProjectAllocation updatedProjectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(BigDecimal.valueOf(3))
 			.build();
@@ -380,9 +439,9 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
-		when(projectAllocationRepository.getAvailableAmount(projectAllocation.id)).thenReturn(BigDecimal.TEN);
-		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id("id").build()));
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectAllocationRepository.getAvailableAmount(projectAllocation.communityAllocationId)).thenReturn(BigDecimal.TEN);
+		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id(communityAllocationId).build()));
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(resourceUsageRepository.findCurrentResourceUsage(projectAllocation.id)).thenReturn(Optional.of(ResourceUsage.builder()
 			.cumulativeConsumption(BigDecimal.ONE)
 			.build())
@@ -394,23 +453,29 @@ class ProjectAllocationServiceImplValidatorTest {
 
 
 		//when+then
-		assertThrows(ProjectAllocationIsNotInTerminalStateException.class, () -> validator.validateUpdate("communityId", updatedProjectAllocation));
+		assertThrows(ProjectAllocationIsNotInTerminalStateException.class, () -> validator.validateUpdate(communityId,
+			updatedProjectAllocation));
 	}
 
 	@Test
 	void shouldNotPassUpdateWhenConsumptionIsBiggerThenAllocationAmount() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(new BigDecimal(5))
 			.build();
 		ProjectAllocation updatedProjectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(BigDecimal.valueOf(3))
 			.build();
@@ -420,32 +485,38 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
-		when(projectAllocationRepository.getAvailableAmount(projectAllocation.id)).thenReturn(BigDecimal.TEN);
-		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id("id").build()));
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectAllocationRepository.getAvailableAmount(projectAllocation.communityAllocationId)).thenReturn(BigDecimal.TEN);
+		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id(communityAllocationId).build()));
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(resourceUsageRepository.findCurrentResourceUsage(projectAllocation.id)).thenReturn(Optional.of(ResourceUsage.builder()
 			.cumulativeConsumption(BigDecimal.valueOf(4))
 			.build())
 		);
 
 		//when+then
-		assertThrows(ProjectAllocationDecreaseBeyondUsageException.class, () -> validator.validateUpdate("communityId", updatedProjectAllocation));
+		assertThrows(ProjectAllocationDecreaseBeyondUsageException.class, () -> validator.validateUpdate(communityId,
+			updatedProjectAllocation));
 	}
 
 	@Test
 	void shouldNotPassUpdateWhenAllocationAmountIsBiggerThenCommunityAllocationAmount() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(BigDecimal.valueOf(9))
 			.build();
 		ProjectAllocation updatedProjectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(BigDecimal.valueOf(11))
 			.build();
@@ -455,23 +526,28 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(true);
 		when(projectAllocationRepository.findById(projectAllocation.id)).thenReturn(Optional.of(projectAllocation));
-		when(projectAllocationRepository.getAvailableAmount(projectAllocation.id)).thenReturn(BigDecimal.ONE);
-		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id("id").build()));
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectAllocationRepository.getAvailableAmount(projectAllocation.communityAllocationId)).thenReturn(BigDecimal.ONE);
+		when(communityAllocationRepository.findById(any())).thenReturn(Optional.of(CommunityAllocation.builder().id(communityAllocationId).build()));
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 
 
 		//when+then
-		String message = assertThrows(ProjectAllocationWrongAmountException.class, () -> validator.validateUpdate("communityId", updatedProjectAllocation)).getMessage();
+		String message = assertThrows(ProjectAllocationWrongAmountException.class, () -> validator.validateUpdate(communityId,
+			updatedProjectAllocation)).getMessage();
 		assertEquals("Allocation amount have to be less then community allocation limit", message);
 	}
 
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -479,24 +555,29 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(false);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate("communityId", projectAllocation));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateUpdate(communityId, projectAllocation));
 	}
 
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
 
 		ProjectAllocation projectAllocation1 = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(projectAllocationId)
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name2")
 			.amount(new BigDecimal(2))
 			.build();
@@ -507,23 +588,23 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectAllocationRepository.exists(projectAllocation.id)).thenReturn(true);
 		when(projectAllocationRepository.findById(any())).thenReturn(Optional.of(projectAllocation1));
 		when(projectAllocationRepository.isNamePresent(any(), any())).thenReturn(false);
-		when(projectRepository.isProjectRelatedWithCommunity("communityId", projectAllocation.projectId)).thenReturn(true);
+		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(true);
 		when(projectRepository.exists(projectAllocation.projectId)).thenReturn(true);
 
 		//when+then
 		final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-				() -> validator.validateUpdate("communityId", projectAllocation));
+				() -> validator.validateUpdate(communityId, projectAllocation));
 		assertThat(ex.getMessage()).contains("ProjectAllocation name has to be unique");
 	}
 
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		String communityId = "communityId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(new ProjectAllocationId(UUID.randomUUID()))
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -542,19 +623,20 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldNotPassDeleteForNonExistingId() {
 		//given
-		String id = "id";
+		ProjectAllocationId id = new ProjectAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 
 		when(projectAllocationRepository.findById(id)).thenReturn(Optional.empty());
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete("communityId", id));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(communityId, id));
 	}
 
 	@Test
 	void shouldNotPassWhenCommunityIdAndCommunityAllocationIdAreNotRelated() {
 		//given
-		String id = "id";
-		String communityId = "id";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
 
 		when(communityAllocationRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -565,8 +647,8 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldNotPassWhenProjectIdAndProjectAllocationIdAreNotRelated() {
 		//given
-		String id = "id";
-		String projectId = "id";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId id = new ProjectAllocationId(UUID.randomUUID());
 
 		when(projectAllocationRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -577,8 +659,8 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldPassWhenProjectIdAndProjectAllocationIdAreRelated() {
 		//given
-		String id = "id";
-		String projectId = "id";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId id = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
 			.projectId(projectId)
 			.build();
@@ -593,8 +675,8 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldPassWhenCommunityIdAndCommunityAllocationIdAreRelated() {
 		//given
-		String id = "id";
-		String communityId = "id";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
 			.communityId(communityId)
 			.build();
@@ -609,11 +691,11 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldNotPassDeleteWhenCommunityAndProjectAreNotRelated() {
 		//given
-		String communityId = "communityId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(new ProjectAllocationId(UUID.randomUUID()))
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -622,17 +704,17 @@ class ProjectAllocationServiceImplValidatorTest {
 		when(projectRepository.isProjectRelatedWithCommunity(communityId, projectAllocation.projectId)).thenReturn(false);
 
 		//when+then
-		assertThrows(ProjectIsNotRelatedWithCommunity.class, () -> validator.validateDelete("communityId", projectAllocation.id));
+		assertThrows(ProjectIsNotRelatedWithCommunity.class, () -> validator.validateDelete(communityId, projectAllocation.id));
 	}
 
 	@Test
 	void shouldNotPassDeleteWhenProjectIsExpired() {
 		//given
-		String communityId = "communityId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-				.id("id")
-				.projectId("projectId")
-				.communityAllocationId("id")
+				.id(new ProjectAllocationId(UUID.randomUUID()))
+				.projectId(new ProjectId(UUID.randomUUID()))
+				.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 				.name("name")
 				.amount(new BigDecimal(1))
 				.build();
@@ -650,11 +732,11 @@ class ProjectAllocationServiceImplValidatorTest {
 	@Test
 	void shouldNotPassDeleteWhenProjectIsNotInTerminalState() {
 		//given
-		String communityId = "communityId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		ProjectAllocation projectAllocation = ProjectAllocation.builder()
-				.id("id")
-				.projectId("projectId")
-				.communityAllocationId("id")
+				.id(new ProjectAllocationId(UUID.randomUUID()))
+				.projectId(new ProjectId(UUID.randomUUID()))
+				.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 				.name("name")
 				.amount(new BigDecimal(1))
 				.build();

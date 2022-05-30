@@ -28,7 +28,6 @@ import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class ResourceCreditFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -149,9 +148,9 @@ class ResourceCreditFormComponent extends Composite<Div> {
 	}
 
 	private void addIdFieldForEditForm(ResourceCreditViewModel resourceCreditViewModel) {
-		if (resourceCreditViewModel != null && isNotEmpty(resourceCreditViewModel.getId())) {
+		if (resourceCreditViewModel != null && Objects.nonNull(resourceCreditViewModel.getId())) {
 			Div id = new Div();
-			id.setText(resourceCreditViewModel.getId());
+			id.setText(resourceCreditViewModel.getId().id.toString());
 			Label idLabel = new Label(getTranslation("view.site-admin.resource-credits.form.field.id"));
 
 			formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));

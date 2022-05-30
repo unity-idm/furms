@@ -12,6 +12,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
@@ -51,7 +52,7 @@ class UserPoliciesDocumentsServiceHelper {
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Site id %s doesn't exist", policyDocument.siteId)));
 	}
 
-	boolean hasUserSitePolicyAcceptance(FenixUserId userId, String siteId) {
+	boolean hasUserSitePolicyAcceptance(FenixUserId userId, SiteId siteId) {
 		Site site = siteRepository.findById(siteId)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Site id %s doesn't exist", siteId)));
 
@@ -67,12 +68,12 @@ class UserPoliciesDocumentsServiceHelper {
 			);
 	}
 
-	boolean hasSitePolicy(String siteId) {
+	boolean hasSitePolicy(SiteId siteId) {
 		return siteRepository.findById(siteId).stream()
 			.anyMatch(site -> site.getPolicyId().id != null);
 	}
 
-	UserPolicyAcceptancesWithServicePolicies getUserPolicyAcceptancesWithServicePolicies(String siteId, FenixUserId fenixUserId) {
+	UserPolicyAcceptancesWithServicePolicies getUserPolicyAcceptancesWithServicePolicies(SiteId siteId, FenixUserId fenixUserId) {
 		FURMSUser user = usersDAO.findById(fenixUserId)
 			.orElseThrow(() -> new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP"));
 

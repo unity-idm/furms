@@ -5,10 +5,12 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class RemovalOfConsumedProjectAllocationIsFirbiddenException extends IllegalArgumentException {
-	public final String projectAllocationId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 
-	public RemovalOfConsumedProjectAllocationIsFirbiddenException(String projectAllocationId) {
+public class RemovalOfConsumedProjectAllocationIsFirbiddenException extends IllegalArgumentException {
+	public final ProjectAllocationId projectAllocationId;
+
+	public RemovalOfConsumedProjectAllocationIsFirbiddenException(ProjectAllocationId projectAllocationId) {
 		this.projectAllocationId = projectAllocationId;
 	}
 }

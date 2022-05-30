@@ -5,6 +5,7 @@
 
 package io.imunity.furms.domain.applications;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 
@@ -13,10 +14,10 @@ import java.util.Set;
 
 public class ProjectApplicationCreatedEvent implements ProjectApplicationEvent {
 	public final FenixUserId id;
-	public final String projectId;
+	public final ProjectId projectId;
 	public final Set<FURMSUser> projectAdmins;
 
-	public ProjectApplicationCreatedEvent(FenixUserId id, String projectId, Set<FURMSUser> projectAdmins) {
+	public ProjectApplicationCreatedEvent(FenixUserId id, ProjectId projectId, Set<FURMSUser> projectAdmins) {
 		this.id = id;
 		this.projectId = projectId;
 		this.projectAdmins = Set.copyOf(projectAdmins);
@@ -32,7 +33,7 @@ public class ProjectApplicationCreatedEvent implements ProjectApplicationEvent {
 	}
 
 	@Override
-	public String getProjectId() {
+	public ProjectId getProjectId() {
 		return projectId;
 	}
 

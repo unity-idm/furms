@@ -13,8 +13,10 @@ import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -68,7 +70,7 @@ class ProjectApplicationsServiceImplTest {
 		FenixUserId id = new FenixUserId("id");
 		FenixUserId id1 = new FenixUserId("id1");
 		FenixUserId id2 = new FenixUserId("id2");
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FURMSUser furmsUser = FURMSUser.builder()
 			.fenixUserId(id)
 			.email("email")
@@ -110,7 +112,8 @@ class ProjectApplicationsServiceImplTest {
 
 	@Test
 	void shouldCreateForCurrentUser(){
-		String projectId = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId id = new FenixUserId("id");
 		PersistentId persistentId = new PersistentId("id");
 		FURMSUser user = FURMSUser.builder()
@@ -121,14 +124,14 @@ class ProjectApplicationsServiceImplTest {
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(projectRepository.findById(projectId)).thenReturn(Optional.of(
 			Project.builder()
-				.communityId("communityId")
+				.communityId(communityId)
 				.name("name")
 				.id(projectId)
 				.build()
 		));
-		when(projectGroupsDAO.getAllAdmins("communityId", projectId))
+		when(projectGroupsDAO.getAllAdmins(communityId, projectId))
 			.thenReturn(List.of(user));
-		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId, ResourceType.PROJECT)))
+		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId.id, ResourceType.PROJECT)))
 			.thenReturn(Optional.empty());
 
 		applicationService.createForCurrentUser(projectId);
@@ -140,7 +143,7 @@ class ProjectApplicationsServiceImplTest {
 
 	@Test
 	void shouldThrowExceptionWhenUserIsInvited(){
-		String projectId = UUID.randomUUID().toString();
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId id = new FenixUserId("id");
 		PersistentId persistentId = new PersistentId("id");
 		FURMSUser user = FURMSUser.builder()
@@ -151,12 +154,12 @@ class ProjectApplicationsServiceImplTest {
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(projectRepository.findById(projectId)).thenReturn(Optional.of(
 			Project.builder()
-				.communityId("communityId")
+				.communityId(new CommunityId(UUID.randomUUID()))
 				.name("name")
 				.id(projectId)
 				.build()
 		));
-		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId, ResourceType.PROJECT)))
+		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId.id, ResourceType.PROJECT)))
 			.thenReturn(Optional.of(Invitation.builder().build()));
 
 		assertThrows(UserAlreadyInvitedException.class,() -> applicationService.createForCurrentUser(projectId));
@@ -164,31 +167,34 @@ class ProjectApplicationsServiceImplTest {
 
 	@Test
 	void shouldRemoveForCurrentUser(){
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId id = new FenixUserId("id");
 		FURMSUser user = FURMSUser.builder()
 			.fenixUserId(id)
 			.email("email")
 			.build();
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
-		when(projectRepository.findById("projectId")).thenReturn(Optional.of(
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(
 			Project.builder()
-				.communityId("communityId")
-				.id("projectId")
+				.communityId(communityId)
+				.id(projectId)
 				.build()
 		));
-		when(projectGroupsDAO.getAllAdmins("communityId", "projectId"))
+		when(projectGroupsDAO.getAllAdmins(communityId, projectId))
 			.thenReturn(List.of(user));
-		when(applicationRepository.existsBy("projectId", id)).thenReturn(true);
+		when(applicationRepository.existsBy(projectId, id)).thenReturn(true);
 
-		applicationService.removeForCurrentUser("projectId");
+		applicationService.removeForCurrentUser(projectId);
 
-		verify(applicationRepository).remove("projectId", id);
-		verify(publisher).publishEvent(new ProjectApplicationRemovedEvent(id, "projectId", Set.of(user)));
+		verify(applicationRepository).remove(projectId, id);
+		verify(publisher).publishEvent(new ProjectApplicationRemovedEvent(id, projectId, Set.of(user)));
 	}
 
 	@Test
 	void shouldAcceptApplication(){
-		String projectId = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId persistentId = new PersistentId("id");
 		FenixUserId fenixUserId = new FenixUserId("id");
 		FURMSUser user = FURMSUser.builder()
@@ -201,18 +207,18 @@ class ProjectApplicationsServiceImplTest {
 		when(projectRepository.findById(projectId)).thenReturn(Optional.of(
 			Project.builder()
 				.name("name")
-				.communityId("communityId")
+				.communityId(communityId)
 				.id(projectId)
 				.build()
 		));
-		when(projectGroupsDAO.getAllAdmins("communityId", projectId))
+		when(projectGroupsDAO.getAllAdmins(communityId, projectId))
 			.thenReturn(List.of(user));
 		when(applicationRepository.existsBy(projectId, fenixUserId)).thenReturn(true);
 
 
 		applicationService.accept(projectId, fenixUserId);
 
-		verify(projectGroupsDAO).addProjectUser("communityId", projectId, persistentId, Role.PROJECT_USER);
+		verify(projectGroupsDAO).addProjectUser(communityId, projectId, persistentId, Role.PROJECT_USER);
 		verify(applicationRepository).remove(projectId, fenixUserId);
 		verify(publisher).publishEvent(new ProjectApplicationAcceptedEvent(fenixUserId, projectId, Set.of(user)));
 		verify(userApplicationNotificationService).notifyUserAboutApplicationAcceptance(persistentId, "name");
@@ -220,6 +226,8 @@ class ProjectApplicationsServiceImplTest {
 
 	@Test
 	void shouldRemoveApplication(){
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		FenixUserId id = new FenixUserId("id");
 		PersistentId persistentId = new PersistentId("id");
 		FURMSUser user = FURMSUser.builder()
@@ -228,22 +236,22 @@ class ProjectApplicationsServiceImplTest {
 			.email("email")
 			.build();
 
-		when(projectRepository.findById("projectId")).thenReturn(Optional.of(
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(
 			Project.builder()
-				.communityId("communityId")
-				.id("projectId")
+				.communityId(communityId)
+				.id(projectId)
 				.name("name")
 				.build()
 		));
-		when(applicationRepository.existsBy("projectId", id)).thenReturn(true);
+		when(applicationRepository.existsBy(projectId, id)).thenReturn(true);
 		when(usersDAO.getPersistentId(id)).thenReturn(persistentId);
-		when(projectGroupsDAO.getAllAdmins("communityId", "projectId"))
+		when(projectGroupsDAO.getAllAdmins(communityId, projectId))
 			.thenReturn(List.of(user));
 
-		applicationService.remove("projectId", id);
+		applicationService.remove(projectId, id);
 
-		verify(applicationRepository).remove("projectId", id);
-		verify(publisher).publishEvent(new ProjectApplicationRemovedEvent(id, "projectId", Set.of(user)));
+		verify(applicationRepository).remove(projectId, id);
+		verify(publisher).publishEvent(new ProjectApplicationRemovedEvent(id, projectId, Set.of(user)));
 		verify(userApplicationNotificationService).notifyUserAboutApplicationRejection(persistentId, "name");
 	}
 }

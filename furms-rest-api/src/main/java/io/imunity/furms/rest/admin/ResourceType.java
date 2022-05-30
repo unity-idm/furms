@@ -18,7 +18,7 @@ class ResourceType {
 	}
 
 	ResourceType(io.imunity.furms.domain.resource_types.ResourceType resourceType) {
-		this(resourceType.id, resourceType.name, resourceType.serviceId);
+		this(resourceType.id.id.toString(), resourceType.name, resourceType.serviceId.id.toString());
 	}
 
 	@Override

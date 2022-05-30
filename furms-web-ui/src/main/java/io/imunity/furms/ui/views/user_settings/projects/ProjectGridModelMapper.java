@@ -8,6 +8,7 @@ package io.imunity.furms.ui.views.user_settings.projects;
 import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,8 +27,8 @@ class ProjectGridModelMapper {
 	}
 
 	Set<ProjectGridModel> map(Set<Project> projects){
-		Set<String> projectsIds = projectApplicationsService.findAllAppliedProjectsIdsForCurrentUser();
-		Set<String> usersProjectIds = projectService.getUsersProjectIds();
+		Set<ProjectId> projectsIds = projectApplicationsService.findAllAppliedProjectsIdsForCurrentUser();
+		Set<ProjectId> usersProjectIds = projectService.getUsersProjectIds();
 
 		return projects.stream()
 			.map(project -> ProjectGridModel.builder()

@@ -5,6 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.client.message_resolvers_conector;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.rabbitmq.site.models.Body;
 import io.imunity.furms.rabbitmq.site.models.CumulativeResourceUsageRecord;
@@ -34,11 +36,13 @@ class ResourceUsageSiteIdResolversConnector implements SiteIdResolversConnector 
 	public Optional<SiteExternalId> getSiteId(Payload<?> payload) {
 		if(payload.body.getClass().equals(CumulativeResourceUsageRecord.class)){
 			CumulativeResourceUsageRecord body = (CumulativeResourceUsageRecord)payload.body;
-			return Optional.ofNullable(resolver.getSiteId(body.projectIdentifier, body.allocationIdentifier));
+			return Optional.ofNullable(resolver.getSiteId(new ProjectId(body.projectIdentifier),
+				new ProjectAllocationId(body.allocationIdentifier)));
 		}
 		if(payload.body.getClass().equals(UserResourceUsageRecord.class)){
 			UserResourceUsageRecord body = (UserResourceUsageRecord)payload.body;
-			return Optional.ofNullable(resolver.getSiteId(body.projectIdentifier, body.allocationIdentifier));
+			return Optional.ofNullable(resolver.getSiteId(new ProjectId(body.projectIdentifier),
+				new ProjectAllocationId(body.allocationIdentifier)));
 		}
 		throw new IllegalStateException("Error - not applicable class was send to process");
 	}

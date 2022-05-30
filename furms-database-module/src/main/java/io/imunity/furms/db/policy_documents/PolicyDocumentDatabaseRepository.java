@@ -11,6 +11,8 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.domain.resource_access.GrantId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import org.springframework.stereotype.Repository;
@@ -44,14 +46,14 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
-	public Optional<PolicyDocument> findByUserGrantId(String userGrantId) {
-		return repository.findByUserGrantId(UUID.fromString(userGrantId))
+	public Optional<PolicyDocument> findByUserGrantId(GrantId userGrantId) {
+		return repository.findByUserGrantId(userGrantId.id)
 			.map(PolicyDocumentEntity::toPolicyDocument);
 	}
 
 	@Override
-	public Optional<PolicyDocument> findSitePolicy(String siteId) {
-		return repository.findSitePolicy(UUID.fromString(siteId))
+	public Optional<PolicyDocument> findSitePolicy(SiteId siteId) {
+		return repository.findSitePolicy(siteId.id)
 			.map(PolicyDocumentEntity::toPolicyDocument);
 	}
 
@@ -63,8 +65,8 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
-	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId) {
-		return findAllUsersWithAnyPolicyBySiteId(UUID.fromString(siteId)).stream()
+	public Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(SiteId siteId) {
+		return findAllUsersWithAnyPolicyBySiteId(siteId.id).stream()
 			.collect(groupingBy(
 				userWithPolicy -> new FenixUserId(userWithPolicy.userId),
 				mapping(userWithBasePolicy -> PolicyDocument.builder()
@@ -76,8 +78,8 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
-	public Set<FenixUserId> findAllPolicyUsers(String siteId, PolicyId policyId) {
-		return findAllUsersWithAnyPolicyBySiteId(UUID.fromString(siteId)).stream()
+	public Set<FenixUserId> findAllPolicyUsers(SiteId siteId, PolicyId policyId) {
+		return findAllUsersWithAnyPolicyBySiteId(siteId.id).stream()
 			.filter(userWithBasePolicy -> userWithBasePolicy.policyId.equals(policyId.id.toString()))
 			.map(userWithBasePolicy -> new FenixUserId(userWithBasePolicy.userId))
 			.collect(toSet());
@@ -111,15 +113,15 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
-	public Set<PolicyDocument> findAllBySiteId(String siteId) {
-		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
+	public Set<PolicyDocument> findAllBySiteId(SiteId siteId) {
+		return repository.findAllBySiteId(siteId.id).stream()
 			.map(PolicyDocumentEntity::toPolicyDocument)
 			.collect(toSet());
 	}
 
 	@Override
-	public Set<AssignedPolicyDocument> findAllAssignPoliciesBySiteId(String siteId) {
-		return repository.findAllServicePoliciesBySiteId(UUID.fromString(siteId)).stream()
+	public Set<AssignedPolicyDocument> findAllAssignPoliciesBySiteId(SiteId siteId) {
+		return repository.findAllServicePoliciesBySiteId(siteId.id).stream()
 			.map(ServicePolicyDocumentEntity::toServicePolicyDocument)
 			.collect(toSet());
 	}
@@ -142,7 +144,7 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	public PolicyId create(PolicyDocument policyDocument) {
 		PolicyDocumentEntity savedProjectAllocation = repository.save(
 			PolicyDocumentEntity.builder()
-				.siteId(UUID.fromString(policyDocument.siteId))
+				.siteId(policyDocument.siteId.id)
 				.name(policyDocument.name)
 				.workflow(policyDocument.workflow.getPersistentId())
 				.contentType(policyDocument.contentType.getPersistentId())
@@ -177,8 +179,8 @@ class PolicyDocumentDatabaseRepository implements PolicyDocumentRepository {
 	}
 
 	@Override
-	public boolean isNamePresent(String siteId, String name) {
-		return !repository.existsBySiteIdAndName(UUID.fromString(siteId), name);
+	public boolean isNamePresent(SiteId siteId, String name) {
+		return !repository.existsBySiteIdAndName(siteId.id, name);
 	}
 
 	@Override

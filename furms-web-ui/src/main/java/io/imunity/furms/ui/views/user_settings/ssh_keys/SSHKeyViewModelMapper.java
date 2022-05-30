@@ -5,8 +5,9 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
-import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 
 import java.time.ZoneId;
 import java.util.Collections;
@@ -15,13 +16,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static io.imunity.furms.utils.UTCTimeUtils.convertToZoneTime;
 
 class SSHKeyViewModelMapper {
 
 	static SSHKeyViewModel map(SSHKey key, ZoneId zoneId,
-			Function<String, List<SSHKeyOperationJob>> statusSupplier) {
+			Function<SSHKeyId, List<SSHKeyOperationJob>> statusSupplier) {
 
 		return SSHKeyViewModel.builder().id(key.id).ownerId(key.ownerId).name(key.name)
 				.sites(getKeyStatus(key, statusSupplier)).value(key.value)
@@ -29,7 +30,7 @@ class SSHKeyViewModelMapper {
 	}
 
 	private static Set<SiteWithKeyStatus> getKeyStatus(SSHKey sshKey,
-			Function<String, List<SSHKeyOperationJob>> statusSupplier) {
+			Function<SSHKeyId, List<SSHKeyOperationJob>> statusSupplier) {
 		Set<SiteWithKeyStatus> sitesWithKeyStatus = new HashSet<>();
 		for (SSHKeyOperationJob findBySSHKeyIdAndSiteId : statusSupplier.apply(sshKey.id)) {
 			if (findBySSHKeyIdAndSiteId != null) {

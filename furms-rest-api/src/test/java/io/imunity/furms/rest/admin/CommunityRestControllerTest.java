@@ -5,12 +5,15 @@
 
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.rest.error.exceptions.CommunityAllocationRestNotFoundException;
 import io.imunity.furms.rest.error.exceptions.CommunityRestNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static java.math.BigDecimal.ONE;
@@ -45,8 +48,8 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldFindCommunityByCommunityId() throws Exception {
 		//given
-		final String communityId = "communityId";
-		when(communityRestService.findOneById(communityId)).thenReturn(createCommunity(communityId));
+		final String communityId = UUID.randomUUID().toString();
+		when(communityRestService.findOneById(new CommunityId(communityId))).thenReturn(createCommunity(communityId));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_COMMUNITIES+"/{communityId}", communityId)
@@ -62,10 +65,10 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldFindAllRelatedProjectsByCommunityId() throws Exception {
 		//given
-		final String communityId = "communityId";
-		final String projectId1 = "projectId1";
-		final String projectId2 = "projectId2";
-		when(communityRestService.findAllProjectsByCommunityId(communityId))
+		final String communityId = UUID.randomUUID().toString();
+		final String projectId1 = UUID.randomUUID().toString();
+		final String projectId2 = UUID.randomUUID().toString();
+		when(communityRestService.findAllProjectsByCommunityId(new CommunityId(communityId)))
 				.thenReturn(List.of(createProject(projectId1), createProject(projectId2)));
 
 		//when + then
@@ -101,8 +104,8 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldReturn404IfCommunityHasNotBeenFound() throws Exception {
 		//given
-		final String communityId = "communityId";
-		when(communityRestService.findOneById(communityId)).thenThrow(new CommunityRestNotFoundException("message"));
+		final String communityId = UUID.randomUUID().toString();
+		when(communityRestService.findOneById(new CommunityId(communityId))).thenThrow(new CommunityRestNotFoundException("message"));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_COMMUNITIES+"/{communityId}", communityId)
@@ -113,10 +116,10 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldFindCommunityAllocationsByCommunityId() throws Exception {
 		//given
-		final String communityId = "communityId";
-		when(communityRestService.findAllocationByCommunityId(communityId)).thenReturn(List.of(
-				createCommunityAllocation("id1", communityId),
-				createCommunityAllocation("id2", communityId)));
+		final String communityId = UUID.randomUUID().toString();
+		when(communityRestService.findAllocationByCommunityId(new CommunityId(communityId))).thenReturn(List.of(
+				createCommunityAllocation(UUID.randomUUID().toString(), communityId),
+				createCommunityAllocation(UUID.randomUUID().toString(), communityId)));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_COMMUNITIES+"/{communityId}/allocations", communityId)
@@ -128,9 +131,10 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldFindCommunityAllocationByCommunityIdAndId() throws Exception {
 		//given
-		final String communityId = "communityId";
-		final String allocationId = "allocationId";
-		when(communityRestService.findAllocationByIdAndCommunityId(allocationId, communityId)).thenReturn(
+		final String communityId = UUID.randomUUID().toString();
+		final String allocationId = UUID.randomUUID().toString();
+		when(communityRestService.findAllocationByIdAndCommunityId(new CommunityAllocationId(allocationId),
+			new CommunityId(communityId))).thenReturn(
 				createCommunityAllocation(allocationId, communityId));
 
 		//when + then
@@ -147,9 +151,10 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldReturn404IfCommunityAllocationHasNotBeenFoundInFindingCommunityAllocations() throws Exception {
 		//given
-		final String communityId = "communityId";
-		final String allocationId = "allocationId";
-		when(communityRestService.findAllocationByIdAndCommunityId(allocationId, communityId)).thenThrow(
+		final String communityId = UUID.randomUUID().toString();
+		final String allocationId = UUID.randomUUID().toString();
+		when(communityRestService.findAllocationByIdAndCommunityId(new CommunityAllocationId(allocationId),
+			new CommunityId(communityId))).thenThrow(
 				new CommunityAllocationRestNotFoundException("message"));
 
 		//when + then
@@ -162,9 +167,9 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 	@Test
 	void shouldCallAddAllocationWithProperBody() throws Exception {
 		//given
-		final String communityId = "communityId";
+		final String communityId = UUID.randomUUID().toString();
 		final CommunityAllocationAddRequest request = new CommunityAllocationAddRequest("creditId", "name", ONE);
-		when(communityRestService.addAllocation(communityId, request)).thenReturn(List.of());
+		when(communityRestService.addAllocation(new CommunityId(communityId), request)).thenReturn(List.of());
 
 		//when + then
 		mockMvc.perform(post(BASE_URL_COMMUNITIES+"/{communityId}/allocations", communityId)
@@ -173,7 +178,7 @@ class CommunityRestControllerTest extends RestApiControllerIntegrationTest {
 				.content(objectMapper.writeValueAsString(request)))
 				.andExpect(status().isOk());
 
-		verify(communityRestService, times(1)).addAllocation(communityId, request);
+		verify(communityRestService, times(1)).addAllocation(new CommunityId(communityId), request);
 	}
 
 	private Community createCommunity(String id) {

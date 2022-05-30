@@ -8,7 +8,9 @@ package io.imunity.furms.core.config.security.method;
 import io.imunity.furms.api.authz.FURMSUserProvider;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -83,7 +85,7 @@ class AuthTest {
 
 	@Test
 	void authShouldPassUserHasAccessToProjectLimitedOperations(){
-		UUID uuid = UUID.randomUUID();
+		ProjectId uuid = new ProjectId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of();
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -95,7 +97,7 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		Throwable throwable = catchThrowable(() -> mockService.getLimitedProject(uuid.toString()));
+		Throwable throwable = catchThrowable(() -> mockService.getLimitedProject(uuid));
 		assertThat(throwable).isNull();
 	}
 
@@ -121,9 +123,9 @@ class AuthTest {
 
 	@Test
 	void authShouldPassFenixAdminHasSpecialAdminRights(){
-		UUID uuid = UUID.randomUUID();
+		CommunityId uuid = new CommunityId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
+			new ResourceId(uuid.id, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -135,7 +137,7 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		Throwable throwable = catchThrowable(() -> mockService.getCommunity(uuid.toString()));
+		Throwable throwable = catchThrowable(() -> mockService.getCommunity(uuid));
 		assertThat(throwable).isNull();
 	}
 
@@ -181,9 +183,9 @@ class AuthTest {
 
 	@Test
 	void authShouldNotPassWrongRole(){
-		UUID uuid = UUID.randomUUID();
+		CommunityId uuid = new CommunityId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid, COMMUNITY), Set.of(Role.SITE_ADMIN)
+			new ResourceId(uuid.id, COMMUNITY), Set.of(Role.SITE_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -195,15 +197,15 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		assertThrows(AccessDeniedException.class, () -> mockService.getCommunity(uuid.toString()));
+		assertThrows(AccessDeniedException.class, () -> mockService.getCommunity(uuid));
 	}
 
 	@Test
 	void authShouldNotPassCommunityAdminDoesntOwnProject(){
-		UUID uuid = UUID.randomUUID();
-		UUID uuid2 = UUID.randomUUID();
+		CommunityId uuid = new CommunityId(UUID.randomUUID());
+		ProjectId uuid2 = new ProjectId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
+			new ResourceId(uuid.id, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -212,20 +214,20 @@ class AuthTest {
 			.email("a@a.pl")
 			.roles(roles)
 			.build();
-		Project project = Project.builder().id(uuid2.toString()).build();
+		Project project = Project.builder().id(uuid2).build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
-		when(projectRepository.findAllByCommunityId(uuid.toString())).thenReturn(Set.of(project));
+		when(projectRepository.findAllByCommunityId(uuid)).thenReturn(Set.of(project));
 
-		assertThrows(AccessDeniedException.class, () -> mockService.getProject(UUID.randomUUID().toString()));
+		assertThrows(AccessDeniedException.class, () -> mockService.getProject(new ProjectId(UUID.randomUUID())));
 	}
 
 	@Test
 	void authShouldPassCommunityAdminOwnProject(){
-		UUID communityUUID = UUID.randomUUID();
-		UUID projectUUID = UUID.randomUUID();
+		CommunityId communityUUID = new CommunityId(UUID.randomUUID());
+		ProjectId projectUUID = new ProjectId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(communityUUID, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
+			new ResourceId(communityUUID.id, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -235,14 +237,14 @@ class AuthTest {
 			.roles(roles)
 			.build();
 		Project project = Project.builder()
-			.id(projectUUID.toString())
-			.communityId(communityUUID.toString())
+			.id(projectUUID)
+			.communityId(communityUUID)
 			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
-		when(projectRepository.findAllByCommunityIds(Set.of(communityUUID.toString()))).thenReturn(Set.of(project));
+		when(projectRepository.findAllByCommunityIds(Set.of(communityUUID))).thenReturn(Set.of(project));
 
-		Throwable throwable = catchThrowable(() -> mockService.getProject(projectUUID.toString()));
+		Throwable throwable = catchThrowable(() -> mockService.getProject(projectUUID));
 		assertThat(throwable).isNull();
 	}
 

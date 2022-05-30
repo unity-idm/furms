@@ -5,6 +5,7 @@
 
 package io.imunity.furms.domain.ssh_keys;
 
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.PersistentId;
 import org.apache.sshd.common.config.keys.AuthorizedKeyEntry;
 import org.apache.sshd.common.config.keys.KeyUtils;
@@ -16,16 +17,16 @@ import java.util.Objects;
 import java.util.Set;
 
 public class SSHKey {
-	public final String id;
+	public final SSHKeyId id;
 	public final String name;
 	public final String value;
 	public final LocalDateTime createTime;
 	public final LocalDateTime updateTime;
 	public final PersistentId ownerId;
-	public final Set<String> sites;
+	public final Set<SiteId> sites;
 
-	private SSHKey(String id, String name, String value, PersistentId ownerId, LocalDateTime createTime,
-			LocalDateTime updateTime, Set<String> sites) {
+	private SSHKey(SSHKeyId id, String name, String value, PersistentId ownerId, LocalDateTime createTime,
+			LocalDateTime updateTime, Set<SiteId> sites) {
 		this.id = id;
 		this.name = name;
 		this.value = value;
@@ -107,15 +108,20 @@ public class SSHKey {
 
 	public static class SSHKeyBuilder {
 
-		private String id;
+		private SSHKeyId id;
 		private String name;
 		private String value;
 		private LocalDateTime createTime;
 		private LocalDateTime updateTime;
 		private PersistentId ownerId;
-		private Set<String> sites;
+		private Set<SiteId> sites;
 
 		public SSHKey.SSHKeyBuilder id(String id) {
+			this.id = new SSHKeyId(id);
+			return this;
+		}
+
+		public SSHKey.SSHKeyBuilder id(SSHKeyId id) {
 			this.id = id;
 			return this;
 		}
@@ -145,7 +151,7 @@ public class SSHKey {
 			return this;
 		}
 
-		public SSHKey.SSHKeyBuilder sites(Set<String> sites) {
+		public SSHKey.SSHKeyBuilder sites(Set<SiteId> sites) {
 			this.sites = sites;
 			return this;
 		}

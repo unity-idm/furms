@@ -8,15 +8,22 @@ package io.imunity.furms.db.sites;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -32,7 +39,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,10 +70,10 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
 
-	private String siteId;
-	private String siteId2;
-	private String projectId;
-	private String projectId2;
+	private SiteId siteId;
+	private SiteId siteId2;
+	private ProjectId projectId;
+	private ProjectId projectId2;
 
 	@BeforeEach
 	void init() {
@@ -76,14 +82,14 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.externalId("id")
 			.connectionInfo("alala")
 			.build();
-		siteId = siteRepository.save(site).getId().toString();
+		siteId = new SiteId(siteRepository.save(site).getId());
 
 		SiteEntity site2 = SiteEntity.builder()
 			.name("name2")
 			.externalId("id2")
 			.connectionInfo("alala")
 			.build();
-		siteId2 = siteRepository.save(site2).getId().toString();
+		siteId2 = new SiteId(siteRepository.save(site2).getId());
 
 		SiteEntity.builder()
 			.name("name3")
@@ -96,7 +102,7 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		String communityId = UUID.fromString(communityRepository.create(community)).toString();
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
 			.communityId(communityId)
@@ -129,18 +135,18 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
 			.siteId(siteId)
-			.serviceId(serviceId.toString())
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.TERA)
 			.build();
-		String resourceTypeId = resourceTypeRepository.create(resourceType);
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		String resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId)
 			.resourceTypeId(resourceTypeId)
 			.name("name")
@@ -151,7 +157,7 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now().plusDays(3))
 			.build());
 
-		String resourceCreditId2 = resourceCreditRepository.create(ResourceCredit.builder()
+		ResourceCreditId resourceCreditId2 = resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId2)
 			.resourceTypeId(resourceTypeId)
 			.name("name2")
@@ -162,7 +168,7 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now().plusDays(3))
 			.build());
 
-		String communityAllocationId = communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
 				.communityId(communityId)
 				.resourceCreditId(resourceCreditId)
@@ -171,7 +177,7 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 				.build()
 		);
 
-		String communityAllocationId2 = communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId2 = communityAllocationRepository.create(
 			CommunityAllocation.builder()
 				.communityId(communityId)
 				.resourceCreditId(resourceCreditId2)
@@ -201,19 +207,19 @@ class SiteEntityCustomQueryRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldReturnSites() {
-		Set<SiteEntity> relatedSites = siteRepository.findRelatedSites(UUID.fromString(projectId));
+		Set<SiteEntity> relatedSites = siteRepository.findRelatedSites(projectId.id);
 
 		assertThat(relatedSites.size()).isEqualTo(2);
 		Set<String> ids = relatedSites.stream()
 			.map(site -> site.getId().toString())
 			.collect(Collectors.toSet());
-		assertThat(ids).contains(siteId);
-		assertThat(ids).contains(siteId2);
+		assertThat(ids).contains(siteId.id.toString());
+		assertThat(ids).contains(siteId2.id.toString());
 	}
 
 	@Test
 	void shouldNotReturnSites() {
-		Set<SiteEntity> relatedSites = siteRepository.findRelatedSites(UUID.fromString(projectId2));
+		Set<SiteEntity> relatedSites = siteRepository.findRelatedSites(projectId2.id);
 
 		assertThat(relatedSites.size()).isEqualTo(0);
 	}

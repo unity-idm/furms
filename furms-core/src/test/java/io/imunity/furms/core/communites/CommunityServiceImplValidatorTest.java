@@ -7,6 +7,7 @@ package io.imunity.furms.core.communites;
 
 import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -65,7 +67,7 @@ class CommunityServiceImplValidatorTest {
 	void shouldPassUpdateForUniqueName() {
 		//given
 		final Community community = Community.builder()
-			.id("id")
+			.id(new CommunityId(UUID.randomUUID()))
 			.name("name")
 			.build();
 
@@ -80,7 +82,7 @@ class CommunityServiceImplValidatorTest {
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
 		Community community = Community.builder()
-			.id("id")
+			.id(new CommunityId(UUID.randomUUID()))
 			.name("name")
 			.build();
 
@@ -94,7 +96,7 @@ class CommunityServiceImplValidatorTest {
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
 		Community community = Community.builder()
-			.id("id")
+			.id(new CommunityId(UUID.randomUUID()))
 			.name("name")
 			.build();
 
@@ -108,7 +110,7 @@ class CommunityServiceImplValidatorTest {
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		final String id = "id";
+		CommunityId id = new CommunityId(UUID.randomUUID());
 
 		when(communityRepository.exists(id)).thenReturn(true);
 
@@ -119,7 +121,7 @@ class CommunityServiceImplValidatorTest {
 	@Test
 	void shouldNotPassDeleteForNonExistingId() {
 		//given
-		final String id = "id";
+		CommunityId id = new CommunityId(UUID.randomUUID());
 
 		when(communityRepository.exists(id)).thenReturn(false);
 
@@ -130,7 +132,7 @@ class CommunityServiceImplValidatorTest {
 	@Test
 	void shouldNotPassDeleteForExistingProjects() {
 		//given
-		final String id = "id";
+		CommunityId id = new CommunityId(UUID.randomUUID());
 
 		when(communityRepository.exists(id)).thenReturn(true);
 		when(projectRepository.findAllByCommunityId(id)).thenReturn(Set.of(mock(Project.class)));

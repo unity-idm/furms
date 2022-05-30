@@ -6,8 +6,12 @@
 package io.imunity.furms.integration.tests.rest.site;
 
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,32 +48,31 @@ public class SiteCreditsIntegrationTest extends IntegrationTestBase {
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
 		Site.SiteBuilder darkSiteBuilder = defaultSite()
-				.name("Dark Site")
-				.externalId(new SiteExternalId("dsid"));
+				.name("Dark Site");
 		darkSite = darkSiteBuilder
-				.id(siteRepository.create(darkSiteBuilder.build(), darkSiteBuilder.build().getExternalId()))
+				.id(siteRepository.create(darkSiteBuilder.build(), new SiteExternalId("dsid")))
 				.build();
 	}
 
 	@Test
 	void shouldFindAllResourceCreditsForSpecificSite() throws Exception {
 		//given
-		final String resourceCredit1 = createResourceCredit(site.getId(), "Test 1", BigDecimal.valueOf(1));
-		final String resourceCredit2 = createResourceCredit(site.getId(),"Test 2", BigDecimal.valueOf(2));
+		final ResourceCreditId resourceCredit1 = createResourceCredit(site.getId(), "Test 1", BigDecimal.valueOf(1));
+		final ResourceCreditId resourceCredit2 = createResourceCredit(site.getId(),"Test 2", BigDecimal.valueOf(2));
 		createResourceCredit(darkSite.getId(),"Test 3", BigDecimal.valueOf(3));
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/credits", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/credits", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].creditId", in(Set.of(resourceCredit1, resourceCredit2))))
+				.andExpect(jsonPath("$.[0].creditId", in(Set.of(resourceCredit1.id.toString(), resourceCredit2.id.toString()))))
 				.andExpect(jsonPath("$.[0].amount.amount", in(Set.of(1, 2))))
 				.andExpect(jsonPath("$.[0].amount.unit", equalTo("GB")))
 				.andExpect(jsonPath("$.[0].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[0].resourceTypeId", notNullValue()))
 				.andExpect(jsonPath("$.[0].validity", notNullValue()))
-				.andExpect(jsonPath("$.[1].creditId", in(Set.of(resourceCredit1, resourceCredit2))))
+				.andExpect(jsonPath("$.[1].creditId", in(Set.of(resourceCredit1.id.toString(), resourceCredit2.id.toString()))))
 				.andExpect(jsonPath("$.[1].amount.amount", in(Set.of(1, 2))))
 				.andExpect(jsonPath("$.[1].amount.unit", equalTo("GB")))
 				.andExpect(jsonPath("$.[1].name", in(Set.of("Test 1", "Test 2"))))
@@ -91,7 +94,7 @@ public class SiteCreditsIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/credits", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/credits", site.getId().id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -100,15 +103,15 @@ public class SiteCreditsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindResourceCreditByIdThatBelongsToSite() throws Exception {
 		//given
-		final String resourceCredit1 = createResourceCredit(site.getId(), "Test 1", BigDecimal.valueOf(1));
-		final String resourceCredit2 = createResourceCredit(site.getId(),"Test 2", BigDecimal.valueOf(2));
+		final ResourceCreditId resourceCredit1 = createResourceCredit(site.getId(), "Test 1", BigDecimal.valueOf(1));
+		final ResourceCreditId resourceCredit2 = createResourceCredit(site.getId(),"Test 2", BigDecimal.valueOf(2));
 		createResourceCredit(darkSite.getId(),"Test 3", BigDecimal.valueOf(3));
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/credits/{creditId}", site.getId(), resourceCredit1))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/credits/{creditId}", site.getId().id, resourceCredit1.id))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.creditId", in(Set.of(resourceCredit1, resourceCredit2))))
+				.andExpect(jsonPath("$.creditId", in(Set.of(resourceCredit1.id.toString(), resourceCredit2.id.toString()))))
 				.andExpect(jsonPath("$.amount.amount", in(Set.of(1, 2))))
 				.andExpect(jsonPath("$.amount.unit", equalTo("GB")))
 				.andExpect(jsonPath("$.name", in(Set.of("Test 1", "Test 2"))))
@@ -119,14 +122,14 @@ public class SiteCreditsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnForbiddenIfSiteDoesNotBelongToCredit() throws Exception {
 		//given
-		final String resourceCreditId = createResourceCredit(darkSite.getId(), "Test 3", BigDecimal.valueOf(3));
+		final ResourceCreditId resourceCreditId = createResourceCredit(darkSite.getId(), "Test 3", BigDecimal.valueOf(3));
 
 		final TestUser testUser = basicUser();
 		testUser.addSiteAdmin(site.getId());
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/credits/{creditId}", site.getId(), resourceCreditId)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/credits/{creditId}", site.getId().id, resourceCreditId.id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -142,22 +145,22 @@ public class SiteCreditsIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/credits/{creditId}", site.getId(), resourceCreditFakeId)
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/credits/{creditId}", site.getId().id, resourceCreditFakeId)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}
 
-	private String createResourceCredit(String siteId, String name, BigDecimal amount) {
+	private ResourceCreditId createResourceCredit(SiteId siteId, String name, BigDecimal amount) {
 		final PolicyId policyId = policyDocumentRepository.create(defaultPolicy()
 				.siteId(siteId)
 				.build());
-		final String serviceId = infraServiceRepository.create(defaultService()
+		final InfraServiceId serviceId = infraServiceRepository.create(defaultService()
 				.siteId(siteId)
 				.name(UUID.randomUUID().toString())
 				.policyId(policyId)
 				.build());
-		final String resourceTypeId = resourceTypeRepository.create(defaultResourceType()
+		final ResourceTypeId resourceTypeId = resourceTypeRepository.create(defaultResourceType()
 				.siteId(siteId)
 				.serviceId(serviceId)
 				.name(UUID.randomUUID().toString())

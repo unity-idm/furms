@@ -8,15 +8,22 @@ package io.imunity.furms.performance.tests.data;
 import com.google.common.base.Stopwatch;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.rabbitmq.site.models.CumulativeResourceUsageRecord;
@@ -92,12 +99,10 @@ class MessageHandlerPerformanceTest {
 	void shouldHandle1000MessagesInTimeLessThen200s() {
 		//given
 		SiteId siteId = createSite();
-		String communityId = createCommunity();
-		String communityAllocationId = createCommunityAllocation(communityId, siteId.id);
-		List<Pair<String, String>> projectAndAllocationIds = createProjectAndAllocations(communityId,
+		CommunityId communityId = createCommunity();
+		CommunityAllocationId communityAllocationId = createCommunityAllocation(communityId, siteId);
+		List<Pair<ProjectId, ProjectAllocationId>> projectAndAllocationIds = createProjectAndAllocations(communityId,
 			communityAllocationId);
-		UUID communityAllocId = UUID.fromString(communityAllocationId);
-
 		//when
 		//warm-up
 		sendMessages(WARM_UP_COUNT, siteId, projectAndAllocationIds);
@@ -105,7 +110,7 @@ class MessageHandlerPerformanceTest {
 			.timeout(Duration.of(50, ChronoUnit.SECONDS))
 			.pollDelay(Duration.of(POLL_INTERVAL, ChronoUnit.SECONDS))
 			.pollInterval(Duration.of(POLL_INTERVAL, ChronoUnit.SECONDS))
-			.until(() -> resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocId).size() >= WARM_UP_COUNT);
+			.until(() -> resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocationId).size() >= WARM_UP_COUNT);
 
 		//main test
 		Stopwatch stopwatch = Stopwatch.createStarted();
@@ -114,13 +119,13 @@ class MessageHandlerPerformanceTest {
 			.timeout(Duration.of(200, ChronoUnit.SECONDS))
 			.pollDelay(Duration.of(POLL_INTERVAL, ChronoUnit.SECONDS))
 			.pollInterval(Duration.of(POLL_INTERVAL, ChronoUnit.SECONDS))
-			.until(() -> resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocId).size() >= WARM_UP_COUNT + TESTED_COUNT);
+			.until(() -> resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocationId).size() >= WARM_UP_COUNT + TESTED_COUNT);
 
 		//then
 		LOG.info("Handled and send 1000 messages in time less then: {} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
 	}
 
-	private String createCommunity() {
+	private CommunityId createCommunity() {
 		return communityRepository.create(Community.builder()
 			.name("community-" + randomName())
 			.description(UUID.randomUUID().toString())
@@ -135,23 +140,23 @@ class MessageHandlerPerformanceTest {
 			.build());
 		return siteService.findAll()
 			.stream().findAny()
-			.map(x -> new SiteId(x.getId(), x.getExternalId()))
+			.map(Site::getId)
 			.orElseThrow(IllegalArgumentException::new);
 	}
 
 	private void sendMessages(int messagesNumber, SiteId siteId,
-	                          List<Pair<String, String>> projectAndAllocationIds) {
+	                          List<Pair<ProjectId, ProjectAllocationId>> projectAndAllocationIds) {
 		int size = projectAndAllocationIds.size();
 		Random random = new Random();
 		LongStream.range(0, messagesNumber).parallel()
 			.forEach(x -> {
-				Pair<String, String> stringStringPair =
+				Pair<ProjectId, ProjectAllocationId> stringStringPair =
 					projectAndAllocationIds.get(random.nextInt(size));
 				rabbitTemplate.convertAndSend(siteId.externalId.id + "-site-pub", new Payload<>(
 					new Header(VERSION, UUID.randomUUID().toString(), Status.OK, null),
 					new CumulativeResourceUsageRecord(
-						stringStringPair.getKey(),
-						stringStringPair.getValue(),
+						stringStringPair.getKey().id.toString(),
+						stringStringPair.getValue().id.toString(),
 						new BigDecimal(20),
 						OffsetDateTime.now()
 					)
@@ -159,10 +164,11 @@ class MessageHandlerPerformanceTest {
 			});
 	}
 
-	private List<Pair<String, String>> createProjectAndAllocations(String communityId, String communityAllocationId) {
+	private List<Pair<ProjectId, ProjectAllocationId>> createProjectAndAllocations(CommunityId communityId,
+	                                                                               CommunityAllocationId communityAllocationId) {
 		return LongStream.range(0, BIG_COMMUNITIES_PROJECTS_COUNT)
 			.mapToObj(i -> {
-					String projectId = projectRepository.create(Project.builder()
+					ProjectId projectId = projectRepository.create(Project.builder()
 						.communityId(communityId)
 						.name(randomName())
 						.acronym(randomAcronym())
@@ -170,7 +176,7 @@ class MessageHandlerPerformanceTest {
 						.utcStartTime(LocalDateTime.now())
 						.utcEndTime(LocalDateTime.now().plusYears(1))
 						.build());
-					String allocation_id = projectAllocationRepository.create(
+					ProjectAllocationId allocation_id = projectAllocationRepository.create(
 						ProjectAllocation.builder()
 							.projectId(projectId)
 							.name(randomName())
@@ -183,13 +189,13 @@ class MessageHandlerPerformanceTest {
 			).collect(Collectors.toList());
 	}
 
-	private String createCommunityAllocation(String communityId, String siteId) {
+	private CommunityAllocationId createCommunityAllocation(CommunityId communityId, SiteId siteId) {
 		InfraService infraService = InfraService.builder()
 			.name(randomName())
 			.siteId(siteId)
 			.description("Archive Bsc")
 			.build();
-		String infraId = serviceRepository.create(infraService);
+		InfraServiceId infraId = serviceRepository.create(infraService);
 
 		ResourceType resourceType = ResourceType.builder()
 			.siteId(siteId)
@@ -198,7 +204,7 @@ class MessageHandlerPerformanceTest {
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.KB)
 			.build();
-		String resourceId = resourceTypeRepository.create(resourceType);
+		ResourceTypeId resourceId = resourceTypeRepository.create(resourceType);
 
 		ResourceCredit resourceCredit = ResourceCredit.builder()
 			.siteId(siteId)
@@ -208,7 +214,7 @@ class MessageHandlerPerformanceTest {
 			.utcStartTime(LocalDateTime.of(2021, 10, 22, 11, 22))
 			.utcEndTime(LocalDateTime.of(2024, 12, 8, 17, 32))
 			.build();
-		String resourceCreditId = resourceCreditRepository.create(resourceCredit);
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(resourceCredit);
 
 
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()

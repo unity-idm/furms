@@ -10,6 +10,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.GroupNotBelongingToCommunityException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyIsInGroupError;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
 import io.imunity.furms.domain.generic_groups.GenericGroupCreatedEvent;
@@ -67,32 +68,33 @@ class GenericGroupServiceImpl implements GenericGroupService {
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<GenericGroup> findAll(String communityId) {
+	public Set<GenericGroup> findAll(CommunityId communityId) {
 		return genericGroupRepository.findAllBy(communityId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Optional<GenericGroupWithAssignments> findGroupWithAssignments(String communityId, GenericGroupId genericGroupId) {
+	public Optional<GenericGroupWithAssignments> findGroupWithAssignments(CommunityId communityId,
+	                                                                      GenericGroupId genericGroupId) {
 		return genericGroupRepository.findGroupWithAssignments(communityId, genericGroupId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Optional<GenericGroup> findBy(String communityId, GenericGroupId genericGroupId) {
+	public Optional<GenericGroup> findBy(CommunityId communityId, GenericGroupId genericGroupId) {
 		assertGroupBelongsToCommunity(communityId, genericGroupId);
 		return genericGroupRepository.findBy(genericGroupId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(String communityId) {
+	public Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(CommunityId communityId) {
 		return genericGroupRepository.findAllGroupWithAssignmentsAmount(communityId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<GenericGroupAssignmentWithUser> findAll(String communityId, GenericGroupId id) {
+	public Set<GenericGroupAssignmentWithUser> findAll(CommunityId communityId, GenericGroupId id) {
 		assertGroupBelongsToCommunity(communityId, id);
 		Map<FenixUserId, FURMSUser> collect = usersDAO.getAllUsers().stream()
 			.filter(x -> x.fenixUserId.isPresent())
@@ -118,7 +120,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void createMembership(String communityId, GenericGroupId groupId, FenixUserId userId) {
+	public void createMembership(CommunityId communityId, GenericGroupId groupId, FenixUserId userId) {
 		assertNotNull(communityId, groupId, userId);
 		assertUniqueness(groupId, userId);
 		assertGroupBelongsToCommunity(communityId, groupId);
@@ -148,7 +150,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void delete(String communityId, GenericGroupId id) {
+	public void delete(CommunityId communityId, GenericGroupId id) {
 		assertGroupBelongsToCommunity(communityId, id);
 		GenericGroup genericGroup = genericGroupRepository.findBy(id).get();
 		genericGroupRepository.delete(id);
@@ -159,7 +161,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = MEMBERSHIP_GROUP_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void deleteMembership(String communityId,  GenericGroupId groupId, FenixUserId fenixUserId) {
+	public void deleteMembership(CommunityId communityId,  GenericGroupId groupId, FenixUserId fenixUserId) {
 		assertNotNull(communityId, groupId, fenixUserId);
 		assertGroupBelongsToCommunity(communityId, groupId);
 		genericGroupRepository.deleteMembership(groupId, fenixUserId);
@@ -170,7 +172,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 		LOG.info("Membership in group ID: {} for user ID: {} was removed", groupId.id, fenixUserId.id);
 	}
 
-	private void assertGroupBelongsToCommunity(String communityId, GenericGroupId id) {
+	private void assertGroupBelongsToCommunity(CommunityId communityId, GenericGroupId id) {
 		if(!genericGroupRepository.existsBy(communityId, id))
 			throw new GroupNotBelongingToCommunityException(String.format("Group %s doesn't belong to community %s", id.id, communityId));
 	}
@@ -180,7 +182,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 			throw new UserAlreadyIsInGroupError(String.format("User %s is already in group %s", fenixUserId.id, id.id));
 	}
 
-	private void assertUniqueness(String communityId, String name) {
+	private void assertUniqueness(CommunityId communityId, String name) {
 		if(genericGroupRepository.existsBy(communityId, name))
 			throw new DuplicatedNameValidationError(String.format("Group name: %s - already exists", name));
 	}
@@ -191,15 +193,16 @@ class GenericGroupServiceImpl implements GenericGroupService {
 		notNull(group.name, "Name cannot be null.");
 	}
 
-	private void assertNotNull(String communityId, GenericGroupId groupId, FenixUserId userId) {
+	private void assertNotNull(CommunityId communityId, GenericGroupId groupId, FenixUserId userId) {
 		notNull(groupId, "Group object cannot be null.");
 		notNull(groupId.id, "Group object cannot be null.");
-		notNull(communityId, "CommunityId cannot be null.");
+		notNull(communityId, "CommunityId object cannot be null.");
+		notNull(communityId.id, "CommunityId cannot be null.");
 		notNull(userId, "Fenix user id cannot be null.");
 		notNull(userId.id, "Fenix user id cannot be null.");
 	}
 
-	private void assertUniqueness(GenericGroupId groupId, String communityId, String name) {
+	private void assertUniqueness(GenericGroupId groupId, CommunityId communityId, String name) {
 		boolean present = genericGroupRepository.findBy(groupId)
 			.filter(x -> !x.name.equals(name))
 			.isPresent();

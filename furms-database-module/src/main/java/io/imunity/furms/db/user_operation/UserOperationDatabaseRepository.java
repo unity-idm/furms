@@ -5,10 +5,12 @@
 
 package io.imunity.furms.db.user_operation;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
+import io.imunity.furms.domain.user_operation.UserAdditionId;
 import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
 import io.imunity.furms.domain.user_operation.UserStatus;
@@ -35,29 +37,29 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public Set<String> findUserIds(String projectId) {
-		return userAdditionEntityRepository.findAllByProjectId(UUID.fromString(projectId)).stream()
+	public Set<String> findUserIds(ProjectId projectId) {
+		return userAdditionEntityRepository.findAllByProjectId(projectId.id).stream()
 				.map(x -> x.userId)
 				.collect(toSet());
 	}
 
 	@Override
-	public Set<UserAddition> findAllUserAdditions(String projectId) {
-		return userAdditionEntityRepository.findAllExtendedByProjectId(UUID.fromString(projectId)).stream()
+	public Set<UserAddition> findAllUserAdditions(ProjectId projectId) {
+		return userAdditionEntityRepository.findAllExtendedByProjectId(projectId.id).stream()
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
 	}
 
 	@Override
-	public Set<UserAddition> findAllUserAdditions(String projectId, String userId) {
-		return userAdditionEntityRepository.findAllByProjectIdAndUserId(UUID.fromString(projectId), userId).stream()
+	public Set<UserAddition> findAllUserAdditions(ProjectId projectId, FenixUserId userId) {
+		return userAdditionEntityRepository.findAllByProjectIdAndUserId(projectId.id, userId.id).stream()
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
 	}
 
 	@Override
-	public Optional<UserAddition> findUserAddition(String siteId, String projectId, String userId) {
-		return userAdditionEntityRepository.findBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId)
+	public Optional<UserAddition> findUserAddition(SiteId siteId, ProjectId projectId, FenixUserId userId) {
+		return userAdditionEntityRepository.findBySiteIdAndProjectIdAndUserId(siteId.id, projectId.id, userId.id)
 			.map(UserAdditionReadEntity::toUserAddition);
 	}
 
@@ -69,29 +71,29 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public Set<UserAddition> findAllUserAdditions(String siteId, FenixUserId userId) {
-		return userAdditionEntityRepository.findAllBySiteIdAndUserId(UUID.fromString(siteId), userId.id).stream()
+	public Set<UserAddition> findAllUserAdditions(SiteId siteId, FenixUserId userId) {
+		return userAdditionEntityRepository.findAllBySiteIdAndUserId(siteId.id, userId.id).stream()
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
 	}
 
 	@Override
-	public Set<UserAddition> findAllUserAdditionsBySiteId(String siteId) {
-		return userAdditionEntityRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
+	public Set<UserAddition> findAllUserAdditionsBySiteId(SiteId siteId) {
+		return userAdditionEntityRepository.findAllBySiteId(siteId.id).stream()
 				.map(UserAdditionReadEntity::toUserAddition)
 				.collect(toSet());
 	}
 
 	@Override
-	public Set<UserAddition> findAllUserAdditionsByProjectId(String projectId) {
-		return userAdditionEntityRepository.findExtendedAllByProjectId(UUID.fromString(projectId)).stream()
+	public Set<UserAddition> findAllUserAdditionsByProjectId(ProjectId projectId) {
+		return userAdditionEntityRepository.findExtendedAllByProjectId(projectId.id).stream()
 			.map(UserAdditionReadEntity::toUserAddition)
 			.collect(toSet());
 	}
 
 	@Override
-	public Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(String userId, String siteId) {
-		return userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(UUID.fromString(siteId), userId).stream()
+	public Set<UserAdditionWithProject> findAllUserAdditionsWithSiteAndProjectBySiteId(FenixUserId userId, SiteId siteId) {
+		return userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(siteId.id, userId.id).stream()
 				.map(userAddition -> UserAdditionWithProject.builder()
 						.siteName(userAddition.siteName)
 						.projectId(userAddition.projectId)
@@ -104,12 +106,12 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public String create(UserAddition userAddition) {
+	public UserAdditionId create(UserAddition userAddition) {
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(fromString(userAddition.siteId.id))
-				.projectId(fromString(userAddition.projectId))
-				.userId(userAddition.userId)
+				.siteId(userAddition.siteId.id)
+				.projectId(userAddition.projectId.id)
+				.userId(userAddition.userId.id)
 				.build()
 		);
 		userAdditionJobEntityRepository.save(
@@ -119,13 +121,13 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.status(userAddition.status)
 				.build()
 		);
-		return userAdditionSaveEntity.getId().toString();
+		return new UserAdditionId(userAdditionSaveEntity.getId());
 	}
 
 	@Override
 	public void update(UserAddition userAddition) {
 		userAdditionEntityRepository.findByCorrelationId(UUID.fromString(userAddition.correlationId.id))
-			.or(() -> userAdditionEntityRepository.findById(UUID.fromString(userAddition.id)))
+			.or(() -> userAdditionEntityRepository.findById(userAddition.id.id))
 			.map(old -> UserAdditionSaveEntity.builder()
 				.id(old.getId())
 				.siteId(old.siteId)
@@ -135,7 +137,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 				.build()
 			).ifPresent(userAdditionEntityRepository::save);
 		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(userAddition.correlationId.id))
-			.or(() -> userAdditionJobEntityRepository.findByUserAdditionId(UUID.fromString(userAddition.id)))
+			.or(() -> userAdditionJobEntityRepository.findByUserAdditionId(userAddition.id.id))
 			.map(old -> UserAdditionJobEntity.builder()
 				.id(old.getId())
 				.correlationId(fromString(userAddition.correlationId.id))
@@ -148,14 +150,14 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public Optional<UserStatus> findAdditionStatusByCorrelationId(String correlationId) {
-		return userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
+	public Optional<UserStatus> findAdditionStatusByCorrelationId(CorrelationId correlationId) {
+		return userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.map(x -> UserStatus.valueOf(x.status));
 	}
 
 	@Override
-	public Optional<UserStatus> findAdditionStatus(String siteId, String projectId, FenixUserId userId) {
-		return userAdditionEntityRepository.findStatusBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId.id)
+	public Optional<UserStatus> findAdditionStatus(SiteId siteId, ProjectId projectId, FenixUserId userId) {
+		return userAdditionEntityRepository.findStatusBySiteIdAndProjectIdAndUserId(siteId.id, projectId.id, userId.id)
 			.map(UserStatus::valueOf);
 	}
 
@@ -172,19 +174,20 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public void deleteByCorrelationId(String correlationId) {
-		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId))
+	public void deleteByCorrelationId(CorrelationId correlationId) {
+		userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
 			.ifPresent(x -> userAdditionEntityRepository.deleteById(x.userAdditionId));
 	}
 
 	@Override
-	public boolean existsByUserIdAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId) {
-		return userAdditionEntityRepository.existsBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), userId.id);
+	public boolean existsByUserIdAndSiteIdAndProjectId(FenixUserId userId, SiteId siteId, ProjectId projectId) {
+		return userAdditionEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId.id, projectId.id,
+			userId.id);
 	}
 
 	@Override
-	public boolean isUserInstalledOnSite(FenixUserId userId, String siteId){
-		return userAdditionEntityRepository.findStatusBySiteIdAndUserId(UUID.fromString(siteId), userId.id).stream()
+	public boolean isUserInstalledOnSite(FenixUserId userId, SiteId siteId){
+		return userAdditionEntityRepository.findStatusBySiteIdAndUserId(siteId.id, userId.id).stream()
 			.map(UserStatus::valueOf)
 			.anyMatch(UserStatus::isInstalled);
 	}
@@ -197,16 +200,16 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 
 	@Override
 	public void delete(UserAddition userAddition) {
-		userAdditionEntityRepository.deleteById(UUID.fromString(userAddition.id));
+		userAdditionEntityRepository.deleteById(userAddition.id.id);
 	}
 
 	@Override
 	public void update(UserAdditionJob userAdditionJob) {
-		userAdditionJobEntityRepository.findByUserAdditionId(UUID.fromString(userAdditionJob.userAdditionId))
+		userAdditionJobEntityRepository.findByUserAdditionId(userAdditionJob.userAdditionId.id)
 			.map(x -> UserAdditionJobEntity.builder()
 				.id(x.getId())
 				.correlationId(fromString(userAdditionJob.correlationId.id))
-				.userAdditionId(fromString(userAdditionJob.userAdditionId))
+				.userAdditionId(userAdditionJob.userAdditionId.id)
 				.status(userAdditionJob.status)
 				.code(userAdditionJob.errorMessage.map(e -> e.code).orElse(null))
 				.message(userAdditionJob.errorMessage.map(e -> e.message).orElse(null))
@@ -229,7 +232,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 	}
 
 	@Override
-	public boolean isUserAdded(String siteId, String userId) {
-		return userAdditionEntityRepository.existsBySiteIdAndUserId(UUID.fromString(siteId), userId);
+	public boolean isUserAdded(SiteId siteId, FenixUserId userId) {
+		return userAdditionEntityRepository.existsBySiteIdAndUserId(siteId.id, userId.id);
 	}
 }

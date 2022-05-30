@@ -8,6 +8,7 @@ package io.imunity.furms.api.sites;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -18,11 +19,11 @@ import java.util.Set;
 
 public interface SiteService {
 
-	boolean existsById(String id);
+	boolean existsById(SiteId id);
 
-	Optional<Site> findById(String id);
+	Optional<Site> findById(SiteId id);
 
-	Set<Site> findAll(Set<String> ids);
+	Set<Site> findAll(Set<SiteId> ids);
 
 	Set<Site> findAll();
 
@@ -34,47 +35,47 @@ public interface SiteService {
 
 	void update(Site site);
 
-	void delete(String id);
+	void delete(SiteId id);
 
 	boolean isNamePresent(String name);
 
-	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
+	boolean isNamePresentIgnoringRecord(String name, SiteId siteId);
 
-	List<FURMSUser> findAllSiteUsers(String id);
+	List<FURMSUser> findAllSiteUsers(SiteId id);
 
-	AllUsersAndSiteAdmins findAllUsersAndSiteAdmins(String id);
+	AllUsersAndSiteAdmins findAllUsersAndSiteAdmins(SiteId id);
 
-	Set<Invitation> findSiteAdminInvitations(String siteId);
+	Set<Invitation> findSiteAdminInvitations(SiteId siteId);
 
-	Set<Invitation> findSiteSupportInvitations(String siteId);
+	Set<Invitation> findSiteSupportInvitations(SiteId siteId);
 
-	void inviteAdmin(String siteId, PersistentId userId);
+	void inviteAdmin(SiteId siteId, PersistentId userId);
 
-	void inviteAdmin(String siteId, String email);
+	void inviteAdmin(SiteId siteId, String email);
 
-	void inviteSupport(String siteId, PersistentId userId);
+	void inviteSupport(SiteId siteId, PersistentId userId);
 
-	void inviteSupport(String siteId, String email);
+	void inviteSupport(SiteId siteId, String email);
 
-	void resendInvitation(String siteId, InvitationId invitationId);
+	void resendInvitation(SiteId siteId, InvitationId invitationId);
 
-	void changeInvitationRoleToSupport(String siteId, InvitationId invitationId);
+	void changeInvitationRoleToSupport(SiteId siteId, InvitationId invitationId);
 
-	void changeInvitationRoleToAdmin(String siteId, InvitationId invitationId);
+	void changeInvitationRoleToAdmin(SiteId siteId, InvitationId invitationId);
 
-	void removeInvitation(String siteId, InvitationId invitationId);
+	void removeInvitation(SiteId siteId, InvitationId invitationId);
 
-	void addAdmin(String siteId, PersistentId userId);
+	void addAdmin(SiteId siteId, PersistentId userId);
 
-	void addSupport(String siteId, PersistentId userId);
+	void addSupport(SiteId siteId, PersistentId userId);
 
-	void changeRoleToAdmin(String siteId, PersistentId userId);
+	void changeRoleToAdmin(SiteId siteId, PersistentId userId);
 
-	void changeRoleToSupport(String siteId, PersistentId userId);
+	void changeRoleToSupport(SiteId siteId, PersistentId userId);
 
-	void removeSiteUser(String siteId, PersistentId userId);
+	void removeSiteUser(SiteId siteId, PersistentId userId);
 
-	boolean isCurrentUserAdminOf(String siteId);
+	boolean isCurrentUserAdminOf(SiteId siteId);
 
-	boolean isCurrentUserSupportOf(String siteId);
+	boolean isCurrentUserSupportOf(SiteId siteId);
 }

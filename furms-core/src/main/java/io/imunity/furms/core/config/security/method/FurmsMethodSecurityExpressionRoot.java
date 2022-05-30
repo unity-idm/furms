@@ -6,6 +6,7 @@
 package io.imunity.furms.core.config.security.method;
 
 import io.imunity.furms.api.authz.FURMSUserProvider;
+import io.imunity.furms.domain.Id;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
@@ -46,12 +47,16 @@ class FurmsMethodSecurityExpressionRoot
 		return hasCapabilityForResource(method, capability, resourceType, null);
 	}
 
-	public boolean hasCapabilityForResources(String method, Capability capability, ResourceType resourceType, Collection<String> ids) {
+	public boolean hasCapabilityForResources(String method, Capability capability, ResourceType resourceType,
+	                                         Collection<Id> ids) {
 		if(!authentication.isAuthenticated() || isAnonymousUser())
 			return false;
 
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
-		List<ResourceId> resourceIds = ids.stream().map(id -> new ResourceId(id, resourceType)).collect(Collectors.toList());
+		List<ResourceId> resourceIds = ids.stream()
+			.map(Id::getId)
+			.map(id -> new ResourceId(id, resourceType))
+			.collect(Collectors.toList());
 		Set<Capability> userCapabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceIds, resourceType);
 		userCapabilities.addAll(ELEMENTARY_CAPABILITIES);
 
@@ -65,12 +70,12 @@ class FurmsMethodSecurityExpressionRoot
 		return hasCapability;
 	}
 
-	public boolean hasCapabilityForResource(String method, Capability capability, ResourceType resourceType, String id) {
+	public boolean hasCapabilityForResource(String method, Capability capability, ResourceType resourceType, Id id) {
 		if(!authentication.isAuthenticated() || isAnonymousUser())
 			return false;
 
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
-		ResourceId resourceId = new ResourceId(id, resourceType);
+		ResourceId resourceId = new ResourceId(id != null ? id.getId() : null, resourceType);
 		Set<Capability> userCapabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceId);
 		userCapabilities.addAll(ELEMENTARY_CAPABILITIES);
 

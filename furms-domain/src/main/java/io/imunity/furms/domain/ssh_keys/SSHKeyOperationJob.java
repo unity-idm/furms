@@ -6,21 +6,22 @@
 package io.imunity.furms.domain.ssh_keys;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class SSHKeyOperationJob {
-	public final String id;
-	public final String siteId;
-	public final String sshkeyId;
+	public final SSHKeyOperationJobId id;
+	public final SiteId siteId;
+	public final SSHKeyId sshkeyId;
 	public final CorrelationId correlationId;
 	public final SSHKeyOperationStatus status;
 	public final SSHKeyOperation operation;
 	public final String error;
 	public final LocalDateTime originationTime;
 
-	SSHKeyOperationJob(String id, String siteId, String sshkeyId, CorrelationId correlationId,
+	SSHKeyOperationJob(SSHKeyOperationJobId id, SiteId siteId, SSHKeyId sshkeyId, CorrelationId correlationId,
 			SSHKeyOperation operation, SSHKeyOperationStatus status, String error,
 			LocalDateTime originationTime) {
 		this.id = id;
@@ -59,59 +60,69 @@ public class SSHKeyOperationJob {
 				+ ", operation=" + operation + ", error=" + error + ", originationTime=" + originationTime + '}';
 	}
 
-	public static ProjectInstallationJobBuilder builder() {
-		return new ProjectInstallationJobBuilder();
+	public static SSHKeyOperationJobBuilder builder() {
+		return new SSHKeyOperationJobBuilder();
 	}
 
-	public static final class ProjectInstallationJobBuilder {
-		public String id;
-		public String siteId;
-		public String sshkeyId;
+	public static final class SSHKeyOperationJobBuilder {
+		public SSHKeyOperationJobId id;
+		public SiteId siteId;
+		public SSHKeyId sshkeyId;
 		public CorrelationId correlationId;
 		public SSHKeyOperationStatus status;
 		public SSHKeyOperation operation;
 		public String error;
 		public LocalDateTime originationTime;
 		
-		private ProjectInstallationJobBuilder() {
+		private SSHKeyOperationJobBuilder() {
 		}
 
-		public ProjectInstallationJobBuilder id(String id) {
-			this.id = id;
+		public SSHKeyOperationJobBuilder id(String id) {
+			this.id = new SSHKeyOperationJobId(id);
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder siteId(String siteId) {
+		public SSHKeyOperationJobBuilder siteId(String siteId) {
+			this.siteId = new SiteId(siteId);
+			return this;
+		}
+
+		public SSHKeyOperationJobBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder sshkeyId(String sshkeyId) {
+		public SSHKeyOperationJobBuilder sshkeyId(String sshkeyId) {
+			this.sshkeyId = new SSHKeyId(sshkeyId);
+			return this;
+		}
+
+		public SSHKeyOperationJobBuilder sshkeyId(SSHKeyId sshkeyId) {
 			this.sshkeyId = sshkeyId;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder correlationId(CorrelationId correlationId) {
+		public SSHKeyOperationJobBuilder correlationId(CorrelationId correlationId) {
 			this.correlationId = correlationId;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder status(SSHKeyOperationStatus status) {
+		public SSHKeyOperationJobBuilder status(SSHKeyOperationStatus status) {
 			this.status = status;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder operation(SSHKeyOperation operation) {
+		public SSHKeyOperationJobBuilder operation(SSHKeyOperation operation) {
 			this.operation = operation;
 			return this;
 		}
 
-		public ProjectInstallationJobBuilder error(String error) {
+		public SSHKeyOperationJobBuilder error(String error) {
 			this.error = error;
 			return this;
 		}
 		
-		public ProjectInstallationJobBuilder originationTime(LocalDateTime originationTime) {
+		public SSHKeyOperationJobBuilder originationTime(LocalDateTime originationTime) {
 			this.originationTime = originationTime;
 			return this;
 		}

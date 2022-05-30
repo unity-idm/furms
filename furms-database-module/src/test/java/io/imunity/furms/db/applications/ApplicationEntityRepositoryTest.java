@@ -8,8 +8,10 @@ package io.imunity.furms.db.applications;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -37,8 +38,8 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ProjectRepository projectRepository;
 
-	UUID projectId;
-	UUID projectId2;
+	ProjectId projectId;
+	ProjectId projectId2;
 
 	@BeforeEach
 	void init() {
@@ -50,11 +51,11 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
-		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
+		CommunityId communityId = communityRepository.create(community);
+		CommunityId communityId2 = communityRepository.create(community2);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -64,7 +65,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 		Project project2 = Project.builder()
-			.communityId(communityId2.toString())
+			.communityId(communityId2)
 			.name("name2")
 			.logo(FurmsImage.empty())
 			.description("new_description")
@@ -74,13 +75,13 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
-		projectId2 = UUID.fromString(projectRepository.create(project2));
+		projectId = projectRepository.create(project);
+		projectId2 = projectRepository.create(project2);
 	}
 
 	@Test
 	void shouldReturnCreatedApplication() {
-		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
+		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId.id, "userId");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
 		ApplicationEntity foundApplication = applicationEntityRepository.findById(savedApplication.getId()).get();
@@ -89,7 +90,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldRemove() {
-		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
+		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId.id, "userId");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
 		applicationEntityRepository.deleteById(savedApplication.getId());
@@ -100,28 +101,28 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldFindAllByProjectId() {
-		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
+		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId.id, "userId");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
-		ApplicationEntity applicationEntity1 = new ApplicationEntity(null, projectId, "userId1");
+		ApplicationEntity applicationEntity1 = new ApplicationEntity(null, projectId.id, "userId1");
 		ApplicationEntity savedApplication1 = applicationEntityRepository.save(applicationEntity1);
 
-		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId2, "userId");
+		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId2.id, "userId");
 		applicationEntityRepository.save(applicationEntity2);
 
-		Set<ApplicationEntity> allByProjectId = applicationEntityRepository.findAllByProjectId(projectId);
+		Set<ApplicationEntity> allByProjectId = applicationEntityRepository.findAllByProjectId(projectId.id);
 		assertEquals(Set.of(savedApplication, savedApplication1), allByProjectId);
 	}
 
 	@Test
 	void shouldFindAllByUserId() {
-		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
+		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId.id, "userId");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
-		ApplicationEntity applicationEntity1 = new ApplicationEntity(null, projectId2, "userId");
+		ApplicationEntity applicationEntity1 = new ApplicationEntity(null, projectId2.id, "userId");
 		ApplicationEntity savedApplication1 = applicationEntityRepository.save(applicationEntity1);
 
-		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId, "userId1");
+		ApplicationEntity applicationEntity2 = new ApplicationEntity(null, projectId.id, "userId1");
 		applicationEntityRepository.save(applicationEntity2);
 
 		Set<ApplicationEntity> allByProjectId = applicationEntityRepository.findAllByUserId("userId");
@@ -130,7 +131,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldDeleteByProjectIdAndUserId(){
-		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
+		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId.id, "userId");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 		applicationEntityRepository.deleteByProjectIdAndUserId(savedApplication.projectId, savedApplication.userId);
 
@@ -140,7 +141,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldExistByProjectIdAndUserId(){
-		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId");
+		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId.id, "userId");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
 		boolean applicationExists = applicationEntityRepository.existsByProjectIdAndUserId(savedApplication.projectId, savedApplication.userId);
@@ -149,7 +150,7 @@ class ApplicationEntityRepositoryTest extends DBIntegrationTest {
 
 	@Test
 	void shouldNotExistByProjectIdAndUserId(){
-		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId, "userId1");
+		ApplicationEntity applicationEntity = new ApplicationEntity(null, projectId.id, "userId1");
 		ApplicationEntity savedApplication = applicationEntityRepository.save(applicationEntity);
 
 		boolean applicationExists = applicationEntityRepository.existsByProjectIdAndUserId(savedApplication.projectId, "userId");

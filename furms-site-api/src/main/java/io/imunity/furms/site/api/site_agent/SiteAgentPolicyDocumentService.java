@@ -7,10 +7,13 @@ package io.imunity.furms.site.api.site_agent;
 
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.SiteExternalId;
+
+import java.util.Optional;
 
 public interface SiteAgentPolicyDocumentService {
 	void updateUsersPolicyAcceptances(SiteExternalId siteExternalId, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies);
 	void updatePolicyDocument(SiteExternalId siteExternalId, PolicyDocument policyDocument);
-	void updatePolicyDocument(SiteExternalId siteExternalId, PolicyDocument policyDocument, String serviceIdentifier);
+	void updatePolicyDocument(SiteExternalId siteExternalId, PolicyDocument policyDocument, Optional<InfraServiceId> serviceIdentifier);
 }

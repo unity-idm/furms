@@ -6,20 +6,22 @@
 package io.imunity.furms.domain.project_installation;
 
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class ProjectInstallationJobStatus {
-	public final String siteId;
+	public final SiteId siteId;
 	public final String siteName;
-	public final String projectId;
+	public final ProjectId projectId;
 	public final ProjectInstallationStatus status;
 	public final Optional<ErrorMessage> errorMessage;
 
-	ProjectInstallationJobStatus(String siteId,
+	ProjectInstallationJobStatus(SiteId siteId,
 	                             String siteName,
-	                             String projectId,
+	                             ProjectId projectId,
 	                             ProjectInstallationStatus status,
 	                             Optional<ErrorMessage> errorMessage) {
 		this.siteId = siteId;
@@ -62,9 +64,9 @@ public class ProjectInstallationJobStatus {
 	}
 
 	public static final class ProjectInstallationJobStatusBuilder {
-		public String siteId;
+		public SiteId siteId;
 		public String siteName;
-		public String projectId;
+		public ProjectId projectId;
 		public ProjectInstallationStatus status;
 		public Optional<ErrorMessage> errorMessage = Optional.empty();
 
@@ -72,7 +74,7 @@ public class ProjectInstallationJobStatus {
 		}
 
 		public ProjectInstallationJobStatusBuilder siteId(String siteId) {
-			this.siteId = siteId;
+			this.siteId = new SiteId(siteId);
 			return this;
 		}
 
@@ -82,7 +84,7 @@ public class ProjectInstallationJobStatus {
 		}
 
 		public ProjectInstallationJobStatusBuilder projectId(String projectId) {
-			this.projectId = projectId;
+			this.projectId = new ProjectId(projectId);
 			return this;
 		}
 

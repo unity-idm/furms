@@ -15,6 +15,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.communites.CommunityService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.ui.community.CommunityViewModel;
 import io.imunity.furms.ui.community.CommunityViewModelMapper;
 import io.imunity.furms.ui.components.*;
@@ -59,7 +60,8 @@ public class CommunitiesView extends FurmsViewComponent {
 	private Grid<CommunityViewModel> createCommunityGrid() {
 		Grid<CommunityViewModel> grid = new DenseGrid<>(CommunityViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterGridLink(c.getName(), c.getId(), CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM))
+		grid.addComponentColumn(c -> new RouterGridLink(c.getName(), c.getId().id.toString(), CommunityView.class, PARAM_NAME,
+				ADMINISTRATORS_PARAM))
 			.setHeader(getTranslation("view.fenix-admin.communities.grid.column.1"))
 			.setSortable(true)
 			.setComparator(CommunityViewModel::getName);
@@ -75,8 +77,8 @@ public class CommunitiesView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(CommunityViewModel c) {
 		return new GridActionsButtonLayout(
-			new RouterGridLink(USERS, c.getId(), CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
-			new RouterGridLink(PIE_CHART, c.getId(), CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM),
+			new RouterGridLink(USERS, c.getId().id.toString(), CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM),
+			new RouterGridLink(PIE_CHART, c.getId().id.toString(), CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM),
 			createContextMenu(c.getId(), c.getName())
 		);
 	}
@@ -91,11 +93,11 @@ public class CommunitiesView extends FurmsViewComponent {
 		grid.setItems(allCommunities);
 	}
 
-	private Component createContextMenu(String communityId, String communityName) {
+	private Component createContextMenu(CommunityId communityId, String communityName) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(getTranslation("view.fenix-admin.communities.menu.edit"), EDIT), event ->
-			UI.getCurrent().navigate(CommunityFormView.class, communityId)
+			UI.getCurrent().navigate(CommunityFormView.class, communityId.id.toString())
 		);
 
 		Dialog confirmDialog = createConfirmDialog(communityId, communityName);
@@ -105,18 +107,20 @@ public class CommunitiesView extends FurmsViewComponent {
 		);
 
 		MenuButton adminComp = new MenuButton(getTranslation("view.fenix-admin.communities.menu.administrators"), USERS);
-		RouterLink administratorsPool = new RouterGridLink(adminComp, communityId, CommunityView.class, PARAM_NAME, ADMINISTRATORS_PARAM);
+		RouterLink administratorsPool = new RouterGridLink(adminComp, communityId.id.toString(), CommunityView.class, PARAM_NAME,
+			ADMINISTRATORS_PARAM);
 		contextMenu.addItem(administratorsPool);
 
 		MenuButton allocationComp = new MenuButton(getTranslation("view.fenix-admin.communities.menu.allocations"), PIE_CHART);
-		RouterLink allocationsPool = new RouterGridLink(allocationComp, communityId, CommunityView.class, PARAM_NAME, ALLOCATIONS_PARAM);
+		RouterLink allocationsPool = new RouterGridLink(allocationComp, communityId.id.toString(), CommunityView.class, PARAM_NAME
+			, ALLOCATIONS_PARAM);
 		contextMenu.addItem(allocationsPool);
 
 		getContent().add(contextMenu);
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String communityId, String communityName) {
+	private Dialog createConfirmDialog(CommunityId communityId, String communityName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.fenix-admin.community.dialog.text", communityName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			getResultOrException(() -> communityService.delete(communityId))

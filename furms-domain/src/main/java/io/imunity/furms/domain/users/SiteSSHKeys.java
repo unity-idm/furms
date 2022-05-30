@@ -5,15 +5,17 @@
 
 package io.imunity.furms.domain.users;
 
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.util.Objects;
 import java.util.Set;
 
 public class SiteSSHKeys {
 	
-	public final String siteId;
+	public final SiteId siteId;
 	public final Set<String> sshKeys;
 	
-	public SiteSSHKeys(String siteId, Set<String> sshKeys) {
+	public SiteSSHKeys(SiteId siteId, Set<String> sshKeys) {
 		this.siteId = siteId;
 		this.sshKeys =  Set.copyOf(sshKeys);
 	}

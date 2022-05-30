@@ -5,18 +5,20 @@
 
 package io.imunity.furms.ui.views.user_settings.projects;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
 class ProjectGridModel {
-	public final String id;
-	public final String communityId;
+	public final ProjectId id;
+	public final CommunityId communityId;
 	public final String name;
 	public final String description;
 	public final UserStatus status;
 
-	ProjectGridModel(String id, String communityId, String name, String description, UserStatus status) {
+	ProjectGridModel(ProjectId id, CommunityId communityId, String name, String description, UserStatus status) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
@@ -62,8 +64,8 @@ class ProjectGridModel {
 	}
 
 	public static final class ProjectGridModelBuilder {
-		public String id;
-		public String communityId;
+		public ProjectId id;
+		public CommunityId communityId;
 		public String name;
 		public String description;
 		public UserStatus status;
@@ -71,12 +73,12 @@ class ProjectGridModel {
 		private ProjectGridModelBuilder() {
 		}
 
-		public ProjectGridModelBuilder id(String id) {
+		public ProjectGridModelBuilder id(ProjectId id) {
 			this.id = id;
 			return this;
 		}
 
-		public ProjectGridModelBuilder communityId(String communityId) {
+		public ProjectGridModelBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}

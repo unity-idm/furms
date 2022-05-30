@@ -8,6 +8,7 @@ package io.imunity.furms.ui.components.branding.logo.providers;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.user_context.FurmsViewUserContext;
 import io.imunity.furms.ui.user_context.ViewMode;
 import org.springframework.stereotype.Component;
@@ -30,7 +31,7 @@ class FurmsLogoProviderProject implements FurmsLogoProvider{
 	@Override
 	public Optional<FurmsImage> getLogoForCurrentViewMode() {
 		final FurmsViewUserContext context = FurmsViewUserContext.getCurrent();
-		return projectService.findById(context.id)
+		return projectService.findById(new ProjectId(context.id))
 				.map(Project::getLogo);
 	}
 }

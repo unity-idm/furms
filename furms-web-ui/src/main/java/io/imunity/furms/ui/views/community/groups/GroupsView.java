@@ -5,19 +5,6 @@
 
 package io.imunity.furms.ui.views.community.groups;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.List;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -27,8 +14,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.furms.api.generic_groups.GenericGroupService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
@@ -41,6 +28,19 @@ import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.SearchLayout;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = "community/admin/groups", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.groups.page.title")
@@ -79,7 +79,7 @@ public class GroupsView extends FurmsViewComponent {
 	}
 
 	private List<GroupGridModel> loadGenericGroupGridModels() {
-		String communityId = getCurrentResourceId();
+		CommunityId communityId = new CommunityId(getCurrentResourceId());
 		return handleExceptions(() -> genericGroupService.findAllGroupWithAssignmentsAmount(communityId))
 			.orElseGet(Collections::emptySet)
 			.stream()
@@ -122,7 +122,7 @@ public class GroupsView extends FurmsViewComponent {
 		return new GridActionsButtonLayout(new RouterGridLink(USERS, model.id.id.toString(), GroupMembersView.class), contextMenu);
 	}
 
-	private Component createContextMenu(GenericGroupId groupId, String groupName, String communityId) {
+	private Component createContextMenu(GenericGroupId groupId, String groupName, CommunityId communityId) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
@@ -145,7 +145,7 @@ public class GroupsView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(GenericGroupId groupId, String groupName, String communityId) {
+	private Dialog createConfirmDialog(GenericGroupId groupId, String groupName, CommunityId communityId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.groups.dialog.text", groupName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			try {

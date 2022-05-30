@@ -11,6 +11,7 @@ import io.imunity.furms.core.audit_log.AuditLogPackageTestExposer;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -66,14 +67,15 @@ class GenericGroupAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectGroupDeletion() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId groupId = new GenericGroupId(UUID.randomUUID());
-		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(communityId, groupId)).thenReturn(true);
 		GenericGroup genericGroup = GenericGroup.builder()
 			.id(groupId)
 			.build();
 		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(genericGroup));
 
-		service.delete("communityId", groupId);
+		service.delete(communityId, groupId);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -83,10 +85,11 @@ class GenericGroupAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectGroupUpdate() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		GenericGroup genericGroup = GenericGroup.builder()
 			.id(genericGroupId)
-			.communityId("communityId")
+			.communityId(communityId)
 			.name("name")
 			.description("description")
 			.build();
@@ -102,10 +105,11 @@ class GenericGroupAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectGroupCreation() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		GenericGroup genericGroup = GenericGroup.builder()
 			.id(genericGroupId)
-			.communityId("communityId")
+			.communityId(communityId)
 			.name("name")
 			.description("description")
 			.build();
@@ -123,10 +127,11 @@ class GenericGroupAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectUserGroupAssignment() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("fenixUserId");
 
-		when(genericGroupRepository.existsBy("communityId", genericGroupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(communityId, genericGroupId)).thenReturn(true);
 		when(genericGroupRepository.existsBy(genericGroupId, userId)).thenReturn(false);
 		when(genericGroupRepository.findBy(genericGroupId)).thenReturn(Optional.of(GenericGroup.builder()
 			.id(genericGroupId)
@@ -136,7 +141,7 @@ class GenericGroupAuditLogServiceIntegrationTest {
 			.email("email")
 			.build()));
 
-		service.createMembership("communityId", genericGroupId, userId);
+		service.createMembership(communityId, genericGroupId, userId);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -146,10 +151,11 @@ class GenericGroupAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectUserGroupRevoke() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId groupId = new GenericGroupId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
 
-		when(genericGroupRepository.existsBy("communityId", groupId)).thenReturn(true);
+		when(genericGroupRepository.existsBy(communityId, groupId)).thenReturn(true);
 		when(genericGroupRepository.findBy(groupId)).thenReturn(Optional.of(GenericGroup.builder()
 			.id(groupId)
 			.build()));
@@ -158,7 +164,7 @@ class GenericGroupAuditLogServiceIntegrationTest {
 			.email("email")
 			.build()));
 
-		service.deleteMembership("communityId", groupId, userId);
+		service.deleteMembership(communityId, groupId, userId);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());

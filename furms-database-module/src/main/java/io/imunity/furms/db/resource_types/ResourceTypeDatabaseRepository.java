@@ -6,6 +6,9 @@
 package io.imunity.furms.db.resource_types;
 
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,7 +19,6 @@ import java.util.UUID;
 import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
@@ -29,24 +31,24 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	}
 
 	@Override
-	public Optional<ResourceType> findById(String id) {
+	public Optional<ResourceType> findById(ResourceTypeId id) {
 		if (isEmpty(id)) {
 			return empty();
 		}
-		return repository.findById(UUID.fromString(id))
+		return repository.findById(id.id)
 			.map(resourceTypeConverter::toResourceType);
 	}
 
 	@Override
-	public Set<ResourceType> findAllBySiteId(String siteId) {
-		return repository.findAllBySiteId(UUID.fromString(siteId)).stream()
+	public Set<ResourceType> findAllBySiteId(SiteId siteId) {
+		return repository.findAllBySiteId(siteId.id).stream()
 			.map(resourceTypeConverter::toResourceType)
 			.collect(toSet());
 	}
 
 	@Override
-	public Set<ResourceType> findAllByInfraServiceId(String siteId) {
-		return repository.findAllByServiceId(UUID.fromString(siteId)).stream()
+	public Set<ResourceType> findAllByInfraServiceId(InfraServiceId serviceId) {
+		return repository.findAllByServiceId(serviceId.id).stream()
 			.map(resourceTypeConverter::toResourceType)
 			.collect(toSet());
 	}
@@ -59,27 +61,27 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	}
 
 	@Override
-	public String create(ResourceType resourceType) {
+	public ResourceTypeId create(ResourceType resourceType) {
 		ResourceTypeEntity savedResourceType = repository.save(
 			ResourceTypeEntity.builder()
-				.siteId(UUID.fromString(resourceType.siteId))
-				.serviceId(UUID.fromString(resourceType.serviceId))
+				.siteId(resourceType.siteId.id)
+				.serviceId(resourceType.serviceId.id)
 				.name(resourceType.name)
 				.type(resourceType.type)
 				.unit(resourceType.unit)
 				.accessible(resourceType.accessibleForAllProjectMembers)
 				.build()
 		);
-		return savedResourceType.getId().toString();
+		return new ResourceTypeId(savedResourceType.getId());
 	}
 
 	@Override
 	public void update(ResourceType resourceType) {
-		repository.findById(UUID.fromString(resourceType.id))
+		repository.findById(resourceType.id.id)
 			.map(oldResourceType -> ResourceTypeEntity.builder()
 				.id(oldResourceType.getId())
-				.siteId(UUID.fromString(resourceType.siteId))
-				.serviceId(UUID.fromString(resourceType.serviceId))
+				.siteId(resourceType.siteId.id)
+				.serviceId(resourceType.serviceId.id)
 				.name(resourceType.name)
 				.type(resourceType.type)
 				.unit(resourceType.unit)
@@ -93,25 +95,29 @@ class ResourceTypeDatabaseRepository implements ResourceTypeRepository {
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(ResourceTypeId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsById(UUID.fromString(id));
+		return repository.existsById(id.id);
 	}
 
 	@Override
-	public boolean isNamePresent(String name, String siteId) {
-		return repository.existsByNameAndSiteId(name, UUID.fromString(siteId));
+	public boolean isNamePresent(String name, SiteId siteId) {
+		return repository.existsByNameAndSiteId(name, siteId.id);
 	}
 	
 	@Override
-	public void delete(String id) {
-		repository.deleteById(UUID.fromString(id));
+	public void delete(ResourceTypeId id) {
+		repository.deleteById(id.id);
 	}
 
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(ResourceTypeId id) {
+		return id == null || id.id == null;
 	}
 }

@@ -4,10 +4,15 @@
  */
 package io.imunity.furms.rest.admin;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.List;
-
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.rest.openapi.APIDocConstants;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,13 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.imunity.furms.rest.openapi.APIDocConstants;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/rest-api/v1/projects", produces = APPLICATION_JSON_VALUE)
@@ -65,7 +66,7 @@ public class ProjectsRestController {
 	@GetMapping("/{projectId}")
 	public ProjectWithUsers get(
 			@PathVariable("projectId") String projectId) {
-		return service.findOneById(projectId);
+		return service.findOneById(new ProjectId(projectId));
 	}
 
 	@Operation(
@@ -79,7 +80,7 @@ public class ProjectsRestController {
 	@DeleteMapping("/{projectId}")
 	public void delete(
 			@PathVariable("projectId") String projectId) {
-		service.delete(projectId);
+		service.delete(new ProjectId(projectId));
 	}
 
 	@Operation(
@@ -94,7 +95,7 @@ public class ProjectsRestController {
 	public Project update(
 			@PathVariable("projectId") String projectId,
 			@RequestBody ProjectUpdateRequest request) {
-		return service.update(projectId, request);
+		return service.update(new ProjectId(projectId), request);
 	}
 
 	@Operation(
@@ -126,7 +127,7 @@ public class ProjectsRestController {
 	@GetMapping("/{projectId}/allocations")
 	public List<ProjectAllocation> getAllocations(
 			@PathVariable("projectId") String projectId) {
-		return service.findAllProjectAllocationsByProjectId(projectId);
+		return service.findAllProjectAllocationsByProjectId(new ProjectId(projectId));
 	}
 
 	@Operation(
@@ -141,7 +142,8 @@ public class ProjectsRestController {
 	public ProjectAllocation getAllocation(
 			@PathVariable("projectId") String projectId,
 			@PathVariable("projectAllocationId") String projectAllocationId) {
-		return service.findByIdAndProjectAllocationId(projectId, projectAllocationId);
+		return service.findByIdAndProjectAllocationId(new ProjectId(projectId),
+			new ProjectAllocationId(projectAllocationId));
 	}
 
 	@Operation(summary = "Create allocation",
@@ -156,6 +158,6 @@ public class ProjectsRestController {
 	public List<ProjectAllocation> addAllocation(
 			@PathVariable("projectId") String projectId,
 			@RequestBody ProjectAllocationAddRequest request) {
-		return service.addAllocation(projectId, request);
+		return service.addAllocation(new ProjectId(projectId), request);
 	}
 }

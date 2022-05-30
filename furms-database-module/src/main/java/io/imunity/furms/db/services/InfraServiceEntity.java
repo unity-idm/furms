@@ -8,6 +8,8 @@ package io.imunity.furms.db.services;
 import io.imunity.furms.db.id.uuid.UUIDIdentifiable;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.util.Objects;
@@ -30,10 +32,10 @@ class InfraServiceEntity extends UUIDIdentifiable {
 
 	InfraService toService(){
 		return InfraService.builder()
-			.id(id.toString())
+			.id(new InfraServiceId(id))
 			.name(name)
 			.description(description)
-			.siteId(siteId.toString())
+			.siteId(new SiteId(siteId))
 			.policyId(new PolicyId(policyId))
 			.build();
 	}
@@ -71,11 +73,11 @@ class InfraServiceEntity extends UUIDIdentifiable {
 	}
 
 	public static final class ServiceEntityBuilder {
-		protected UUID id;
-		public UUID siteId;
-		public String name;
-		public String description;
-		public UUID policyId;
+		private UUID id;
+		private UUID siteId;
+		private String name;
+		private String description;
+		private UUID policyId;
 
 		private ServiceEntityBuilder() {
 		}

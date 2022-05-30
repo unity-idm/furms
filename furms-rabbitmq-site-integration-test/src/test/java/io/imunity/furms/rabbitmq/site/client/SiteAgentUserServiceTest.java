@@ -6,10 +6,12 @@
 package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
+import io.imunity.furms.domain.user_operation.UserAdditionId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -21,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
@@ -38,9 +40,9 @@ class SiteAgentUserServiceTest extends IntegrationTestBase {
 	void shouldAddUser() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAddition = UserAddition.builder()
-			.id("id")
-			.siteId(new SiteId("id", new SiteExternalId("mock")))
-			.projectId("projectId")
+			.id(new UserAdditionId(UUID.randomUUID()))
+			.siteId(new SiteId(UUID.randomUUID().toString(), new SiteExternalId("mock")))
+			.projectId(new ProjectId(UUID.randomUUID()))
 			.correlationId(correlationId)
 			.build();
 		FURMSUser user = FURMSUser.builder()
@@ -57,10 +59,11 @@ class SiteAgentUserServiceTest extends IntegrationTestBase {
 	void shouldRemoveUser() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAdditionJob = UserAddition.builder()
-			.id("id")
+			.id(new UserAdditionId(UUID.randomUUID()))
+			.siteId(new SiteId(UUID.randomUUID().toString(), new SiteExternalId("mock")))
+			.projectId(new ProjectId(UUID.randomUUID()))
 			.correlationId(correlationId)
-			.siteId(new SiteId("id", new SiteExternalId("mock")))
-			.projectId("projectId")
+			.userId(new FenixUserId("userId"))
 			.build();
 
 		siteAgentUserService.removeUser(userAdditionJob);

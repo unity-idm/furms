@@ -5,20 +5,22 @@
 
 package io.imunity.furms.domain.projects;
 
+import io.imunity.furms.domain.communities.CommunityId;
+
 import java.util.Objects;
 
 public class ProjectGroup {
-	private final String id;
+	private final ProjectId id;
 	private final String name;
-	private final String communityId;
+	private final CommunityId communityId;
 
-	public ProjectGroup(String id, String name, String communityId) {
+	public ProjectGroup(ProjectId id, String name, CommunityId communityId) {
 		this.id = id;
 		this.name = name;
 		this.communityId = communityId;
 	}
 
-	public String getId() {
+	public ProjectId getId() {
 		return id;
 	}
 
@@ -26,7 +28,7 @@ public class ProjectGroup {
 		return name;
 	}
 
-	public String getCommunityId() {
+	public CommunityId getCommunityId() {
 		return communityId;
 	}
 
@@ -59,11 +61,11 @@ public class ProjectGroup {
 	}
 
 	public static class ProjectGroupBuilder {
-		private String id;
+		private ProjectId id;
 		private String name;
-		private String communityId;
+		private CommunityId communityId;
 
-		public ProjectGroupBuilder id(String id) {
+		public ProjectGroupBuilder id(ProjectId id) {
 			this.id = id;
 			return this;
 		}
@@ -73,7 +75,7 @@ public class ProjectGroup {
 			return this;
 		}
 
-		public ProjectGroupBuilder communityId(String communityId) {
+		public ProjectGroupBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}

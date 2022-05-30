@@ -34,7 +34,8 @@ class ProjectUsageRecord {
 	}
 
 	public ProjectUsageRecord(UserResourceUsage userUsage, ProjectAllocationResolved allocation) {
-		this(allocation.id, allocation.resourceType.id, allocation.site.getId(), userUsage.cumulativeConsumption,
+		this(allocation.id.id.toString(), allocation.resourceType.id.id.toString(), allocation.site.getId().id.toString(),
+			userUsage.cumulativeConsumption,
 				userUsage.fenixUserId.id, convertToUTCZoned(allocation.resourceCredit.utcStartTime),
 				convertToUTCZoned(allocation.resourceCredit.utcEndTime));
 	}

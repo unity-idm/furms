@@ -5,31 +5,32 @@
 
 package io.imunity.furms.spi.ssh_keys;
 
+import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
+import io.imunity.furms.domain.users.PersistentId;
+
 import java.util.Optional;
 import java.util.Set;
 
-import io.imunity.furms.domain.ssh_keys.SSHKey;
-import io.imunity.furms.domain.users.PersistentId;
-
 public interface SSHKeyRepository {
 
-	Optional<SSHKey> findById(String id);
+	Optional<SSHKey> findById(SSHKeyId id);
 	
 	Set<SSHKey> findAll();
 	
 	Set<SSHKey> findAllByOwnerId(PersistentId ownerId);
 
-	String create(SSHKey sshKey);
+	SSHKeyId create(SSHKey sshKey);
 
-	String update(SSHKey sshKey);
+	SSHKeyId update(SSHKey sshKey);
 
-	boolean exists(String id);
+	boolean exists(SSHKeyId id);
 
-	void delete(String id);
+	void delete(SSHKeyId id);
 
 	void deleteAll();
 
 	boolean isNamePresent(String name);
 
-	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
+	boolean isNamePresentIgnoringRecord(String name, SSHKeyId recordToIgnore);
 }

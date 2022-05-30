@@ -5,6 +5,7 @@
 
 package io.imunity.furms.api.generic_groups;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
@@ -16,14 +17,14 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface GenericGroupService {
-	Optional<GenericGroup> findBy(String communityId, GenericGroupId id);
-	Optional<GenericGroupWithAssignments> findGroupWithAssignments(String communityId, GenericGroupId id);
-	Set<GenericGroup> findAll(String communityId);
-	Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(String communityId);
-	Set<GenericGroupAssignmentWithUser> findAll(String communityId, GenericGroupId id);
+	Optional<GenericGroup> findBy(CommunityId communityId, GenericGroupId id);
+	Optional<GenericGroupWithAssignments> findGroupWithAssignments(CommunityId communityId, GenericGroupId id);
+	Set<GenericGroup> findAll(CommunityId communityId);
+	Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(CommunityId communityId);
+	Set<GenericGroupAssignmentWithUser> findAll(CommunityId communityId, GenericGroupId id);
 	GenericGroupId create(GenericGroup group);
-	void createMembership(String communityId, GenericGroupId groupId, FenixUserId userId);
+	void createMembership(CommunityId communityId, GenericGroupId groupId, FenixUserId userId);
 	void update(GenericGroup group);
-	void delete(String communityId, GenericGroupId id);
-	void deleteMembership(String communityId, GenericGroupId groupId, FenixUserId fenixUserId);
+	void delete(CommunityId communityId, GenericGroupId id);
+	void deleteMembership(CommunityId communityId, GenericGroupId groupId, FenixUserId fenixUserId);
 }

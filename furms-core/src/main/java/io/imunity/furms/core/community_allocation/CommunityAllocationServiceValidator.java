@@ -12,8 +12,11 @@ import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAbove
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateBelowDistributedAmountException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -97,7 +100,7 @@ class CommunityAllocationServiceValidator {
 				CommunityAllocationUpdateBelowDistributedAmountException::new);
 	}
 
-	void validateDelete(String id) {
+	void validateDelete(CommunityAllocationId id) {
 		assertAllocationExists(id);
 		if(projectAllocationRepository.existsByCommunityAllocationId(id)){
 			throw new CommunityAllocationHasProjectAllocationsRemoveValidationError("ResourceTypeCredit should not have CommunityAllocations.");
@@ -124,24 +127,24 @@ class CommunityAllocationServiceValidator {
 		}
 	}
 
-	private CommunityAllocation assertAllocationExists(String id) {
+	private CommunityAllocation assertAllocationExists(CommunityAllocationId id) {
 		notNull(id, "Resource CreditAllocation ID has to be declared.");
 		Optional<CommunityAllocation> existing = communityAllocationRepository.findById(id);
 		assertTrue(existing.isPresent(), () -> new IdNotFoundValidationError("CommunityAllocation with declared ID does not exist"));
 		return existing.get();
 	}
 
-	private void assertCommunityExists(String id) {
+	private void assertCommunityExists(CommunityId id) {
 		notNull(id, "Community ID has to be declared.");
 		assertTrue(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID does not exist"));
 	}
 
-	private void assertResourceCreditExists(String id) {
+	private void assertResourceCreditExists(ResourceCreditId id) {
 		notNull(id, "ResourceType ID has to be declared.");
 		assertTrue(resourceCreditRepository.exists(id), () -> new IdNotFoundValidationError("ResourceCredit with declared ID does not exist"));
 	}
 
-	private void assertResourceCreditNotExpired(String resourceCreditId) {
+	private void assertResourceCreditNotExpired(ResourceCreditId resourceCreditId) {
 		resourceCreditRepository.findById(resourceCreditId)
 				.ifPresent(credit -> assertFalse(credit.isExpired(), () -> new IllegalArgumentException("Cannot use expired Resource credit")));
 	}

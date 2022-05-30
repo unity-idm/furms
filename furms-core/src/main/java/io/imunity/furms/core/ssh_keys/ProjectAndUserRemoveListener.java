@@ -5,7 +5,9 @@
 
 package io.imunity.furms.core.ssh_keys;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -74,15 +76,15 @@ public class ProjectAndUserRemoveListener {
 			return;
 		}
 		try {
-			processUser(removeUserRoleEvent.id, fenixUserId, removeUserRoleEvent.resourceId.id.toString());
+			processUser(removeUserRoleEvent.id, fenixUserId, new ProjectId(removeUserRoleEvent.resourceId.id));
 		} catch (Exception e) {
 			LOG.error("Can not remove sites from ssh keys owned by user {} after project {} remove",
 					removeUserRoleEvent.id, removeUserRoleEvent.resourceId.id.toString());
 		}
 	}
 
-	private void processUser(PersistentId userId, FenixUserId fenixId, String projectId) {
-		Set<String> userSites = findUserSites(fenixId, projectId);
+	private void processUser(PersistentId userId, FenixUserId fenixId, ProjectId projectId) {
+		Set<SiteId> userSites = findUserSites(fenixId, projectId);
 		Set<SSHKey> userKeys = sshKeyRepository.findAllByOwnerId(userId);
 
 		for (SSHKey sshKey : userKeys) {
@@ -90,15 +92,16 @@ public class ProjectAndUserRemoveListener {
 		}
 	}
 
-	private void removeFromSitesAndUpdateKey(SSHKey sshKey, Set<String> userSites, FenixUserId fenixId, PersistentId persistentId,
-			String projectId) {
-		Set<String> keySitesToRemove = new HashSet<>(sshKey.sites);
+	private void removeFromSitesAndUpdateKey(SSHKey sshKey, Set<SiteId> userSites, FenixUserId fenixId,
+	                                         PersistentId persistentId,
+			ProjectId projectId) {
+		Set<SiteId> keySitesToRemove = new HashSet<>(sshKey.sites);
 		keySitesToRemove.removeAll(userSites);
 		if (keySitesToRemove.isEmpty()) {
 			return;
 		}
 
-		Set<String> keySitesToUpdate = new HashSet<>(sshKey.sites);
+		Set<SiteId> keySitesToUpdate = new HashSet<>(sshKey.sites);
 		keySitesToUpdate.removeAll(keySitesToRemove);
 		SSHKey toUpdate = SSHKey.builder().id(sshKey.id).name(sshKey.name).value(sshKey.value)
 				.ownerId(sshKey.ownerId).createTime(sshKey.createTime).updateTime(sshKey.updateTime)
@@ -109,9 +112,10 @@ public class ProjectAndUserRemoveListener {
 
 	}
 
-	private Set<String> findUserSites(FenixUserId fenixUserId, String skippedProjectId) {
+	private Set<SiteId> findUserSites(FenixUserId fenixUserId, ProjectId skippedProjectId) {
 		return userOperationRepository.findAllUserAdditions(fenixUserId).stream()
-				.filter(ua -> !ua.projectId.equals(skippedProjectId)).map(ua -> ua.siteId.id)
-				.collect(Collectors.toSet());
+			.filter(ua -> !ua.projectId.equals(skippedProjectId))
+			.map(ua -> ua.siteId)
+			.collect(Collectors.toSet());
 	}
 }

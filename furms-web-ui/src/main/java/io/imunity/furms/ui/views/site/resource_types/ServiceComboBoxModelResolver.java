@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.site.resource_types;
 
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.toMap;
 
 class ServiceComboBoxModelResolver {
-	private final Map<String, ServiceComboBoxModel> map;
+	private final Map<InfraServiceId, ServiceComboBoxModel> map;
 
 	public ServiceComboBoxModelResolver(Set<InfraService> services) {
 		map = services.stream()
@@ -27,11 +28,11 @@ class ServiceComboBoxModelResolver {
 		return new ArrayList<>(map.values());
 	}
 
-	public String getName(String id){
+	public String getName(InfraServiceId id){
 		return map.get(id).name;
 	}
 
-	public ServiceComboBoxModel getService(String id){
+	public ServiceComboBoxModel getService(InfraServiceId id){
 		return map.get(id);
 	}
 }

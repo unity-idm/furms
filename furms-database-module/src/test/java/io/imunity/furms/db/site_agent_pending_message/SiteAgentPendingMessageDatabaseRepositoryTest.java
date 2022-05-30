@@ -40,25 +40,25 @@ class SiteAgentPendingMessageDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private SiteRepository siteRepository;
 
-	private UUID siteId;
-	private UUID siteId1;
+	private SiteId siteId;
+	private SiteId siteId1;
 
 	@BeforeEach
 	void setUp() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("eId")));
+		siteId = siteRepository.create(site, new SiteExternalId("eId"));
 		Site site1 = Site.builder()
 			.name("name1")
 			.build();
-		siteId1 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("eId1")));
+		siteId1 = siteRepository.create(site1, new SiteExternalId("eId1"));
 	}
 
 	@Test
 	void shouldFindAll(){
 		SiteAgentPendingMessageEntity entity = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -67,7 +67,7 @@ class SiteAgentPendingMessageDatabaseRepositoryTest extends DBIntegrationTest {
 		entityRepository.save(entity);
 
 		SiteAgentPendingMessageEntity entity1 = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -76,7 +76,7 @@ class SiteAgentPendingMessageDatabaseRepositoryTest extends DBIntegrationTest {
 		entityRepository.save(entity1);
 
 		SiteAgentPendingMessageEntity entity2 = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId1)
+			.siteId(siteId1.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId1")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -85,7 +85,7 @@ class SiteAgentPendingMessageDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		entityRepository.save(entity2);
 
-		Set<SiteAgentPendingMessage> all = repository.findAll(new SiteId(siteId.toString()));
+		Set<SiteAgentPendingMessage> all = repository.findAll(siteId);
 
 		assertThat(all.size()).isEqualTo(2);
 		assertThat(all.stream().map(m -> m.correlationId.id).collect(toSet()))
@@ -98,7 +98,7 @@ class SiteAgentPendingMessageDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldFind(){
 		LocalDateTime sentAt = LocalDate.now().atStartOfDay();
 		SiteAgentPendingMessageEntity entity = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(sentAt)

@@ -7,6 +7,7 @@ package io.imunity.furms.db.policy_documents;
 
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
+import io.imunity.furms.domain.services.InfraServiceId;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -28,7 +29,7 @@ public class ServicePolicyDocumentEntity {
 	AssignedPolicyDocument toServicePolicyDocument(){
 		return AssignedPolicyDocument.builder()
 			.id(new PolicyId(id))
-			.serviceId(serviceId)
+			.serviceId(new InfraServiceId(serviceId))
 			.revision(revision)
 			.name(name)
 			.build();

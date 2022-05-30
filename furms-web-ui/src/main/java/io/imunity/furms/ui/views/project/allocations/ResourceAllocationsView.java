@@ -19,6 +19,7 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -51,7 +52,7 @@ import static java.util.stream.Collectors.toList;
 public class ResourceAllocationsView extends FurmsViewComponent {
 	private final Grid<ProjectAllocationGridModel> grid;
 	private final ProjectAllocationService service;
-	private final String projectId;
+	private final ProjectId projectId;
 	private final AlarmService alarmService;
 	private ProjectAllocationDataSnapshot projectDataSnapshot;
 
@@ -60,7 +61,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 		this.service = service;
 		this.alarmService = alarmService;
 		this.grid = createCommunityGrid();
-		this.projectId = getCurrentResourceId();
+		this.projectId = new ProjectId(getCurrentResourceId());
 
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.project-admin.resource-allocations.page.header")
@@ -145,7 +146,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {
 		return new GridActionsButtonLayout(
-			new RouterGridLink(SPLINE_CHART, projectAllocationGridModel.id, ResourceAllocationsDetailsView.class),
+			new RouterGridLink(SPLINE_CHART, projectAllocationGridModel.id.id.toString(), ResourceAllocationsDetailsView.class),
 			createContextMenu()
 		);
 	}

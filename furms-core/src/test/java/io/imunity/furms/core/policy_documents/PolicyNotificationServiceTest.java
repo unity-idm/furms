@@ -11,6 +11,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
+import io.imunity.furms.domain.resource_access.GrantId;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
@@ -59,9 +60,9 @@ class PolicyNotificationServiceTest {
 
 	@Test
 	void shouldNotifyAboutChangedPolicy() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PersistentId id = new PersistentId(UUID.randomUUID().toString());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		String siteId = "siteId";
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.siteId(siteId)
@@ -92,7 +93,7 @@ class PolicyNotificationServiceTest {
 	void shouldNotNotifyAboutChangedPolicy() {
 		PersistentId id = new PersistentId(UUID.randomUUID().toString());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-		String siteId = "siteId";
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.siteId(siteId)
@@ -123,6 +124,8 @@ class PolicyNotificationServiceTest {
 	void shouldNotifyAboutNewPolicy() {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		GrantId grantId = new GrantId(UUID.randomUUID());
 
 		PolicyDocument sitePolicy = PolicyDocument.builder()
 			.id(policyId)
@@ -137,12 +140,12 @@ class PolicyNotificationServiceTest {
 			.build();
 
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
-		when(policyDocumentRepository.findSitePolicy("siteId")).thenReturn(Optional.of(sitePolicy));
-		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
+		when(policyDocumentRepository.findSitePolicy(siteId)).thenReturn(Optional.of(sitePolicy));
+		when(policyDocumentRepository.findByUserGrantId(grantId)).thenReturn(Optional.of(PolicyDocument.builder()
 			.id(policyId)
 			.build()));
 
-		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
+		policyNotificationService.notifyAboutAllNotAcceptedPolicies(siteId, fenixUserId,grantId);
 
 		verify(emailNotificationSender).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
 	}
@@ -152,6 +155,8 @@ class PolicyNotificationServiceTest {
 		PolicyId sitePolicyId = new PolicyId(UUID.randomUUID());
 		PolicyId servicePolicyId = new PolicyId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		GrantId grantId = new GrantId(UUID.randomUUID());
 
 		PolicyDocument sitePolicy = PolicyDocument.builder()
 			.id(sitePolicyId)
@@ -172,13 +177,13 @@ class PolicyNotificationServiceTest {
 			.build();
 
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(sitePolicyExtended, servicePolicyExtended));
-		when(policyDocumentRepository.findSitePolicy("siteId")).thenReturn(Optional.of(sitePolicy));
-		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
+		when(policyDocumentRepository.findSitePolicy(siteId)).thenReturn(Optional.of(sitePolicy));
+		when(policyDocumentRepository.findByUserGrantId(grantId)).thenReturn(Optional.of(PolicyDocument.builder()
 			.id(servicePolicyId)
 			.build()));
 
 
-		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId,"grantId");
+		policyNotificationService.notifyAboutAllNotAcceptedPolicies(siteId, fenixUserId,grantId);
 
 		verify(emailNotificationSender).notifyAboutNotAcceptedPolicy(fenixUserId, "sitePolicyName");
 		verify(emailNotificationSender).notifyAboutNotAcceptedPolicy(fenixUserId, "servicePolicyName");
@@ -186,6 +191,8 @@ class PolicyNotificationServiceTest {
 
 	@Test
 	void shouldNotNotifyAboutNewPolicy() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		GrantId grantId = new GrantId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
 
@@ -202,11 +209,11 @@ class PolicyNotificationServiceTest {
 
 		when(policyDocumentDAO.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(policyAcceptance));
 		when(policyDocumentRepository.findAllByUserId(eq(fenixUserId), any())).thenReturn(Set.of(policyDocumentExtended));
-		when(policyDocumentRepository.findByUserGrantId("grantId")).thenReturn(Optional.of(PolicyDocument.builder()
+		when(policyDocumentRepository.findByUserGrantId(grantId)).thenReturn(Optional.of(PolicyDocument.builder()
 			.id(policyId)
 			.build()));
 
-		policyNotificationService.notifyAboutAllNotAcceptedPolicies("siteId", fenixUserId, "grantId");
+		policyNotificationService.notifyAboutAllNotAcceptedPolicies(siteId, fenixUserId, grantId);
 
 		verify(emailNotificationSender, times(0)).notifyAboutNotAcceptedPolicy(fenixUserId, "policyName");
 	}
@@ -221,13 +228,13 @@ class PolicyNotificationServiceTest {
 				.id(new PolicyId(UUID.randomUUID()))
 				.revision(1)
 				.name("name")
-				.siteId(siteId.id)
+				.siteId(siteId)
 				.contentType(PolicyContentType.EMBEDDED)
 				.wysiwygText("wysiwygText")
 				.build();
 
-		when(policyDocumentRepository.findSitePolicy(siteId.id)).thenReturn(Optional.of(policyDocument));
-		when(userOperationRepository.findAllUserAdditionsBySiteId(siteId.id)).thenReturn(Set.of(
+		when(policyDocumentRepository.findSitePolicy(siteId)).thenReturn(Optional.of(policyDocument));
+		when(userOperationRepository.findAllUserAdditionsBySiteId(siteId)).thenReturn(Set.of(
 				UserAddition.builder().userId(fenixUserId.id).build()));
 		when(policyDocumentDAO.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(
 				PolicyAcceptance.builder().policyDocumentId(policyDocument.id).policyDocumentRevision(0).build()));
@@ -248,17 +255,17 @@ class PolicyNotificationServiceTest {
 				.id(new PolicyId(UUID.randomUUID()))
 				.revision(1)
 				.name("name")
-				.siteId(siteId.id)
+				.siteId(siteId)
 				.contentType(PolicyContentType.EMBEDDED)
 				.wysiwygText("wysiwygText")
 				.build();
 		final InfraService infraService = InfraService.builder()
 				.policyId(policyDocument.id)
-				.siteId(siteId.id)
+				.siteId(siteId)
 				.build();
 
 		when(policyDocumentRepository.findById(infraService.policyId)).thenReturn(Optional.of(policyDocument));
-		when(userOperationRepository.findAllUserAdditionsBySiteId(siteId.id)).thenReturn(Set.of(
+		when(userOperationRepository.findAllUserAdditionsBySiteId(siteId)).thenReturn(Set.of(
 				UserAddition.builder().userId(fenixUserId.id).build()));
 		when(policyDocumentDAO.getPolicyAcceptances(fenixUserId)).thenReturn(Set.of(
 				PolicyAcceptance.builder().policyDocumentId(policyDocument.id).policyDocumentRevision(0).build()));

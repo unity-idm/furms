@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 class InfraServiceFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -81,9 +80,9 @@ class InfraServiceFormComponent extends Composite<Div> {
 	}
 
 	private void addIdFieldForEditForm(InfraServiceViewModel serviceViewModel) {
-		if (serviceViewModel!= null && isNotEmpty(serviceViewModel.getId())) {
+		if (serviceViewModel!= null && Objects.nonNull(serviceViewModel.getId().id)) {
 			Div id = new Div();
-			id.setText(serviceViewModel.getId());
+			id.setText(serviceViewModel.getId().id.toString());
 			Label idLabel = new Label(getTranslation("view.site-admin.service.form.field.id"));
 
 			formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));

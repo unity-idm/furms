@@ -7,8 +7,15 @@ package io.imunity.furms.integration.tests.rest.site;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -73,16 +80,14 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		Site.SiteBuilder siteBuilder = defaultSite();
 		site = siteBuilder
 				.name("Site")
-				.externalId(new SiteExternalId("site"))
-				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
+				.id(siteRepository.create(siteBuilder.build(), new SiteExternalId("site")))
 				.policyId(assignPolicy(siteBuilder))
 				.build();
 
 		Site.SiteBuilder darkSiteBuilder = defaultSite();
 		darkSite = darkSiteBuilder
 				.name("Dark Site")
-				.externalId(new SiteExternalId("dsid"))
-				.id(siteRepository.create(darkSiteBuilder.build(), darkSiteBuilder.build().getExternalId()))
+				.id(siteRepository.create(darkSiteBuilder.build(), new SiteExternalId("dsid")))
 				.policyId(assignPolicy(darkSiteBuilder))
 				.build();
 	}
@@ -91,9 +96,9 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	void shouldFindAllAcceptedPolicyAcceptancesForSpecificSiteAndEmptyServicePolicy() throws Exception {
 		//given
 		final TestUser basicUser = basicUser();
-		final String sitePath = createPolicyAcceptanceBase(site, ADMIN_USER, PolicyId.empty());
+		final String sitePath = createPolicyAcceptanceBase(site.getId(), ADMIN_USER, PolicyId.empty());
 		createPolicyAcceptanceBase(site, basicUser);
-		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER, PolicyId.empty());
+		final String darkSitePath = createPolicyAcceptanceBase(darkSite.getId(), ADMIN_USER, PolicyId.empty());
 
 		policyAcceptanceMockUtils.createPolicyAcceptancesMock(
 			Map.of(
@@ -109,7 +114,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 			));
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
@@ -150,7 +155,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		updatePolicyRevision(site.getPolicyId());
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId().id))
 			.andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$", hasSize(2)))
@@ -178,11 +183,11 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		//given
 		final TestUser basicUser = basicUser();
 		PolicyId policyId = createPolicy(site.getId());
-		final String sitePath = createPolicyAcceptanceBase(site, ADMIN_USER, policyId);
-		createPolicyAcceptanceBase(site, basicUser, policyId);
+		final String sitePath = createPolicyAcceptanceBase(site.getId(), ADMIN_USER, policyId);
+		createPolicyAcceptanceBase(site.getId(), basicUser, policyId);
 
 		PolicyId darkPolicyId = createPolicy(site.getId());
-		final String darkSitePath = createPolicyAcceptanceBase(darkSite, ADMIN_USER, darkPolicyId);
+		final String darkSitePath = createPolicyAcceptanceBase(darkSite.getId(), ADMIN_USER, darkPolicyId);
 
 		policyAcceptanceMockUtils.createPolicyAcceptancesMock(
 			Map.of(
@@ -195,7 +200,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 			));
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId().id))
 			.andDo(print())
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$", hasSize(4)))
@@ -232,7 +237,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnEmptyArrayWhenThereAreNoBelongsPolicyAcceptances() throws Exception {
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policyAcceptances", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$").isArray())
@@ -247,7 +252,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/policyAcceptances", darkSite.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/policyAcceptances", darkSite.getId().id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -270,7 +275,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 
 		//when
 		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
-					site.getId(), site.getPolicyId().id, ADMIN_USER.getFenixId()))
+					site.getId().id, site.getPolicyId().id, ADMIN_USER.getFenixId()))
 				.andDo(print())
 				.andExpect(status().isOk());
 	}
@@ -293,7 +298,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	void shouldNotAllowToAddPolicyAcceptanceWhenPolicyDoesNotExists() throws Exception {
 		//when
 		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/policies/{policyId}/acceptance/{fenixUserId}",
-				site.getId(), UUID.randomUUID().toString(), ADMIN_USER.getFenixId()))
+				site.getId().id, UUID.randomUUID().toString(), ADMIN_USER.getFenixId()))
 				.andDo(print())
 				.andExpect(status().isBadRequest());
 	}
@@ -331,7 +336,7 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 		return policyId;
 	}
 
-	private PolicyId createPolicy(String siteId) {
+	private PolicyId createPolicy(SiteId siteId) {
 		return policyDocumentRepository.create(defaultPolicy()
 			.siteId(siteId)
 			.name(UUID.randomUUID().toString())
@@ -339,54 +344,54 @@ public class SitePolicyAcceptanceIntegrationTest extends IntegrationTestBase {
 	}
 
 	private String createPolicyAcceptanceBase(Site site, TestUser testUser) {
-		return createPolicyAcceptanceBase(site, testUser, site.getPolicyId());
+		return createPolicyAcceptanceBase(site.getId(), testUser, site.getPolicyId());
 	}
 
-	private String createPolicyAcceptanceBase(Site site, TestUser testUser, PolicyId servicePolicyId) {
-		final String communityId = communityRepository.create(defaultCommunity()
+	private String createPolicyAcceptanceBase(SiteId site, TestUser testUser, PolicyId servicePolicyId) {
+		final CommunityId communityId = communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String projectId = projectRepository.create(defaultProject()
+		final ProjectId projectId = projectRepository.create(defaultProject()
 				.communityId(communityId)
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String serviceId = infraServiceRepository.create(defaultService()
-				.siteId(site.getId())
+		final InfraServiceId serviceId = infraServiceRepository.create(defaultService()
+				.siteId(site)
 				.policyId(servicePolicyId)
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String resourceTypeId = resourceTypeRepository.create(defaultResourceType()
-				.siteId(site.getId())
+		final ResourceTypeId resourceTypeId = resourceTypeRepository.create(defaultResourceType()
+				.siteId(site)
 				.serviceId(serviceId)
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String resourceCreditId = resourceCreditRepository.create(defaultResourceCredit()
-				.siteId(site.getId())
+		final ResourceCreditId resourceCreditId = resourceCreditRepository.create(defaultResourceCredit()
+				.siteId(site)
 				.resourceTypeId(resourceTypeId)
 				.amount(BigDecimal.TEN)
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String communityAllocationId = communityAllocationRepository.create(defaultCommunityAllocation()
+		final CommunityAllocationId communityAllocationId = communityAllocationRepository.create(defaultCommunityAllocation()
 				.resourceCreditId(resourceCreditId)
 				.communityId(communityId)
 				.amount(BigDecimal.valueOf(5))
 				.name(UUID.randomUUID().toString())
 				.build());
-		String projectAllocationId = projectAllocationRepository.create(defaultProjectAllocation()
+		ProjectAllocationId projectAllocationId = projectAllocationRepository.create(defaultProjectAllocation()
 			.communityAllocationId(communityAllocationId)
 			.projectId(projectId)
 			.amount(BigDecimal.ONE)
 			.name(UUID.randomUUID().toString())
 			.build());
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId(site.getId(), "mock"))
+			.siteId(new SiteId(site.id.toString(), "mock"))
 			.allocationId(projectAllocationId)
 			.projectId(projectId)
 			.fenixUserId(new FenixUserId(testUser.getFenixId()))
 			.build();
 
 		resourceAccessDatabaseRepository.create(CorrelationId.randomID(), grantAccess, GRANT_PENDING);
-		return "/fenix/communities/"+communityId+"/projects/"+projectId+"/users";
+		return "/fenix/communities/" + communityId.id + "/projects/" + projectId.id + "/users";
 	}
 
 }

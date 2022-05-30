@@ -47,7 +47,7 @@ class InfraServiceAuditLogService {
 	void onCreateServiceEvent(InfraServiceCreatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.infraService.id)
+			.resourceId(event.infraService.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.CREATE)
 			.operationCategory(Operation.SERVICES_MANAGEMENT)
@@ -62,7 +62,7 @@ class InfraServiceAuditLogService {
 	void onRemoveServiceEvent(InfraServiceRemovedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.infraService.id)
+			.resourceId(event.infraService.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.DELETE)
 			.operationCategory(Operation.SERVICES_MANAGEMENT)
@@ -77,7 +77,7 @@ class InfraServiceAuditLogService {
 	void onUpdateServiceEvent(InfraServiceUpdatedEvent event) {
 		FURMSUser currentAuthNUser = authzService.getCurrentAuthNUser();
 		AuditLog auditLog = AuditLog.builder()
-			.resourceId(event.newInfraService.id)
+			.resourceId(event.newInfraService.id.id)
 			.originator(currentAuthNUser)
 			.action(Action.UPDATE)
 			.operationCategory(Operation.SERVICES_MANAGEMENT)

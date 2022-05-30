@@ -7,8 +7,11 @@ package io.imunity.furms.core.export;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
@@ -56,10 +59,10 @@ class ResourceUsageCSVExporterTest {
 
 	@Test
 	void shouldGenerateValidDataForCommunityAllocJson() throws IOException {
-		String communityId = UUID.randomUUID().toString();
-		String communityAllocationId = UUID.randomUUID().toString();
-		String projectAllocationId1 = UUID.randomUUID().toString();
-		String projectAllocationId2 = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId1 = new ProjectAllocationId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId2 = new ProjectAllocationId(UUID.randomUUID());
 		String name = "name";
 		ResourceMeasureUnit unit = ResourceMeasureUnit.KILO;
 
@@ -91,6 +94,8 @@ class ResourceUsageCSVExporterTest {
 
 		when(communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId))
 			.thenReturn(Optional.of(CommunityAllocationResolved.builder()
+				.id(communityAllocationId)
+				.communityId(communityId)
 				.name(name)
 				.amount(new BigDecimal(200))
 				.resourceCredit(ResourceCredit.builder()
@@ -102,10 +107,11 @@ class ResourceUsageCSVExporterTest {
 					.build())
 				.build())
 			);
-		when(resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(UUID.fromString(communityAllocationId)))
+		when(resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocationId))
 			.thenReturn(communityAllocationUsage);
 		when(communityAllocationRepository.findById(communityAllocationId)).thenReturn(Optional.of(
 			CommunityAllocation.builder()
+				.id(communityAllocationId)
 				.communityId(communityId)
 				.build()
 		));
@@ -127,7 +133,8 @@ class ResourceUsageCSVExporterTest {
 		));
 	}
 
-	private void simulateResourceUsageInTime(String projectAllocationId1, String projectAllocationId2, Set<ResourceUsage> communityAllocationUsage, Iterator<LocalDate> XTimeAxisIterator, Iterator<Double> projectAllocation1Iterator, Iterator<Double> projectAllocation2Iterator) {
+	private void simulateResourceUsageInTime(ProjectAllocationId projectAllocationId1, ProjectAllocationId projectAllocationId2,
+	                                         Set<ResourceUsage> communityAllocationUsage, Iterator<LocalDate> XTimeAxisIterator, Iterator<Double> projectAllocation1Iterator, Iterator<Double> projectAllocation2Iterator) {
 		//0 -day
 		XTimeAxisIterator.next();
 
@@ -156,7 +163,7 @@ class ResourceUsageCSVExporterTest {
 		communityAllocationUsage.add(createUsage(projectAllocationId2, XTimeAxisIterator.next().atStartOfDay(), valueOf(projectAllocation2Iterator.next())));
 	}
 
-	private ResourceUsage createUsage(String projectAllocId, LocalDateTime startDate, BigDecimal amount) {
+	private ResourceUsage createUsage(ProjectAllocationId projectAllocId, LocalDateTime startDate, BigDecimal amount) {
 		return ResourceUsage.builder()
 			.projectAllocationId(projectAllocId)
 			.cumulativeConsumption(amount)

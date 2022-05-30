@@ -12,6 +12,7 @@ import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTer
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -108,32 +109,42 @@ class UserOperationServiceTest {
 		final PolicyId policy2 = new PolicyId(UUID.randomUUID());
 		final PolicyId policy3 = new PolicyId(UUID.randomUUID());
 
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		SiteId siteId1 = new SiteId(UUID.randomUUID());
+		SiteId siteId2 = new SiteId(UUID.randomUUID());
+
 		when(usersDAO.getFenixUserId(userId)).thenReturn(fenixUserId);
 		when(siteService.findUserSites(userId)).thenReturn(Set.of(
-				Site.builder().id("id1").name("name1").oauthClientId("oauth1").connectionInfo("conn1").build(),
-				Site.builder().id("id2").name("name2").oauthClientId("oauth2").connectionInfo("conn2").build(),
-				Site.builder().id("id3").name("name3").oauthClientId("oauth3").connectionInfo("conn3").build()));
-		when(repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId.id, "id1")).thenReturn(Set.of(
-				UserAdditionWithProject.builder().projectId("project11").userId("remoteUser11").build()));
-		when(repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId.id, "id2")).thenReturn(Set.of(
-				UserAdditionWithProject.builder().projectId("project21").userId("remoteUser21").build(),
-				UserAdditionWithProject.builder().projectId("project22").userId("remoteUser22").build()));
-		when(repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId.id, "id3")).thenReturn(Set.of(
-				UserAdditionWithProject.builder().projectId("project31").userId("remoteUser31").build(),
-				UserAdditionWithProject.builder().projectId("project32").userId("remoteUser32").build(),
-				UserAdditionWithProject.builder().projectId("project33").userId("remoteUser33").build()));
+				Site.builder().id(siteId).name("name1").oauthClientId("oauth1").connectionInfo("conn1").build(),
+				Site.builder().id(siteId1).name("name2").oauthClientId("oauth2").connectionInfo("conn2").build(),
+				Site.builder().id(siteId2).name("name3").oauthClientId("oauth3").connectionInfo("conn3").build())
+		);
+		when(repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId, siteId)).thenReturn(Set.of(
+				UserAdditionWithProject.builder().projectId(UUID.randomUUID().toString()).userId("remoteUser11").build())
+		);
+		when(repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId, siteId1)).thenReturn(Set.of(
+				UserAdditionWithProject.builder().projectId(UUID.randomUUID().toString()).userId("remoteUser21").build(),
+				UserAdditionWithProject.builder().projectId(UUID.randomUUID().toString()).userId("remoteUser22").build())
+		);
+		when(repository.findAllUserAdditionsWithSiteAndProjectBySiteId(fenixUserId, siteId2)).thenReturn(Set.of(
+				UserAdditionWithProject.builder().projectId(UUID.randomUUID().toString()).userId("remoteUser31").build(),
+				UserAdditionWithProject.builder().projectId(UUID.randomUUID().toString()).userId("remoteUser32").build(),
+				UserAdditionWithProject.builder().projectId(UUID.randomUUID().toString()).userId("remoteUser33").build())
+		);
 		when(policyService.findSitePolicyAcceptancesByUserId(fenixUserId)).thenReturn(Set.of(
-				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(1).build(),
-				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).policyDocumentRevision(2).build(),
-				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy2).build(),
-				PolicyAcceptanceAtSite.builder().siteId("id3").policyDocumentId(policy3).build()));
+				PolicyAcceptanceAtSite.builder().siteId(siteId.id.toString()).policyDocumentId(policy1).policyDocumentRevision(1).build(),
+				PolicyAcceptanceAtSite.builder().siteId(siteId.id.toString()).policyDocumentId(policy1).policyDocumentRevision(2).build(),
+				PolicyAcceptanceAtSite.builder().siteId(siteId1.id.toString()).policyDocumentId(policy2).build(),
+				PolicyAcceptanceAtSite.builder().siteId(siteId2.id.toString()).policyDocumentId(policy3).build())
+		);
 		when(policyService.findServicesPolicyAcceptancesByUserId(fenixUserId)).thenReturn(Set.of(
-				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy1).build(),
-				PolicyAcceptanceAtSite.builder().siteId("id1").policyDocumentId(policy2).build(),
-				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy1).build(),
-				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy2).build(),
-				PolicyAcceptanceAtSite.builder().siteId("id2").policyDocumentId(policy3).build(),
-				PolicyAcceptanceAtSite.builder().siteId("id3").policyDocumentId(policy1).build()));
+				PolicyAcceptanceAtSite.builder().siteId(siteId.id.toString()).policyDocumentId(policy1).build(),
+				PolicyAcceptanceAtSite.builder().siteId(siteId.id.toString()).policyDocumentId(policy2).build(),
+				PolicyAcceptanceAtSite.builder().siteId(siteId1.id.toString()).policyDocumentId(policy1).build(),
+				PolicyAcceptanceAtSite.builder().siteId(siteId1.id.toString()).policyDocumentId(policy2).build(),
+				PolicyAcceptanceAtSite.builder().siteId(siteId1.id.toString()).policyDocumentId(policy3).build(),
+				PolicyAcceptanceAtSite.builder().siteId(siteId2.id.toString()).policyDocumentId(policy1).build())
+		);
 
 		//when
 		final Set<SiteUser> userSitesInstallations = service.findUserSitesInstallations(userId);
@@ -141,7 +152,7 @@ class UserOperationServiceTest {
 		//then
 		assertThat(userSitesInstallations).hasSize(3);
 		userSitesInstallations.stream()
-				.filter(site -> site.siteId.equals("id1"))
+				.filter(site -> site.siteId.equals(siteId))
 				.forEach(site ->{
 					assertThat(site.projectMemberships).hasSize(1);
 					assertThat(site.siteOauthClientId).isEqualTo("oauth1");
@@ -149,7 +160,7 @@ class UserOperationServiceTest {
 					assertThat(site.servicesPolicyAcceptance).hasSize(2);
 				});
 		userSitesInstallations.stream()
-				.filter(site -> site.siteId.equals("id2"))
+				.filter(site -> site.siteId.equals(siteId1))
 				.forEach(site ->{
 					assertThat(site.projectMemberships).hasSize(2);
 					assertThat(site.siteOauthClientId).isEqualTo("oauth2");
@@ -157,7 +168,7 @@ class UserOperationServiceTest {
 					assertThat(site.servicesPolicyAcceptance).hasSize(3);
 				});
 		userSitesInstallations.stream()
-				.filter(site -> site.siteId.equals("id3"))
+				.filter(site -> site.siteId.equals(siteId2))
 				.forEach(site ->{
 					assertThat(site.projectMemberships).hasSize(3);
 					assertThat(site.siteOauthClientId).isEqualTo("oauth3");
@@ -169,8 +180,8 @@ class UserOperationServiceTest {
 	@Test
 	void shouldCreateUserAddition() {
 		//given
-		SiteId siteId = new SiteId("siteId", new SiteExternalId("id"));
-		String projectId = "projectId";
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		FenixUserId fenixUserId = new FenixUserId("id");
 		FURMSUser user = FURMSUser.builder()
@@ -189,8 +200,8 @@ class UserOperationServiceTest {
 
 	@Test
 	void shouldNotCreateUserAddition() {
-		SiteId siteId = new SiteId("siteId", new SiteExternalId("id"));
-		String projectId = "projectId";
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		FenixUserId id = new FenixUserId("id");
 		FURMSUser user = FURMSUser.builder()
@@ -199,27 +210,32 @@ class UserOperationServiceTest {
 			.email("email")
 			.build();
 		//when
-		when(repository.existsByUserIdAndSiteIdAndProjectId(id, siteId.id, projectId)).thenReturn(true);
+		when(repository.existsByUserIdAndSiteIdAndProjectId(id, siteId, projectId)).thenReturn(true);
 
 		//then
-		assertThrows(IllegalArgumentException.class, () -> service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of())));
+		assertThrows(
+			IllegalArgumentException.class,
+			() -> service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of()))
+		);
 	}
 
 	@ParameterizedTest
 	@EnumSource(value = UserStatus.class, names = {"REMOVAL_FAILED", "ADDED"})
 	void shouldCreateUserRemoval(UserStatus status) {
-		String projectId = "projectId";
-		PersistentId userId = new PersistentId("userId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		FenixUserId userId = new FenixUserId("userId");
+		PersistentId id = new PersistentId("userId");
 		UserAddition userAddition = UserAddition.builder()
+			.projectId(projectId)
 			.status(status)
 			.build();
 
-		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+		when(usersDAO.findById(id)).thenReturn(Optional.of(FURMSUser.builder()
 			.email("email")
-			.fenixUserId(new FenixUserId("userId"))
+			.fenixUserId(userId)
 			.build()));
-		when(repository.findAllUserAdditions(projectId, userId.id)).thenReturn(Set.of(userAddition));
-		service.createUserRemovals(projectId, userId);
+		when(repository.findAllUserAdditions(projectId, userId)).thenReturn(Set.of(userAddition));
+		service.createUserRemovals(projectId, id);
 
 		//then
 		orderVerifier.verify(repository).update(any(UserAddition.class));
@@ -229,26 +245,31 @@ class UserOperationServiceTest {
 	@ParameterizedTest
 	@EnumSource(value = UserStatus.class, names = {"REMOVAL_FAILED", "ADDED"}, mode = EXCLUDE)
 	void shouldNotCreateUserRemoval(UserStatus status) {
-		String projectId = "projectId";
-		PersistentId userId = new PersistentId("userId");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		FenixUserId userId = new FenixUserId("userId");
+		PersistentId id = new PersistentId("userId");
 		UserAddition userAddition = UserAddition.builder()
 			.status(status)
+			.projectId(projectId)
+			.userId(userId)
 			.build();
 
-		when(usersDAO.findById(userId)).thenReturn(Optional.of(FURMSUser.builder()
+		when(usersDAO.findById(id)).thenReturn(Optional.of(FURMSUser.builder()
+			.id(id)
 			.email("email")
-			.fenixUserId(new FenixUserId("userId"))
+			.fenixUserId(userId)
 			.build()));
-		when(repository.findAllUserAdditions(projectId, userId.id)).thenReturn(Set.of(userAddition));
+		when(repository.findAllUserAdditions(projectId, userId)).thenReturn(Set.of(userAddition));
 
 		//then
-		assertThrows(UserInstallationOnSiteIsNotTerminalException.class, () -> service.createUserRemovals(projectId, userId));
+		assertThrows(UserInstallationOnSiteIsNotTerminalException.class, () -> service.createUserRemovals(projectId,
+			id));
 	}
 
 	@ParameterizedTest
 	@EnumSource(value = UserStatus.class, names = {"REMOVAL_FAILED", "ADDED"}, mode = EXCLUDE)
 	void shouldRemoveResourceAccess(UserStatus status) {
-		String projectId = "projectId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		FenixUserId fenixUserId = new FenixUserId("userId");
 
@@ -256,10 +277,10 @@ class UserOperationServiceTest {
 			.email("email")
 			.fenixUserId(fenixUserId)
 			.build()));
-		when(repository.findAllUserAdditions(projectId, userId.id)).thenReturn(Set.of());
+		when(repository.findAllUserAdditions(projectId, fenixUserId)).thenReturn(Set.of());
 		service.createUserRemovals(projectId, userId);
 
 		//then
-		verify(resourceAccessRepository).deleteByUserAndProjectId(fenixUserId, "projectId");
+		verify(resourceAccessRepository).deleteByUserAndProjectId(fenixUserId, projectId);
 	}
 }

@@ -8,19 +8,27 @@ package io.imunity.furms.db.project_allocation;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -78,17 +86,17 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@MockBean
 	private ResourceUsageRepository resourceUsageRepository;
 
-	private UUID siteId;
-	private UUID siteId2;
+	private SiteId siteId;
+	private SiteId siteId2;
 
-	private UUID communityId;
+	private CommunityId communityId;
 
-	private UUID projectId;
-	private UUID projectId2;
+	private ProjectId projectId;
+	private ProjectId projectId2;
 
-	private UUID communityAllocationId;
-	private UUID communityAllocationId2;
-	private UUID communityAllocationId3;
+	private CommunityAllocationId communityAllocationId;
+	private CommunityAllocationId communityAllocationId2;
+	private CommunityAllocationId communityAllocationId3;
 
 	@BeforeEach
 	void init() {
@@ -96,27 +104,27 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.connectionInfo("alala")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 		Site site2 = Site.builder()
 				.name("name2")
 				.connectionInfo("alala")
 				.build();
-		siteId2 = UUID.fromString(siteRepository.create(site2, new SiteExternalId("id2")));
+		siteId2 = siteRepository.create(site2, new SiteExternalId("id2"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		communityId = UUID.fromString(communityRepository.create(community));
+		communityId = communityRepository.create(community);
 
 		Community community2 = Community.builder()
 			.name("name2")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId2 = UUID.fromString(communityRepository.create(community2));
+		CommunityId communityId2 = communityRepository.create(community2);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -126,7 +134,7 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 		Project project2 = Project.builder()
-			.communityId(communityId2.toString())
+			.communityId(communityId2)
 			.name("name2")
 			.logo(FurmsImage.empty())
 			.description("new_description")
@@ -136,84 +144,85 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
-		projectId2 = UUID.fromString(projectRepository.create(project2));
+		projectId = projectRepository.create(project);
+		projectId2 = projectRepository.create(project2);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.TERA)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
-		UUID resourceCreditId2 = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId2.toString())
-			.resourceTypeId(resourceTypeId.toString())
+			.build());
+		ResourceCreditId resourceCreditId2 = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId2)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
-		communityAllocationId2 = UUID.fromString(communityAllocationRepository.create(
+		);
+		communityAllocationId2 = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId2.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId2)
+				.resourceCreditId(resourceCreditId)
 				.name("anem2")
 				.amount(new BigDecimal(30))
 				.build()
-		));
-		communityAllocationId3 = UUID.fromString(communityAllocationRepository.create(
+		);
+		communityAllocationId3 = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId2.toString())
-				.resourceCreditId(resourceCreditId2.toString())
+				.communityId(communityId2)
+				.resourceCreditId(resourceCreditId2)
 				.name("anem3")
 				.amount(new BigDecimal(30))
 				.build()
-		));
+		);
 	}
 
 	@Test
 	void shouldReturnAllocationWithRelatedObjects() {
 		ProjectAllocationEntity save = entityRepository.save(
 			ProjectAllocationEntity.builder()
-				.projectId(projectId)
-				.communityAllocationId(communityAllocationId)
+				.projectId(projectId.id)
+				.communityAllocationId(communityAllocationId.id)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
 		);
 
-		Optional<ProjectAllocationResolved> entity = entityDatabaseRepository.findByIdWithRelatedObjects(save.getId().toString());
+		Optional<ProjectAllocationResolved> entity =
+			entityDatabaseRepository.findByIdWithRelatedObjects(new ProjectAllocationId(save.getId()));
 		assertThat(entity).isPresent();
 		assertThat(entity.get().name).isEqualTo("anem");
 		assertThat(entity.get().amount).isEqualTo(new BigDecimal(10));
@@ -229,14 +238,14 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldReturnAllocationsWithRelatedObjects() {
 		entityRepository.save(
 			ProjectAllocationEntity.builder()
-				.projectId(projectId)
-				.communityAllocationId(communityAllocationId)
+				.projectId(projectId.id)
+				.communityAllocationId(communityAllocationId.id)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
 		);
 
-		Set<ProjectAllocationResolved> entities = entityDatabaseRepository.findAllWithRelatedObjects(projectId.toString());
+		Set<ProjectAllocationResolved> entities = entityDatabaseRepository.findAllWithRelatedObjects(projectId);
 		assertThat(entities.size()).isEqualTo(1);
 		ProjectAllocationResolved entity = entities.iterator().next();
 		assertThat(entity.name).isEqualTo("anem");
@@ -253,27 +262,27 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldReturnAllocationsWithRelatedObjectsBySiteId() {
 		entityRepository.save(
 				ProjectAllocationEntity.builder()
-						.projectId(projectId)
-						.communityAllocationId(communityAllocationId)
+						.projectId(projectId.id)
+						.communityAllocationId(communityAllocationId.id)
 						.name("test1")
 						.amount(new BigDecimal(10))
 						.build());
 		entityRepository.save(
 				ProjectAllocationEntity.builder()
-						.projectId(projectId)
-						.communityAllocationId(communityAllocationId3)
+						.projectId(projectId.id)
+						.communityAllocationId(communityAllocationId3.id)
 						.name("test2")
 						.amount(new BigDecimal(10))
 						.build());
 		entityRepository.save(
 				ProjectAllocationEntity.builder()
-						.projectId(projectId)
-						.communityAllocationId(communityAllocationId3)
+						.projectId(projectId.id)
+						.communityAllocationId(communityAllocationId3.id)
 						.name("test3")
 						.amount(new BigDecimal(10))
 						.build());
 
-		Set<ProjectAllocationResolved> entities = entityDatabaseRepository.findAllWithRelatedObjectsBySiteId(siteId2.toString());
+		Set<ProjectAllocationResolved> entities = entityDatabaseRepository.findAllWithRelatedObjectsBySiteId(siteId2);
 		assertThat(entities.size()).isEqualTo(2);
 	}
 
@@ -281,22 +290,22 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedService() {
 		//given
 		ProjectAllocationEntity entity = entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 
 		//when
-		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(entity.getId().toString());
+		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(new ProjectAllocationId(entity.getId()));
 
 		//then
 		assertThat(byId).isPresent();
 		ProjectAllocation allocation = byId.get();
-		assertThat(allocation.id).isEqualTo(entity.getId().toString());
-		assertThat(allocation.projectId).isEqualTo(entity.projectId.toString());
-		assertThat(allocation.communityAllocationId).isEqualTo(entity.communityAllocationId.toString());
+		assertThat(allocation.id.id).isEqualTo(entity.getId());
+		assertThat(allocation.projectId.id).isEqualTo(entity.projectId);
+		assertThat(allocation.communityAllocationId.id).isEqualTo(entity.communityAllocationId);
 		assertThat(allocation.name).isEqualTo(entity.name);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(10));
 	}
@@ -306,15 +315,15 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		UUID wrongId = generateId();
 		entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 
 		//when
-		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(wrongId.toString());
+		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(new ProjectAllocationId(wrongId));
 
 		//then
 		assertThat(byId).isEmpty();
@@ -324,22 +333,22 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllProjectAllocations() {
 		//given
 		entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 		entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId2)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId2.id)
 			.name("name2")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 
 		//when
-		Set<ProjectAllocation> all = entityDatabaseRepository.findAll(projectId.toString());
+		Set<ProjectAllocation> all = entityDatabaseRepository.findAll(projectId);
 
 		//then
 		assertThat(all).hasSize(2);
@@ -349,21 +358,21 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldCreateProjectAllocation() {
 		//given
 		ProjectAllocation request = ProjectAllocation.builder()
-			.projectId(projectId.toString())
-			.communityAllocationId(communityAllocationId.toString())
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build();
 
 		//when
-		String newProjectAllocationId = entityDatabaseRepository.create(request);
+		ProjectAllocationId newProjectAllocationId = entityDatabaseRepository.create(request);
 
 		//then
 		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(newProjectAllocationId);
 		assertThat(byId).isPresent();
 		assertThat(byId.get().id).isEqualTo(newProjectAllocationId);
-		assertThat(byId.get().projectId).isEqualTo(projectId.toString());
-		assertThat(byId.get().communityAllocationId).isEqualTo(communityAllocationId.toString());
+		assertThat(byId.get().projectId).isEqualTo(projectId);
+		assertThat(byId.get().communityAllocationId).isEqualTo(communityAllocationId);
 		assertThat(byId.get().name).isEqualTo("name");
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(10));
 	}
@@ -372,16 +381,16 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateProjectAllocation() {
 		//given
 		ProjectAllocationEntity old = entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 		ProjectAllocation requestToUpdate = ProjectAllocation.builder()
 			.id(old.getId().toString())
-			.projectId(projectId.toString())
-			.communityAllocationId(communityAllocationId.toString())
+			.projectId(projectId)
+			.communityAllocationId(communityAllocationId)
 			.name("new_name")
 			.amount(new BigDecimal(101))
 			.build();
@@ -390,11 +399,11 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		entityDatabaseRepository.update(requestToUpdate);
 
 		//then
-		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(old.getId().toString());
+		Optional<ProjectAllocation> byId = entityDatabaseRepository.findById(new ProjectAllocationId(old.getId()));
 		assertThat(byId).isPresent();
 		assertThat(byId.get().name).isEqualTo("new_name");
-		assertThat(byId.get().projectId).isEqualTo(projectId.toString());
-		assertThat(byId.get().communityAllocationId).isEqualTo(communityAllocationId.toString());
+		assertThat(byId.get().projectId).isEqualTo(projectId);
+		assertThat(byId.get().communityAllocationId).isEqualTo(communityAllocationId);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(101));
 	}
 
@@ -402,34 +411,34 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	void savedProjectAllocationExists() {
 		//given
 		ProjectAllocationEntity entity = entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 
 		//when + then
-		assertThat(entityDatabaseRepository.exists(entity.getId().toString())).isTrue();
+		assertThat(entityDatabaseRepository.exists(new ProjectAllocationId(entity.getId()))).isTrue();
 	}
 
 	@Test
 	void shouldNotExistsDueToEmptyOrWrongId() {
 		//given
-		String nonExistedId = generateId().toString();
+		ProjectAllocationId nonExistedId = new ProjectAllocationId(generateId());
 
 		//when + then
 		assertThat(entityDatabaseRepository.exists(nonExistedId)).isFalse();
 		assertThat(entityDatabaseRepository.exists(null)).isFalse();
-		assertThat(entityDatabaseRepository.exists("")).isFalse();
+		assertThat(entityDatabaseRepository.exists(new ProjectAllocationId((UUID) null))).isFalse();
 	}
 
 	@Test
 	void shouldReturnTrueForUniqueName() {
 		//given
 		entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build()
@@ -437,22 +446,22 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), uniqueName)).isTrue();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId, uniqueName)).isTrue();
 	}
 
 	@Test
 	void shouldReturnTrueForUniqueNameInCommunityScope() {
 		//given
 		entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 		entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId2)
-			.communityAllocationId(communityAllocationId2)
+			.projectId(projectId2.id)
+			.communityAllocationId(communityAllocationId2.id)
 			.name("unique_name")
 			.amount(new BigDecimal(10))
 			.build()
@@ -460,51 +469,51 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), uniqueName)).isTrue();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId, uniqueName)).isTrue();
 	}
 
 	@Test
 	void shouldReturnFalseForNonUniqueNameInCommunityScope() {
 		//given
 		ProjectAllocationEntity existedProjectAllocation = entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build());
 
 		entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId2)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId2.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build()
 		);
 
 		//when + then
-		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), existedProjectAllocation.name)).isFalse();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId, existedProjectAllocation.name)).isFalse();
 	}
 
 	@Test
 	void shouldReturnFalseForNonUniqueName() {
 		//given
 		ProjectAllocationEntity existedProjectAllocation = entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build());
 
 		//when + then
-		assertThat(entityDatabaseRepository.isNamePresent(communityId.toString(), existedProjectAllocation.name)).isFalse();
+		assertThat(entityDatabaseRepository.isNamePresent(communityId, existedProjectAllocation.name)).isFalse();
 	}
 
 	@Test
 	void shouldReturnTrueForExistingCommunityAllocationId() {
 		//given
 		ProjectAllocationEntity existedResourceCredit = entityRepository.save(ProjectAllocationEntity.builder()
-			.projectId(projectId)
-			.communityAllocationId(communityAllocationId)
+			.projectId(projectId.id)
+			.communityAllocationId(communityAllocationId.id)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.build());
@@ -522,32 +531,32 @@ class ProjectAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotThrowDuplicateKeyExceptionForManyResourceUsagesForTheSameProjectId() {
 		final ProjectAllocationEntity allocation1 = entityRepository.save(ProjectAllocationEntity.builder()
-				.projectId(projectId)
-				.communityAllocationId(communityAllocationId)
+				.projectId(projectId.id)
+				.communityAllocationId(communityAllocationId.id)
 				.name("name")
 				.amount(new BigDecimal(10))
 				.build());
 		final ProjectAllocationEntity allocation2 = entityRepository.save(ProjectAllocationEntity.builder()
-				.projectId(projectId)
-				.communityAllocationId(communityAllocationId)
+				.projectId(projectId.id)
+				.communityAllocationId(communityAllocationId.id)
 				.name("name2")
 				.amount(new BigDecimal(10))
 				.build());
-		when(resourceUsageRepository.findCurrentResourceUsages(projectId.toString())).thenReturn(Set.of(
+		when(resourceUsageRepository.findCurrentResourceUsages(projectId)).thenReturn(Set.of(
 				ResourceUsage.builder()
-						.projectId(projectId.toString())
+						.projectId(projectId)
 						.projectAllocationId(allocation1.getId().toString())
 						.cumulativeConsumption(BigDecimal.ONE)
 						.probedAt(LocalDateTime.now().minusMinutes(1))
 						.build(),
 				ResourceUsage.builder()
-						.projectId(projectId.toString())
+						.projectId(projectId)
 						.projectAllocationId(allocation2.getId().toString())
 						.cumulativeConsumption(BigDecimal.ONE)
 						.probedAt(LocalDateTime.now().minusMinutes(1))
 						.build()
 		));
-		entityDatabaseRepository.findAllWithRelatedObjectsBySiteId(siteId.toString());
+		entityDatabaseRepository.findAllWithRelatedObjectsBySiteId(siteId);
 	}
 
 }

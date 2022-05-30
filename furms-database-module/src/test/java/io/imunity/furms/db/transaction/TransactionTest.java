@@ -5,21 +5,21 @@
 
 package io.imunity.furms.db.transaction;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.io.IOException;
-import java.util.Optional;
-
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.spi.communites.CommunityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.spi.communites.CommunityRepository;
+import java.io.IOException;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class TransactionTest extends DBIntegrationTest {
@@ -40,7 +40,7 @@ class TransactionTest extends DBIntegrationTest {
 	@Test
 	void shouldRollbackCommunity() {
 		//given
-		String id = communityRepository.create(Community.builder()
+		CommunityId id = communityRepository.create(Community.builder()
 			.name("test")
 			.description("test")
 			.logo(imgTestFile, "jpg")

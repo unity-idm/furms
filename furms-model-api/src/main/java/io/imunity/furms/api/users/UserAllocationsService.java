@@ -5,6 +5,8 @@
 
 package io.imunity.furms.api.users;
 
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.UserSitesInstallationInfoData;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -20,9 +22,9 @@ public interface UserAllocationsService {
 
 	Set<UserAddition> findUserAdditionsByFenixUserId(FenixUserId userId);
 
-	Set<UserAddition> findUserAdditionsBySiteAndFenixUserId(String siteId, FenixUserId fenixUserId);
+	Set<UserAddition> findUserAdditionsBySiteAndFenixUserId(SiteId siteId, FenixUserId fenixUserId);
 
-	Set<UserAddition> findUserAdditionsBySiteId(String siteId);
+	Set<UserAddition> findUserAdditionsBySiteId(SiteId siteId);
 
-	Set<UserAddition> findUserAdditionsByProjectId(String projectId);
+	Set<UserAddition> findUserAdditionsByProjectId(ProjectId projectId);
 }

@@ -5,14 +5,16 @@
 
 package io.imunity.furms.domain.generic_groups;
 
+import io.imunity.furms.domain.communities.CommunityId;
+
 import java.util.Objects;
 import java.util.Set;
 
 public class GroupAccess {
-	public final String communityId;
+	public final CommunityId communityId;
 	public final Set<String> groups;
 
-	public GroupAccess(String communityId, Set<String> groups) {
+	public GroupAccess(CommunityId communityId, Set<String> groups) {
 		this.communityId = communityId;
 		this.groups = groups;
 	}

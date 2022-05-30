@@ -20,6 +20,7 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
@@ -80,7 +81,7 @@ public class ProjectView extends FurmsViewComponent {
 		this.projectAllocationService = projectAllocationService;
 	}
 
-	private void loadTabs(String projectId) {
+	private void loadTabs(ProjectId projectId) {
 		paramToTab = new HashMap<>();
 		links = new ArrayList<>();
 		page1 = new Div();
@@ -206,7 +207,8 @@ public class ProjectView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String projectId) {
 		getContent().removeAll();
-		Project project = handleExceptions(() -> projectService.findById(projectId))
+		ProjectId pId = new ProjectId(projectId);
+		Project project = handleExceptions(() -> projectService.findById(pId))
 			.flatMap(identity())
 			.orElseThrow(IllegalStateException::new);
 		String param = event.getLocation()
@@ -214,11 +216,11 @@ public class ProjectView extends FurmsViewComponent {
 			.getParameters()
 			.getOrDefault(PARAM_NAME, List.of(ALLOCATIONS_PARAM))
 			.iterator().next();
-		loadTabs(projectId);
+		loadTabs(pId);
 		Tab tab = paramToTab.getOrDefault(param, defaultTab);
 		tabs.setSelectedTab(tab);
 		links.forEach(x -> x.setRoute(getClass(), projectId));
-		breadCrumbParameter = new BreadCrumbParameter(project.getId(), project.getName(), param);
+		breadCrumbParameter = new BreadCrumbParameter(project.getId().id.toString(), project.getName(), param);
 		loadPage1Content(project);
 	}
 

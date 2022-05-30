@@ -60,9 +60,9 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			throw new IllegalStateTransitionException(String.format("ProjectAllocation status is %s, cannot be modified", job.status));
 
 		if(isTransitionFromUpdatingToFailedStatus(job.status, status))
-			projectAllocationInstallationRepository.update(correlationId.id, UPDATING_FAILED, errorMessage);
+			projectAllocationInstallationRepository.update(correlationId, UPDATING_FAILED, errorMessage);
 		else
-			projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
+			projectAllocationInstallationRepository.update(correlationId, status, errorMessage);
 
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
@@ -74,7 +74,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	@Override
 	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage) {
-		ProjectDeallocation projectDeallocation = projectAllocationInstallationRepository.findDeallocationByCorrelationId(correlationId.id)
+		ProjectDeallocation projectDeallocation = projectAllocationInstallationRepository.findDeallocationByCorrelationId(correlationId)
 			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found: " + correlationId));
 
 		if(status.equals(ProjectDeallocationStatus.ACKNOWLEDGED)){
@@ -86,7 +86,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 		if(projectDeallocation.status.equals(ProjectDeallocationStatus.FAILED)) {
 			throw new IllegalStateTransitionException(String.format("ProjectDeallocation with status failed cannot be transit to %s", status));
 		}
-		projectAllocationInstallationRepository.update(correlationId.id, status, errorMessage);
+		projectAllocationInstallationRepository.update(correlationId, status, errorMessage);
 		LOG.info("ProjectDeallocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
 	}
 

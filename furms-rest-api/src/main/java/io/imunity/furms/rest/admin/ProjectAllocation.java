@@ -47,9 +47,11 @@ class ProjectAllocation {
 	}
 
 	ProjectAllocation(ProjectAllocationResolved allocation) {
-		this(allocation.id, allocation.projectId, allocation.communityAllocation.id, allocation.name, allocation.resourceType.id,
-				allocation.resourceType.unit.getSuffix(), allocation.site.getId(), allocation.site.getName(),
-				allocation.resourceType.serviceId, allocation.resourceType.serviceName, allocation.amount);
+		this(allocation.id.id.toString(), allocation.projectId.id.toString(), allocation.communityAllocation.id.id.toString(),
+			allocation.name,
+			allocation.resourceType.id.id.toString(),
+				allocation.resourceType.unit.getSuffix(), allocation.site.getId().id.toString(), allocation.site.getName(),
+				allocation.resourceType.serviceId.id.toString(), allocation.resourceType.serviceName, allocation.amount);
 	}
 
 	@Override

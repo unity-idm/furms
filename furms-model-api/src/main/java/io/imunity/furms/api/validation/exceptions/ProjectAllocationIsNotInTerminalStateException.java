@@ -5,10 +5,12 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+
 public class ProjectAllocationIsNotInTerminalStateException extends IllegalArgumentException {
-	public final String projectAllocationId;
-	public ProjectAllocationIsNotInTerminalStateException(String projectAllocationId) {
-		super("projectAllocationId: " + projectAllocationId);
+	public final ProjectAllocationId projectAllocationId;
+	public ProjectAllocationIsNotInTerminalStateException(ProjectAllocationId projectAllocationId) {
+		super("projectAllocationId: " + projectAllocationId.id);
 		this.projectAllocationId = projectAllocationId;
 	}
 }

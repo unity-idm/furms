@@ -7,6 +7,7 @@ package io.imunity.furms.core.sites;
 
 import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,6 +37,7 @@ class SiteServiceValidatorTest {
 	void shouldPassCreateForUniqueName() {
 		//given
 		final Site site = Site.builder()
+				.id(new SiteId(UUID.randomUUID()))
 				.name("name")
 				.build();
 
@@ -47,6 +51,7 @@ class SiteServiceValidatorTest {
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
 		final Site site = Site.builder()
+				.id(new SiteId(UUID.randomUUID()))
 				.name("name")
 				.build();
 
@@ -59,8 +64,9 @@ class SiteServiceValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		final Site site = Site.builder()
-				.id("id")
+				.id(siteId)
 				.name("name")
 				.build();
 
@@ -74,8 +80,9 @@ class SiteServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		final Site site = Site.builder()
-				.id("id")
+				.id(siteId)
 				.name("name")
 				.build();
 
@@ -88,8 +95,9 @@ class SiteServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		final Site site = Site.builder()
-				.id("id")
+				.id(siteId)
 				.name("name")
 				.build();
 
@@ -103,7 +111,7 @@ class SiteServiceValidatorTest {
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		final String id = "id";
+		SiteId id = new SiteId(UUID.randomUUID());
 
 		when(siteRepository.exists(id)).thenReturn(true);
 		when(resourceCreditRepository.existsBySiteId(id)).thenReturn(false);
@@ -115,7 +123,7 @@ class SiteServiceValidatorTest {
 	@Test
 	void shouldNotPassDeleteForNonExistingId() {
 		//given
-		final String id = "id";
+		SiteId id = new SiteId(UUID.randomUUID());
 
 		when(siteRepository.exists(id)).thenReturn(false);
 
@@ -126,7 +134,7 @@ class SiteServiceValidatorTest {
 	@Test
 	void shouldNotPassDeleteForExistingResourceCredit() {
 		//given
-		final String id = "id";
+		SiteId id = new SiteId(UUID.randomUUID());
 
 		when(siteRepository.exists(id)).thenReturn(true);
 		when(resourceCreditRepository.existsBySiteId(id)).thenReturn(true);
@@ -139,7 +147,7 @@ class SiteServiceValidatorTest {
 	void shouldPassForUniqueCombinationIdAndName() {
 		//given
 		final Site site = Site.builder()
-				.id("id")
+				.id(new SiteId(UUID.randomUUID()))
 				.name("name")
 				.build();
 
@@ -153,7 +161,7 @@ class SiteServiceValidatorTest {
 	void shouldNotPassForNonUniqueCombinationIdAndName() {
 		//given
 		final Site site = Site.builder()
-				.id("id")
+				.id(new SiteId(UUID.randomUUID()))
 				.name("name")
 				.build();
 

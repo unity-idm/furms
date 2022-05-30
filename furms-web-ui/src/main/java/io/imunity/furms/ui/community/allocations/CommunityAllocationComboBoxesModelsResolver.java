@@ -6,9 +6,12 @@
 package io.imunity.furms.ui.community.allocations;
 
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.ui.components.support.models.ComboBoxModel;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.ui.components.support.models.SiteComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 
@@ -20,22 +23,22 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toSet;
 
 public class CommunityAllocationComboBoxesModelsResolver {
-	private final Set<ComboBoxModel> sites;
-	private final Function<String, Set<ResourceType>> functionResourceType;
-	private final Function<String, Set<ResourceCredit>> functionResourceCredit;
-	private final Function<String, BigDecimal> functionAvailableAmount;
+	private final Set<SiteComboBoxModel> sites;
+	private final Function<SiteId, Set<ResourceType>> functionResourceType;
+	private final Function<ResourceTypeId, Set<ResourceCredit>> functionResourceCredit;
+	private final Function<ResourceCreditId, BigDecimal> functionAvailableAmount;
 
 	public CommunityAllocationComboBoxesModelsResolver(Set<Site> sites,
-	                                                   Function<String, Set<ResourceType>> functionResourceType,
-	                                                   Function<String, Set<ResourceCredit>> functionResourceCredit,
-	                                                   Function<String, BigDecimal> functionAvailableAmount) {
-		this.sites = sites.stream().map(s -> new ComboBoxModel(s.getId(), s.getName())).collect(Collectors.toSet());
+	                                                   Function<SiteId, Set<ResourceType>> functionResourceType,
+	                                                   Function<ResourceTypeId, Set<ResourceCredit>> functionResourceCredit,
+	                                                   Function<ResourceCreditId, BigDecimal> functionAvailableAmount) {
+		this.sites = sites.stream().map(s -> new SiteComboBoxModel(s.getId(), s.getName())).collect(Collectors.toSet());
 		this.functionResourceType = functionResourceType;
 		this.functionResourceCredit = functionResourceCredit;
 		this.functionAvailableAmount = functionAvailableAmount;
 	}
 
-	public Set<ResourceTypeComboBoxModel> getResourceTypes(String siteId) {
+	public Set<ResourceTypeComboBoxModel> getResourceTypes(SiteId siteId) {
 		if (siteId == null)
 			return Set.of();
 		return functionResourceType.apply(siteId).stream()
@@ -43,7 +46,7 @@ public class CommunityAllocationComboBoxesModelsResolver {
 				.collect(toSet());
 	}
 
-	public Set<ResourceCreditComboBoxModel> getResourceCredits(String resourceTypeId) {
+	public Set<ResourceCreditComboBoxModel> getResourceCredits(ResourceTypeId resourceTypeId) {
 		if (resourceTypeId == null)
 			return Set.of();
 		return functionResourceCredit.apply(resourceTypeId).stream()
@@ -52,11 +55,11 @@ public class CommunityAllocationComboBoxesModelsResolver {
 				.collect(toSet());
 	}
 
-	public Set<ComboBoxModel> getSites() {
+	public Set<SiteComboBoxModel> getSites() {
 		return sites;
 	}
 
-	public BigDecimal getAvailableAmount(String resourceCreditId) {
+	public BigDecimal getAvailableAmount(ResourceCreditId resourceCreditId) {
 		return functionAvailableAmount.apply(resourceCreditId);
 	}
 }

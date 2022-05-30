@@ -12,6 +12,7 @@ import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.Test;
@@ -54,11 +55,12 @@ class PolicyDocumentValidatorTest {
 
 	@Test
 	void shouldThrowsExceptionWhileValidCreationWhenSiteNotExist() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
-			.siteId("siteId")
+			.siteId(siteId)
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(false);
+		when(siteRepository.exists(siteId)).thenReturn(false);
 
 		String message = assertThrows(IdNotFoundValidationError.class, () -> validator.validateCreate(policyDocument))
 			.getMessage();
@@ -67,13 +69,14 @@ class PolicyDocumentValidatorTest {
 
 	@Test
 	void shouldThrowsExceptionWhileValidCreationWhenNameIsNotPresent() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
-			.siteId("siteId")
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(false);
+		when(siteRepository.exists(siteId)).thenReturn(true);
+		when(repository.isNamePresent(siteId, "name")).thenReturn(false);
 
 		String message = assertThrows(DuplicatedNameValidationError.class, () -> validator.validateCreate(policyDocument))
 			.getMessage();
@@ -83,10 +86,10 @@ class PolicyDocumentValidatorTest {
 	@Test
 	void shouldThrowsExceptionWhileValidUpdateWhenNameIsNotPresent() {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
-
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(siteId)
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
 			.name("name")
@@ -94,7 +97,7 @@ class PolicyDocumentValidatorTest {
 
 		PolicyDocument policyDocument1 = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(siteId)
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
 			.name("name1")
@@ -110,16 +113,17 @@ class PolicyDocumentValidatorTest {
 
 	@Test
 	void shouldThrowsExceptionWhileValidCreationWhenPdfPolicyHasText() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
-			.siteId("siteId")
+			.siteId(siteId)
 			.name("name")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.PDF)
 			.wysiwygText("sdsd")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
+		when(siteRepository.exists(siteId)).thenReturn(true);
+		when(repository.isNamePresent(siteId, "name")).thenReturn(true);
 
 		String message = assertThrows(PolicyDocumentIsInconsistentException.class, () -> validator.validateCreate(policyDocument))
 			.getMessage();
@@ -132,7 +136,7 @@ class PolicyDocumentValidatorTest {
 
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(new SiteId(UUID.randomUUID()))
 			.name("name")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.PDF)
@@ -149,16 +153,17 @@ class PolicyDocumentValidatorTest {
 
 	@Test
 	void shouldThrowsExceptionWhileValidCreationWhenEmbeddedPolicyHasFile() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
-			.siteId("siteId")
+			.siteId(siteId)
 			.name("name")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
 			.file(new byte[2], "pdf", "name-rev0")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
+		when(siteRepository.exists(siteId)).thenReturn(true);
+		when(repository.isNamePresent(siteId, "name")).thenReturn(true);
 
 		String message = assertThrows(PolicyDocumentIsInconsistentException.class, () -> validator.validateCreate(policyDocument))
 			.getMessage();
@@ -167,16 +172,17 @@ class PolicyDocumentValidatorTest {
 
 	@Test
 	void shouldPassCreate() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
-			.siteId("siteId")
+			.siteId(siteId)
 			.name("name")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
 			.wysiwygText("dsds")
 			.build();
 
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(repository.isNamePresent("siteId", "name")).thenReturn(true);
+		when(siteRepository.exists(siteId)).thenReturn(true);
+		when(repository.isNamePresent(siteId, "name")).thenReturn(true);
 
 		validator.validateCreate(policyDocument);
 	}
@@ -186,7 +192,7 @@ class PolicyDocumentValidatorTest {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(new SiteId(UUID.randomUUID()))
 			.name("name")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)
@@ -205,7 +211,7 @@ class PolicyDocumentValidatorTest {
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(new SiteId(UUID.randomUUID()))
 			.name("name")
 			.workflow(PolicyWorkflow.WEB_BASED)
 			.contentType(PolicyContentType.EMBEDDED)

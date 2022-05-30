@@ -18,7 +18,7 @@ class ProjectSiteInstallation {
 	}
 
 	ProjectSiteInstallation(SiteInstalledProject installation) {
-		this(installation.siteId, installation.gid.id);
+		this(installation.siteId.id.toString(), installation.gid.id);
 	}
 
 	@Override

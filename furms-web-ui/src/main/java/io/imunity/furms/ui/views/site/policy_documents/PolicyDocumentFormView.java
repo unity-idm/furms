@@ -28,6 +28,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyFile;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
@@ -60,13 +61,13 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 	private final Label revision = new Label();
 	private final Div buttonLayout = new Div();
 	private final ComboBox<PolicyWorkflow> workflowComboBox = new ComboBox<>();
-	private final String siteId;
+	private final SiteId siteId;
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	PolicyDocumentFormView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
-		this.siteId = getCurrentResourceId();
+		this.siteId = new SiteId(getCurrentResourceId());
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();

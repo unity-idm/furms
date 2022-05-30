@@ -6,6 +6,7 @@
 package io.imunity.furms.db.communities;
 
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,10 +15,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static java.util.UUID.fromString;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.StreamSupport.stream;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository
 class CommunityDatabaseRepository implements CommunityRepository {
@@ -29,17 +28,17 @@ class CommunityDatabaseRepository implements CommunityRepository {
 	}
 
 	@Override
-	public Optional<Community> findById(String id) {
+	public Optional<Community> findById(CommunityId id) {
 		if (isEmpty(id)) {
 			return Optional.empty();
 		}
-		return repository.findById(fromString(id))
+		return repository.findById(id.id)
 				.map(CommunityEntity::toCommunity);
 	}
 
 	@Override
-	public Set<Community> findAll(Set<String> ids) {
-		return repository.findAllByIdIn(ids.stream().map(UUID::fromString).collect(Collectors.toSet())).stream()
+	public Set<Community> findAll(Set<CommunityId> ids) {
+		return repository.findAllByIdIn(ids.stream().map(communityId -> communityId.id).collect(Collectors.toSet())).stream()
 			.map(CommunityEntity::toCommunity)
 			.collect(Collectors.toSet());
 	}
@@ -52,18 +51,18 @@ class CommunityDatabaseRepository implements CommunityRepository {
 	}
 
 	@Override
-	public String create(Community community) {
+	public CommunityId create(Community community) {
 		CommunityEntity saved = repository.save(CommunityEntity.builder()
 				.name(community.getName())
 				.description(community.getDescription())
 				.logo(community.getLogo().getImage(), community.getLogo().getType())
 				.build());
-		return saved.getId().toString();
+		return new CommunityId(saved.getId());
 	}
 
 	@Override
 	public void update(Community community) {
-		repository.findById(fromString(community.getId()))
+		repository.findById(community.getId().id)
 			.map(oldEntity -> CommunityEntity.builder()
 				.id(oldEntity.getId())
 				.name(community.getName())
@@ -77,11 +76,11 @@ class CommunityDatabaseRepository implements CommunityRepository {
 	}
 
 	@Override
-	public boolean exists(String id) {
+	public boolean exists(CommunityId id) {
 		if (isEmpty(id)) {
 			return false;
 		}
-		return repository.existsById(fromString(id));
+		return repository.existsById(id.id);
 	}
 
 	@Override
@@ -90,15 +89,19 @@ class CommunityDatabaseRepository implements CommunityRepository {
 	}
 
 	@Override
-	public void delete(String id) {
+	public void delete(CommunityId id) {
 		if (isEmpty(id)) {
 			throw new IllegalArgumentException("Incorrect delete Community input.");
 		}
-		repository.deleteById(fromString(id));
+		repository.deleteById(id.id);
 	}
 
 	@Override
 	public void deleteAll() {
 		repository.deleteAll();
+	}
+
+	private boolean isEmpty(CommunityId id) {
+		return id == null || id.id == null;
 	}
 }

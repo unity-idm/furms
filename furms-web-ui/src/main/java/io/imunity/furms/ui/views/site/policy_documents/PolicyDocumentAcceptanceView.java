@@ -14,6 +14,7 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.MenuButton;
@@ -40,7 +41,7 @@ import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 @PageTitle(key = "view.site-admin.policy-documents-acceptance.page.title")
 public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 	private final PolicyDocumentService policyDocumentService;
-	private final String siteId;
+	private final SiteId siteId;
 	private PolicyDocument policyDocument;
 	private UsersGridComponent grid;
 
@@ -48,7 +49,7 @@ public class PolicyDocumentAcceptanceView extends FurmsViewComponent {
 
 	protected PolicyDocumentAcceptanceView(PolicyDocumentService policyDocumentService) {
 		this.policyDocumentService = policyDocumentService;
-		this.siteId = getCurrentResourceId();
+		this.siteId = new SiteId(getCurrentResourceId());
 	}
 
 	@Override

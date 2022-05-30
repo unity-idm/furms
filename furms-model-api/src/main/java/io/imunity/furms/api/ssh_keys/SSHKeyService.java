@@ -5,32 +5,34 @@
 
 package io.imunity.furms.api.ssh_keys;
 
-import java.util.Optional;
-import java.util.Set;
-
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.SiteSSHKeys;
+
+import java.util.Optional;
+import java.util.Set;
 
 public interface SSHKeyService {
 
 	void assertIsEligibleToManageKeys();
 	
-	Optional<SSHKey> findById(String id);
+	Optional<SSHKey> findById(SSHKeyId id);
 
 	Set<SSHKey> findOwned();
 
-	Set<SSHKey> findByOwnerId(String ownerId);
+	Set<SSHKey> findByOwnerId(PersistentId ownerId);
 
-	SiteSSHKeys findSiteSSHKeysByUserIdAndSite(PersistentId userId, String siteId);
+	SiteSSHKeys findSiteSSHKeysByUserIdAndSite(PersistentId userId, SiteId siteId);
 
 	void create(SSHKey sshKey);
 
 	void update(SSHKey sshKey);
 
-	void delete(String id);
+	void delete(SSHKeyId id);
 
 	boolean isNamePresent(String name);
 
-	boolean isNamePresentIgnoringRecord(String name, String recordToIgnore);
+	boolean isNamePresentIgnoringRecord(String name, SSHKeyId recordToIgnore);
 }

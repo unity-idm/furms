@@ -5,6 +5,7 @@
 
 package io.imunity.furms.domain.community_allocation;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.sites.Site;
@@ -15,11 +16,11 @@ import java.util.Objects;
 
 public class CommunityAllocationResolved {
 
-	public final String id;
+	public final CommunityAllocationId id;
 	public final Site site;
 	public final ResourceType resourceType;
 	public final ResourceCredit resourceCredit;
-	public final String communityId;
+	public final CommunityId communityId;
 	public final String communityName;
 	public final String name;
 	public final BigDecimal amount;
@@ -27,8 +28,8 @@ public class CommunityAllocationResolved {
 	public final BigDecimal remaining;
 	public final LocalDateTime creationTime;
 
-	CommunityAllocationResolved(String id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
-	                            String communityId, String communityName, String name, BigDecimal amount,
+	CommunityAllocationResolved(CommunityAllocationId id, Site site, ResourceType resourceType, ResourceCredit resourceCredit,
+	                            CommunityId communityId, String communityName, String name, BigDecimal amount,
 	                            BigDecimal consumed, BigDecimal remaining, LocalDateTime creationTime) {
 		this.id = id;
 		this.site = site;
@@ -103,11 +104,11 @@ public class CommunityAllocationResolved {
 	}
 
 	public static final class CommunityAllocationResolvedBuilder {
-		private String id;
+		private CommunityAllocationId id;
 		private Site site;
 		private ResourceType resourceType;
 		private ResourceCredit resourceCredit;
-		private String communityId;
+		private CommunityId communityId;
 		private String communityName;
 		private String name;
 		private BigDecimal amount;
@@ -139,11 +140,21 @@ public class CommunityAllocationResolved {
 		}
 
 		public CommunityAllocationResolvedBuilder id(String id) {
+			this.id = new CommunityAllocationId(id);
+			return this;
+		}
+
+		public CommunityAllocationResolvedBuilder id(CommunityAllocationId id) {
 			this.id = id;
 			return this;
 		}
 
 		public CommunityAllocationResolvedBuilder communityId(String communityId) {
+			this.communityId = new CommunityId(communityId);
+			return this;
+		}
+
+		public CommunityAllocationResolvedBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}

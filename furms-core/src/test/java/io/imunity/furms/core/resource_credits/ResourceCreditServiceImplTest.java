@@ -9,12 +9,15 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.core.community_allocation.CommunityAllocationServiceHelper;
 import io.imunity.furms.domain.resource_credits.ResourceCreditCreatedEvent;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_credits.ResourceCreditRemovedEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.resource_credits.ResourceCreditWithAllocations;
 import io.imunity.furms.domain.resource_credits.ResourceCreditUpdatedEvent;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_usage.ResourceUsageByCredit;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
@@ -34,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -80,27 +84,30 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnResourceCredit() {
 		//given
-		String id = "id";
-		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(ResourceCredit.builder()
-			.id(id)
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(Optional.of(ResourceCredit.builder()
+			.id(resourceCreditId)
 			.name("name")
 			.build())
 		);
-		when(resourceUsageRepository.findResourceUsagesSumsBySiteId("")).thenReturn(new ResourceUsageByCredit(Map.of()));
+		when(resourceUsageRepository.findResourceUsagesSumsBySiteId(siteId)).thenReturn(new ResourceUsageByCredit(Map.of()));
 		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
-		Optional<ResourceCreditWithAllocations> byId = service.findWithAllocationsByIdAndSiteId(id, "");
+		Optional<ResourceCreditWithAllocations> byId = service.findWithAllocationsByIdAndSiteId(resourceCreditId, siteId);
 
 		//then
 		assertThat(byId).isPresent();
-		assertThat(byId.get().getId()).isEqualTo(id);
+		assertThat(byId.get().getId()).isEqualTo(resourceCreditId);
 	}
 
 	@Test
 	void shouldNotReturnResourceCredit() {
 		//when
-		Optional<ResourceCreditWithAllocations> otherId = service.findWithAllocationsByIdAndSiteId("otherId", "");
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		Optional<ResourceCreditWithAllocations> otherId = service.findWithAllocationsByIdAndSiteId(resourceCreditId, siteId);
 
 		//then
 		assertThat(otherId).isEmpty();
@@ -109,14 +116,18 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnAllResourceCreditsIfExistsInRepository() {
 		//given
-		when(resourceCreditRepository.findAll("1")).thenReturn(Set.of(
-			ResourceCredit.builder().id("id1").name("name").build(),
-			ResourceCredit.builder().id("id2").name("name2").build()));
-		when(resourceUsageRepository.findResourceUsagesSumsBySiteId("1")).thenReturn(new ResourceUsageByCredit(Map.of()));
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId1 = new ResourceCreditId(UUID.randomUUID());
+
+		when(resourceCreditRepository.findAll(siteId)).thenReturn(Set.of(
+			ResourceCredit.builder().id(resourceCreditId).name("name").build(),
+			ResourceCredit.builder().id(resourceCreditId1).name("name2").build()));
+		when(resourceUsageRepository.findResourceUsagesSumsBySiteId(siteId)).thenReturn(new ResourceUsageByCredit(Map.of()));
 		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
-		Set<ResourceCreditWithAllocations> allResourceCredits = service.findAllWithAllocations("1");
+		Set<ResourceCreditWithAllocations> allResourceCredits = service.findAllWithAllocations(siteId);
 
 		//then
 		assertThat(allResourceCredits).hasSize(2);
@@ -125,13 +136,17 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnResourceCreditsIncludedFullyDistributed() {
 		//given
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId1 = new ResourceCreditId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId2 = new ResourceCreditId(UUID.randomUUID());
+
 		when(resourceCreditRepository.findAllNotExpiredByNameOrSiteName("")).thenReturn(Set.of(
-				ResourceCredit.builder().id("id1").name("name").build(),
-				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
-				ResourceCredit.builder().id("id3").name("name2").build()));
-		when(communityAllocationServiceHelper.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
-		when(communityAllocationServiceHelper.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
-		when(communityAllocationServiceHelper.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
+				ResourceCredit.builder().id(resourceCreditId).name("name").build(),
+				ResourceCredit.builder().id(resourceCreditId1).name("name_fullyDistributed").build(),
+				ResourceCredit.builder().id(resourceCreditId2).name("name2").build()));
+		when(communityAllocationServiceHelper.getAvailableAmountForNew(resourceCreditId)).thenReturn(BigDecimal.ONE);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew(resourceCreditId1)).thenReturn(BigDecimal.ZERO);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew(resourceCreditId2)).thenReturn(BigDecimal.ONE);
 		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
@@ -144,27 +159,30 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnResourceCredits() {
 		//given
-		when(resourceCreditRepository.findAll("siteId")).thenReturn(Set.of(
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		when(resourceCreditRepository.findAll(siteId)).thenReturn(Set.of(
 			ResourceCredit.builder()
-				.id("id1")
+				.id(resourceCreditId)
 				.name("name")
-				.siteId("siteId")
-				.resourceTypeId("id")
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
 				.build()
 		));
-		when(resourceUsageRepository.findResourceUsagesSumsBySiteId("siteId")).thenReturn(
-			new ResourceUsageByCredit(Map.of("id1", BigDecimal.TEN))
+		when(resourceUsageRepository.findResourceUsagesSumsBySiteId(siteId)).thenReturn(
+			new ResourceUsageByCredit(Map.of(resourceCreditId, BigDecimal.TEN))
 		);
-		when(communityAllocationServiceHelper.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
-		when(resourceTypeService.findById("id", "siteId")).thenReturn(Optional.of(ResourceType.builder().build()));
+		when(communityAllocationServiceHelper.getAvailableAmountForNew(resourceCreditId)).thenReturn(BigDecimal.ONE);
+		when(resourceTypeService.findById(resourceTypeId, siteId)).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
-		Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations("siteId");
+		Set<ResourceCreditWithAllocations> all = service.findAllWithAllocations(siteId);
 
 		//then
 		assertThat(all).hasSize(1);
 		ResourceCreditWithAllocations credit = all.iterator().next();
-		assertThat(credit.getId()).isEqualTo("id1");
+		assertThat(credit.getId()).isEqualTo(resourceCreditId);
 		assertThat(credit.getRemaining()).isEqualTo(BigDecimal.ONE);
 		assertThat(credit.getConsumed()).isEqualTo(BigDecimal.TEN);
 
@@ -173,13 +191,17 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldReturnResourceCreditsNotIncludedFullyDistributed() {
 		//given
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId1 = new ResourceCreditId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId2 = new ResourceCreditId(UUID.randomUUID());
+
 		when(resourceCreditRepository.findAllNotExpiredByNameOrSiteName("")).thenReturn(Set.of(
-				ResourceCredit.builder().id("id1").name("name").build(),
-				ResourceCredit.builder().id("id2").name("name_fullyDistributed").build(),
-				ResourceCredit.builder().id("id3").name("name2").build()));
-		when(communityAllocationServiceHelper.getAvailableAmountForNew("id1")).thenReturn(BigDecimal.ONE);
-		when(communityAllocationServiceHelper.getAvailableAmountForNew("id2")).thenReturn(BigDecimal.ZERO);
-		when(communityAllocationServiceHelper.getAvailableAmountForNew("id3")).thenReturn(BigDecimal.ONE);
+				ResourceCredit.builder().id(resourceCreditId).name("name").build(),
+				ResourceCredit.builder().id(resourceCreditId1).name("name_fullyDistributed").build(),
+				ResourceCredit.builder().id(resourceCreditId2).name("name2").build()));
+		when(communityAllocationServiceHelper.getAvailableAmountForNew(resourceCreditId)).thenReturn(BigDecimal.ONE);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew(resourceCreditId1)).thenReturn(BigDecimal.ZERO);
+		when(communityAllocationServiceHelper.getAvailableAmountForNew(resourceCreditId2)).thenReturn(BigDecimal.ONE);
 		when(resourceTypeService.findById(any(), any())).thenReturn(Optional.of(ResourceType.builder().build()));
 
 		//when
@@ -187,16 +209,19 @@ class ResourceCreditServiceImplTest {
 
 		//then
 		assertThat(all).hasSize(2);
-		assertThat(all.stream().noneMatch(credit -> credit.getId().equals("id2"))).isTrue();
+		assertThat(all.stream().noneMatch(credit -> credit.getId().equals(resourceCreditId1))).isTrue();
 	}
 
 	@Test
 	void shouldAllowToCreateResourceCredit() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		ResourceCredit request = ResourceCredit.builder()
-			.id("id")
-			.siteId("id")
-			.resourceTypeId("id")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -206,8 +231,8 @@ class ResourceCreditServiceImplTest {
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(resourceTypeRepository.exists(request.resourceTypeId)).thenReturn(true);
 		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(false);
-		when(resourceCreditRepository.create(request)).thenReturn("id");
-		when(resourceCreditRepository.findById("id")).thenReturn(Optional.of(request));
+		when(resourceCreditRepository.create(request)).thenReturn(resourceCreditId);
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(Optional.of(request));
 
 		//when
 		service.create(request);
@@ -219,14 +244,16 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldNotAllowToCreateResourceCreditDueToNonUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceCredit request = ResourceCredit.builder()
-			.id("id")
-			.siteId("siteId")
-			.resourceTypeId("typeId")
+			.id(new ResourceCreditId(UUID.randomUUID()))
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.build();
-		when(siteRepository.exists("siteId")).thenReturn(true);
-		when(resourceTypeRepository.exists("typeId")).thenReturn(true);
+		when(siteRepository.exists(siteId)).thenReturn(true);
+		when(resourceTypeRepository.exists(resourceTypeId)).thenReturn(true);
 		when(resourceCreditRepository.isNamePresent(request.name, request.siteId)).thenReturn(true);
 
 		//when
@@ -238,10 +265,13 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldAllowToUpdateResourceCredit() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		ResourceCredit request = ResourceCredit.builder()
-			.id("id")
-			.siteId("id")
-			.resourceTypeId("id")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -263,25 +293,27 @@ class ResourceCreditServiceImplTest {
 	@Test
 	void shouldAllowToDeleteResourceCredit() {
 		//given
-		String id = "id";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		ResourceCredit mock = mock(ResourceCredit.class);
-		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(mock));
+		when(resourceCreditRepository.findById(resourceCreditId)).thenReturn(Optional.of(mock));
 
 		//when
-		service.delete(id, "");
+		service.delete(resourceCreditId, siteId);
 
-		orderVerifier.verify(resourceCreditRepository).delete(eq(id));
+		orderVerifier.verify(resourceCreditRepository).delete(eq(resourceCreditId));
 		orderVerifier.verify(publisher).publishEvent(eq(new ResourceCreditRemovedEvent(mock)));
 	}
 
 	@Test
 	void shouldNotAllowToDeleteResourceCreditDueToResourceCreditNotExists() {
 		//given
-		String id = "id";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 
 		//when
-		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
-		orderVerifier.verify(resourceCreditRepository, times(0)).delete(eq(id));
+		assertThrows(IllegalArgumentException.class, () -> service.delete(resourceCreditId, siteId));
+		orderVerifier.verify(resourceCreditRepository, times(0)).delete(eq(resourceCreditId));
 		orderVerifier.verify(publisher, times(0)).publishEvent(any());
 	}
 

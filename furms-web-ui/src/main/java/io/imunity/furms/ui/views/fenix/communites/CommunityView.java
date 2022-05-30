@@ -20,6 +20,7 @@ import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
@@ -80,7 +81,7 @@ public class CommunityView extends FurmsViewComponent {
 		this.allocationService = allocationService;
 	}
 
-	private void loadTabs(String communityId) {
+	private void loadTabs(CommunityId communityId) {
 		paramToTab = new HashMap<>();
 		links = new ArrayList<>();
 		page1 = new Div();
@@ -117,7 +118,7 @@ public class CommunityView extends FurmsViewComponent {
 		getContent().add(tabs, pages);
 	}
 
-	private void loadPage1Content(String communityId, String communityName) {
+	private void loadPage1Content(CommunityId communityId, String communityName) {
 		InviteUserComponent inviteUser = new InviteUserComponent(
 			usersDAO::getAllUsers,
 			usersDAO::getCommunityAdmins
@@ -175,7 +176,7 @@ public class CommunityView extends FurmsViewComponent {
 		page1.add(headerLayout, inviteUser, grid);
 	}
 
-	private void doInviteAction(String communityId, InviteUserComponent inviteUser, MembershipChangerComponent membershipLayout) {
+	private void doInviteAction(CommunityId communityId, InviteUserComponent inviteUser, MembershipChangerComponent membershipLayout) {
 		try {
 			inviteUser.getUserId().ifPresentOrElse(
 				id -> communityService.inviteAdmin(communityId, id),
@@ -202,7 +203,8 @@ public class CommunityView extends FurmsViewComponent {
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String communityId) {
 		getContent().removeAll();
-		Community community = handleExceptions(() -> communityService.findById(communityId))
+		CommunityId commId = new CommunityId(communityId);
+		Community community = handleExceptions(() -> communityService.findById(commId))
 			.flatMap(identity())
 			.orElseThrow(IllegalStateException::new);
 		String param = event.getLocation()
@@ -210,13 +212,13 @@ public class CommunityView extends FurmsViewComponent {
 			.getParameters()
 			.getOrDefault(PARAM_NAME, List.of(ALLOCATIONS_PARAM))
 			.iterator().next();
-		loadTabs(communityId);
+		loadTabs(commId);
 		Tab tab = paramToTab.getOrDefault(param, defaultTab);
 		tabs.setSelectedTab(tab);
 		links.forEach(x -> x.setRoute(getClass(), communityId));
-		breadCrumbParameter = new BreadCrumbParameter(community.getId(), community.getName(), param);
-		usersDAO = new UsersDAO(() -> communityService.findAllAdminsWithAllUsers(communityId));
-		loadPage1Content(communityId, community.getName());
+		breadCrumbParameter = new BreadCrumbParameter(community.getId().id.toString(), community.getName(), param);
+		usersDAO = new UsersDAO(() -> communityService.findAllAdminsWithAllUsers(commId));
+		loadPage1Content(commId, community.getName());
 	}
 
 	@Override

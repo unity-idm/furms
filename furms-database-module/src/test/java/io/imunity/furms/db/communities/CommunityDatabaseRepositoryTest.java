@@ -6,22 +6,22 @@
 package io.imunity.furms.db.communities;
 
 
-import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
-import static org.assertj.core.api.Assertions.assertThat;
+import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.images.FurmsImage;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import io.imunity.furms.db.DBIntegrationTest;
-import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.images.FurmsImage;
+import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class CommunityDatabaseRepositoryTest extends DBIntegrationTest {
@@ -51,12 +51,12 @@ class CommunityDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		Optional<Community> byId = repository.findById(entity.getId().toString());
+		Optional<Community> byId = repository.findById(new CommunityId(entity.getId()));
 
 		//then
 		assertThat(byId).isPresent();
 		Community community = byId.get();
-		assertThat(community.getId()).isEqualTo(entity.getId().toString());
+		assertThat(community.getId().id).isEqualTo(entity.getId());
 		assertThat(community.getName()).isEqualTo(entity.getName());
 		assertThat(community.getDescription()).isEqualTo(entity.getDescription());
 		assertThat(community.getLogo()).isEqualTo(new FurmsImage(entity.getLogoImage(), entity.getLogoType()));
@@ -73,7 +73,7 @@ class CommunityDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		Optional<Community> byId = repository.findById(wrongId.toString());
+		Optional<Community> byId = repository.findById(new CommunityId(wrongId));
 
 		//then
 		assertThat(byId).isEmpty();
@@ -110,7 +110,7 @@ class CommunityDatabaseRepositoryTest extends DBIntegrationTest {
 				.build();
 
 		//when
-		String newCommunityId = repository.create(request);
+		CommunityId newCommunityId = repository.create(request);
 
 		//then
 		Optional<Community> byId = repository.findById(newCommunityId);
@@ -138,7 +138,7 @@ class CommunityDatabaseRepositoryTest extends DBIntegrationTest {
 		repository.update(requestToUpdate);
 
 		//then
-		Optional<Community> byId = repository.findById(old.getId().toString());
+		Optional<Community> byId = repository.findById(new CommunityId(old.getId()));
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getName()).isEqualTo("new_name");
 		assertThat(byId.get().getDescription()).isEqualTo("new_description");
@@ -156,18 +156,18 @@ class CommunityDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when + then
-		assertThat(repository.exists(entity.getId().toString())).isTrue();
+		assertThat(repository.exists(new CommunityId(entity.getId()))).isTrue();
 	}
 
 	@Test
 	void shouldNotExistsDueToEmptyOrWrongId() {
 		//given
-		String nonExistedId = generateId().toString();
+		CommunityId nonExistedId = new CommunityId(generateId());
 
 		//when + then
 		assertThat(repository.exists(nonExistedId)).isFalse();
 		assertThat(repository.exists(null)).isFalse();
-		assertThat(repository.exists("")).isFalse();
+		assertThat(repository.exists(new CommunityId((UUID) null))).isFalse();
 	}
 
 	@Test
@@ -196,7 +196,5 @@ class CommunityDatabaseRepositoryTest extends DBIntegrationTest {
 		//when + then
 		assertThat(repository.isUniqueName(existedCommunity.getName())).isFalse();
 	}
-
-
 
 }

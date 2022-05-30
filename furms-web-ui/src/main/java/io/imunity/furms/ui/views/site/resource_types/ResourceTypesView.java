@@ -16,6 +16,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.services.InfraServiceService;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -50,7 +52,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 	public ResourceTypesView(ResourceTypeService resourceTypeService, InfraServiceService serviceService) {
 		this.resourceTypeService = resourceTypeService;
 		this.grid = createResourceTypesGrid();
-		this.resolver = new ServiceComboBoxModelResolver(serviceService.findAll(getCurrentResourceId()));
+		this.resolver = new ServiceComboBoxModelResolver(serviceService.findAll(new SiteId(getCurrentResourceId())));
 
 		Button addButton = createAddButton();
 		loadGridContent();
@@ -71,7 +73,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 	private Grid<ResourceTypeViewModel> createResourceTypesGrid() {
 		Grid<ResourceTypeViewModel> grid = new DenseGrid<>(ResourceTypeViewModel.class);
 
-		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceTypeFormView.class, c.getId()))
+		grid.addComponentColumn(c -> new RouterLink(c.getName(), ResourceTypeFormView.class, c.getId().id.toString()))
 			.setHeader(getTranslation("view.site-admin.resource-types.grid.column.name"))
 			.setSortable(true)
 			.setComparator(x -> x.getName().toLowerCase());
@@ -101,15 +103,15 @@ public class ResourceTypesView extends FurmsViewComponent {
 		);
 	}
 
-	private Component createContextMenu(String serviceId, String resourceTypeName) {
+	private Component createContextMenu(ResourceTypeId resourceTypeId, String resourceTypeName) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.resource-types.menu.edit"), EDIT),
-			event -> UI.getCurrent().navigate(ResourceTypeFormView.class, serviceId)
+			event -> UI.getCurrent().navigate(ResourceTypeFormView.class, resourceTypeId.id.toString())
 		);
 
-		Dialog confirmDialog = createConfirmDialog(serviceId, resourceTypeName);
+		Dialog confirmDialog = createConfirmDialog(resourceTypeId, resourceTypeName);
 
 		contextMenu.addItem(new MenuButton(
 				getTranslation("view.site-admin.resource-types.menu.delete"), TRASH),
@@ -120,10 +122,10 @@ public class ResourceTypesView extends FurmsViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String serviceId, String resourceTypeName) {
+	private Dialog createConfirmDialog(ResourceTypeId resourceTypeId, String resourceTypeName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.resource-types.dialog.text", resourceTypeName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
-			getResultOrException(() -> resourceTypeService.delete(serviceId, getCurrentResourceId()))
+			getResultOrException(() -> resourceTypeService.delete(resourceTypeId, new SiteId(getCurrentResourceId())))
 				.getException()
 				.ifPresent(throwable -> showErrorNotification(getTranslation(throwable.getMessage(), resourceTypeName)));
 			loadGridContent();
@@ -136,7 +138,7 @@ public class ResourceTypesView extends FurmsViewComponent {
 	}
 
 	private List<ResourceTypeViewModel> loadServicesViewsModels() {
-		return handleExceptions(() -> resourceTypeService.findAll(getCurrentResourceId()))
+		return handleExceptions(() -> resourceTypeService.findAll(new SiteId(getCurrentResourceId())))
 			.orElseGet(Collections::emptySet)
 			.stream()
 			.map(ResourceTypeViewModelMapper::map)

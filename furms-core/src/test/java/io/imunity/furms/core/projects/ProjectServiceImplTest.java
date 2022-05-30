@@ -11,11 +11,13 @@ import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.core.user_operation.UserOperationService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
-import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
+import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.projects.ProjectUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -87,32 +89,35 @@ class ProjectServiceImplTest {
 	@Test
 	void shouldReturnProjectIfExistsInRepository() {
 		//given
-		String id = "id";
-		when(projectRepository.findById(id)).thenReturn(Optional.of(Project.builder()
-			.id(id)
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(Project.builder()
+			.id(projectId)
 			.name("userFacingName")
 			.build())
 		);
 
 		//when
-		Optional<Project> byId = service.findById(id);
-		Optional<Project> otherId = service.findById("otherId");
+		Optional<Project> byId = service.findById(projectId);
+		Optional<Project> otherId = service.findById(new ProjectId(UUID.randomUUID()));
 
 		//then
 		assertThat(byId).isPresent();
-		assertThat(byId.get().getId()).isEqualTo(id);
+		assertThat(byId.get().getId()).isEqualTo(projectId);
 		assertThat(otherId).isEmpty();
 	}
 
 	@Test
 	void shouldReturnAllProjectsIfExistsInRepository() {
 		//given
-		when(projectRepository.findAllByCommunityId("1")).thenReturn(Set.of(
-			Project.builder().id("id1").name("userFacingName").build(),
-			Project.builder().id("id2").name("userFacingName2").build()));
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectId projectId1 = new ProjectId(UUID.randomUUID());
+		when(projectRepository.findAllByCommunityId(communityId)).thenReturn(Set.of(
+			Project.builder().id(projectId).name("userFacingName").build(),
+			Project.builder().id(projectId1).name("userFacingName2").build()));
 
 		//when
-		Set<Project> allProjects = service.findAllByCommunityId("1");
+		Set<Project> allProjects = service.findAllByCommunityId(communityId);
 
 		//then
 		assertThat(allProjects).hasSize(2);
@@ -121,10 +126,11 @@ class ProjectServiceImplTest {
 	@Test
 	void shouldAllowToCreateProject() {
 		//given
-		String id = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		Project request = Project.builder()
-			.id(id)
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
@@ -133,14 +139,14 @@ class ProjectServiceImplTest {
 			.leaderId(new PersistentId(UUID.randomUUID().toString()))
 			.build();
 		ProjectGroup groupRequest = ProjectGroup.builder()
-			.id(id)
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.name("userFacingName")
 			.build();
-		when(communityRepository.exists("id")).thenReturn(true);
+		when(communityRepository.exists(communityId)).thenReturn(true);
 		when(projectRepository.isNamePresent(request.getCommunityId(), request.getName())).thenReturn(true);
-		when(projectRepository.findById(id)).thenReturn(Optional.of(request));
-		when(projectRepository.create(request)).thenReturn(id);
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(request));
+		when(projectRepository.create(request)).thenReturn(projectId);
 
 		//when
 		service.create(request);
@@ -169,10 +175,11 @@ class ProjectServiceImplTest {
 	@Test
 	void shouldAllowToUpdateProject() {
 		//given
-		String id = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		Project request = Project.builder()
-			.id(id)
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
@@ -181,9 +188,9 @@ class ProjectServiceImplTest {
 			.leaderId(new PersistentId(UUID.randomUUID().toString()))
 			.build();
 		ProjectGroup groupRequest = ProjectGroup.builder()
-			.id(id)
+			.id(projectId)
 			.name("userFacingName")
-			.communityId("id")
+			.communityId(communityId)
 			.build();
 		when(communityRepository.exists(request.getCommunityId())).thenReturn(true);
 		when(projectRepository.exists(request.getId())).thenReturn(true);
@@ -201,11 +208,13 @@ class ProjectServiceImplTest {
 	@Test
 	void shouldAllowToUpdateLimitedProject() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		LocalDateTime startTime = LocalDateTime.now();
 		LocalDateTime endTime = LocalDateTime.now().plusWeeks(1);
 		Project project = Project.builder()
-			.id("id")
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.description("description")
 			.name("userFacingName")
 			.acronym("acronym")
@@ -215,11 +224,11 @@ class ProjectServiceImplTest {
 			.build();
 		FurmsImage empty = FurmsImage.empty();
 		ProjectAdminControlledAttributes request = new ProjectAdminControlledAttributes(
-				"id", "description_new", "researchField_new", empty);
+				projectId, "description_new", "researchField_new", empty);
 		ProjectGroup groupRequest = ProjectGroup.builder()
-			.id("id")
+			.id(projectId)
 			.name("userFacingName")
-			.communityId("id")
+			.communityId(communityId)
 			.build();
 		when(projectRepository.exists(request.getId())).thenReturn(true);
 		when(projectRepository.findById(request.getId())).thenReturn(Optional.of(project));
@@ -228,8 +237,8 @@ class ProjectServiceImplTest {
 		service.update(request);
 
 		Project updatedProject = Project.builder()
-			.id("id")
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.description("description_new")
 			.logo(empty)
 			.name("userFacingName")
@@ -246,32 +255,32 @@ class ProjectServiceImplTest {
 	@Test
 	void shouldAllowToDeleteProject() {
 		//given
-		String id = "id";
-		String id2 = "id";
-		when(projectRepository.exists(id)).thenReturn(true);
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		when(projectRepository.exists(projectId)).thenReturn(true);
 		List<FURMSUser> users = Collections.singletonList(FURMSUser.builder().id(new PersistentId("id")).email("email@test.com").build());
-		when(projectGroupsDAO.getAllUsers("id", "id")).thenReturn(users);
+		when(projectGroupsDAO.getAllUsers(communityId, projectId)).thenReturn(users);
 		Project project = Project.builder().build();
-		when(projectRepository.findById("id")).thenReturn(Optional.of(project));
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
 		//when
-		service.delete(id, id2);
+		service.delete(projectId, communityId);
 
-		orderVerifier.verify(projectRepository).delete(eq(id));
-		orderVerifier.verify(projectGroupsDAO).delete(eq(id), eq(id2));
+		orderVerifier.verify(projectRepository).delete(eq(projectId));
+		orderVerifier.verify(projectGroupsDAO).delete(eq(communityId), eq(projectId));
 		orderVerifier.verify(publisher).publishEvent(eq(new ProjectRemovedEvent(users, project)));
 	}
 
 	@Test
 	void shouldNotAllowToDeleteProjectDueToProjectNotExists() {
 		//given
-		String id = "id";
-		String id2 = "id2";
-		when(projectRepository.exists(id)).thenReturn(false);
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		when(projectRepository.exists(projectId)).thenReturn(false);
 
 		//when
-		assertThrows(IllegalArgumentException.class, () -> service.delete(id, id2));
-		orderVerifier.verify(projectRepository, times(0)).delete(eq(id));
+		assertThrows(IllegalArgumentException.class, () -> service.delete(projectId, communityId));
+		orderVerifier.verify(projectRepository, times(0)).delete(eq(projectId));
 		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new ProjectUpdatedEvent(null, null)));
 	}
 

@@ -7,21 +7,24 @@ package io.imunity.furms.ui.views.site.resource_types;
 
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 
 class ResourceTypeViewModel {
-	private final String id;
-	private final String siteId;
-	private String serviceId;
+	private final ResourceTypeId id;
+	private final SiteId siteId;
+	private InfraServiceId serviceId;
 	private String name;
 	private ResourceMeasureType type;
 	private ResourceMeasureUnit unit;
 	private boolean accessible;
 
-	private ResourceTypeViewModel(String id,
-	                              String siteId,
-	                              String serviceId,
+	private ResourceTypeViewModel(ResourceTypeId id,
+	                              SiteId siteId,
+	                              InfraServiceId serviceId,
 	                              String name,
 	                              ResourceMeasureType type,
 	                              ResourceMeasureUnit unit,
@@ -35,17 +38,17 @@ class ResourceTypeViewModel {
 		this.accessible = accessible;
 	}
 
-	public ResourceTypeViewModel(String siteId) {
+	public ResourceTypeViewModel(SiteId siteId) {
 		this.id = null;
 		this.serviceId = null;
 		this.siteId = siteId;
 	}
 
-	public String getId() {
+	public ResourceTypeId getId() {
 		return id;
 	}
 
-	public String getSiteId() {
+	public SiteId getSiteId() {
 		return siteId;
 	}
 
@@ -73,11 +76,11 @@ class ResourceTypeViewModel {
 		this.unit = unit;
 	}
 
-	public String getServiceId() {
+	public InfraServiceId getServiceId() {
 		return serviceId;
 	}
 
-	public void setServiceId(String serviceId) {
+	public void setServiceId(InfraServiceId serviceId) {
 		this.serviceId = serviceId;
 	}
 
@@ -120,9 +123,9 @@ class ResourceTypeViewModel {
 	}
 
 	public static final class ResourceTypeViewModelBuilder {
-		private String id;
-		private String siteId;
-		private String serviceId;
+		private ResourceTypeId id;
+		private SiteId siteId;
+		private InfraServiceId serviceId;
 		private String name;
 		private ResourceMeasureType type;
 		private ResourceMeasureUnit unit;
@@ -131,17 +134,17 @@ class ResourceTypeViewModel {
 		private ResourceTypeViewModelBuilder() {
 		}
 
-		public ResourceTypeViewModelBuilder id(String id) {
+		public ResourceTypeViewModelBuilder id(ResourceTypeId id) {
 			this.id = id;
 			return this;
 		}
 
-		public ResourceTypeViewModelBuilder siteId(String siteId) {
+		public ResourceTypeViewModelBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public ResourceTypeViewModelBuilder serviceId(String serviceId) {
+		public ResourceTypeViewModelBuilder serviceId(InfraServiceId serviceId) {
 			this.serviceId = serviceId;
 			return this;
 		}

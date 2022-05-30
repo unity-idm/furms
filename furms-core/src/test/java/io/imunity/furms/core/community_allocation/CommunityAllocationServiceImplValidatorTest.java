@@ -10,8 +10,11 @@ import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAbove
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateAboveCreditAvailableAmountException;
 import io.imunity.furms.api.validation.exceptions.CommunityAllocationUpdateBelowDistributedAmountException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -27,6 +30,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -57,8 +61,8 @@ class CommunityAllocationServiceImplValidatorTest {
 	void shouldPassCreateForUniqueName() {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-			.communityId("id")
-			.resourceCreditId("id")
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -76,8 +80,8 @@ class CommunityAllocationServiceImplValidatorTest {
 	void shouldNotPassCreateForNullAmount() {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-			.communityId("id")
-			.resourceCreditId("id")
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.build();
 
@@ -93,8 +97,8 @@ class CommunityAllocationServiceImplValidatorTest {
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-			.communityId("id")
-			.resourceCreditId("id")
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -111,8 +115,8 @@ class CommunityAllocationServiceImplValidatorTest {
 	void shouldNotPassCreateForNonExistingResourceCreditId() {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-			.communityId("id")
-			.resourceCreditId("id")
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.build();
 
@@ -128,7 +132,7 @@ class CommunityAllocationServiceImplValidatorTest {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
 			.name("name")
-			.communityId("id")
+			.communityId(UUID.randomUUID().toString())
 			.build();
 
 		//when+then
@@ -139,8 +143,8 @@ class CommunityAllocationServiceImplValidatorTest {
 	void shouldNotPassCreateForExpiredResourceCredit() {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-				.communityId("id")
-				.resourceCreditId("id")
+				.communityId(UUID.randomUUID().toString())
+				.resourceCreditId(UUID.randomUUID().toString())
 				.name("name")
 				.build();
 
@@ -162,8 +166,8 @@ class CommunityAllocationServiceImplValidatorTest {
 	void shouldNotPassCreateForAmountGreaterThanResourceCreditAmount() {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-				.communityId("id")
-				.resourceCreditId("id")
+				.communityId(UUID.randomUUID().toString())
+				.resourceCreditId(UUID.randomUUID().toString())
 				.name("name")
 				.amount(BigDecimal.TEN)
 				.build();
@@ -188,9 +192,9 @@ class CommunityAllocationServiceImplValidatorTest {
 	void shouldPassUpdateForUniqueName() {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-			.id("id")
-			.communityId("id")
-			.resourceCreditId("id")
+			.id(UUID.randomUUID().toString())
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -207,18 +211,22 @@ class CommunityAllocationServiceImplValidatorTest {
 
 	@Test
 	void shouldForbidToUpdateBelowDistributedAmount() {
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+
 		CommunityAllocation originalAllocation = CommunityAllocation.builder()
-				.id("id")
-				.communityId("cid")
-				.resourceCreditId("rid")
+				.id(id)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("name")
 				.amount(new BigDecimal(10))
 				.build();
 
 		CommunityAllocation updatedAllocation = CommunityAllocation.builder()
-				.id("id")
-				.communityId("cid")
-				.resourceCreditId("rid")
+				.id(id)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("name")
 				.amount(new BigDecimal(4))
 				.build();
@@ -233,18 +241,22 @@ class CommunityAllocationServiceImplValidatorTest {
 	
 	@Test
 	void shouldForbidToUpdateAboveCreditAmount() {
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+
 		CommunityAllocation originalAllocation = CommunityAllocation.builder()
-				.id("id")
-				.communityId("cid")
-				.resourceCreditId("rid")
+				.id(id)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("name")
 				.amount(new BigDecimal(10))
 				.build();
 
 		CommunityAllocation updatedAllocation = CommunityAllocation.builder()
-				.id("id")
-				.communityId("cid")
-				.resourceCreditId("rid")
+				.id(id)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("name")
 				.amount(new BigDecimal(11))
 				.build();
@@ -261,18 +273,21 @@ class CommunityAllocationServiceImplValidatorTest {
 
 	@Test
 	void shouldForbidToUpdateAboveCreditAvailableAmount() {
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		CommunityAllocation originalAllocation = CommunityAllocation.builder()
-				.id("id")
-				.communityId("cid")
-				.resourceCreditId("rid")
+				.id(id)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("name")
 				.amount(new BigDecimal(3))
 				.build();
 
 		CommunityAllocation updatedAllocation = CommunityAllocation.builder()
-				.id("id")
-				.communityId("cid")
-				.resourceCreditId("rid")
+				.id(id)
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("name")
 				.amount(new BigDecimal(6))
 				.build();
@@ -292,9 +307,9 @@ class CommunityAllocationServiceImplValidatorTest {
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-			.id("id")
-			.communityId("id")
-			.resourceCreditId("id")
+			.id(UUID.randomUUID().toString())
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
@@ -309,18 +324,22 @@ class CommunityAllocationServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+
 		CommunityAllocation communityAllocation = CommunityAllocation.builder()
-			.id("id")
-			.communityId("id")
-			.resourceCreditId("id")
+			.id(id)
+			.communityId(communityId)
+			.resourceCreditId(resourceCreditId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
 
 		CommunityAllocation communityAllocation1 = CommunityAllocation.builder()
-			.id("id")
-			.communityId("id")
-			.resourceCreditId("id")
+			.id(id)
+			.communityId(communityId)
+			.resourceCreditId(resourceCreditId)
 			.name("name2")
 			.amount(new BigDecimal(2))
 			.build();
@@ -338,7 +357,7 @@ class CommunityAllocationServiceImplValidatorTest {
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		String id = "id";
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
 
 		when(communityAllocationRepository.findById(id)).thenReturn(Optional.of(mock(CommunityAllocation.class)));
 
@@ -349,7 +368,7 @@ class CommunityAllocationServiceImplValidatorTest {
 	@Test
 	void shouldNotPassDeleteForNonExistingId() {
 		//given
-		String id = "id";
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
 
 		when(communityAllocationRepository.findById(id)).thenReturn(Optional.empty());
 

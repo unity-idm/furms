@@ -8,7 +8,10 @@ package io.imunity.furms.core.services;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.InfraServiceHasIndirectlyResourceCreditsRemoveValidationError;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
@@ -55,9 +58,9 @@ class InfraServiceServiceValidator {
 		validateLength("description", infraService.description, MAX_DESCRIPTION_LENGTH);
 	}
 
-	void validateDelete(String id) {
+	void validateDelete(InfraServiceId id) {
 		validateId(id);
-		List<String> resourceTypeIds = resourceTypeRepository.findAllByInfraServiceId(id).stream()
+		List<ResourceTypeId> resourceTypeIds = resourceTypeRepository.findAllByInfraServiceId(id).stream()
 			.map(resourceType -> resourceType.id)
 			.collect(Collectors.toList());
 		if (resourceCreditRepository.existsByResourceTypeIdIn(resourceTypeIds)) {
@@ -86,12 +89,12 @@ class InfraServiceServiceValidator {
 		}
 	}
 
-	private void validateId(String id) {
+	private void validateId(InfraServiceId id) {
 		notNull(id, "InfraService ID has to be declared.");
 		assertTrue(infraServiceRepository.exists(id), () -> new IdNotFoundValidationError("Service with declared ID is not exists."));
 	}
 
-	private void validateSiteId(String id) {
+	private void validateSiteId(SiteId id) {
 		notNull(id, "Site ID has to be declared.");
 		assertTrue(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID does not exist."));
 	}

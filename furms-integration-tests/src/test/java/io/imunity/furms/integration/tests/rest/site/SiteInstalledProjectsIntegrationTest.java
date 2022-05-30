@@ -5,13 +5,16 @@
 
 package io.imunity.furms.integration.tests.rest.site;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.domain.users.PersistentId;
@@ -55,27 +58,26 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
 		Site.SiteBuilder darkSiteBuilder = defaultSite()
-				.name("Dark Site")
-				.externalId(new SiteExternalId("dsid"));
+				.name("Dark Site");
 		darkSite = darkSiteBuilder
-				.id(siteRepository.create(darkSiteBuilder.build(), darkSiteBuilder.build().getExternalId()))
+				.id(siteRepository.create(darkSiteBuilder.build(), new SiteExternalId("dsid")))
 				.build();
 	}
 
 	@Test
 	void shouldFindAllInstalledProjectsForSpecificSite() throws Exception {
 		//given
-		final String communityId = communityRepository.create(defaultCommunity()
+		final CommunityId communityId = communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
-		final String projectId3 = createProject(communityId);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
+		final ProjectId projectId3 = createProject(communityId);
 		createSiteInstalledProject(projectId1, site.getId(), INSTALLED);
 		createSiteInstalledProject(projectId2, site.getId(), INSTALLED);
 		createSiteInstalledProject(projectId3, site.getId(), PENDING);
 		createSiteInstalledProject(projectId3, darkSite.getId(), INSTALLED);
-		final Set<String> expectedProjects = Set.of(projectId1, projectId2);
+		final Set<String> expectedProjects = Set.of(projectId1.id.toString(), projectId2.id.toString());
 
 		final TestUser user = basicUser();
 		user.addSiteAdmin(site.getId());
@@ -85,7 +87,7 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 		setupUser(user);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/projectInstallations", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/projectInstallations", site.getId().id)
 				.with(user.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
@@ -110,7 +112,7 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/projectInstallations", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/projectInstallations", site.getId().id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -119,13 +121,13 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindAllUsersThatHaveAccessToSite() throws Exception {
 		//given
-		final String communityId = communityRepository.create(defaultCommunity()
+		final CommunityId communityId = communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
-		final String projectId3 = createProject(communityId);
-		final String projectId4 = createProject(communityId);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
+		final ProjectId projectId3 = createProject(communityId);
+		final ProjectId projectId4 = createProject(communityId);
 		final TestUser otherUser = basicUser();
 		otherUser.addSiteAdmin(site.getId());
 		setupUser(otherUser);
@@ -145,32 +147,32 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 		final List<List<String>> sshKeyExpectedValues = List.of(List.of(sshKey1Value), List.of(sshKey2Value));
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/users", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/users", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
 				.andExpect(jsonPath("$.[0].user.fenixIdentifier", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[0].uid", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[0].projectIds").value(anyOf(
-						containsInAnyOrder(projectId1, projectId2, projectId3),
-						containsInAnyOrder(projectId1, projectId2))))
+						containsInAnyOrder(projectId1.id.toString(), projectId2.id.toString(), projectId3.id.toString()),
+						containsInAnyOrder(projectId1.id.toString(), projectId2.id.toString()))))
 				.andExpect(jsonPath("$.[0].sshKeys", in(sshKeyExpectedValues)))
 				.andExpect(jsonPath("$.[1].user.fenixIdentifier", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].uid", in(Set.of(ADMIN_USER.getFenixId(), otherUser.getFenixId()))))
 				.andExpect(jsonPath("$.[1].projectIds").value(anyOf(
-						containsInAnyOrder(projectId1, projectId2, projectId3),
-						containsInAnyOrder(projectId1, projectId2))))
+						containsInAnyOrder(projectId1.id.toString(), projectId2.id.toString(), projectId3.id.toString()),
+						containsInAnyOrder(projectId1.id.toString(), projectId2.id.toString()))))
 				.andExpect(jsonPath("$.[1].sshKeys", in(sshKeyExpectedValues)));
 	}
 
 	@Test
 	void shouldReturnSSHKeysGroupedByUserIdAndSiteId() throws Exception {
 		//given
-		final String communityId = communityRepository.create(defaultCommunity()
+		final CommunityId communityId = communityRepository.create(defaultCommunity()
 				.name(UUID.randomUUID().toString())
 				.build());
-		final String projectId1 = createProject(communityId);
-		final String projectId2 = createProject(communityId);
+		final ProjectId projectId1 = createProject(communityId);
+		final ProjectId projectId2 = createProject(communityId);
 		final TestUser otherUser = basicUser();
 		otherUser.addSiteAdmin(site.getId());
 		otherUser.addSiteAdmin(darkSite.getId());
@@ -186,13 +188,13 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 		createSSHKey(darkSite.getId(), sshKeyDarkSiteValue, otherUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/users", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/users", site.getId().id)
 				.with(otherUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(1)))
 				.andExpect(jsonPath("$.[0].sshKeys", equalTo(List.of(sshKeySiteValue))));
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/users", darkSite.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/users", darkSite.getId().id)
 				.with(otherUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isOk())
@@ -200,7 +202,7 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.andExpect(jsonPath("$.[0].sshKeys", equalTo(List.of(sshKeyDarkSiteValue))));
 	}
 
-	private void createSiteInstalledProject(String projectId, String siteId, ProjectInstallationStatus status) {
+	private void createSiteInstalledProject(ProjectId projectId, SiteId siteId, ProjectInstallationStatus status) {
 		projectOperationRepository.createOrUpdate(defaultProjectInstallationJob()
 			.projectId(projectId)
 			.siteId(siteId)
@@ -208,11 +210,11 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 			.build());
 	}
 
-	private void createUserSite(String projectId, String siteId, TestUser testUser) {
+	private void createUserSite(ProjectId projectId, SiteId siteId, TestUser testUser) {
 		final String correlationId = UUID.randomUUID().toString();
 		userOperationRepository.create(defaultUserAddition()
 				.projectId(projectId)
-				.siteId(new SiteId(siteId))
+				.siteId(siteId)
 				.userId(testUser.getFenixId())
 				.correlationId(new CorrelationId(correlationId))
 				.build());
@@ -228,7 +230,7 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private String createProject(String communityId) {
+	private ProjectId createProject(CommunityId communityId) {
 		return projectRepository.create(defaultProject()
 				.communityId(communityId)
 				.name(UUID.randomUUID().toString())
@@ -236,8 +238,8 @@ public class SiteInstalledProjectsIntegrationTest extends IntegrationTestBase {
 				.build());
 	}
 
-	private void createSSHKey(String siteId, String value, TestUser user) {
-		final String sshKeyId = sshKeyRepository.create(SSHKey.builder()
+	private void createSSHKey(SiteId siteId, String value, TestUser user) {
+		final SSHKeyId sshKeyId = sshKeyRepository.create(SSHKey.builder()
 				.sites(Set.of(siteId))
 				.name(UUID.randomUUID().toString())
 				.ownerId(new PersistentId(user.getUserId()))

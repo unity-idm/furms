@@ -8,9 +8,11 @@ package io.imunity.furms.core.resource_types;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.resource_types.ResourceTypeCreatedEvent;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_types.ResourceTypeRemovedEvent;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.ResourceTypeUpdatedEvent;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +43,13 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Optional<ResourceType> findById(String id, String siteId) {
+	public Optional<ResourceType> findById(ResourceTypeId id, SiteId siteId) {
 		return resourceTypeRepository.findById(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<ResourceType> findAll(String siteId) {
+	public Set<ResourceType> findAll(SiteId siteId) {
 		return resourceTypeRepository.findAllBySiteId(siteId);
 	}
 
@@ -61,7 +63,7 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "resourceType.siteId")
 	public void create(ResourceType resourceType) {
 		validator.validateCreate(resourceType);
-		String id = resourceTypeRepository.create(resourceType);
+		ResourceTypeId id = resourceTypeRepository.create(resourceType);
 		ResourceType created = resourceTypeRepository.findById(id).get();
 		publisher.publishEvent(new ResourceTypeCreatedEvent(created));
 		LOG.info("ResourceType with given ID: {} was created: {}", id, resourceType);
@@ -79,7 +81,7 @@ class ResourceTypeServiceImpl implements ResourceTypeService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
-	public void delete(String id, String siteId) {
+	public void delete(ResourceTypeId id, SiteId siteId) {
 		validator.validateDelete(id);
 		ResourceType resourceType = resourceTypeRepository.findById(id).get();
 		resourceTypeRepository.delete(id);

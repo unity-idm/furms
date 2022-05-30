@@ -8,17 +8,25 @@ package io.imunity.furms.db.resource_usage;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -32,12 +40,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -65,32 +71,32 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceUsageEntityRepository entityRepository;
 
-	private UUID siteId;
-	private UUID communityId;
-	private UUID resourceCreditId;
-	private UUID communityAllocationId;
+	private SiteId siteId;
+	private CommunityId communityId;
+	private ResourceCreditId resourceCreditId;
+	private CommunityAllocationId communityAllocationId;
 
-	private UUID projectId;
-	private UUID projectId2;
+	private ProjectId projectId;
+	private ProjectId projectId2;
 
-	private UUID projectAllocationId;
-	private UUID projectAllocationId2;
+	private ProjectAllocationId projectAllocationId;
+	private ProjectAllocationId projectAllocationId2;
 
 	@BeforeEach
 	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		communityId = UUID.fromString(communityRepository.create(community));
+		communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -100,7 +106,7 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now().plusDays(1))
 			.build();
 		Project project2 = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name2")
 			.logo(FurmsImage.empty())
 			.description("new_description")
@@ -110,81 +116,81 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now().plusDays(1))
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
-		projectId2 = UUID.fromString(projectRepository.create(project2));
+		projectId = projectRepository.create(project);
+		projectId2 = projectRepository.create(project2);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
-		UUID communityAllocationId2 = UUID.fromString(communityAllocationRepository.create(
+		);
+		CommunityAllocationId communityAllocationId2 = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem2")
 				.amount(new BigDecimal(30))
 				.build()
-		));
+		);
 
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
+		projectAllocationId = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(5))
 				.build()
-		));
-		projectAllocationId2 = UUID.fromString(projectAllocationRepository.create(
+		);
+		projectAllocationId2 = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId2.toString())
-				.communityAllocationId(communityAllocationId2.toString())
+				.projectId(projectId2)
+				.communityAllocationId(communityAllocationId2)
 				.name("anem2")
 				.amount(new BigDecimal(30))
 				.build()
-		));
+		);
 	}
 
 	@Test
 	void shouldCreate() {
 		ResourceUsageEntity saveEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
-				.siteId(siteId)
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
+				.communityAllocationId(communityAllocationId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.cumulativeConsumption(BigDecimal.ONE)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build()
@@ -202,25 +208,25 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdate() {
 		ResourceUsageEntity savedEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
-				.siteId(siteId)
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
+				.communityAllocationId(communityAllocationId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.cumulativeConsumption(BigDecimal.TEN)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
 		ResourceUsageEntity updatedEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
-				.siteId(siteId)
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.communityAllocationId(communityAllocationId)
+				.siteId(siteId.id)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
+				.communityAllocationId(communityAllocationId.id)
 				.id(savedEntity.id)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.cumulativeConsumption(BigDecimal.ONE)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build()
@@ -238,12 +244,12 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDelete() {
 		ResourceUsageEntity savedEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
-				.siteId(siteId)
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
+				.communityAllocationId(communityAllocationId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.cumulativeConsumption(BigDecimal.TEN)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build()
@@ -259,24 +265,24 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindByProjectAllocationId() {
 		ResourceUsageEntity saveEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
-				.siteId(siteId)
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
+				.communityAllocationId(communityAllocationId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.cumulativeConsumption(BigDecimal.ONE)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
 		entityRepository.save(
 			ResourceUsageEntity.builder()
-				.siteId(siteId)
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId2)
-				.projectAllocationId(projectAllocationId2)
+				.siteId(siteId.id)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
+				.communityAllocationId(communityAllocationId.id)
+				.projectId(projectId2.id)
+				.projectAllocationId(projectAllocationId2.id)
 				.cumulativeConsumption(BigDecimal.ONE)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build()
@@ -294,24 +300,24 @@ class ResourceUsageEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllByProjectId() {
 		ResourceUsageEntity saveEntity = entityRepository.save(
 			ResourceUsageEntity.builder()
-				.siteId(siteId)
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId)
-				.projectAllocationId(projectAllocationId)
+				.siteId(siteId.id)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
+				.communityAllocationId(communityAllocationId.id)
+				.projectId(projectId.id)
+				.projectAllocationId(projectAllocationId.id)
 				.cumulativeConsumption(BigDecimal.ONE)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build()
 		);
 		entityRepository.save(
 			ResourceUsageEntity.builder()
-				.siteId(siteId)
-				.communityId(communityId)
-				.resourceCreditId(resourceCreditId)
-				.communityAllocationId(communityAllocationId)
-				.projectId(projectId2)
-				.projectAllocationId(projectAllocationId2)
+				.siteId(siteId.id)
+				.communityId(communityId.id)
+				.resourceCreditId(resourceCreditId.id)
+				.communityAllocationId(communityAllocationId.id)
+				.projectId(projectId2.id)
+				.projectAllocationId(projectAllocationId2.id)
 				.cumulativeConsumption(BigDecimal.ONE)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build()

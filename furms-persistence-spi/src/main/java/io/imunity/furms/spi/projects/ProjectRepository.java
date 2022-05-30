@@ -5,35 +5,37 @@
 
 package io.imunity.furms.spi.projects;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 
 import java.util.Optional;
 import java.util.Set;
 
 public interface ProjectRepository {
-	Optional<Project> findById(String id);
+	Optional<Project> findById(ProjectId id);
 
-	Set<Project> findAllByCommunityId(String communityId);
+	Set<Project> findAllByCommunityId(CommunityId communityId);
 
-	Set<Project> findAllByCommunityIds(Set<String> communityIds);
+	Set<Project> findAllByCommunityIds(Set<CommunityId> communityIds);
 
-	Set<Project> findAllNotExpiredByCommunityId(String communityId);
+	Set<Project> findAllNotExpiredByCommunityId(CommunityId communityId);
 
 	Set<Project> findAll();
 
-	Set<Project> findAll(Set<String> ids);
+	Set<Project> findAll(Set<ProjectId> ids);
 
-	String create(Project community);
+	ProjectId create(Project project);
 
-	void update(Project community);
+	void update(Project project);
 
-	boolean exists(String id);
+	boolean exists(ProjectId id);
 
-	boolean isProjectRelatedWithCommunity(String communityId, String projectId);
+	boolean isProjectRelatedWithCommunity(CommunityId communityId, ProjectId projectId);
 
-	boolean isNamePresent(String communityId, String name);
+	boolean isNamePresent(CommunityId communityId, String name);
 
-	void delete(String id);
+	void delete(ProjectId id);
 	
 	void deleteAll();
 }

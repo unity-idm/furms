@@ -72,7 +72,7 @@ class ProjectAllocationServiceSecurityTest extends SecurityTestsBase {
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
 				() -> service.findByIdWithRelatedObjects(community, projectAllocation),
-				() -> service.getOccupiedNames(community, projectAllocation),
+				() -> service.getOccupiedNames(community, project),
 				() -> service.getAvailableAmount(community, communityAllocation),
 				() -> service.create(community, ProjectAllocation.builder().build()),
 				() -> service.update(community, ProjectAllocation.builder().build()),

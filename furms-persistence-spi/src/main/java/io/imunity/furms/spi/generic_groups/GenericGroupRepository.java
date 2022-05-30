@@ -5,6 +5,7 @@
 
 package io.imunity.furms.spi.generic_groups;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupMembership;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
@@ -18,11 +19,11 @@ import java.util.Set;
 
 public interface GenericGroupRepository {
 	Optional<GenericGroup> findBy(GenericGroupId genericGroupId);
-	Optional<GenericGroupWithAssignments> findGroupWithAssignments(String communityId, GenericGroupId genericGroupId);
+	Optional<GenericGroupWithAssignments> findGroupWithAssignments(CommunityId communityId, GenericGroupId genericGroupId);
 
-	Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(String communityId);
+	Set<GenericGroupWithAssignmentAmount> findAllGroupWithAssignmentsAmount(CommunityId communityId);
 
-	Set<GenericGroup> findAllBy(String communityId);
+	Set<GenericGroup> findAllBy(CommunityId communityId);
 	Set<GenericGroupMembership> findAllBy(GenericGroupId id);
 	Set<GroupAccess> findAllBy(FenixUserId id);
 
@@ -33,7 +34,7 @@ public interface GenericGroupRepository {
 	void delete(GenericGroupId id);
 	void deleteMembership(GenericGroupId groupId, FenixUserId userId);
 
-	boolean existsBy(String communityId, GenericGroupId groupId);
+	boolean existsBy(CommunityId communityId, GenericGroupId groupId);
 	boolean existsBy(GenericGroupId groupId, FenixUserId userId);
-	boolean existsBy(String communityId, String name);
+	boolean existsBy(CommunityId communityId, String name);
 }

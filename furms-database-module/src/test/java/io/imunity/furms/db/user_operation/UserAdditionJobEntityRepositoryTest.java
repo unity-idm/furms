@@ -7,10 +7,14 @@ package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.user_operation.UserAdditionId;
 import io.imunity.furms.domain.user_operation.UserStatus;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
@@ -20,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,23 +44,23 @@ class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private UserAdditionJobEntityRepository userAdditionJobEntityRepository;
 
-	private UUID userAdditionalId;
+	private UserAdditionId userAdditionalId;
 
 	@BeforeEach
 	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		UUID siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		SiteId siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -67,22 +70,24 @@ class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		UUID projectId = UUID.fromString(projectRepository.create(project));
+		ProjectId projectId = projectRepository.create(project);
 
-		userAdditionalId = userAdditionEntityRepository.save(
+		UUID uAdditionalId = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		).getId();
+
+		userAdditionalId = new UserAdditionId(uAdditionalId);
 	}
 
 	@Test
 	void shouldCreate(){
 		UserAdditionJobEntity userAdditionSaveEntity = userAdditionJobEntityRepository.save(
 			UserAdditionJobEntity.builder()
-				.userAdditionId(userAdditionalId)
+				.userAdditionId(userAdditionalId.id)
 				.correlationId(UUID.randomUUID())
 				.status(UserStatus.ADDING_PENDING)
 				.build()
@@ -96,7 +101,7 @@ class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindByCorrelation(){
 		UserAdditionJobEntity userAdditionSaveEntity = userAdditionJobEntityRepository.save(
 			UserAdditionJobEntity.builder()
-				.userAdditionId(userAdditionalId)
+				.userAdditionId(userAdditionalId.id)
 				.correlationId(UUID.randomUUID())
 				.status(UserStatus.ADDING_PENDING)
 				.build()
@@ -110,7 +115,7 @@ class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDelete(){
 		UserAdditionJobEntity userAdditionSaveEntity = userAdditionJobEntityRepository.save(
 			UserAdditionJobEntity.builder()
-				.userAdditionId(userAdditionalId)
+				.userAdditionId(userAdditionalId.id)
 				.correlationId(UUID.randomUUID())
 				.status(UserStatus.ADDING_PENDING)
 				.build()
@@ -126,7 +131,7 @@ class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdate(){
 		UserAdditionJobEntity userAdditionSaveEntity = userAdditionJobEntityRepository.save(
 			UserAdditionJobEntity.builder()
-				.userAdditionId(userAdditionalId)
+				.userAdditionId(userAdditionalId.id)
 				.correlationId(UUID.randomUUID())
 				.status(UserStatus.ADDING_PENDING)
 				.build()
@@ -134,7 +139,7 @@ class UserAdditionJobEntityRepositoryTest extends DBIntegrationTest {
 		userAdditionJobEntityRepository.save(
 			UserAdditionJobEntity.builder()
 				.id(userAdditionSaveEntity.getId())
-				.userAdditionId(userAdditionalId)
+				.userAdditionId(userAdditionalId.id)
 				.correlationId(UUID.randomUUID())
 				.status(UserStatus.REMOVAL_PENDING)
 				.build()

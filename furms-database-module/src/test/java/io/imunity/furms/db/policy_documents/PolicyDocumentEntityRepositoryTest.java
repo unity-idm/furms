@@ -7,18 +7,25 @@ package io.imunity.furms.db.policy_documents;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -73,22 +80,21 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private UserSiteAccessRepository userSiteAccessRepository;
 
-	private UUID siteId;
+	private SiteId siteId;
 
 	@BeforeEach
 	void init() {
-//		userSiteAccessRepository.deleteAll();
 		Site site = Site.builder()
 			.name("name")
 			.connectionInfo("alala")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 	}
 
 	@Test
 	void shouldFindAllBySiteId() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -98,7 +104,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 
 		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
 
-		Set<PolicyDocumentEntity> policyDocumentEntities = policyDocumentEntityRepository.findAllBySiteId(siteId);
+		Set<PolicyDocumentEntity> policyDocumentEntities = policyDocumentEntityRepository.findAllBySiteId(siteId.id);
 
 		assertThat(policyDocumentEntities.size()).isEqualTo(1);
 		PolicyDocumentEntity next = policyDocumentEntities.iterator().next();
@@ -116,9 +122,9 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllSitePoliciesByUserId() {
 		//given
-		UUID siteId = initSite();
+		SiteId siteId = initSite();
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -126,7 +132,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 			.wysiwygText("wysiwygText")
 			.build();
 		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
-		FenixUserId fenixUserId = initUserWithResourceAccessToSite(siteId, saved);
+		FenixUserId fenixUserId = initUserWithResourceAccessToSite(siteId.id, saved);
 		//when
 		Set<PolicyDocumentExtendedEntity> policyDocumentEntities = policyDocumentEntityRepository.findAllSitePoliciesByUserId(fenixUserId.id);
 
@@ -146,39 +152,40 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	private FenixUserId initUserWithResourceAccessToSite(UUID siteId, PolicyDocumentEntity policyDocumentEntity) {
-		UUID communityId = initCommunity();
+		CommunityId communityId = initCommunity();
 
-		UUID projectId = initProject(communityId);
+		SiteId sId = new SiteId(siteId);
+		ProjectId projectId = new ProjectId(initProject(communityId));
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(sId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
-		UUID projectAllocationId = initProjectAllocation(siteId, communityId, projectId, serviceId);
+		ProjectAllocationId projectAllocationId = initProjectAllocation(siteId, communityId.id, projectId.id,
+			serviceId.id);
 
 		FenixUserId fenixUserId = new FenixUserId("id");
-		GrantAccess grantAccess = initGrantAccess(siteId, projectId, projectAllocationId, fenixUserId);
+		GrantAccess grantAccess = initGrantAccess(siteId, projectId.id, projectAllocationId.id, fenixUserId);
 		resourceAccessRepository.create(CorrelationId.randomID(), grantAccess, AccessStatus.GRANTED);
-		userSiteAccessRepository.add(siteId.toString(), projectId.toString(), fenixUserId);
+		userSiteAccessRepository.add(sId, projectId, fenixUserId);
 
 		Site updateSite = Site.builder()
-			.id(siteId.toString())
+			.id(new SiteId(siteId.toString(), new SiteExternalId("id2")))
 			.name("name2")
 			.connectionInfo("alala")
 			.policyId(new PolicyId(policyDocumentEntity.getId()))
-			.externalId(new SiteExternalId("id2"))
 			.build();
 		siteRepository.update(updateSite);
 
 		return fenixUserId;
 	}
 
-	private UUID initProject(UUID communityId) {
+	private ProjectId initProject(CommunityId communityId) {
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -188,10 +195,10 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		return UUID.fromString(projectRepository.create(project));
+		return projectRepository.create(project);
 	}
 
-	private UUID initProjectAllocation(UUID siteId, UUID communityId, UUID projectId, UUID serviceId) {
+	private ProjectAllocationId initProjectAllocation(UUID siteId, UUID communityId, UUID projectId, UUID serviceId) {
 		ResourceType resourceType = ResourceType.builder()
 			.siteId(siteId.toString())
 			.serviceId(serviceId.toString())
@@ -199,44 +206,45 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
 			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build()
+		);
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
 				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
+		);
 
-		return UUID.fromString(projectAllocationRepository.create(
+		return projectAllocationRepository.create(
 			ProjectAllocation.builder()
 				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(5))
 				.build()
-		));
+		);
 	}
 
 	@Test
 	void shouldFindAllServicePoliciesByUserId() {
 		//given
-		UUID siteId = initSite();
+		SiteId siteId = initSite();
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -244,7 +252,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 			.wysiwygText("wysiwygText")
 			.build();
 		PolicyDocumentEntity saved = policyDocumentEntityRepository.save(policyDocumentEntity);
-		FenixUserId fenixUserId = initUserWithResourceAccessToService(siteId, saved);
+		FenixUserId fenixUserId = initUserWithResourceAccessToService(siteId.id, saved);
 
 		//when
 		Set<PolicyDocumentExtendedEntity> policyDocumentEntities = policyDocumentEntityRepository.findAllServicePoliciesByUserId(fenixUserId.id);
@@ -266,21 +274,23 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	}
 
 	private FenixUserId initUserWithResourceAccessToService(UUID siteId, PolicyDocumentEntity saved) {
-		UUID communityId = initCommunity();
-		UUID projectId = initProject(communityId);
+		CommunityId communityId = initCommunity();
+		ProjectId projectId = initProject(communityId);
+		SiteId sId = new SiteId(siteId);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(sId)
 			.name("serviceName")
 			.policyId(new PolicyId(saved.getId()))
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
-		UUID projectAllocationId = initProjectAllocation(siteId, communityId, projectId, serviceId);
+		ProjectAllocationId projectAllocationId = initProjectAllocation(siteId, communityId.id, projectId.id,
+			serviceId.id);
 
 		FenixUserId fenixUserId = new FenixUserId("id");
-		GrantAccess grantAccess = initGrantAccess(siteId, projectId, projectAllocationId, fenixUserId);
+		GrantAccess grantAccess = initGrantAccess(siteId, projectId.id, projectAllocationId.id, fenixUserId);
 		resourceAccessRepository.create(CorrelationId.randomID(), grantAccess, AccessStatus.GRANTED);
 		return fenixUserId;
 	}
@@ -294,26 +304,26 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 	}
 
-	private UUID initCommunity() {
+	private CommunityId initCommunity() {
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		return UUID.fromString(communityRepository.create(community));
+		return communityRepository.create(community);
 	}
 
-	private UUID initSite() {
+	private SiteId initSite() {
 		Site site = Site.builder()
 			.name("name2")
 			.connectionInfo("alala")
 			.build();
-		return UUID.fromString(siteRepository.create(site, new SiteExternalId("id2")));
+		return siteRepository.create(site, new SiteExternalId("id2"));
 	}
 
 	@Test
 	void shouldExistBySiteIdAndName() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -323,13 +333,13 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 
 		policyDocumentEntityRepository.save(policyDocumentEntity);
 
-		assertThat(policyDocumentEntityRepository.existsBySiteIdAndName(siteId, "name")).isTrue();
+		assertThat(policyDocumentEntityRepository.existsBySiteIdAndName(siteId.id, "name")).isTrue();
 	}
 
 	@Test
 	void shouldNotExistBySiteIdAndName() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -345,7 +355,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldCreateTextPolicyDocument() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -370,7 +380,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldCreateFilePolicyDocument() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -396,7 +406,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotCreateWhenContentTypeIs0AndFileIsNotNull() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -411,7 +421,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotCreateWhenContentTypeIs1AndTextIsNotNull() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -425,7 +435,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldUpdate() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)
@@ -451,7 +461,7 @@ class PolicyDocumentEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldDelete() {
 		PolicyDocumentEntity policyDocumentEntity = PolicyDocumentEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.name("name")
 			.workflow(0)
 			.revision(0)

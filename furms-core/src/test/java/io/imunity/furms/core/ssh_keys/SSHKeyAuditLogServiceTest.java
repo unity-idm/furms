@@ -7,8 +7,11 @@ package io.imunity.furms.core.ssh_keys;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyCreatedEvent;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyUpdatedEvent;
 import io.imunity.furms.domain.users.PersistentId;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Set;
+import java.util.UUID;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +42,10 @@ class SSHKeyAuditLogServiceTest {
 
 	@Test
 	void onSSHKeyCreatedEvent() {
-		SSHKey oldKey = getKey("name", Set.of("s1"));
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		SSHKeyId sshKeyId = new SSHKeyId(UUID.randomUUID());
+
+		SSHKey oldKey = getKey(sshKeyId, "name", Set.of(s1));
 		service.onSSHKeyCreatedEvent(new SSHKeyCreatedEvent(oldKey));
 	}
 
@@ -48,13 +55,17 @@ class SSHKeyAuditLogServiceTest {
 
 	@Test
 	void onSSHKeyUpdatedEvent() {
-		SSHKey oldKey = getKey("name", Set.of("s1"));
-		SSHKey newKey = getKey("lolo", Set.of("s2"));
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		SiteId s2 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		SSHKeyId sshKeyId = new SSHKeyId(UUID.randomUUID());
+
+		SSHKey oldKey = getKey(sshKeyId, "name", Set.of(s1));
+		SSHKey newKey = getKey(sshKeyId, "lolo", Set.of(s2));
 		service.onSSHKeyUpdatedEvent(new SSHKeyUpdatedEvent(oldKey, newKey));
 	}
 
-	private SSHKey getKey(String name, Set<String> sites) {
-		return SSHKey.builder().id("id").name(name).value(
+	private SSHKey getKey(SSHKeyId id, String name, Set<SiteId> sites) {
+		return SSHKey.builder().id(id).name(name).value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 					+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
 					+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"

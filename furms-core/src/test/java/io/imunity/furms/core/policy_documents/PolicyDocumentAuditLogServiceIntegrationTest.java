@@ -15,6 +15,7 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -83,13 +84,14 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectPolicyDocumentDeletion() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.build();
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
-		service.delete("siteId", policyId);
+		service.delete(siteId, policyId);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -116,17 +118,19 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectPolicyDocumentUpdateWithRevision() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
-			.siteId("siteId")
+			.siteId(siteId)
 			.build();
 		Site site = Site.builder()
+			.id(siteId)
 			.build();
 
 		when(repository.update(policyDocument, true)).thenReturn(policyId);
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findById("siteId")).thenReturn(Optional.of(site));
+		when(siteRepository.findById(siteId)).thenReturn(Optional.of(site));
 
 		service.updateWithRevision(policyDocument);
 
@@ -155,12 +159,13 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectPolicyDocumentAcceptation() {
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
 			.revision(1)
-			.siteId("siteId")
+			.siteId(siteId)
 			.build();
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
 			.policyDocumentId(policyId)
@@ -174,7 +179,7 @@ class PolicyDocumentAuditLogServiceIntegrationTest {
 		when(usersDAO.findById(userId)).thenReturn(Optional.of(user));
 		when(repository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
-		service.addUserPolicyAcceptance("siteId", userId, policyAcceptance);
+		service.addUserPolicyAcceptance(siteId, userId, policyAcceptance);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());

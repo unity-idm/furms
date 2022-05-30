@@ -20,6 +20,8 @@ import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAm
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -55,7 +57,8 @@ class ResourceCreditFormView extends FurmsViewComponent {
 
 	ResourceCreditFormView(ResourceCreditService resourceCreditService, ResourceTypeService resourceTypeService) {
 		this.resourceCreditService = resourceCreditService;
-		ResourceTypeComboBoxModelResolver resolver = new ResourceTypeComboBoxModelResolver(resourceTypeService.findAll(getCurrentResourceId()));
+		ResourceTypeComboBoxModelResolver resolver =
+			new ResourceTypeComboBoxModelResolver(resourceTypeService.findAll(new SiteId(getCurrentResourceId())));
 		this.resourceCreditFormComponent = new ResourceCreditFormComponent(binder, resolver);
 		zoneId = UIContext.getCurrent().getZone();
 
@@ -110,11 +113,14 @@ class ResourceCreditFormView extends FurmsViewComponent {
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
+		SiteId siteId = new SiteId(getCurrentResourceId());
 		ResourceCreditViewModel resourceCreditViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> resourceCreditService.findWithAllocationsByIdAndSiteId(id, getCurrentResourceId())))
+			.map(ResourceCreditId::new)
+			.flatMap(id -> handleExceptions(() -> resourceCreditService.findWithAllocationsByIdAndSiteId(id,
+				siteId)))
 			.flatMap(Function.identity())
 			.map(credit -> ResourceCreditViewModelMapper.map(credit, zoneId))
-			.orElseGet(() -> new ResourceCreditViewModel(getCurrentResourceId()));
+			.orElseGet(() -> new ResourceCreditViewModel(siteId));
 
 		String trans = parameter == null
 			? "view.site-admin.resource-credits.form.parameter.new"

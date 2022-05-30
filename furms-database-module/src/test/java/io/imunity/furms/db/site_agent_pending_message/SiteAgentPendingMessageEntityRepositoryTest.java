@@ -9,6 +9,7 @@ package io.imunity.furms.db.site_agent_pending_message;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,8 +32,8 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private SiteRepository siteRepository;
 
-	private UUID siteId;
-	private UUID siteId1;
+	private SiteId siteId;
+	private SiteId siteId1;
 
 
 	@BeforeEach
@@ -40,17 +41,17 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("eId")));
+		siteId = siteRepository.create(site, new SiteExternalId("eId"));
 		Site site1 = Site.builder()
 			.name("name1")
 			.build();
-		siteId1 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("eId1")));
+		siteId1 = siteRepository.create(site1, new SiteExternalId("eId1"));
 	}
 
 	@Test
 	void shouldFindByCorrelationId(){
 		SiteAgentPendingMessageEntity entity = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -59,7 +60,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 		SiteAgentPendingMessageEntity saved = repository.save(entity);
 
 		SiteAgentPendingMessageEntity entity1 = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -68,7 +69,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 		repository.save(entity1);
 
 		SiteAgentPendingMessageEntity entity2 = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -84,7 +85,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldFindAllBySiteExternalId(){
 		SiteAgentPendingMessageEntity entity = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -93,7 +94,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 		SiteAgentPendingMessageEntity saved = repository.save(entity);
 
 		SiteAgentPendingMessageEntity entity1 = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -102,7 +103,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 		SiteAgentPendingMessageEntity saved1 = repository.save(entity1);
 
 		SiteAgentPendingMessageEntity entity2 = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId1)
+			.siteId(siteId1.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId1")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -110,7 +111,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		repository.save(entity2);
 
-		Set<SiteAgentPendingMessageEntity> found = repository.findAllBySiteId(siteId);
+		Set<SiteAgentPendingMessageEntity> found = repository.findAllBySiteId(siteId.id);
 		assertEquals(2, found.size());
 		assertEquals(Set.of(saved, saved1), found);
 	}
@@ -118,7 +119,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldCreate(){
 		SiteAgentPendingMessageEntity entity = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -133,7 +134,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldUpdate(){
 		SiteAgentPendingMessageEntity entity = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -143,7 +144,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 
 		SiteAgentPendingMessageEntity updateEntity = SiteAgentPendingMessageEntity.builder()
 			.id(saved.getId())
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId1")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -161,7 +162,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldDeleteByCorrelationId(){
 		SiteAgentPendingMessageEntity entity = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())
@@ -178,7 +179,7 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldDeleteById(){
 		SiteAgentPendingMessageEntity entity = SiteAgentPendingMessageEntity.builder()
-			.siteId(siteId)
+			.siteId(siteId.id)
 			.correlationId(UUID.randomUUID())
 			.siteExternalId("eId")
 			.sentAt(LocalDate.now().atStartOfDay())

@@ -10,6 +10,7 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.MenuButton;
@@ -39,11 +40,11 @@ public class SiteAdministratorsView extends FurmsViewComponent {
 	private final SiteService siteService;
 
 	private final UsersGridComponent grid;
-	private final String siteId;
+	private final SiteId siteId;
 
 	SiteAdministratorsView(SiteService siteService, AuthzService authzService) {
 		this.siteService = siteService;
-		this.siteId = FurmsViewUserContext.getCurrent().id;
+		this.siteId = new SiteId(FurmsViewUserContext.getCurrent().id);
 		PersistentId currentUserId = authzService.getCurrentUserId();
 		SiteRoleInviteUserComponent inviteUser = new SiteRoleInviteUserComponent(ArrayList::new, ArrayList::new);
 		UserContextMenuFactory userContextMenuFactory = UserContextMenuFactory.builder()

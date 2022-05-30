@@ -65,8 +65,6 @@ spring:
       username: sa
       password: sa
       driver-class-name: org.h2.Driver
-      hikari:
-         leak-detection-threshold: 10000
    rabbitmq:
       host: localhost
       username: guest

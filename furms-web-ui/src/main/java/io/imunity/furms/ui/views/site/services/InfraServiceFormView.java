@@ -18,6 +18,8 @@ import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.services.InfraServiceService;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -48,7 +50,7 @@ class InfraServiceFormView extends FurmsViewComponent {
 
 	InfraServiceFormView(InfraServiceService infraServiceService, PolicyDocumentService policyDocumentService) {
 		this.infraServiceService = infraServiceService;
-		Map<PolicyId, PolicyDto> policyDtos = policyDocumentService.findAllBySiteId(getCurrentResourceId())
+		Map<PolicyId, PolicyDto> policyDtos = policyDocumentService.findAllBySiteId(new SiteId(getCurrentResourceId()))
 			.stream()
 			.map(policyDocument -> new PolicyDto(policyDocument.id, policyDocument.name))
 			.collect(Collectors.toMap(x -> x.id, x -> x));
@@ -84,7 +86,7 @@ class InfraServiceFormView extends FurmsViewComponent {
 		InfraServiceViewModel serviceViewModel = binder.getBean();
 		InfraService infraService = InfraServiceViewModelMapper.map(serviceViewModel);
 		OptionalException<Void> optionalException;
-		if(infraService.id == null)
+		if(infraService.id.id == null)
 			optionalException = getResultOrException(() -> infraServiceService.create(infraService));
 		else
 			optionalException = getResultOrException(() -> infraServiceService.update(infraService));
@@ -99,10 +101,11 @@ class InfraServiceFormView extends FurmsViewComponent {
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 
 		InfraServiceViewModel serviceViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> infraServiceService.findById(id, getCurrentResourceId())))
+			.map(InfraServiceId::new)
+			.flatMap(id -> handleExceptions(() -> infraServiceService.findById(id, new SiteId(getCurrentResourceId()))))
 			.flatMap(Function.identity())
 			.map(InfraServiceViewModelMapper::map)
-			.orElseGet(() -> new InfraServiceViewModel(getCurrentResourceId()));
+			.orElseGet(() -> new InfraServiceViewModel(new SiteId(getCurrentResourceId())));
 
 		String trans = parameter == null
 			? "view.site-admin.service.form.parameter.new"

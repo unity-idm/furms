@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.views.fenix.communites.allocations;
 
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.resource_types.AmountWithUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 class CommunityAllocationGridModel {
-	public final String id;
+	public final CommunityAllocationId id;
 	public final String siteName;
 	public final String resourceTypeName;
 	public final String resourceCreditName;
@@ -26,7 +27,7 @@ class CommunityAllocationGridModel {
 	public final LocalDateTime validFrom;
 	public final LocalDateTime validTo;
 
-	CommunityAllocationGridModel(String id, String siteName, String resourceTypeName,
+	CommunityAllocationGridModel(CommunityAllocationId id, String siteName, String resourceTypeName,
 	                             ResourceMeasureUnit resourceTypeUnit, String resourceCreditName,
 	                             String name, BigDecimal amount, BigDecimal remaining, BigDecimal consumed,
 	                             LocalDateTime creationTime, LocalDateTime validFrom, LocalDateTime validTo) {
@@ -80,7 +81,7 @@ class CommunityAllocationGridModel {
 	}
 
 	public static final class CommunityAllocationGridModelBuilder {
-		private String id;
+		private CommunityAllocationId id;
 		private String siteName;
 		private String resourceTypeName;
 		private ResourceMeasureUnit resourceTypeUnit;
@@ -96,7 +97,7 @@ class CommunityAllocationGridModel {
 		private CommunityAllocationGridModelBuilder() {
 		}
 
-		public CommunityAllocationGridModelBuilder id(String id) {
+		public CommunityAllocationGridModelBuilder id(CommunityAllocationId id) {
 			this.id = id;
 			return this;
 		}

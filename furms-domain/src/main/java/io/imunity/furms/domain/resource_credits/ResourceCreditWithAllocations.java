@@ -6,15 +6,16 @@
 package io.imunity.furms.domain.resource_credits;
 
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class ResourceCreditWithAllocations {
-	private final String id;
+	private final ResourceCreditId id;
 	private final String name;
-	private final String siteId;
+	private final SiteId siteId;
 	private final ResourceType resourceType;
 	private final Boolean split;
 	private final BigDecimal amount;
@@ -24,9 +25,9 @@ public class ResourceCreditWithAllocations {
 	private final LocalDateTime utcStartTime;
 	private final LocalDateTime utcEndTime;
 
-	public ResourceCreditWithAllocations(String id,
+	public ResourceCreditWithAllocations(ResourceCreditId id,
 	                                     String name,
-	                                     String siteId,
+	                                     SiteId siteId,
 	                                     ResourceType resourceType,
 	                                     Boolean split,
 	                                     BigDecimal amount,
@@ -48,7 +49,7 @@ public class ResourceCreditWithAllocations {
 		this.utcEndTime = utcEndTime;
 	}
 
-	public String getId() {
+	public ResourceCreditId getId() {
 		return id;
 	}
 
@@ -56,7 +57,7 @@ public class ResourceCreditWithAllocations {
 		return name;
 	}
 
-	public String getSiteId() {
+	public SiteId getSiteId() {
 		return siteId;
 	}
 
@@ -137,9 +138,9 @@ public class ResourceCreditWithAllocations {
 	}
 
 	public static final class ResourceCreditWithAllocationsBuilder {
-		public String id;
+		public ResourceCreditId id;
 		public String name;
-		public String siteId;
+		public SiteId siteId;
 		public ResourceType resourceType;
 		public Boolean split;
 		public BigDecimal amount;
@@ -152,7 +153,7 @@ public class ResourceCreditWithAllocations {
 		private ResourceCreditWithAllocationsBuilder() {
 		}
 
-		public ResourceCreditWithAllocationsBuilder id(String id) {
+		public ResourceCreditWithAllocationsBuilder id(ResourceCreditId id) {
 			this.id = id;
 			return this;
 		}
@@ -162,7 +163,7 @@ public class ResourceCreditWithAllocations {
 			return this;
 		}
 
-		public ResourceCreditWithAllocationsBuilder siteId(String siteId) {
+		public ResourceCreditWithAllocationsBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

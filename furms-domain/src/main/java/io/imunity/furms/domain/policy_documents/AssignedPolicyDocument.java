@@ -5,16 +5,19 @@
 
 package io.imunity.furms.domain.policy_documents;
 
+import io.imunity.furms.domain.services.InfraServiceId;
+
 import java.util.Objects;
+import java.util.Optional;
 
 public class AssignedPolicyDocument {
 
 	public final PolicyId id;
-	public final String serviceId;
+	public final Optional<InfraServiceId> serviceId;
 	public final String name;
 	public final int revision;
 
-	public AssignedPolicyDocument(PolicyId id, String serviceId, String name, int revision) {
+	public AssignedPolicyDocument(PolicyId id, Optional<InfraServiceId> serviceId, String name, int revision) {
 		this.id = id;
 		this.serviceId = serviceId;
 		this.name = name;
@@ -44,7 +47,7 @@ public class AssignedPolicyDocument {
 	public static final class PolicyDocumentEntityBuilder {
 		private PolicyId id;
 		private String name;
-		private String serviceId;
+		private Optional<InfraServiceId> serviceId;
 		private int revision;
 
 		private PolicyDocumentEntityBuilder() {
@@ -55,8 +58,8 @@ public class AssignedPolicyDocument {
 			return this;
 		}
 
-		public PolicyDocumentEntityBuilder serviceId(String serviceId) {
-			this.serviceId = serviceId;
+		public PolicyDocumentEntityBuilder serviceId(InfraServiceId serviceId) {
+			this.serviceId = Optional.ofNullable(serviceId);
 			return this;
 		}
 

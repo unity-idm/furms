@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
@@ -23,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.inOrder;
@@ -56,13 +58,13 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
-			.projectAllocationId("allocationId")
+			.projectAllocationId(UUID.randomUUID().toString())
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build()));
 		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		orderVerifier.verify(repository).update(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 	}
 
 	@Test
@@ -72,24 +74,25 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
-			.projectAllocationId("allocationId")
+			.projectAllocationId(UUID.randomUUID().toString())
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build()));
 		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		orderVerifier.verify(repository).update(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
 	}
 
 	@Test
 	void shouldCreateProjectAllocationChunk() {
 		//given
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId("id")
+			.projectAllocationId(projectAllocationId)
 			.build();
 
 		//when
-		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
+		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
 			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
 			.build());
 		service.createChunk(chunk);
@@ -101,12 +104,13 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@Test
 	void shouldNotCreateProjectAllocationChunkWhenAllocationInstallationIsNotTerminal() {
 		//given
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId("id")
+			.projectAllocationId(projectAllocationId)
 			.build();
 
 		//when
-		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
+		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build());
 
@@ -116,15 +120,16 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@Test
 	void shouldUpdateProjectDeallocation() {
 		//given
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		CorrelationId id = new CorrelationId("id");
 
 		//when
-		when(repository.findDeallocationByCorrelationId(id.id)).thenReturn(Optional.of(ProjectDeallocation.builder()
+		when(repository.findDeallocationByCorrelationId(id)).thenReturn(Optional.of(ProjectDeallocation.builder()
 			.status(ProjectDeallocationStatus.PENDING)
 			.build()));
 		service.updateStatus(id, ProjectDeallocationStatus.PENDING, Optional.empty());
 
 		//then
-		orderVerifier.verify(repository).update(id.id, ProjectDeallocationStatus.PENDING, Optional.empty());
+		orderVerifier.verify(repository).update(id, ProjectDeallocationStatus.PENDING, Optional.empty());
 	}
 }

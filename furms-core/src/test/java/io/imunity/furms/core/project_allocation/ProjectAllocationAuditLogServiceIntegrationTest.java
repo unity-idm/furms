@@ -13,9 +13,14 @@ import io.imunity.furms.core.project_installation.ProjectInstallationService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_installation.ProjectInstallation;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectOperationService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
@@ -32,6 +37,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -72,17 +78,21 @@ class ProjectAllocationAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectProjectAllocationDeletion() {
 		//given
-		String id = "id";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId id = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
+			.id(id)
 			.amount(BigDecimal.TEN)
 			.consumed(BigDecimal.ZERO)
 			.build();
-		ProjectAllocation projectAllocation = ProjectAllocation.builder().build();
+		ProjectAllocation projectAllocation = ProjectAllocation.builder()
+			.id(id)
+			.build();
 		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
 		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(projectAllocation));
 
 		//when
-		service.delete("projectId", id);
+		service.delete(communityId, id);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -93,24 +103,29 @@ class ProjectAllocationAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectProjectAllocationUpdate() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId id = new ProjectAllocationId(UUID.randomUUID());
+
 		ProjectAllocation request = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(id)
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
 
-		when(projectInstallationService.findProjectInstallationOfProjectAllocation( "id")).thenReturn(
+		when(projectInstallationService.findProjectInstallationOfProjectAllocation( id)).thenReturn(
 			ProjectInstallation.builder()
-				.siteId("siteId")
+				.siteId(new SiteId(UUID.randomUUID()))
 				.build()
 		);
-		when(projectInstallationService.isProjectInstalled("siteId", "id")).thenReturn(true);
-		when(projectAllocationRepository.findById("id")).thenReturn(Optional.of(request));
+		when(projectInstallationService.isProjectInstalled(siteId, projectId)).thenReturn(true);
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(request));
 
 		//when
-		service.update("communityId", request);
+		service.update(communityId, request);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -121,24 +136,27 @@ class ProjectAllocationAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectProjectAllocationCreation() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId id = new ProjectAllocationId(UUID.randomUUID());
+
 		ProjectAllocation request = ProjectAllocation.builder()
-			.id("id")
-			.projectId("id")
-			.communityAllocationId("id")
+			.id(id)
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
 
 		//when
-		when(projectInstallationService.findProjectInstallationOfProjectAllocation( "projectAllocationId")).thenReturn(
+		when(projectInstallationService.findProjectInstallationOfProjectAllocation( id)).thenReturn(
 			ProjectInstallation.builder()
-				.siteId("siteId")
+				.siteId(new SiteId(UUID.randomUUID()))
 				.build()
 		);
-		when(projectAllocationRepository.create(request)).thenReturn("projectAllocationId");
-		when(projectAllocationRepository.findById("projectAllocationId")).thenReturn(Optional.of(request));
+		when(projectAllocationRepository.create(request)).thenReturn(id);
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(request));
 
-		service.create("communityId", request);
+		service.create(communityId, request);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());

@@ -5,18 +5,18 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
+import com.google.common.collect.Sets;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
+import io.imunity.furms.domain.users.PersistentId;
+
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
-
-import io.imunity.furms.domain.users.PersistentId;
-
 class SSHKeyViewModel {
 
-	public final String id;
+	public final SSHKeyId id;
 	public final PersistentId ownerId;
 	public final ZonedDateTime createTime;
 	public final SiteWithKeyStatus sourceSite;
@@ -35,7 +35,7 @@ class SSHKeyViewModel {
 		this.value = null;
 	}
 
-	SSHKeyViewModel(String id, PersistentId ownerId, String name, SiteWithKeyStatus sourceSite,
+	SSHKeyViewModel(SSHKeyId id, PersistentId ownerId, String name, SiteWithKeyStatus sourceSite,
 			Set<SiteWithKeyStatus> sites, String value, ZonedDateTime createTime) {
 
 		this.id = id;
@@ -73,7 +73,7 @@ class SSHKeyViewModel {
 	}
 
 	public static final class Builder {
-		private String id;
+		private SSHKeyId id;
 		private PersistentId ownerId;
 		private ZonedDateTime createTime;
 		private Set<SiteWithKeyStatus> sites = Collections.emptySet();
@@ -84,7 +84,7 @@ class SSHKeyViewModel {
 		private Builder() {
 		}
 
-		public Builder id(String id) {
+		public Builder id(SSHKeyId id) {
 			this.id = id;
 			return this;
 		}

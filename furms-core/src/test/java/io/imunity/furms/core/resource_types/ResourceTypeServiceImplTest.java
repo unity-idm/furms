@@ -6,11 +6,14 @@
 package io.imunity.furms.core.resource_types;
 
 import io.imunity.furms.domain.resource_types.ResourceTypeCreatedEvent;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_types.ResourceTypeRemovedEvent;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.resource_types.ResourceTypeUpdatedEvent;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
@@ -25,6 +28,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,7 +64,8 @@ class ResourceTypeServiceImplTest {
 	@Test
 	void shouldReturnResourceType() {
 		//given
-		String id = "id";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId id = new ResourceTypeId(UUID.randomUUID());
 		when(resourceTypeRepository.findById(id)).thenReturn(Optional.of(ResourceType.builder()
 			.id(id)
 			.name("name")
@@ -68,7 +73,7 @@ class ResourceTypeServiceImplTest {
 		);
 
 		//when
-		Optional<ResourceType> byId = service.findById(id, "");
+		Optional<ResourceType> byId = service.findById(id, siteId);
 
 		//then
 		assertThat(byId).isPresent();
@@ -78,7 +83,9 @@ class ResourceTypeServiceImplTest {
 	@Test
 	void shouldNotReturnResourceType() {
 		//when
-		Optional<ResourceType> otherId = service.findById("otherId", "");
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId id = new ResourceTypeId(UUID.randomUUID());
+		Optional<ResourceType> otherId = service.findById(id, siteId);
 
 		//then
 		assertThat(otherId).isEmpty();
@@ -87,12 +94,15 @@ class ResourceTypeServiceImplTest {
 	@Test
 	void shouldReturnAllResourceTypesIfExistsInRepository() {
 		//given
-		when(resourceTypeRepository.findAllBySiteId("1")).thenReturn(Set.of(
-			ResourceType.builder().id("id1").name("name").build(),
-			ResourceType.builder().id("id2").name("name2").build()));
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId1 = new ResourceTypeId(UUID.randomUUID());
+		when(resourceTypeRepository.findAllBySiteId(siteId)).thenReturn(Set.of(
+			ResourceType.builder().id(resourceTypeId).name("name").build(),
+			ResourceType.builder().id(resourceTypeId1).name("name2").build()));
 
 		//when
-		Set<ResourceType> allResourceTypes = service.findAll("1");
+		Set<ResourceType> allResourceTypes = service.findAll(siteId);
 
 		//then
 		assertThat(allResourceTypes).hasSize(2);
@@ -101,10 +111,13 @@ class ResourceTypeServiceImplTest {
 	@Test
 	void shouldAllowToCreateResourceType() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType request = ResourceType.builder()
-			.id("id")
-			.siteId("id")
-			.serviceId("id")
+			.id(resourceTypeId)
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -112,8 +125,8 @@ class ResourceTypeServiceImplTest {
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.findById("id")).thenReturn(Optional.of(request));
-		when(resourceTypeRepository.create(request)).thenReturn("id");
+		when(resourceTypeRepository.findById(resourceTypeId)).thenReturn(Optional.of(request));
+		when(resourceTypeRepository.create(request)).thenReturn(resourceTypeId);
 
 		//when
 		service.create(request);
@@ -125,8 +138,9 @@ class ResourceTypeServiceImplTest {
 	@Test
 	void shouldNotAllowToCreateResourceTypeDueToNonUniqueName() {
 		//given
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceType request = ResourceType.builder()
-			.id("id")
+			.id(resourceTypeId)
 			.name("name")
 			.build();
 
@@ -139,10 +153,13 @@ class ResourceTypeServiceImplTest {
 	@Test
 	void shouldAllowToUpdateResourceType() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType request = ResourceType.builder()
-			.id("id")
-			.siteId("id")
-			.serviceId("id")
+			.id(resourceTypeId)
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -163,27 +180,29 @@ class ResourceTypeServiceImplTest {
 	@Test
 	void shouldAllowToDeleteResourceType() {
 		//given
-		String id = "id";
-		when(resourceTypeRepository.exists(id)).thenReturn(true);
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		when(resourceTypeRepository.exists(resourceTypeId)).thenReturn(true);
 		ResourceType resourceType = ResourceType.builder().build();
-		when(resourceTypeRepository.findById("id")).thenReturn(Optional.of(resourceType));
+		when(resourceTypeRepository.findById(resourceTypeId)).thenReturn(Optional.of(resourceType));
 
 		//when
-		service.delete(id, "");
+		service.delete(resourceTypeId, siteId);
 
-		orderVerifier.verify(resourceTypeRepository).delete(eq(id));
+		orderVerifier.verify(resourceTypeRepository).delete(eq(resourceTypeId));
 		orderVerifier.verify(publisher).publishEvent(eq(new ResourceTypeRemovedEvent(resourceType)));
 	}
 
 	@Test
 	void shouldNotAllowToDeleteResourceTypeDueToResourceTypeNotExists() {
 		//given
-		String id = "id";
-		when(resourceTypeRepository.exists(id)).thenReturn(false);
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		when(resourceTypeRepository.exists(resourceTypeId)).thenReturn(false);
 
 		//when
-		assertThrows(IllegalArgumentException.class, () -> service.delete(id, ""));
-		orderVerifier.verify(resourceTypeRepository, times(0)).delete(eq(id));
+		assertThrows(IllegalArgumentException.class, () -> service.delete(resourceTypeId, siteId));
+		orderVerifier.verify(resourceTypeRepository, times(0)).delete(eq(resourceTypeId));
 		orderVerifier.verify(publisher, times(0)).publishEvent(any());
 	}
 

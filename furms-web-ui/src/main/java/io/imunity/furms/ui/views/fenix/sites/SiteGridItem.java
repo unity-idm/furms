@@ -6,24 +6,25 @@
 package io.imunity.furms.ui.views.fenix.sites;
 
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 
 class SiteGridItem implements Cloneable {
 
-	private final String id;
+	private final SiteId id;
 	private String name;
 
 	static SiteGridItem of(Site site) {
 		return new SiteGridItem(site.getId(), site.getName());
 	}
 
-	private SiteGridItem(String id, String name) {
+	private SiteGridItem(SiteId id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public String getId() {
+	public SiteId getId() {
 		return id;
 	}
 

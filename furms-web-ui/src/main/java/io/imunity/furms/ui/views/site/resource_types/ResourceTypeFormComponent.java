@@ -5,11 +5,6 @@
 
 package io.imunity.furms.ui.views.site.resource_types;
 
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-
-import java.util.Objects;
-
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -18,10 +13,13 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.FurmsFormLayout;
+
+import java.util.Objects;
+
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 class ResourceTypeFormComponent extends Composite<Div> {
 	private static final int MAX_NAME_LENGTH = 20;
@@ -132,12 +130,12 @@ class ResourceTypeFormComponent extends Composite<Div> {
 	
 	private void addResourcdTypeIdToForm(ResourceTypeViewModel resourceTypeViewModel) {
 		Div id = new Div();
-		id.setText(resourceTypeViewModel.getId());
+		id.setText(resourceTypeViewModel.getId().id.toString());
 		Label idLabel = new Label(getTranslation("view.site-admin.resource-types.form.field.id"));
 		formLayout.addComponentAsFirst(new FormLayout.FormItem(idLabel, id));
 	}
 	
 	private boolean isFormEdit(ResourceTypeViewModel resourceTypeViewModel) {
-		return resourceTypeViewModel != null && isNotEmpty(resourceTypeViewModel.getId());
+		return resourceTypeViewModel != null && Objects.nonNull(resourceTypeViewModel.getId());
 	}
 }

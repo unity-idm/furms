@@ -7,6 +7,7 @@ package io.imunity.furms.core.export;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import io.imunity.furms.domain.communities.CommunityId;
 
 import java.util.List;
 import java.util.Objects;
@@ -69,8 +70,8 @@ class CommunityResourceUsage {
 	static final class CommunityResourceUsageBuilder {
 		private String allocation;
 		private String allocationId;
-		private String project;
-		private String projectId;
+		private String community;
+		private String communityId;
 		private String unit;
 		private List<Consumption> consumption;
 
@@ -87,13 +88,13 @@ class CommunityResourceUsage {
 			return this;
 		}
 
-		public CommunityResourceUsageBuilder community(String project) {
-			this.project = project;
+		public CommunityResourceUsageBuilder community(String communityId) {
+			this.community = communityId;
 			return this;
 		}
 
-		public CommunityResourceUsageBuilder communityId(String projectId) {
-			this.projectId = projectId;
+		public CommunityResourceUsageBuilder communityId(CommunityId communityId) {
+			this.communityId = communityId.id.toString();
 			return this;
 		}
 
@@ -108,7 +109,7 @@ class CommunityResourceUsage {
 		}
 
 		public CommunityResourceUsage build() {
-			return new CommunityResourceUsage(allocation, allocationId, project, projectId, unit, consumption);
+			return new CommunityResourceUsage(allocation, allocationId, community, communityId, unit, consumption);
 		}
 	}
 }

@@ -15,6 +15,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -197,7 +198,7 @@ class InvitatoryServiceTest {
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
 
-		when(applicationRepository.existsBy(resourceId.id.toString(), fenixId)).thenReturn(true);
+		when(applicationRepository.existsBy(new ProjectId(resourceId.id), fenixId)).thenReturn(true);
 
 		assertThrows(UserAlreadyAppliedForMembershipException.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role, "system"));
 	}

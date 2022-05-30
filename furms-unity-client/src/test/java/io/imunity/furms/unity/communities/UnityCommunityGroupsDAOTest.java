@@ -6,6 +6,7 @@
 package io.imunity.furms.unity.communities;
 
 import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
@@ -41,10 +42,10 @@ class UnityCommunityGroupsDAOTest {
 	@Test
 	void shouldGetMetaInfoAboutCommunity() {
 		//given
-		String id = UUID.randomUUID().toString();
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		Group group = new Group("/path/"+id);
 		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(id), eq(Group.class))).thenReturn(group);
+		when(unityClient.get(contains(id.id.toString()), eq(Group.class))).thenReturn(group);
 
 		//when
 		Optional<CommunityGroup> community = unityCommunityWebClient.get(id);
@@ -59,10 +60,10 @@ class UnityCommunityGroupsDAOTest {
 	void shouldCreateCommunity() {
 		//given
 		CommunityGroup community = CommunityGroup.builder()
-				.id(UUID.randomUUID().toString())
+				.id(new CommunityId(UUID.randomUUID()))
 				.name("test")
 				.build();
-		doNothing().when(unityClient).post(contains(community.getId()), any());
+		doNothing().when(unityClient).post(contains(community.getId().id.toString()), any());
 		doNothing().when(unityClient).post(contains("users"), any());
 
 		//when
@@ -77,13 +78,13 @@ class UnityCommunityGroupsDAOTest {
 	void shouldUpdateCommunity() {
 		//given
 		CommunityGroup community = CommunityGroup.builder()
-				.id(UUID.randomUUID().toString())
+				.id(new CommunityId(UUID.randomUUID()))
 				.name("test")
 				.build();
 		Group group = new Group("/path/"+community.getId());
 		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(community.getId()), eq(Group.class))).thenReturn(group);
-		doNothing().when(unityClient).put(contains(community.getId()), eq(Group.class));
+		when(unityClient.get(contains(community.getId().id.toString()), eq(Group.class))).thenReturn(group);
+		doNothing().when(unityClient).put(contains(community.getId().id.toString()), eq(Group.class));
 
 		//when
 		unityCommunityWebClient.update(community);
@@ -95,8 +96,8 @@ class UnityCommunityGroupsDAOTest {
 	@Test
 	void shouldRemoveCommunity() {
 		//given
-		String id = UUID.randomUUID().toString();
-		doNothing().when(unityClient).delete(contains(id), anyMap());
+		CommunityId id = new CommunityId(UUID.randomUUID());
+		doNothing().when(unityClient).delete(contains(id.id.toString()), anyMap());
 
 		//when
 		unityCommunityWebClient.delete(id);
@@ -108,8 +109,8 @@ class UnityCommunityGroupsDAOTest {
 	@Test
 	void shouldGetCommunityAdministrators() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id +"/users";
 		when(userService.getAllUsersByRole(groupPath, COMMUNITY_ADMIN))
 			.thenReturn(List.of(
 				FURMSUser.builder()
@@ -138,9 +139,9 @@ class UnityCommunityGroupsDAOTest {
 	@Test
 	void shouldAddAdminToCommunity() {
 		//given
-		String communityId = "communityId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
-		String groupPath = "/fenix/communities/"+ communityId +"/users";
+		String groupPath = "/fenix/communities/"+ communityId.id +"/users";
 		//when
 		unityCommunityWebClient.addAdmin(communityId, userId);
 
@@ -152,9 +153,9 @@ class UnityCommunityGroupsDAOTest {
 	@Test
 	void shouldRemoveAdminRole() {
 		//given
-		String communityId = "communityId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
-		String groupPath = "/fenix/communities/"+ communityId +"/users";
+		String groupPath = "/fenix/communities/"+ communityId.id +"/users";
 
 		//when
 		unityCommunityWebClient.removeAdmin(communityId, userId);

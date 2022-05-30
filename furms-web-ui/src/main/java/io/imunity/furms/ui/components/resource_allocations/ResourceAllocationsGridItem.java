@@ -5,19 +5,22 @@
 
 package io.imunity.furms.ui.components.resource_allocations;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
+
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-import io.imunity.furms.ui.views.fenix.dashboard.DashboardGridResource;
-
 public class ResourceAllocationsGridItem {
 
-	private final String id;
-	private final String siteId;
+	private final CommunityAllocationId id;
+	private final SiteId siteId;
 	private final String siteName;
 	private final String name;
-	private final String communityId;
+	private final CommunityId communityId;
 	private final boolean split;
 	private final ResourceType resourceType;
 	private final DashboardGridResource credit;
@@ -27,11 +30,11 @@ public class ResourceAllocationsGridItem {
 	private final ZonedDateTime validFrom;
 	private final ZonedDateTime validTo;
 
-	ResourceAllocationsGridItem(String id,
-	                            String siteId,
+	ResourceAllocationsGridItem(CommunityAllocationId id,
+	                            SiteId siteId,
 	                            String siteName,
 	                            String name,
-	                            String communityId,
+	                            CommunityId communityId,
 	                            boolean split,
 	                            ResourceType resourceType,
 	                            DashboardGridResource credit,
@@ -55,11 +58,11 @@ public class ResourceAllocationsGridItem {
 		this.validTo = validTo;
 	}
 
-	public String getId() {
+	public CommunityAllocationId getId() {
 		return id;
 	}
 
-	public String getSiteId() {
+	public SiteId getSiteId() {
 		return siteId;
 	}
 
@@ -71,7 +74,7 @@ public class ResourceAllocationsGridItem {
 		return name;
 	}
 
-	public String getCommunityId() {
+	public CommunityId getCommunityId() {
 		return communityId;
 	}
 
@@ -144,11 +147,11 @@ public class ResourceAllocationsGridItem {
 	}
 
 	public static final class DashboardGridItemBuilder {
-		private String id;
-		private String siteId;
+		private CommunityAllocationId id;
+		private SiteId siteId;
 		private String siteName;
 		private String name;
-		private String communityId;
+		private CommunityId communityId;
 		private boolean split;
 		private ResourceType resourceType;
 		private DashboardGridResource credit;
@@ -161,12 +164,12 @@ public class ResourceAllocationsGridItem {
 		private DashboardGridItemBuilder() {
 		}
 
-		public DashboardGridItemBuilder id(String id) {
+		public DashboardGridItemBuilder id(CommunityAllocationId id) {
 			this.id = id;
 			return this;
 		}
 
-		public DashboardGridItemBuilder siteId(String siteId) {
+		public DashboardGridItemBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}
@@ -181,7 +184,7 @@ public class ResourceAllocationsGridItem {
 			return this;
 		}
 
-		public DashboardGridItemBuilder communityId(String communityId) {
+		public DashboardGridItemBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}

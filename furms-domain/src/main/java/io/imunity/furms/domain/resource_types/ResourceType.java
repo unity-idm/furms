@@ -5,19 +5,22 @@
 
 package io.imunity.furms.domain.resource_types;
 
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.util.Objects;
 
 public class ResourceType {
-	public final String id;
+	public final ResourceTypeId id;
 	public final String name;
-	public final String siteId;
-	public final String serviceId;
+	public final SiteId siteId;
+	public final InfraServiceId serviceId;
 	public final String serviceName;
 	public final ResourceMeasureType type;
 	public final ResourceMeasureUnit unit;
 	public final boolean accessibleForAllProjectMembers;
 
-	public ResourceType(String id, String name, String siteId, String serviceId, String serviceName,
+	public ResourceType(ResourceTypeId id, String name, SiteId siteId, InfraServiceId serviceId, String serviceName,
 	                    ResourceMeasureType type, ResourceMeasureUnit unit, boolean accessibleForAllProjectMembers) {
 		this.id = id;
 		this.name = name;
@@ -68,10 +71,10 @@ public class ResourceType {
 	}
 
 	public static final class ResourceTypeBuilder {
-		public String id;
+		public ResourceTypeId id;
 		public String name;
-		public String siteId;
-		public String serviceId;
+		public SiteId siteId;
+		public InfraServiceId serviceId;
 		public String serviceName;
 		public ResourceMeasureType type;
 		public ResourceMeasureUnit unit;
@@ -81,6 +84,11 @@ public class ResourceType {
 		}
 
 		public ResourceTypeBuilder id(String id) {
+			this.id = new ResourceTypeId(id);
+			return this;
+		}
+
+		public ResourceTypeBuilder id(ResourceTypeId id) {
 			this.id = id;
 			return this;
 		}
@@ -91,11 +99,21 @@ public class ResourceType {
 		}
 
 		public ResourceTypeBuilder siteId(String siteId) {
+			this.siteId = new SiteId(siteId);
+			return this;
+		}
+
+		public ResourceTypeBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
 		public ResourceTypeBuilder serviceId(String serviceId) {
+			this.serviceId = new InfraServiceId(serviceId);
+			return this;
+		}
+
+		public ResourceTypeBuilder serviceId(InfraServiceId serviceId) {
 			this.serviceId = serviceId;
 			return this;
 		}

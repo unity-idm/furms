@@ -5,7 +5,9 @@
 
 package io.imunity.furms.core.projects;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,8 +38,9 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		Project project = Project.builder()
-			.communityId("id")
+			.communityId(communityId)
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
@@ -54,8 +58,9 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		Project project = Project.builder()
-			.communityId("id")
+			.communityId(communityId)
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
@@ -75,8 +80,9 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonExistingCommunityId() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		Project project = Project.builder()
-			.communityId("id")
+			.communityId(communityId)
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
@@ -108,8 +114,9 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullAcronym() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		Project project = Project.builder()
-			.communityId("id")
+			.communityId(communityId)
 			.name("name")
 			.researchField("research field")
 			.utcStartTime(LocalDateTime.now())
@@ -128,8 +135,9 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullResearchField() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		Project project = Project.builder()
-			.communityId("id")
+			.communityId(communityId)
 			.name("name")
 			.acronym("Acronym")
 			.utcStartTime(LocalDateTime.now())
@@ -148,8 +156,9 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldNotPassCreateForInvalidTime() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		Project project = Project.builder()
-			.communityId("id")
+			.communityId(communityId)
 			.name("name")
 			.researchField("research field")
 			.utcStartTime(LocalDateTime.now().plusWeeks(1))
@@ -168,9 +177,11 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		final Project project = Project.builder()
-			.id("id")
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
@@ -190,9 +201,11 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		Project community = Project.builder()
-			.id("id")
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
@@ -209,9 +222,11 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		Project community = Project.builder()
-			.id("id")
-			.communityId("id")
+			.id(projectId)
+			.communityId(communityId)
 			.name("name")
 			.acronym("acronym")
 			.researchField("research field")
@@ -219,7 +234,7 @@ class ProjectServiceImplValidatorTest {
 			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.build();
 		Project secondProject = Project.builder()
-			.communityId("id")
+			.communityId(communityId)
 			.name("a")
 			.build();
 
@@ -234,23 +249,23 @@ class ProjectServiceImplValidatorTest {
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		final String id = "id";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 
-		when(projectRepository.exists(id)).thenReturn(true);
+		when(projectRepository.exists(projectId)).thenReturn(true);
 
 		//when+then
-		assertDoesNotThrow(() -> validator.validateDelete(id));
+		assertDoesNotThrow(() -> validator.validateDelete(projectId));
 	}
 
 	@Test
 	void shouldNotPassDeleteForNonExistingId() {
 		//given
-		final String id = "id";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 
-		when(projectRepository.exists(id)).thenReturn(false);
+		when(projectRepository.exists(projectId)).thenReturn(false);
 
 		//when+then
-		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(id));
+		assertThrows(IllegalArgumentException.class, () -> validator.validateDelete(projectId));
 	}
 
 }

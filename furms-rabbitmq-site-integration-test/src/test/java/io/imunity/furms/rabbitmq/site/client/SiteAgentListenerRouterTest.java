@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -38,9 +39,9 @@ class SiteAgentListenerRouterTest extends IntegrationTestBase {
 	void shouldHandlePendingUserAdditionMessage() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAddition = UserAddition.builder()
-			.id("id")
-			.siteId(new SiteId("id", new SiteExternalId("mock")))
-			.projectId("projectId")
+			.id(UUID.randomUUID().toString())
+			.siteId(new SiteId(UUID.randomUUID().toString(), new SiteExternalId("mock")))
+			.projectId(UUID.randomUUID().toString())
 			.correlationId(correlationId)
 			.build();
 		FURMSUser user = FURMSUser.builder()

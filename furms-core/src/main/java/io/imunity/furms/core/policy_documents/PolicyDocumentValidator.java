@@ -10,6 +10,7 @@ import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.PolicyDocumentIsInconsistentException;
 import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
@@ -101,7 +102,7 @@ class PolicyDocumentValidator {
 			throw new IdNotFoundValidationError("PolicyDocument with declared ID does not exist.");
 	}
 
-	private void validateName(String siteId, String name) {
+	private void validateName(SiteId siteId, String name) {
 		notNull(name, "Site name has to be declared.");
 		assertTrue(repository.isNamePresent(siteId, name), () -> new DuplicatedNameValidationError("Policy Document name has to be unique."));
 	}

@@ -5,48 +5,51 @@
 
 package io.imunity.furms.spi.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation_installation.*;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Optional;
 import java.util.Set;
 
 public interface ProjectAllocationInstallationRepository {
-	Set<ProjectAllocationInstallation> findAll(String projectId);
+	Set<ProjectAllocationInstallation> findAll(ProjectId projectId);
 
-	Set<ProjectAllocationInstallation> findAll(String projectId, String siteId);
+	Set<ProjectAllocationInstallation> findAll(ProjectId projectId, SiteId siteId);
 
-	ProjectAllocationInstallation findByProjectAllocationId(String projectAllocationId);
+	ProjectAllocationInstallation findByProjectAllocationId(ProjectAllocationId projectAllocationId);
 
-	Optional<ProjectDeallocation> findDeallocationByProjectAllocationId(String projectAllocationId);
+	Optional<ProjectDeallocation> findDeallocationByProjectAllocationId(ProjectAllocationId projectAllocationId);
 
-	Set<ProjectDeallocation> findAllDeallocation(String projectId);
+	Set<ProjectDeallocation> findAllDeallocation(ProjectId projectId);
 
-	Set<ProjectAllocationChunk> findAllChunks(String projectId);
+	Set<ProjectAllocationChunk> findAllChunks(ProjectId projectId);
 
-	Set<ProjectAllocationChunk> findAllChunksByAllocationId(String projectAllocationId);
+	Set<ProjectAllocationChunk> findAllChunksByAllocationId(ProjectAllocationId projectAllocationId);
 
 	Optional<ProjectAllocationInstallation> findByCorrelationId(CorrelationId id);
 
-	String create(ProjectAllocationInstallation projectAllocation);
+	ProjectAllocationInstallationId create(ProjectAllocationInstallation projectAllocation);
 
-	String create(ProjectDeallocation projectDeallocation);
+	ProjectDeallocationId create(ProjectDeallocation projectDeallocation);
 
-	void update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId);
+	void update(ProjectAllocationId projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId);
 
-	String create(ProjectAllocationChunk projectAllocationChunk);
+	void create(ProjectAllocationChunk projectAllocationChunk);
 
 	void update(ProjectAllocationChunk projectAllocationChunk);
 
-	void update(String correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
+	void update(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
 
-	Optional<ProjectDeallocation> findDeallocationByCorrelationId(String correlationId);
+	Optional<ProjectDeallocation> findDeallocationByCorrelationId(CorrelationId correlationId);
 
-	void update(String correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
+	void update(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
 
-	boolean exists(String id);
+	boolean exists(ProjectAllocationInstallationId id);
 
-	void deleteBy(String id);
+	void deleteBy(ProjectAllocationInstallationId id);
 
 	void deleteAll();
 

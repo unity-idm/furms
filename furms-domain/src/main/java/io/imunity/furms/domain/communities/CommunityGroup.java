@@ -8,15 +8,15 @@ package io.imunity.furms.domain.communities;
 import java.util.Objects;
 
 public class CommunityGroup {
-	private final String id;
+	private final CommunityId id;
 	private final String name;
 
-	public CommunityGroup(String id, String name) {
+	public CommunityGroup(CommunityId id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public String getId() {
+	public CommunityId getId() {
 		return id;
 	}
 
@@ -51,10 +51,10 @@ public class CommunityGroup {
 	}
 
 	public static class CommunityGroupBuilder {
-		private String id;
+		private CommunityId id;
 		private String name;
 
-		public CommunityGroup.CommunityGroupBuilder id(String id) {
+		public CommunityGroup.CommunityGroupBuilder id(CommunityId id) {
 			this.id = id;
 			return this;
 		}

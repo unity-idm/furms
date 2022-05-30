@@ -13,8 +13,10 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyCreatedEvent;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyRemovedEvent;
 import io.imunity.furms.domain.ssh_keys.SSHKeyUpdatedEvent;
@@ -98,7 +100,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
-	public Optional<SSHKey> findById(String id) {
+	public Optional<SSHKey> findById(SSHKeyId id) {
 		LOG.debug("Getting SSH key with id={}", id);
 		Optional<SSHKey> key = sshKeysRepository.findById(id);
 		key.ifPresent(sshKey -> validator.validateOwner(sshKey.ownerId));
@@ -115,14 +117,14 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
-	public Set<SSHKey> findByOwnerId(String ownerId) {
+	public Set<SSHKey> findByOwnerId(PersistentId ownerId) {
 		LOG.debug("Getting all SSH keys for owner {}", ownerId);
-		return sshKeysRepository.findAllByOwnerId(new PersistentId(ownerId));
+		return sshKeysRepository.findAllByOwnerId(ownerId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
-	public SiteSSHKeys findSiteSSHKeysByUserIdAndSite(PersistentId userId, String siteId) {
+	public SiteSSHKeys findSiteSSHKeysByUserIdAndSite(PersistentId userId, SiteId siteId) {
 		final Set<String> sshKeys = sshKeysRepository.findAllByOwnerId(userId).stream()
 				.map(key -> installedSSHKeyRepository.findBySSHKeyId(key.id))
 				.flatMap(Collection::parallelStream)
@@ -137,7 +139,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	public void create(SSHKey sshKey) {
 		validator.validateCreate(sshKey);
-		String id = sshKeysRepository.create(sshKey);
+		SSHKeyId id = sshKeysRepository.create(sshKey);
 		SSHKey created = sshKeysRepository.findById(id).get();
 		SSHKey createdKey = sshKeysRepository.findById(id).orElseThrow(
 				() -> new IllegalStateException("SSH key has not been saved to DB correctly."));
@@ -156,7 +158,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 				.orElseThrow(() -> new IllegalStateException("SSH Key not found: " + sshKey.id));
 		SSHKey merged = merge(oldKey, sshKey);
 		updateKeyOnSites(getSiteDiff(oldKey, merged), oldKey, merged);
-		String updatedId = sshKeysRepository.update(merged);
+		SSHKeyId updatedId = sshKeysRepository.update(merged);
 		LOG.info("Update SSH key in repository with ID={}, {}", sshKey.id, merged);
 		publisher.publishEvent(new SSHKeyUpdatedEvent(oldSshKey, sshKey));
 	}
@@ -164,7 +166,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	@Transactional
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
-	public void delete(String id) {
+	public void delete(SSHKeyId id) {
 		validator.validateDelete(id);
 		SSHKey sshKey = sshKeysRepository.findById(id).get();
 		removeKeyFromSites(sshKeysRepository.findById(id).get());
@@ -175,8 +177,11 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		assertTrue(oldKey.id.equals(key.id),
 				() -> new IllegalArgumentException("There are different SSH key during merge"));
 		return SSHKey.builder().id(oldKey.id).name(key.name).value(ofNullable(key.value).orElse(oldKey.value))
-				.ownerId(ofNullable(key.ownerId).orElse(oldKey.ownerId)).createTime(oldKey.createTime)
-				.updateTime(key.updateTime).sites(ofNullable(key.sites).orElse(oldKey.sites)).build();
+			.ownerId(ofNullable(key.ownerId).orElse(oldKey.ownerId))
+			.createTime(oldKey.createTime)
+			.updateTime(key.updateTime)
+			.sites(ofNullable(key.sites).orElse(oldKey.sites))
+			.build();
 	}
 
 	@Override
@@ -192,7 +197,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 
 	@Override
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
-	public boolean isNamePresentIgnoringRecord(String name, String recordToIgnore) {
+	public boolean isNamePresentIgnoringRecord(String name, SSHKeyId recordToIgnore) {
 		try {
 			validator.validateIsNamePresentIgnoringRecord(name, recordToIgnore);
 			return false;
@@ -236,7 +241,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		updateKeyOnSites(oldKey, merged, siteDiff.toUpdate, fenixUserId);
 	}
 
-	private void updateKeyOnSites(SSHKey oldKey, SSHKey newKey, Set<String> sitesIds, FenixUserId userId) {
+	private void updateKeyOnSites(SSHKey oldKey, SSHKey newKey, Set<SiteId> sitesIds, FenixUserId userId) {
 		Set<Site> sites = sitesIds.stream().map(s -> siteRepository.findById(s).get())
 				.collect(toSet());
 
@@ -253,7 +258,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 	}
 
 	private SiteDiff getSiteDiff(SSHKey actualKey, SSHKey newKey) {
-		Set<String> toAdd = Sets.newHashSet(newKey.sites);
+		Set<SiteId> toAdd = Sets.newHashSet(newKey.sites);
 		toAdd.removeAll(actualKey.sites != null ? (actualKey.sites.stream().filter(s -> {
 			SSHKeyOperationJob job = sshKeyOperationRepository.findBySSHKeyIdAndSiteId(newKey.id, s);
 			return (job.operation.equals(ADD) && job.status.equals(DONE))
@@ -261,13 +266,13 @@ class SSHKeyServiceImpl implements SSHKeyService {
 					|| (job.operation.equals(REMOVE));
 		}).collect(toSet())) : null);
 
-		Set<String> toRemove = Sets.newHashSet(actualKey.sites);
+		Set<SiteId> toRemove = Sets.newHashSet(actualKey.sites);
 		toRemove.removeAll(newKey.sites);
 		toRemove.addAll(sshKeyOperationRepository.findBySSHKey(newKey.id).stream()
 				.filter(o -> o.operation.equals(REMOVE) && o.status.equals(FAILED)).map(o -> o.siteId)
 				.collect(toSet()));
 
-		Set<String> toUpdate = Sets.newHashSet();
+		Set<SiteId> toUpdate = Sets.newHashSet();
 		if (!actualKey.value.equals(newKey.value)) {
 			toUpdate.addAll(actualKey.sites);
 			toUpdate.retainAll(newKey.sites);
@@ -293,7 +298,7 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		sshKeyRemover.removeKeyFromSites(removedKey, removedKey.sites, user.get().fenixUserId.get());
 	}
 
-	private void addKeyToSites(SSHKey sshKey, Set<String> sitesIds, FenixUserId userId) {
+	private void addKeyToSites(SSHKey sshKey, Set<SiteId> sitesIds, FenixUserId userId) {
 		if(sitesIds.isEmpty())
 			return;
 		validator.assertUserIsInstalledOnSites(sitesIds, userId);
@@ -325,17 +330,17 @@ class SSHKeyServiceImpl implements SSHKeyService {
 		LOG.info("SSHKeyOperationJob was created: {}", operationJob);
 	}
 	
-	private void deleteOperationBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
+	private void deleteOperationBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId) {
 		sshKeyOperationRepository.deleteBySSHKeyIdAndSiteId(sshkeyId, siteId);
 		LOG.info("SSHKeyOperationJob for key={} and site={} was deleted", sshkeyId, siteId);
 	}
 
 	static class SiteDiff {
-		public final Set<String> toAdd;
-		public final Set<String> toRemove;
-		public final Set<String> toUpdate;
+		public final Set<SiteId> toAdd;
+		public final Set<SiteId> toRemove;
+		public final Set<SiteId> toUpdate;
 
-		SiteDiff(Set<String> toInstall, Set<String> toUninstall, Set<String> toReinstall) {
+		SiteDiff(Set<SiteId> toInstall, Set<SiteId> toUninstall, Set<SiteId> toReinstall) {
 			this.toAdd = Set.copyOf(toInstall);
 			this.toRemove = Set.copyOf(toUninstall);
 			this.toUpdate = Set.copyOf(toReinstall);

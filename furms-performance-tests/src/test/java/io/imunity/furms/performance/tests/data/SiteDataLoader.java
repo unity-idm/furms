@@ -17,7 +17,6 @@ import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.Site;
-import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Set;
 import java.util.UUID;
@@ -63,7 +62,6 @@ class SiteDataLoader {
 					siteService.update(Site.builder()
 							.id(site.getId())
 							.name(site.getName())
-							.externalId(site.getExternalId())
 							.policyId(policy.id)
 							.build());
 					infraServiceService.create(InfraService.builder()
@@ -80,7 +78,7 @@ class SiteDataLoader {
 							.unit(ResourceMeasureUnit.GB)
 							.build());
 					final ResourceType resourceType = resourceTypeService.findAll(site.getId()).stream().findFirst().get();
-					return new Data.Site(new SiteId(site.getId()), policy.id, resourceType.id);
+					return new Data.Site(site.getId(), policy.id, resourceType.id);
 				})
 				.collect(toSet());
 	}

@@ -5,6 +5,8 @@
 
 package io.imunity.furms.domain.alarms;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
@@ -12,15 +14,15 @@ import java.util.Set;
 
 public class AlarmWithUserIds {
 	public final AlarmId id;
-	public final String projectId;
-	public final String projectAllocationId;
+	public final ProjectId projectId;
+	public final ProjectAllocationId projectAllocationId;
 	public final String name;
 	public final int threshold;
 	public final boolean allUsers;
 	public final boolean fired;
 	public final Set<FenixUserId> alarmUser;
 
-	private AlarmWithUserIds(AlarmId id, String projectId, String projectAllocationId, String name, int threshold, boolean allUsers, boolean fired, Set<FenixUserId> alarmUser) {
+	private AlarmWithUserIds(AlarmId id, ProjectId projectId, ProjectAllocationId projectAllocationId, String name, int threshold, boolean allUsers, boolean fired, Set<FenixUserId> alarmUser) {
 		this.id = id;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
@@ -82,8 +84,8 @@ public class AlarmWithUserIds {
 
 	public static final class AlarmBuilder {
 		public AlarmId id;
-		public String projectId;
-		public String projectAllocationId;
+		public ProjectId projectId;
+		public ProjectAllocationId projectAllocationId;
 		public String name;
 		public int threshold;
 		public boolean allUsers;
@@ -98,12 +100,12 @@ public class AlarmWithUserIds {
 			return this;
 		}
 
-		public AlarmBuilder projectId(String projectId) {
+		public AlarmBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public AlarmBuilder projectAllocationId(String projectAllocationId) {
+		public AlarmBuilder projectAllocationId(ProjectAllocationId projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}

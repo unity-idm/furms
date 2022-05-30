@@ -5,8 +5,11 @@
 
 package io.imunity.furms.ui.views.site.resource_credits;
 
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.AmountWithUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -14,9 +17,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 class ResourceCreditViewModel {
-	private final String id;
-	private final String siteId;
-	private String resourceTypeId;
+	private final ResourceCreditId id;
+	private final SiteId siteId;
+	private ResourceTypeId resourceTypeId;
 	private String resourceTypeName;
 	private String name;
 	private Boolean split = true;
@@ -28,9 +31,9 @@ class ResourceCreditViewModel {
 	private ZonedDateTime startTime;
 	private ZonedDateTime endTime;
 
-	public ResourceCreditViewModel(String id,
-			String siteId,
-			String resourceTypeId,
+	public ResourceCreditViewModel(ResourceCreditId id,
+			SiteId siteId,
+			ResourceTypeId resourceTypeId,
 			String resourceTypeName,
 			String name,
 			Boolean split,
@@ -56,17 +59,17 @@ class ResourceCreditViewModel {
 		this.endTime = endTime;
 	}
 
-	public ResourceCreditViewModel(String siteId) {
+	public ResourceCreditViewModel(SiteId siteId) {
 		this.id = null;
 		this.resourceTypeName = null;
 		this.siteId = siteId;
 	}
 
-	public String getId() {
+	public ResourceCreditId getId() {
 		return id;
 	}
 
-	public String getSiteId() {
+	public SiteId getSiteId() {
 		return siteId;
 	}
 
@@ -74,11 +77,11 @@ class ResourceCreditViewModel {
 		return resourceTypeName;
 	}
 
-	public String getResourceTypeId() {
+	public ResourceTypeId getResourceTypeId() {
 		return resourceTypeId;
 	}
 
-	public void setResourceTypeId(String resourceTypeId) {
+	public void setResourceTypeId(ResourceTypeId resourceTypeId) {
 		this.resourceTypeId = resourceTypeId;
 	}
 
@@ -183,9 +186,9 @@ class ResourceCreditViewModel {
 	}
 
 	public static final class ResourceCreditViewModelBuilder {
-		private  String id;
-		private String siteId;
-		private String resourceTypeId;
+		private ResourceCreditId id;
+		private SiteId siteId;
+		private ResourceTypeId resourceTypeId;
 		private String resourceTypeName;
 		private String name;
 		private Boolean split;
@@ -200,17 +203,17 @@ class ResourceCreditViewModel {
 		private ResourceCreditViewModelBuilder() {
 		}
 
-		public ResourceCreditViewModelBuilder id(String id) {
+		public ResourceCreditViewModelBuilder id(ResourceCreditId id) {
 			this.id = id;
 			return this;
 		}
 
-		public ResourceCreditViewModelBuilder siteId(String siteId) {
+		public ResourceCreditViewModelBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
-		public ResourceCreditViewModelBuilder resourceTypeId(String resourceTypeId) {
+		public ResourceCreditViewModelBuilder resourceTypeId(ResourceTypeId resourceTypeId) {
 			this.resourceTypeId = resourceTypeId;
 			return this;
 		}

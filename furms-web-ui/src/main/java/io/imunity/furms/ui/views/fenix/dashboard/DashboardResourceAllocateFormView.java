@@ -31,7 +31,8 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
-import io.imunity.furms.ui.components.support.models.ComboBoxModel;
+import io.imunity.furms.ui.components.support.models.CommunityComboBoxModel;
+import io.imunity.furms.ui.components.support.models.SiteComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceCreditComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
 import io.imunity.furms.ui.utils.OptionalException;
@@ -79,10 +80,10 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	}
 
 	private CommunityAllocationViewModel createViewModel() {
-		final ResourceAllocationsGridItem item = ComponentUtil.getData(UI.getCurrent(), ResourceAllocationsGridItem.class);
+		ResourceCreditAllocationsGridItem item = ComponentUtil.getData(UI.getCurrent(), ResourceCreditAllocationsGridItem.class);
 		ComponentUtil.setData(UI.getCurrent(), ResourceAllocationsGridItem.class, null);
 		return CommunityAllocationViewModel.builder()
-				.site(new ComboBoxModel(item.getSiteId(), item.getSiteName()))
+				.site(new SiteComboBoxModel(item.getSiteId(), item.getSiteName()))
 				.resourceType(new ResourceTypeComboBoxModel(item.getResourceType().id, item.getResourceType().name,
 						item.getResourceType().unit))
 				.resourceCredit(new ResourceCreditComboBoxModel(item.getId(), item.getName(),
@@ -163,9 +164,9 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 		return nameField;
 	}
 
-	private ComboBox<ComboBoxModel> siteField() {
-		final ComboBox<ComboBoxModel> siteComboBox = new ComboBox<>();
-		siteComboBox.setItemLabelGenerator(ComboBoxModel::getName);
+	private ComboBox<SiteComboBoxModel> siteField() {
+		final ComboBox<SiteComboBoxModel> siteComboBox = new ComboBox<>();
+		siteComboBox.setItemLabelGenerator(SiteComboBoxModel::getName);
 		siteComboBox.setReadOnly(true);
 		siteComboBox.setItems(binder.getBean().getSite());
 
@@ -175,17 +176,17 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 		return siteComboBox;
 	}
 
-	private ComboBox<ComboBoxModel> communityField() {
-		final Set<ComboBoxModel> items = communityService.findAll().stream()
-				.map(item -> new ComboBoxModel(item.getId(), item.getName()))
+	private ComboBox<CommunityComboBoxModel> communityField() {
+		final Set<CommunityComboBoxModel> items = communityService.findAll().stream()
+				.map(item -> new CommunityComboBoxModel(item.getId(), item.getName()))
 				.collect(toSet());
-		final ComboBox<ComboBoxModel> communityComboBox = new ComboBox<>();
+		final ComboBox<CommunityComboBoxModel> communityComboBox = new ComboBox<>();
 		communityComboBox.addValueChangeListener(event -> nameField.reloadName(
 			event.getValue().getName(),
 			() -> communityAllocationService.getOccupiedNames(event.getValue().getId()),
 			null)
 		);
-		communityComboBox.setItemLabelGenerator(ComboBoxModel::getName);
+		communityComboBox.setItemLabelGenerator(CommunityComboBoxModel::getName);
 		communityComboBox.setItems(items);
 
 		binder.forField(communityComboBox)
@@ -198,14 +199,14 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 		return communityComboBox;
 	}
 
-	private ValueProvider<CommunityAllocationViewModel, ComboBoxModel> communityBinderGetter(Set<ComboBoxModel> items) {
+	private ValueProvider<CommunityAllocationViewModel, CommunityComboBoxModel> communityBinderGetter(Set<CommunityComboBoxModel> items) {
 		return viewModel ->
 				items.stream()
 						.filter(community -> community.getId().equals(viewModel.getCommunityId()))
 						.findFirst().orElse(null);
 	}
 
-	private Setter<CommunityAllocationViewModel, ComboBoxModel> communityBinderSetter() {
+	private Setter<CommunityAllocationViewModel, CommunityComboBoxModel> communityBinderSetter() {
 		return (viewModel, comboBoxModel) ->
 			viewModel.setCommunityId(comboBoxModel.getId());
 	}

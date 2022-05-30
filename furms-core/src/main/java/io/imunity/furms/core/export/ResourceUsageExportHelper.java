@@ -5,6 +5,10 @@
 
 package io.imunity.furms.core.export;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -19,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.UUID;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -39,8 +42,8 @@ class ResourceUsageExportHelper {
 		this.communityAllocationRepository = communityAllocationRepository;
 	}
 
-	Map<LocalDateTime, BigDecimal> getCumulativeUsageForCommunityAlloc(String communityAllocationId) {
-		Set<ResourceUsage> allResourceUsageHistory = resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(UUID.fromString(communityAllocationId));
+	Map<LocalDateTime, BigDecimal> getCumulativeUsageForCommunityAlloc(CommunityAllocationId communityAllocationId) {
+		Set<ResourceUsage> allResourceUsageHistory = resourceUsageRepository.findResourceUsagesHistoryByCommunityAllocationId(communityAllocationId);
 
 		List<LocalDateTime> dates = allResourceUsageHistory
 			.stream().map(usage -> usage.utcProbedAt)
@@ -84,7 +87,7 @@ class ResourceUsageExportHelper {
 		return values;
 	}
 
-	void assertProjectAndAllocationAreRelated(String projectId, String projectAllocationId) {
+	void assertProjectAndAllocationAreRelated(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		projectAllocationRepository.findById(projectAllocationId)
 			.filter(allocation -> allocation.projectId.equals(projectId))
 			.orElseThrow(() -> new IllegalArgumentException(String.format(
@@ -92,7 +95,7 @@ class ResourceUsageExportHelper {
 			));
 	}
 
-	void assertCommunityAndAllocationAreRelated(String communityId, String communityAllocationId) {
+	void assertCommunityAndAllocationAreRelated(CommunityId communityId, CommunityAllocationId communityAllocationId) {
 		communityAllocationRepository.findById(communityAllocationId)
 			.filter(allocation -> allocation.communityId.equals(communityId))
 			.orElseThrow(() -> new IllegalArgumentException(String.format(

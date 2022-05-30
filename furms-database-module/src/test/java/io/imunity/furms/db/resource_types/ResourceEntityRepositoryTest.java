@@ -10,8 +10,10 @@ import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.util.Optional;
-import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,10 +36,10 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceTypeEntityRepository resourceTypeRepository;
 
-	private UUID siteId;
+	private SiteId siteId;
 
-	private UUID serviceId;
-	private UUID serviceId2;
+	private InfraServiceId serviceId;
+	private InfraServiceId serviceId2;
 
 	@BeforeEach
 	void init() {
@@ -49,27 +49,27 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		UUID siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
+		SiteId siteId2 = siteRepository.create(site1, new SiteExternalId("id2"));
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 		InfraService service1 = InfraService.builder()
-			.siteId(siteId2.toString())
+			.siteId(siteId2)
 			.name("name1")
 			.build();
-		serviceId = UUID.fromString(infraServiceRepository.create(service));
-		serviceId2 = UUID.fromString(infraServiceRepository.create(service1));
+		serviceId = infraServiceRepository.create(service);
+		serviceId2 = infraServiceRepository.create(service1);
 	}
 
 	@Test
 	void shouldCreateResourceType() {
 		//given
 		ResourceTypeEntity entityToSave = ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.GIGA)
@@ -82,8 +82,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(resourceTypeRepository.findAll()).hasSize(1);
 		Optional<ResourceTypeEntity> byId = resourceTypeRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().siteId).isEqualTo(siteId);
-		assertThat(byId.get().serviceId).isEqualTo(serviceId);
+		assertThat(byId.get().siteId).isEqualTo(siteId.id);
+		assertThat(byId.get().serviceId).isEqualTo(serviceId.id);
 		assertThat(byId.get().name).isEqualTo("name");
 		assertThat(byId.get().type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
 		assertThat(byId.get().unit).isEqualTo(ResourceMeasureUnit.GIGA);
@@ -93,16 +93,16 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateResourceType() {
 		//given
 		ResourceTypeEntity old = ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.GIGA)
 			.build();
 		resourceTypeRepository.save(old);
 		ResourceTypeEntity toUpdate = ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId2)
+			.siteId(siteId.id)
+			.serviceId(serviceId2.id)
 			.name("name2")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -114,8 +114,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 		//then
 		Optional<ResourceTypeEntity> byId = resourceTypeRepository.findById(toUpdate.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().siteId).isEqualTo(siteId);
-		assertThat(byId.get().serviceId).isEqualTo(serviceId2);
+		assertThat(byId.get().siteId).isEqualTo(siteId.id);
+		assertThat(byId.get().serviceId).isEqualTo(serviceId2.id);
 		assertThat(byId.get().name).isEqualTo("name2");
 		assertThat(byId.get().type).isEqualTo(ResourceMeasureType.DATA);
 		assertThat(byId.get().unit).isEqualTo(ResourceMeasureUnit.GB);
@@ -125,8 +125,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedResourceTypes() {
 		//given
 		ResourceTypeEntity toFind = ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.GIGA)
@@ -144,16 +144,16 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllAvailableResourceTypes() {
 		//given
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.GIGA)
 			.build()
 		);
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name1")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -171,8 +171,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	void savedServiceExistsByResourceTypeId() {
 		//given
 		ResourceTypeEntity service = resourceTypeRepository.save(ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -187,15 +187,15 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	void savedResourceTypeExistsByName() {
 		//given
 		ResourceTypeEntity service = resourceTypeRepository.save(ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
 			.build());
 
 		//when
-		boolean exists = resourceTypeRepository.existsByNameAndSiteId(service.name, siteId);
+		boolean exists = resourceTypeRepository.existsByNameAndSiteId(service.name, siteId.id);
 
 		//then
 		assertThat(exists).isTrue();
@@ -205,15 +205,15 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	void savedResourceTypeDoesNotExistByName() {
 		//given
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
 			.build());
 
 		//when
-		boolean nonExists = resourceTypeRepository.existsByNameAndSiteId("wrong_name", serviceId);
+		boolean nonExists = resourceTypeRepository.existsByNameAndSiteId("wrong_name", serviceId.id);
 
 		//then
 		assertThat(nonExists).isFalse();
@@ -223,8 +223,8 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteService() {
 		//given
 		ResourceTypeEntity entityToRemove = resourceTypeRepository.save(ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -241,15 +241,15 @@ class ResourceEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteAllServices() {
 		//given
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
 			.build());
 		resourceTypeRepository.save(ResourceTypeEntity.builder()
-			.siteId(siteId)
-			.serviceId(serviceId)
+			.siteId(siteId.id)
+			.serviceId(serviceId.id)
 			.name("name1")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.GIGA)

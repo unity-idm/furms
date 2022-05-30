@@ -53,7 +53,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
@@ -63,7 +62,6 @@ import static io.imunity.furms.utils.ValidationUtils.assertFalse;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
@@ -114,20 +112,20 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED)
-	public boolean existsById(String id) {
+	public boolean existsById(SiteId id) {
 		return siteRepository.exists(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "id")
-	public Optional<Site> findById(String id) {
+	public Optional<Site> findById(SiteId id) {
 		LOG.debug("Getting Site with id={}", id);
 		return siteRepository.findById(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "ids", idCollections = true)
-	public Set<Site> findAll(Set<String> ids) {
+	public Set<Site> findAll(Set<SiteId> ids) {
 		LOG.debug("Getting Site with ids={}", ids);
 		return siteRepository.findAll(ids);
 	}
@@ -155,7 +153,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 			throw new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP");
 		}
 		return siteRepository.findAll().stream()
-				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixUserId.id))
+				.filter(site -> userOperationRepository.isUserAdded(site.getId(), fenixUserId))
 				.collect(toSet());
 	}
 
@@ -170,9 +168,9 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	private boolean isBelongToSite(Site site, FURMSUser user) {
 		final Set<Capability> capabilities = Set.of(SITE_READ, SITE_WRITE);
-		return capabilityCollector.getCapabilities(user.roles, new ResourceId(site.getId(), SITE))
+		return capabilityCollector.getCapabilities(user.roles, new ResourceId(site.getId().id, SITE))
 				.stream().anyMatch(capabilities::contains)
-				|| (user.fenixUserId.isPresent() && userOperationRepository.isUserAdded(site.getId(), user.fenixUserId.get().id));
+				|| (user.fenixUserId.isPresent() && userOperationRepository.isUserAdded(site.getId(), user.fenixUserId.get()));
 	}
 
 	@Override
@@ -184,7 +182,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		SiteExternalId externalId = new SiteExternalId(ExternalIdGenerator.generate(siteExternalId ->
 			!siteRepository.existsByExternalId(new SiteExternalId(siteExternalId)))
 		);
-		String siteId = siteRepository.create(site, externalId);
+		SiteId siteId = siteRepository.create(site, externalId);
 		Site createdSite = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		LOG.info("Created Site in repository: {}", createdSite);
@@ -212,7 +210,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		validator.validateUpdate(site);
 		Site oldSite = siteRepository.findById(site.getId())
 				.orElseThrow(() -> new IllegalStateException("Site not found: " + site.getId()));
-		String siteId = siteRepository.update(merge(oldSite, site));
+		SiteId siteId = siteRepository.update(merge(oldSite, site));
 		LOG.info("Updated Site in repository with ID={}, {}", siteId, site);
 		Site updatedSite = siteRepository.findById(siteId)
 				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
@@ -231,7 +229,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		if(isPolicyChange(updatedSite, oldSite)) {
 			sendUpdateToSite(updatedSite, oldSite);
 			if (updatedSite.getPolicyId() != null && updatedSite.getPolicyId().id != null) {
-				policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(new SiteId(oldSite.getId()));
+				policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(oldSite.getId());
 			}
 		}
 	}
@@ -272,7 +270,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE)
-	public void delete(String id) {
+	public void delete(SiteId id) {
 		validator.validateDelete(id);
 		SiteExternalId externalId = siteRepository.findByIdExternalId(id);
 		Site site = siteRepository.findById(id).get();
@@ -301,10 +299,10 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="recordToIgnore")
-	public boolean isNamePresentIgnoringRecord(String name, String recordToIgnore) {
+	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
+	public boolean isNamePresentIgnoringRecord(String name, SiteId siteId) {
 		try {
-			validator.validateIsNamePresentIgnoringRecord(name, recordToIgnore);
+			validator.validateIsNamePresentIgnoringRecord(name, siteId);
 			return false;
 		} catch (IllegalArgumentException e) {
 			return true;
@@ -313,7 +311,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE)
-	public AllUsersAndSiteAdmins findAllUsersAndSiteAdmins(String id) {
+	public AllUsersAndSiteAdmins findAllUsersAndSiteAdmins(SiteId id) {
 		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Administrators. Missing Site ID."));
 		LOG.debug("Getting Site Administrators from Unity for Site ID={}", id);
 		return webClient.getAllUsersAndSiteAdmins(id);
@@ -321,7 +319,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="id")
-	public List<FURMSUser> findAllSiteUsers(String id) {
+	public List<FURMSUser> findAllSiteUsers(SiteId id) {
 		assertFalse(isEmpty(id), () -> new IllegalArgumentException("Could not get Site Supports. Missing Site ID."));
 		LOG.debug("Getting Site Support from Unity for Site ID={}", id);
 		return webClient.getSiteUsers(id, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT));
@@ -329,8 +327,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void inviteAdmin(String siteId, PersistentId userId) {
-		ResourceId resourceId = new ResourceId(siteId, SITE);
+	public void inviteAdmin(SiteId siteId, PersistentId userId) {
+		ResourceId resourceId = new ResourceId(siteId.id, SITE);
 		if(hasRole(userId, resourceId, Role.SITE_SUPPORT))
 			throw new UserIsSiteSupport("User already has site support role");
 		siteRepository.findById(siteId).ifPresent(site ->
@@ -358,19 +356,19 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void inviteAdmin(String siteId, String email) {
-		ResourceId resourceId = new ResourceId(siteId, SITE);
+	public void inviteAdmin(SiteId siteId, String email) {
+		ResourceId resourceId = new ResourceId(siteId.id, SITE);
 		if(hasRole(email, resourceId, Role.SITE_SUPPORT))
 			throw new UserIsSiteSupport("User already has site support role");
 		siteRepository.findById(siteId).ifPresent(site ->
-			invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_ADMIN, site.getName())
+			invitatoryService.inviteUser(email, new ResourceId(siteId.id, SITE), Role.SITE_ADMIN, site.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void inviteSupport(String siteId, PersistentId userId) {
-		ResourceId resourceId = new ResourceId(siteId, SITE);
+	public void inviteSupport(SiteId siteId, PersistentId userId) {
+		ResourceId resourceId = new ResourceId(siteId.id, SITE);
 		if(hasRole(userId, resourceId, Role.SITE_ADMIN))
 			throw new UserIsSiteAdmin("User already has site admin role");
 		siteRepository.findById(siteId).ifPresent(site ->
@@ -380,90 +378,92 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void inviteSupport(String siteId, String email) {
-		ResourceId resourceId = new ResourceId(siteId, SITE);
+	public void inviteSupport(SiteId siteId, String email) {
+		ResourceId resourceId = new ResourceId(siteId.id, SITE);
 		if(hasRole(email, resourceId, Role.SITE_ADMIN))
 			throw new UserIsSiteAdmin("User already has site admin role");
 		siteRepository.findById(siteId).ifPresent(site ->
-			invitatoryService.inviteUser(email, new ResourceId(siteId, SITE), Role.SITE_SUPPORT, site.getName())
+			invitatoryService.inviteUser(email, new ResourceId(siteId.id, SITE), Role.SITE_SUPPORT, site.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public Set<Invitation> findSiteAdminInvitations(String siteId) {
-		return invitatoryService.getInvitations(Role.SITE_ADMIN, UUID.fromString(siteId));
+	public Set<Invitation> findSiteAdminInvitations(SiteId siteId) {
+		return invitatoryService.getInvitations(Role.SITE_ADMIN, siteId.id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public Set<Invitation> findSiteSupportInvitations(String siteId) {
-		return invitatoryService.getInvitations(Role.SITE_SUPPORT, UUID.fromString(siteId));
+	public Set<Invitation> findSiteSupportInvitations(SiteId siteId) {
+		return invitatoryService.getInvitations(Role.SITE_SUPPORT, siteId.id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void resendInvitation(String siteId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(siteId, invitationId))
+	public void resendInvitation(SiteId siteId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(siteId.id.toString(), invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associated with this resource %s", siteId, invitationId));
 		invitatoryService.resendInvitation(invitationId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void changeInvitationRoleToSupport(String siteId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(siteId, invitationId))
+	public void changeInvitationRoleToSupport(SiteId siteId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(siteId.id.toString(), invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associated with this resource %s", siteId, invitationId));
 		invitatoryService.updateInvitationRole(invitationId, Role.SITE_SUPPORT);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void changeInvitationRoleToAdmin(String siteId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(siteId, invitationId))
+	public void changeInvitationRoleToAdmin(SiteId siteId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(siteId.id.toString(), invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associated with this resource %s", siteId, invitationId));
 		invitatoryService.updateInvitationRole(invitationId, Role.SITE_ADMIN);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void removeInvitation(String siteId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(siteId, invitationId))
+	public void removeInvitation(SiteId siteId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(siteId.id.toString(), invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", siteId, invitationId));
 		invitatoryService.removeInvitation(invitationId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void addAdmin(String siteId, PersistentId userId) {
+	public void addAdmin(SiteId siteId, PersistentId userId) {
 		addUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_ADMIN));
 		String siteName = siteRepository.findById(siteId).get().getName();
-		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(siteId, SITE), siteName, Role.SITE_ADMIN));
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(siteId.id, SITE), siteName,
+			Role.SITE_ADMIN));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void addSupport(String siteId, PersistentId userId) {
+	public void addSupport(SiteId siteId, PersistentId userId) {
 		addUser(siteId, userId, () -> webClient.addSiteUser(siteId, userId, Role.SITE_SUPPORT));
 		String siteName = siteRepository.findById(siteId).get().getName();
-		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(siteId, SITE), siteName, Role.SITE_SUPPORT));
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(siteId.id, SITE), siteName,
+			Role.SITE_SUPPORT));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void changeRoleToAdmin(String siteId, PersistentId userId) {
+	public void changeRoleToAdmin(SiteId siteId, PersistentId userId) {
 		webClient.removeSiteUser(siteId, userId);
 		addAdmin(siteId, userId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void changeRoleToSupport(String siteId, PersistentId userId) {
+	public void changeRoleToSupport(SiteId siteId, PersistentId userId) {
 		webClient.removeSiteUser(siteId, userId);
 		addSupport(siteId, userId);
 	}
 
-	private void addUser(String siteId, PersistentId userId, Runnable adder) {
+	private void addUser(SiteId siteId, PersistentId userId, Runnable adder) {
 		assertNotEmpty(siteId, userId);
 		try {
 			adder.run();
@@ -481,13 +481,13 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id="siteId")
-	public void removeSiteUser(String siteId, PersistentId userId) {
+	public void removeSiteUser(SiteId siteId, PersistentId userId) {
 		assertNotEmpty(siteId, userId);
-		Role role = authzService.isResourceMember(siteId, Role.SITE_SUPPORT) ? Role.SITE_SUPPORT : Role.SITE_ADMIN;
+		Role role = authzService.isResourceMember(siteId.id.toString(), Role.SITE_SUPPORT) ? Role.SITE_SUPPORT : Role.SITE_ADMIN;
 		String siteName = siteRepository.findById(siteId).get().getName();
 		try {
 			webClient.removeSiteUser(siteId, userId);
-			publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), siteName, role));
+			publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId.id.toString(), SITE), siteName, role));
 			LOG.info("Removed Site Administrator ({}) from Unity for Site ID={}", userId, siteId);
 		} catch (RuntimeException e) {
 			LOG.error("Could not remove Site Administrator: ", e);
@@ -497,14 +497,14 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public boolean isCurrentUserAdminOf(String siteId) {
-		return authzService.isResourceMember(siteId, Role.SITE_ADMIN);
+	public boolean isCurrentUserAdminOf(SiteId siteId) {
+		return authzService.isResourceMember(siteId.id.toString(), Role.SITE_ADMIN);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id="siteId")
-	public boolean isCurrentUserSupportOf(String siteId) {
-		return authzService.isResourceMember(siteId, Role.SITE_SUPPORT);
+	public boolean isCurrentUserSupportOf(SiteId siteId) {
+		return authzService.isResourceMember(siteId.id.toString(), Role.SITE_SUPPORT);
 	}
 
 	private Site merge(Site oldSite, Site site) {
@@ -518,15 +518,24 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 				.sshKeyFromOptionMandatory(ofNullable(site.isSshKeyFromOptionMandatory()).orElse(oldSite.isSshKeyFromOptionMandatory()))
 				.sshKeyHistoryLength(ofNullable(site.getSshKeyHistoryLength()).orElse(oldSite.getSshKeyHistoryLength()))
 				.policyId(site.getPolicyId())
-				.externalId(oldSite.getExternalId())
 				.build();
 	}
 	
-	private void assertNotEmpty(String siteId, PersistentId userId) {
+	private void assertNotEmpty(SiteId siteId, PersistentId userId) {
 		assertFalse(isEmpty(siteId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID"));
+		assertFalse(isEmpty(siteId),
+			() -> new IllegalArgumentException("Could not add Site Administrator. Missing Site ID"));
 		assertFalse(isEmpty(userId),
 				() -> new IllegalArgumentException("Could not add Site Administrator. Missing User ID"));
 
+	}
+
+	private boolean isEmpty(SiteId id) {
+		return id == null || id.id == null;
+	}
+
+	private boolean isEmpty(PersistentId id) {
+		return id == null || id.id == null;
 	}
 }

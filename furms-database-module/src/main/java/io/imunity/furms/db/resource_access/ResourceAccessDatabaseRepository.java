@@ -6,8 +6,11 @@
 package io.imunity.furms.db.resource_access;
 
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
+import io.imunity.furms.domain.resource_access.GrantId;
 import io.imunity.furms.domain.resource_access.ProjectUserGrant;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -33,15 +36,15 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public Set<UserGrant> findUsersGrantsByProjectId(String projectId) {
-		return userGrantEntityRepository.findAll(UUID.fromString(projectId)).stream()
+	public Set<UserGrant> findUsersGrantsByProjectId(ProjectId projectId) {
+		return userGrantEntityRepository.findAll(projectId.id).stream()
 			.map(this::map)
 			.collect(Collectors.toSet());
 	}
 
 	@Override
-	public Set<FenixUserId> findUsersBySiteId(String siteId) {
-		return userGrantEntityRepository.findAllBySiteId(UUID.fromString(siteId)).stream()
+	public Set<FenixUserId> findUsersBySiteId(SiteId siteId) {
+		return userGrantEntityRepository.findAllBySiteId(siteId.id).stream()
 			.map(grant -> new FenixUserId(grant.userId))
 			.collect(Collectors.toSet());
 	}
@@ -49,19 +52,25 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	@Override
 	public Optional<ProjectUserGrant> findUsersGrantsByCorrelationId(CorrelationId correlationId) {
 		return userGrantEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id))
-			.map(entity -> new ProjectUserGrant(entity.siteId, entity.grantId, entity.projectId, new FenixUserId(entity.userId)));
+			.map(entity -> new ProjectUserGrant(
+				new SiteId(entity.siteId),
+				new GrantId(entity.grantId),
+				new ProjectId(entity.projectId),
+				new FenixUserId(entity.userId))
+			);
 	}
 
 	@Override
-	public Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(String projectId, FenixUserId fenixUserId) {
-		return userGrantEntityRepository.findAll(UUID.fromString(projectId), fenixUserId.id).stream()
+	public Set<UserGrant> findUserGrantsByProjectIdAndFenixUserId(ProjectId projectId, FenixUserId fenixUserId) {
+		return userGrantEntityRepository.findAll(projectId.id, fenixUserId.id).stream()
 			.map(this::map)
 			.collect(Collectors.toSet());
 	}
 
 	@Override
-	public boolean existsBySiteIdAndProjectIdAndFenixUserId(String siteId, String projectId, FenixUserId fenixUserId) {
-		return userGrantEntityRepository.existsBySiteIdAndProjectIdAndUserId(UUID.fromString(siteId), UUID.fromString(projectId), fenixUserId.id);
+	public boolean existsBySiteIdAndProjectIdAndFenixUserId(SiteId siteId, ProjectId projectId, FenixUserId fenixUserId) {
+		return userGrantEntityRepository.existsBySiteIdAndProjectIdAndUserId(siteId.id, projectId.id,
+			fenixUserId.id);
 	}
 
 	private UserGrant map(UserGrantResolved userAllocationResolved) {
@@ -74,12 +83,12 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public UUID create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus accessStatus) {
+	public GrantId create(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus accessStatus) {
 		UserGrantEntity save = userGrantEntityRepository.save(
 			UserGrantEntity.builder()
-				.siteId(UUID.fromString(grantAccess.siteId.id))
-				.projectId(UUID.fromString(grantAccess.projectId))
-				.projectAllocationId(UUID.fromString(grantAccess.allocationId))
+				.siteId(grantAccess.siteId.id)
+				.projectId(grantAccess.projectId.id)
+				.projectAllocationId(grantAccess.allocationId.id)
 				.userId(grantAccess.fenixUserId.id)
 				.build()
 		);
@@ -89,26 +98,28 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 			.status(accessStatus)
 			.build()
 		);
-		return save.getId();
+		return new GrantId(save.getId());
 	}
 
 	public boolean exists(GrantAccess grantAccess) {
-		return userGrantEntityRepository.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id, UUID.fromString(grantAccess.allocationId))
+		return userGrantEntityRepository.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id,
+				grantAccess.allocationId.id)
 			.isPresent();
 	}
 
 	@Override
-	public AccessStatus findCurrentStatus(FenixUserId userId, String allocationId) {
+	public AccessStatus findCurrentStatus(FenixUserId userId, ProjectAllocationId allocationId) {
 		return userGrantEntityRepository
-			.findByUserIdAndProjectAllocationId(userId.id, UUID.fromString(allocationId))
+			.findByUserIdAndProjectAllocationId(userId.id, allocationId.id)
 			.map(userGrantResolved -> userGrantResolved.job.status)
 			.map(AccessStatus::valueOf)
 			.orElseThrow(() -> new IllegalArgumentException(String.format("UserGant with user id %s and allocation id %s doesn't exist", userId, allocationId)));
 	}
 
 	@Override
-	public Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, String projectId, String siteId) {
-		return userGrantEntityRepository.findByUserIdAndProjectIdAndSiteId(userId.id, UUID.fromString(projectId), UUID.fromString(siteId), AccessStatus.USER_INSTALLING.getPersistentId()).stream()
+	public Set<GrantAccess> findWaitingGrantAccesses(FenixUserId userId, ProjectId projectId, SiteId siteId) {
+		return userGrantEntityRepository.findByUserIdAndProjectIdAndSiteId(userId.id, projectId.id,
+				siteId.id, AccessStatus.USER_INSTALLING.getPersistentId()).stream()
 			.map(x -> GrantAccess.builder()
 				.siteId(new SiteId(x.siteId.toString(), x.siteExternalId))
 				.fenixUserId(new FenixUserId(x.userId))
@@ -119,8 +130,9 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public Set<GrantAccess> findGrantAccessesBy(String siteId, String projectAllocationId) {
-		return userGrantEntityRepository.findBySiteIdAndProjectAllocationId(UUID.fromString(siteId), UUID.fromString(projectAllocationId)).stream()
+	public Set<GrantAccess> findGrantAccessesBy(SiteId siteId, ProjectAllocationId projectAllocationId) {
+		return userGrantEntityRepository.findBySiteIdAndProjectAllocationId(siteId.id,
+				projectAllocationId.id).stream()
 			.map(x -> GrantAccess.builder()
 				.siteId(new SiteId(x.siteId.toString(), x.siteExternalId))
 				.fenixUserId(new FenixUserId(x.userId))
@@ -141,7 +153,7 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	@Override
 	public void update(CorrelationId correlationId, GrantAccess grantAccess, AccessStatus status) {
 		UserGrantResolved userAllocation = userGrantEntityRepository
-			.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id, UUID.fromString(grantAccess.allocationId))
+			.findByUserIdAndProjectAllocationId(grantAccess.fenixUserId.id, grantAccess.allocationId.id)
 			.orElseThrow(() -> new IllegalArgumentException("GrantAccess not found: " + grantAccess));
 
 		userGrantJobEntityRepository.save(UserGrantJobEntity.builder()
@@ -177,20 +189,21 @@ class ResourceAccessDatabaseRepository implements ResourceAccessRepository {
 	}
 
 	@Override
-	public void deleteByUserAndAllocationId(FenixUserId userId, String allocationId){
-		userGrantEntityRepository.findByUserIdAndProjectAllocationId(userId.id, UUID.fromString(allocationId))
+	public void deleteByUserAndAllocationId(FenixUserId userId, ProjectAllocationId allocationId){
+		userGrantEntityRepository.findByUserIdAndProjectAllocationId(userId.id, allocationId.id)
 			.ifPresent(x -> userGrantEntityRepository.deleteById(x.allocation.getId()));
 	}
 
 	@Override
-	public void deleteByUserAndProjectId(FenixUserId userId, String projectId) {
-		Set<UserGrantEntity> userGrants = userGrantEntityRepository.findByUserIdAndProjectId(userId.id, UUID.fromString(projectId));
+	public void deleteByUserAndProjectId(FenixUserId userId, ProjectId projectId) {
+		Set<UserGrantEntity> userGrants = userGrantEntityRepository.findByUserIdAndProjectId(userId.id, projectId.id);
 		userGrantEntityRepository.deleteAll(userGrants);
 	}
 
 	@Override
-	public void deleteByUserAndSiteIdAndProjectId(FenixUserId userId, String siteId, String projectId) {
-		Set<UserGrantEntity> userGrants = userGrantEntityRepository.findByUserIdAndSiteIdAndProjectId(userId.id, UUID.fromString(siteId), UUID.fromString(projectId));
+	public void deleteByUserAndSiteIdAndProjectId(FenixUserId userId, SiteId siteId, ProjectId projectId) {
+		Set<UserGrantEntity> userGrants = userGrantEntityRepository.findByUserIdAndSiteIdAndProjectId(userId.id,
+			siteId.id, projectId.id);
 		userGrantEntityRepository.deleteAll(userGrants);
 	}
 

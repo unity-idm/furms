@@ -10,6 +10,7 @@ import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.*;
 import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
@@ -54,13 +55,13 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	@Override
-	public SSHKeyOperationJob findBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
+	public SSHKeyOperationJob findBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId) {
 		return sshKeyOperationRepository.findBySSHKeyIdAndSiteId(sshkeyId, siteId);
 	}
 	
 	@FurmsAuthorize(capability = OWNED_SSH_KEY_MANAGMENT)
 	@Override
-	public List<SSHKeyOperationJob> findBySSHKeyId(String sshkeyId) {
+	public List<SSHKeyOperationJob> findBySSHKeyId(SSHKeyId sshkeyId) {
 		return sshKeyOperationRepository.findBySSHKey(sshkeyId);
 	}
 	
@@ -105,25 +106,25 @@ class SSHKeyOperationServiceImpl implements SSHKeyOperationService, SSHKeyOperat
 
 	}
 
-	private void addToInstalledKeys(String siteId, SSHKey key) {
+	private void addToInstalledKeys(SiteId siteId, SSHKey key) {
 		LOG.debug("Add SSH key {} to installed keys", key);
 		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(key.id, siteId);
 		installedSSHKeyRepository.create(InstalledSSHKey.builder().siteId(siteId)
 				.value(key.value).sshkeyId(key.id).build());
 	}
 	
-	private void updateInstalledKeys(String siteId, SSHKey key) {
+	private void updateInstalledKeys(SiteId siteId, SSHKey key) {
 		LOG.debug("Update SSH key {} in installed keys", key);
 		installedSSHKeyRepository.update(siteId, key.id, key.value);
 		
 	}
 
-	private void removeFromInstalledKeys(String siteId, SSHKey key) {
+	private void removeFromInstalledKeys(SiteId siteId, SSHKey key) {
 		LOG.debug("Remove SSH key {} from installed keys", key);
 		installedSSHKeyRepository.deleteBySSHKeyIdAndSiteId(key.id, siteId);	
 	}
 
-	private void addKeyHistory(String siteId, SSHKey key) {
+	private void addKeyHistory(SiteId siteId, SSHKey key) {
 		LOG.debug("Add SSH key {} to history for site {} and owner {}", key.getFingerprint(), siteId,  key.ownerId.id);
 		sshKeyHistoryRepository.create(SSHKeyHistory.builder().siteId(siteId)
 				.originationTime(LocalDateTime.now(ZoneOffset.UTC))

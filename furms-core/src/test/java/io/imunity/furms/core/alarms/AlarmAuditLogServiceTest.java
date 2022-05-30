@@ -13,6 +13,7 @@ import io.imunity.furms.domain.alarms.AlarmWithUserIds;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.spi.alarms.AlarmRepository;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.notifications.EmailNotificationSender;
@@ -77,7 +78,8 @@ class AlarmAuditLogServiceTest {
 	void shouldDetectAlarmDeletion() {
 		//given
 		AlarmId id = new AlarmId(UUID.randomUUID());
-		when(alarmRepository.exist("projectId", id)).thenReturn(true);
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		when(alarmRepository.exist(projectId, id)).thenReturn(true);
 		when(alarmRepository.find(id)).thenReturn(Optional.of(
 			AlarmWithUserIds.builder()
 				.id(id)
@@ -85,7 +87,7 @@ class AlarmAuditLogServiceTest {
 				.build()
 		));
 		//when
-		service.remove("projectId", id);
+		service.remove(projectId, id);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -97,17 +99,19 @@ class AlarmAuditLogServiceTest {
 	void shouldDetectAlarmUpdate() {
 		//given
 		AlarmId id = new AlarmId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+
 		AlarmWithUserEmails request = AlarmWithUserEmails.builder()
 			.id(id)
 			.name("userFacingName")
-			.projectId("projectId")
+			.projectId(projectId)
 			.alarmUser(Set.of())
 			.build();
 		AlarmWithUserIds response = AlarmWithUserIds.builder()
 			.id(id)
 			.name("userFacingName")
 			.build();
-		when(alarmRepository.exist("projectId", id)).thenReturn(true);
+		when(alarmRepository.exist(projectId, id)).thenReturn(true);
 		when(alarmRepository.find(id)).thenReturn(Optional.of(response));
 
 		//when
@@ -123,15 +127,16 @@ class AlarmAuditLogServiceTest {
 	void shouldDetectAlarmCreation() {
 		//given
 		AlarmId id = new AlarmId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		AlarmWithUserEmails request = AlarmWithUserEmails.builder()
 			.id(id)
-			.projectId("projectId")
+			.projectId(projectId)
 			.name("userFacingName")
 			.alarmUser(Set.of())
 			.build();
 		AlarmWithUserIds response = AlarmWithUserIds.builder()
 			.id(id)
-			.projectId("projectId")
+			.projectId(projectId)
 			.name("userFacingName")
 			.alarmUser(Set.of())
 			.build();

@@ -16,17 +16,17 @@ import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectAdminControlledAttributes;
 import io.imunity.furms.domain.projects.ProjectCreatedEvent;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.projects.ProjectUpdatedEvent;
 import io.imunity.furms.domain.users.CommunityAdminsAndProjectAdmins;
-import io.imunity.furms.domain.users.GroupedUsers;
-import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserProjectMembershipRevokedEvent;
@@ -47,7 +47,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
@@ -108,31 +107,31 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED)
-	public boolean existsById(String id) {
+	public boolean existsById(ProjectId id) {
 		return projectRepository.exists(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "ids", idCollections = true)
-	public Set<Project> findAll(Set<String> ids) {
+	public Set<Project> findAll(Set<ProjectId> ids) {
 		return projectRepository.findAll(ids);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id")
-	public Optional<Project> findById(String id) {
+	public Optional<Project> findById(ProjectId id) {
 		return projectRepository.findById(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<Project> findAllByCommunityId(String communityId) {
+	public Set<Project> findAllByCommunityId(CommunityId communityId) {
 		return projectRepository.findAllByCommunityId(communityId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Set<Project> findAllNotExpiredByCommunityId(String communityId) {
+	public Set<Project> findAllNotExpiredByCommunityId(CommunityId communityId) {
 		return projectRepository.findAllNotExpiredByCommunityId(communityId);
 	}
 
@@ -153,27 +152,27 @@ class ProjectServiceImpl implements ProjectService {
 
 	private boolean isProjectAdmin(Project project, Map<ResourceId, Set<Role>> roles) {
 		final Set<Capability> capabilities = Set.of(PROJECT_READ, PROJECT_WRITE);
-		return capabilityCollector.getCapabilities(roles, new ResourceId(project.getId(), PROJECT))
+		return capabilityCollector.getCapabilities(roles, new ResourceId(project.getId().id, PROJECT))
 				.stream().anyMatch(capabilities::contains);
 	}
 
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public boolean isProjectInTerminalState(String projectId) {
+	public boolean isProjectInTerminalState(ProjectId projectId) {
 		return projectInstallationService.isProjectInTerminalState(projectId);
 	}
 
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public boolean isProjectInTerminalState(String communityId, String projectId) {
+	public boolean isProjectInTerminalState(CommunityId communityId, ProjectId projectId) {
 		return projectInstallationService.isProjectInTerminalState(projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id")
-	public boolean isProjectExpired(String id) {
+	public boolean isProjectExpired(ProjectId id) {
 		final Optional<Project> project = findById(id);
 		return project.isEmpty() || project.get().isExpired();
 	}
@@ -181,9 +180,9 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "project.communityId")
-	public String create(Project project) {
+	public ProjectId create(Project project) {
 		validator.validateCreate(project);
-		String id = projectRepository.create(project);
+		ProjectId id = projectRepository.create(project);
 		projectGroupsDAO.create(new ProjectGroup(id, project.getName(), project.getCommunityId()));
 		Project createdProject = projectRepository.findById(id).get();
 		addAdmin(project.getCommunityId(), id, project.getLeaderId());
@@ -239,7 +238,7 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id = "communityId")
-	public void delete(String projectId, String communityId) {
+	public void delete(ProjectId projectId, CommunityId communityId) {
 		validator.validateDelete(projectId);
 		List<FURMSUser> allProjectUsers = projectGroupsDAO.getAllUsers(communityId, projectId);
 		removeFromAgent(projectId);
@@ -250,96 +249,98 @@ class ProjectServiceImpl implements ProjectService {
 		LOG.info("Project with given ID: {} was deleted", projectId);
 	}
 
-	private void removeFromAgent(String projectId) {
+	private void removeFromAgent(ProjectId projectId) {
 		projectInstallationService.remove(projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public List<FURMSUser> findAllAdmins(String communityId, String projectId){
+	public List<FURMSUser> findAllAdmins(CommunityId communityId, ProjectId projectId){
 		return projectGroupsDAO.getAllAdmins(communityId, projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public CommunityAdminsAndProjectAdmins findAllCommunityAndProjectAdmins(String communityId, String projectId) {
+	public CommunityAdminsAndProjectAdmins findAllCommunityAndProjectAdmins(CommunityId communityId, ProjectId projectId) {
 		return projectGroupsDAO.getAllCommunityAndProjectAdmins(communityId, projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public boolean isAdmin(String projectId){
-		return authzService.isResourceMember(projectId, PROJECT_ADMIN);
+	public boolean isAdmin(ProjectId projectId){
+		return authzService.isResourceMember(projectId.id.toString(), PROJECT_ADMIN);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public boolean hasAdminRights(String projectId) {
+	public boolean hasAdminRights(ProjectId projectId) {
 		final Optional<Project> project = projectRepository.findById(projectId);
 		return project.isPresent()
-				&& (authzService.isResourceMember(project.get().getId(), PROJECT_ADMIN)
-					|| authzService.isResourceMember(project.get().getCommunityId(), COMMUNITY_ADMIN));
+				&& (authzService.isResourceMember(project.get().getId().id.toString(), PROJECT_ADMIN)
+					|| authzService.isResourceMember(project.get().getCommunityId().id.toString(), COMMUNITY_ADMIN));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
-	public void addAdmin(String communityId, String projectId, PersistentId userId){
+	public void addAdmin(CommunityId communityId, ProjectId projectId, PersistentId userId){
 		projectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_ADMIN);
 		String projectName = projectRepository.findById(projectId).get().getName();
-		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId, PROJECT), projectName, PROJECT_ADMIN));
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId.id, PROJECT), projectName,
+			PROJECT_ADMIN));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
-	public Set<Invitation> findAllAdminsInvitations(String projectId) {
-		return invitatoryService.getInvitations(PROJECT_ADMIN, UUID.fromString(projectId));
+	public Set<Invitation> findAllAdminsInvitations(ProjectId projectId) {
+		return invitatoryService.getInvitations(PROJECT_ADMIN, projectId.id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
-	public Set<Invitation> findAllUsersInvitations(String projectId) {
-		return invitatoryService.getInvitations(PROJECT_USER, UUID.fromString(projectId));
+	public Set<Invitation> findAllUsersInvitations(ProjectId projectId) {
+		return invitatoryService.getInvitations(PROJECT_USER, projectId.id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
-	public void inviteAdmin(String projectId, PersistentId id){
+	public void inviteAdmin(ProjectId projectId, PersistentId id){
 		projectRepository.findById(projectId).ifPresent(project ->
-			invitatoryService.inviteUser(id, new ResourceId(projectId, PROJECT), PROJECT_ADMIN, project.getName())
+			invitatoryService.inviteUser(id, new ResourceId(projectId.id, PROJECT), PROJECT_ADMIN, project.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
-	public void inviteAdmin(String projectId, String email){
+	public void inviteAdmin(ProjectId projectId, String email){
 		projectRepository.findById(projectId).ifPresent(project ->
-			invitatoryService.inviteUser(email, new ResourceId(projectId, PROJECT), PROJECT_ADMIN, project.getName())
+			invitatoryService.inviteUser(email, new ResourceId(projectId.id, PROJECT), PROJECT_ADMIN, project.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
-	public void removeAdmin(String communityId, String projectId, PersistentId userId){
+	public void removeAdmin(CommunityId communityId, ProjectId projectId, PersistentId userId){
 		projectGroupsDAO.removeAdmin(communityId, projectId, userId);
 		String projectName = projectRepository.findById(projectId).get().getName();
-		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(projectId, PROJECT), projectName, PROJECT_ADMIN));
+		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(projectId.id, PROJECT), projectName,
+			PROJECT_ADMIN));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public List<FURMSUser> findAllUsers(String communityId, String projectId){
+	public List<FURMSUser> findAllUsers(CommunityId communityId, ProjectId projectId){
 		return projectGroupsDAO.getAllUsers(communityId, projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public List<FURMSUser> findAllProjectAdminsAndUsers(String communityId, String projectId) {
+	public List<FURMSUser> findAllProjectAdminsAndUsers(CommunityId communityId, ProjectId projectId) {
 		return projectGroupsDAO.getAllProjectAdminsAndUsers(communityId, projectId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
-	public List<FURMSUser> findAllUsers(String projectId) {
+	public List<FURMSUser> findAllUsers(ProjectId projectId) {
 		return projectRepository.findById(projectId)
 			.map(project -> projectGroupsDAO.getAllUsers(project.getCommunityId(), projectId))
 			.orElseGet(List::of);
@@ -347,7 +348,7 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED)
-	public Optional<FURMSUser> findProjectLeaderInfoAsInstalledUser(String projectId) {
+	public Optional<FURMSUser> findProjectLeaderInfoAsInstalledUser(ProjectId projectId) {
 		return projectInstallationsService.findAllSiteInstalledProjectsOfCurrentUser().stream()
 				.filter(siteInstalledProject -> siteInstalledProject.project.getId().equals(projectId))
 				.findFirst()
@@ -357,57 +358,58 @@ class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
-	public boolean isUser(String projectId) {
-		return authzService.isResourceMember(projectId, PROJECT_USER);
+	public boolean isUser(ProjectId projectId) {
+		return authzService.isResourceMember(projectId.id.toString(), PROJECT_USER);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
-	public Set<String> getUsersProjectIds() {
+	public Set<ProjectId> getUsersProjectIds() {
 		return authzService.getRoles().entrySet().stream()
 			.filter(entry -> entry.getValue().stream().anyMatch(role -> role.equals(PROJECT_USER)))
 			.map(entry -> entry.getKey().id)
 			.filter(Objects::nonNull)
-			.map(UUID::toString)
+			.map(ProjectId::new)
 			.collect(Collectors.toSet());
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
-	public void addUser(String communityId, String projectId, PersistentId userId){
+	public void addUser(CommunityId communityId, ProjectId projectId, PersistentId userId){
 		projectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_USER);
 		String projectName = projectRepository.findById(projectId).get().getName();
-		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId, PROJECT), projectName, PROJECT_USER));
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId.id, PROJECT), projectName,
+			PROJECT_USER));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
-	public void inviteUser(String projectId, PersistentId userId) {
+	public void inviteUser(ProjectId projectId, PersistentId userId) {
 		projectRepository.findById(projectId).ifPresent(project ->
-			invitatoryService.inviteUser(userId, new ResourceId(projectId, PROJECT), PROJECT_USER, project.getName())
+			invitatoryService.inviteUser(userId, new ResourceId(projectId.id, PROJECT), PROJECT_USER, project.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
-	public void inviteUser(String projectId, String email) {
+	public void inviteUser(ProjectId projectId, String email) {
 		projectRepository.findById(projectId).ifPresent(project ->
-			invitatoryService.inviteUser(email, new ResourceId(projectId, PROJECT), PROJECT_USER, project.getName())
+			invitatoryService.inviteUser(email, new ResourceId(projectId.id, PROJECT), PROJECT_USER, project.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
-	public void resendInvitation(String projectId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(projectId, invitationId))
+	public void resendInvitation(ProjectId projectId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(projectId.id.toString(), invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", projectId, invitationId));
 		invitatoryService.resendInvitation(invitationId);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
-	public void removeInvitation(String projectId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(projectId, invitationId))
+	public void removeInvitation(ProjectId projectId, InvitationId invitationId) {
+		if(!invitatoryService.checkAssociation(projectId.id.toString(), invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", projectId, invitationId));
 		invitatoryService.removeInvitation(invitationId);
 	}
@@ -415,22 +417,23 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
-	public void removeUser(String communityId, String projectId, PersistentId userId){
+	public void removeUser(CommunityId communityId, ProjectId projectId, PersistentId userId){
 		removeUserFromProject(communityId, projectId, userId);
 	}
 
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = PROJECT_LEAVE, resourceType = PROJECT, id = "projectId")
-	public void resignFromMembership(String communityId, String projectId) {
+	public void resignFromMembership(CommunityId communityId, ProjectId projectId) {
 		final PersistentId userId = authzService.getCurrentUserId();
 		removeUserFromProject(communityId, projectId, userId);
 	}
 
-	private void removeUserFromProject(String communityId, String projectId, PersistentId userId) {
+	private void removeUserFromProject(CommunityId communityId, ProjectId projectId, PersistentId userId) {
 		userOperationService.createUserRemovals(projectId, userId);
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
 		String projectName = projectRepository.findById(projectId).get().getName();
-		publisher.publishEvent(new UserProjectMembershipRevokedEvent(userId, new ResourceId(projectId, PROJECT), projectName));
+		publisher.publishEvent(new UserProjectMembershipRevokedEvent(userId, new ResourceId(projectId.id, PROJECT),
+			projectName));
 	}
 }

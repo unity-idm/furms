@@ -5,7 +5,10 @@
 
 package io.imunity.furms.performance.tests.data;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
@@ -32,9 +35,9 @@ class Data {
 	static class Site {
 		public final SiteId siteId;
 		public final PolicyId policyId;
-		public final String resourceTypeId;
+		public final ResourceTypeId resourceTypeId;
 
-		public Site(SiteId siteId, PolicyId policyId, String resourceTypeId) {
+		public Site(SiteId siteId, PolicyId policyId, ResourceTypeId resourceTypeId) {
 			this.siteId = siteId;
 			this.policyId = policyId;
 			this.resourceTypeId = resourceTypeId;
@@ -55,10 +58,10 @@ class Data {
 	}
 
 	static class Community {
-		public final String communityId;
-		public final Set<String> projectIds;
+		public final CommunityId communityId;
+		public final Set<ProjectId> projectIds;
 
-		public Community(String communityId, Set<String> projectIds) {
+		public Community(CommunityId communityId, Set<ProjectId> projectIds) {
 			this.communityId = communityId;
 			this.projectIds = projectIds;
 		}
@@ -78,10 +81,10 @@ class Data {
 	}
 
 	static class Project {
-		public final String projectId;
-		public final String communityId;
+		public final ProjectId projectId;
+		public final CommunityId communityId;
 
-		public Project(String projectId, String communityId) {
+		public Project(ProjectId projectId, CommunityId communityId) {
 			this.projectId = projectId;
 			this.communityId = communityId;
 		}

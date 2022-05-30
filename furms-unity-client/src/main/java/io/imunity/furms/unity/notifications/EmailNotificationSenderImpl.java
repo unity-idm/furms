@@ -7,6 +7,8 @@ package io.imunity.furms.unity.notifications;
 
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.notifications.EmailNotificationSender;
@@ -67,11 +69,12 @@ class EmailNotificationSenderImpl implements EmailNotificationSender {
 	}
 
 	@Override
-	public void notifyAdminAboutApplicationRequest(PersistentId id, String projectId, String projectName, String applicationUserEmail) {
+	public void notifyAdminAboutApplicationRequest(PersistentId id, ProjectId projectId, String projectName,
+	                                               String applicationUserEmail) {
 		Map<String, String> attributes = Map.of(
 			PROJECT_ATTRIBUTE, projectName,
 			EMAIL_ATTRIBUTE, applicationUserEmail,
-			URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + APPLICATIONS_URL + projectId
+			URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + APPLICATIONS_URL + projectId.id
 		);
 		userService.sendUserNotification(id, emailNotificationProperties.newApplicationTemplateId, attributes);
 	}
@@ -89,27 +92,32 @@ class EmailNotificationSenderImpl implements EmailNotificationSender {
 	}
 
 	@Override
-	public void notifyProjectAdminAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
+	public void notifyProjectAdminAboutResourceUsage(PersistentId id, ProjectId projectId, ProjectAllocationId projectAllocationId,
+	                                                 String projectAllocationName, String alarmName) {
 		Map<String, String> attributes = Map.of(
 			PROJECT_ALLOCATION_ATTRIBUTE, projectAllocationName,
 			ALARM_ATTRIBUTE, alarmName,
-			URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + ALLOCATION_CONSUMPTION_URL + projectAllocationId + QUERY_RESOURCE_PARAM + projectId
+			URL_ATTRIBUTE,
+			emailNotificationProperties.furmsServerBaseURL + ALLOCATION_CONSUMPTION_URL + projectAllocationId.id + QUERY_RESOURCE_PARAM + projectId.id
 		);
 		userService.sendUserNotification(id, emailNotificationProperties.resourceUsageTemplateId, attributes);
 	}
 
 	@Override
-	public void notifyProjectUserAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
+	public void notifyProjectUserAboutResourceUsage(PersistentId id, ProjectId projectId, ProjectAllocationId projectAllocationId,
+	                                                String projectAllocationName, String alarmName) {
 		Map<String, String> attributes = Map.of(
 			PROJECT_ALLOCATION_ATTRIBUTE, projectAllocationName,
 			ALARM_ATTRIBUTE, alarmName,
-			URL_ATTRIBUTE, emailNotificationProperties.furmsServerBaseURL + PROJECT_ALLOCATION_CONSUMPTION_URL + projectId
+			URL_ATTRIBUTE,
+			emailNotificationProperties.furmsServerBaseURL + PROJECT_ALLOCATION_CONSUMPTION_URL + projectId.id
 		);
 		userService.sendUserNotification(id, emailNotificationProperties.resourceUsageTemplateId, attributes);
 	}
 
 	@Override
-	public void notifyUserAboutResourceUsage(PersistentId id, String projectId, String projectAllocationId, String projectAllocationName, String alarmName) {
+	public void notifyUserAboutResourceUsage(PersistentId id, ProjectId projectId, ProjectAllocationId projectAllocationId,
+	                                         String projectAllocationName, String alarmName) {
 		Map<String, String> attributes = Map.of(
 			PROJECT_ALLOCATION_ATTRIBUTE, projectAllocationName,
 			ALARM_ATTRIBUTE, alarmName

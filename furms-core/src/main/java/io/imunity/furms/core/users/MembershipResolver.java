@@ -7,7 +7,9 @@ package io.imunity.furms.core.users;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.CommunityMembership;
 import io.imunity.furms.domain.users.ProjectMembership;
 import io.imunity.furms.domain.users.UserAttribute;
@@ -53,7 +55,7 @@ class MembershipResolver {
 	
 	private Optional<CommunityMembership> resolveCommunityMembership(ResourceId community, 
 			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
-		Optional<Community> communityOpt = communitiesDAO.findById(community.id.toString());
+		Optional<Community> communityOpt = communitiesDAO.findById(new CommunityId(community.id));
 		if (communityOpt.isEmpty()) {
 			LOG.warn("Community {} is defined in users directory (unity) but not in FURMS DB", community.id);
 			return Optional.empty();
@@ -67,13 +69,14 @@ class MembershipResolver {
 
 	private Set<ProjectMembership> resolveProjectsMembership(ResourceId community, 
 			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
-		Map<String, Project> communityProjects = projectsDAO.findAllByCommunityId(community.id.toString()).stream()
+		Map<ProjectId, Project> communityProjects =
+			projectsDAO.findAllByCommunityId(new CommunityId(community.id)).stream()
 				.collect(Collectors.toMap(Project::getId, proj -> proj));
 		return attributesByResource.entrySet().stream()
 			.filter(entry -> entry.getKey().type == ResourceType.PROJECT)
-			.filter(entry -> communityProjects.containsKey(entry.getKey().id.toString()))
-			.map(entry -> resolveProjectMembership(entry.getValue(), 
-					communityProjects.get(entry.getKey().id.toString())))
+			.filter(entry -> communityProjects.containsKey(new ProjectId(entry.getKey().id)))
+			.map(entry -> resolveProjectMembership(entry.getValue(),
+					communityProjects.get(new ProjectId(entry.getKey().id))))
 			.collect(Collectors.toSet());
 	}
 

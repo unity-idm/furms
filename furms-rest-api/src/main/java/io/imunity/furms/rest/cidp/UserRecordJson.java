@@ -31,7 +31,7 @@ public class UserRecordJson {
 		this(new User(record.user),
 				record.user.status,
 				record.siteInstallations.stream().map(SiteUserJson::new).collect(toList()),
-				record.groupAccesses.stream().map(x -> new GroupAccessJson(x.communityId, x.groups)).collect(Collectors.toList()));
+				record.groupAccesses.stream().map(x -> new GroupAccessJson(x.communityId.id.toString(), x.groups)).collect(Collectors.toList()));
 	}
 
 	@Override

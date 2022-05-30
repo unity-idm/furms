@@ -40,13 +40,13 @@ class AlarmNotificationProducer implements NotificationProducer{
 					builder
 						.viewMode(ViewMode.PROJECT)
 						.redirect(ResourceAllocationsDetailsView.class)
-						.resourceId(activeAlarm.alarm.projectId)
-						.parameter(activeAlarm.alarm.projectAllocationId);
+						.resourceId(activeAlarm.alarm.projectId.id.toString())
+						.parameter(activeAlarm.alarm.projectAllocationId.id.toString());
 				else if(activeAlarm.roles.contains(Role.PROJECT_USER))
 					builder
 						.viewMode(ViewMode.USER)
 						.redirect(ProjectView.class)
-						.parameter(activeAlarm.alarm.projectId);
+						.parameter(activeAlarm.alarm.projectId.id.toString());
 				else
 					builder
 						.viewMode(ViewMode.USER);

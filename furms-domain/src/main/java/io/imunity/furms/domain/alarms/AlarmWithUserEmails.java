@@ -5,20 +5,23 @@
 
 package io.imunity.furms.domain.alarms;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.util.Objects;
 import java.util.Set;
 
 public class AlarmWithUserEmails {
 	public final AlarmId id;
-	public final String projectId;
-	public final String projectAllocationId;
+	public final ProjectId projectId;
+	public final ProjectAllocationId projectAllocationId;
 	public final String name;
 	public final int threshold;
 	public final boolean allUsers;
 	public final boolean fired;
 	public final Set<String> alarmUserEmails;
 
-	private AlarmWithUserEmails(AlarmId id, String projectId, String projectAllocationId, String name, int threshold, boolean allUsers, boolean fired, Set<String> alarmUserEmails) {
+	private AlarmWithUserEmails(AlarmId id, ProjectId projectId, ProjectAllocationId projectAllocationId, String name, int threshold, boolean allUsers, boolean fired, Set<String> alarmUserEmails) {
 		this.id = id;
 		this.projectId = projectId;
 		this.projectAllocationId = projectAllocationId;
@@ -81,8 +84,8 @@ public class AlarmWithUserEmails {
 
 	public static final class AlarmWithUserEmailsBuilder {
 		public AlarmId id;
-		public String projectId;
-		public String projectAllocationId;
+		public ProjectId projectId;
+		public ProjectAllocationId projectAllocationId;
 		public String name;
 		public int threshold;
 		public boolean allUsers;
@@ -98,11 +101,21 @@ public class AlarmWithUserEmails {
 		}
 
 		public AlarmWithUserEmailsBuilder projectId(String projectId) {
+			this.projectId = new ProjectId(projectId);
+			return this;
+		}
+
+		public AlarmWithUserEmailsBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
 		public AlarmWithUserEmailsBuilder projectAllocationId(String projectAllocationId) {
+			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
+			return this;
+		}
+
+		public AlarmWithUserEmailsBuilder projectAllocationId(ProjectAllocationId projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}

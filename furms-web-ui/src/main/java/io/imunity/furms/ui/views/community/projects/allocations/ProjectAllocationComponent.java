@@ -22,9 +22,12 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.validation.exceptions.RemovalOfConsumedProjectAllocationIsFirbiddenException;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -59,8 +62,8 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 	private final ProjectAllocationService service;
 
-	private final String communityId;
-	private final String projectId;
+	private final CommunityId communityId;
+	private final ProjectId projectId;
 	private final boolean projectExpired;
 	private final boolean projectInTerminalState;
 	private ProjectAllocationDataSnapshot projectDataSnapshot;
@@ -68,10 +71,10 @@ public class ProjectAllocationComponent extends Composite<Div> {
 	private final Grid<ProjectAllocationGridModel> grid;
 	private final ActionComponent actionComponent;
 
-	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, String projectId) {
+	public ProjectAllocationComponent(ProjectService projectService, ProjectAllocationService service, ProjectId projectId) {
 		this.service = service;
 
-		this.communityId = getCurrentResourceId();
+		this.communityId = new CommunityId(getCurrentResourceId());
 		this.projectId = projectId;
 		this.projectInTerminalState = projectService.isProjectInTerminalState(communityId, projectId);
 		this.projectExpired = projectService.isProjectExpired(projectId);
@@ -102,7 +105,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			.setSortable(true);
 		grid.addComponentColumn(model -> {
 				if(hasTerminalStatus(model))
-					return new RouterLink(model.name, ProjectAllocationFormView.class, model.id);
+					return new RouterLink(model.name, ProjectAllocationFormView.class, model.id.id.toString());
 				return new Text(model.name);
 			})
 			.setHeader(getTranslation("view.community-admin.project-allocation.grid.column.2"))
@@ -176,7 +179,8 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			return getRefreshMenuItem(new GridActionMenu());
 		}
 		return new GridActionsButtonLayout(
-			new RouterGridLink(SPLINE_CHART, model.id, ProjectAllocationsDetailsView.class, "projectId", model.projectId),
+			new RouterGridLink(SPLINE_CHART, model.id.id.toString(), ProjectAllocationsDetailsView.class, "projectId",
+				model.projectId.id.toString()),
 			createContextMenu(model)
 		);
 	}
@@ -187,7 +191,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		if(hasTerminalStatus(model)) {
 			contextMenu.addItem(new MenuButton(
 					getTranslation("view.community-admin.project-allocation.menu.edit"), EDIT),
-				event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, model.id)
+				event -> UI.getCurrent().navigate(ProjectAllocationFormView.class, model.id.id.toString())
 			);
 		}
 		Dialog confirmDialog = createConfirmDialog(model.id, model.name);
@@ -215,7 +219,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(String projectAllocationId, String projectAllocationName) {
+	private Dialog createConfirmDialog(ProjectAllocationId projectAllocationId, String projectAllocationName) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.community-admin.project-allocation.dialog.text", projectAllocationName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			try {
@@ -259,11 +263,11 @@ public class ProjectAllocationComponent extends Composite<Div> {
 
 	private static class ActionComponent extends Div {
 
-		private final String projectId;
+		private final ProjectId projectId;
 		private final Boolean isProjectExpired;
 		private final Supplier<Boolean> isProjectInTerminalState;
 
-		ActionComponent(String projectId,
+		ActionComponent(ProjectId projectId,
 						boolean isProjectExpired,
 						Supplier<Boolean> isProjectInTerminalState) {
 			this.projectId = projectId;
@@ -279,7 +283,7 @@ public class ProjectAllocationComponent extends Composite<Div> {
 			if (isProjectInTerminalState.get() && !isProjectExpired) {
 				allocateButton.addClickListener(x -> UI.getCurrent().navigate(
 						new RouterLink("", ProjectAllocationFormView.class).getHref(),
-						QueryParameters.simple(Map.of("projectId", projectId))));
+						QueryParameters.simple(Map.of("projectId", projectId.id.toString()))));
 			} else {
 				allocateButton.setEnabled(false);
 			}

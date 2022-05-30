@@ -8,15 +8,21 @@ package db.migration;
 import io.imunity.furms.db.user_site_access.UserSiteAccessEntity;
 import io.imunity.furms.db.user_site_access.UserSiteAccessEntityRepository;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -72,13 +78,13 @@ class V39__user_site_access_filling_migration_tests {
 	@Autowired
 	private Flyway flyway;
 
-	private UUID siteId;
-	private UUID projectId;
+	private SiteId siteId;
+	private ProjectId projectId;
 
-	private UUID siteId1;
-	private UUID projectId1;
+	private SiteId siteId1;
+	private ProjectId projectId1;
 
-	private UUID projectAllocationId;
+	private ProjectAllocationId projectAllocationId;
 
 	@BeforeEach
 	void setUp() {
@@ -93,16 +99,16 @@ class V39__user_site_access_filling_migration_tests {
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -111,23 +117,23 @@ class V39__user_site_access_filling_migration_tests {
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 
 
 		Site site1 = Site.builder()
 			.name("name1")
 			.build();
 
-		siteId1 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id1")));
+		siteId1 = siteRepository.create(site1, new SiteExternalId("id1"));
 
 		Community community1 = Community.builder()
 			.name("name1")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId1 = UUID.fromString(communityRepository.create(community1));
+		CommunityId communityId1 = communityRepository.create(community1);
 
 		Project project1 = Project.builder()
-			.communityId(communityId1.toString())
+			.communityId(communityId1)
 			.name("name1")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -136,44 +142,44 @@ class V39__user_site_access_filling_migration_tests {
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
-		projectId1 = UUID.fromString(projectRepository.create(project1));
+		projectId1 = projectRepository.create(project1);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
 		UUID communityAllocationId = UUID.randomUUID();
 		jdbcTemplate.update(
 			"INSERT INTO community_allocation (id, community_id, resource_credit_id, name, amount) VALUES (?, ?, ?, ?, ?)",
-			communityAllocationId, communityId, resourceCreditId, "anem", new BigDecimal(10)
+			communityAllocationId, communityId.id, resourceCreditId.id, "anem", new BigDecimal(10)
 		);
-		projectAllocationId = UUID.randomUUID();
+		projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		jdbcTemplate.update(
 			"INSERT INTO project_allocation (id, project_id, community_allocation_id, name, amount) VALUES (?, ?, ?, ?, ?)",
-			projectAllocationId, projectId, communityAllocationId, "anem", new BigDecimal(5)
+			projectAllocationId.id, projectId.id, communityAllocationId, "anem", new BigDecimal(5)
 		);
 	}
 
@@ -188,9 +194,9 @@ class V39__user_site_access_filling_migration_tests {
 		repository.create(
 			CorrelationId.randomID(),
 			GrantAccess.builder()
-				.siteId(new SiteId(siteId.toString()))
-				.projectId(projectId.toString())
-				.allocationId(projectAllocationId.toString())
+				.siteId(siteId)
+				.projectId(projectId)
+				.allocationId(projectAllocationId)
 				.fenixUserId(new FenixUserId("userId"))
 				.build(),
 			AccessStatus.GRANT_ACKNOWLEDGED
@@ -198,9 +204,9 @@ class V39__user_site_access_filling_migration_tests {
 		repository.create(
 			CorrelationId.randomID(),
 			GrantAccess.builder()
-				.siteId(new SiteId(siteId.toString()))
-				.projectId(projectId1.toString())
-				.allocationId(projectAllocationId.toString())
+				.siteId(siteId)
+				.projectId(projectId1)
+				.allocationId(projectAllocationId)
 				.fenixUserId(new FenixUserId("userId"))
 				.build(),
 			AccessStatus.GRANT_ACKNOWLEDGED
@@ -208,9 +214,9 @@ class V39__user_site_access_filling_migration_tests {
 		repository.create(
 			CorrelationId.randomID(),
 			GrantAccess.builder()
-				.siteId(new SiteId(siteId1.toString()))
-				.projectId(projectId.toString())
-				.allocationId(projectAllocationId.toString())
+				.siteId(siteId1)
+				.projectId(projectId)
+				.allocationId(projectAllocationId)
 				.fenixUserId(new FenixUserId("userId"))
 				.build(),
 			AccessStatus.GRANT_ACKNOWLEDGED
@@ -218,9 +224,9 @@ class V39__user_site_access_filling_migration_tests {
 		repository.create(
 			CorrelationId.randomID(),
 			GrantAccess.builder()
-				.siteId(new SiteId(siteId1.toString()))
-				.projectId(projectId1.toString())
-				.allocationId(projectAllocationId.toString())
+				.siteId(siteId1)
+				.projectId(projectId1)
+				.allocationId(projectAllocationId)
 				.fenixUserId(new FenixUserId("userId"))
 				.build(),
 			AccessStatus.GRANT_ACKNOWLEDGED
@@ -228,9 +234,9 @@ class V39__user_site_access_filling_migration_tests {
 		repository.create(
 			CorrelationId.randomID(),
 			GrantAccess.builder()
-				.siteId(new SiteId(siteId1.toString()))
-				.projectId(projectId1.toString())
-				.allocationId(projectAllocationId.toString())
+				.siteId(siteId1)
+				.projectId(projectId1)
+				.allocationId(projectAllocationId)
 				.fenixUserId(new FenixUserId("userId1"))
 				.build(),
 			AccessStatus.GRANT_ACKNOWLEDGED
@@ -245,11 +251,11 @@ class V39__user_site_access_filling_migration_tests {
 			.collect(Collectors.toSet());
 		assertEquals(
 			Set.of(
-				Tuple.tuple(siteId, projectId, "userId"),
-				Tuple.tuple(siteId, projectId1, "userId"),
-				Tuple.tuple(siteId1, projectId, "userId"),
-				Tuple.tuple(siteId1, projectId1, "userId"),
-				Tuple.tuple(siteId1, projectId1, "userId1")
+				Tuple.tuple(siteId.id, projectId.id, "userId"),
+				Tuple.tuple(siteId.id, projectId1.id, "userId"),
+				Tuple.tuple(siteId1.id, projectId.id, "userId"),
+				Tuple.tuple(siteId1.id, projectId1.id, "userId"),
+				Tuple.tuple(siteId1.id, projectId1.id, "userId1")
 			),
 			siteIdAndProjectIdAndUserIdTuples
 		);

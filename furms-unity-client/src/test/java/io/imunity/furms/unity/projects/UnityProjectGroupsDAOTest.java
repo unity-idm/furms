@@ -5,7 +5,9 @@
 
 package io.imunity.furms.unity.projects;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.ProjectGroup;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
@@ -52,11 +54,11 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldGetMetaInfoAboutProject() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		Group group = new Group("/path/" + communityId + "/projects/" + projectId);
 		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(projectId), eq(Group.class))).thenReturn(group);
+		when(unityClient.get(contains(projectId.id.toString()), eq(Group.class))).thenReturn(group);
 
 		//when
 		Optional<ProjectGroup> project = unityProjectGroupsDAO.get(communityId, projectId);
@@ -72,12 +74,12 @@ class UnityProjectGroupsDAOTest {
 	void shouldCreateCommunity() {
 		//given
 		ProjectGroup project = ProjectGroup.builder()
-			.id(UUID.randomUUID().toString())
-			.communityId(UUID.randomUUID().toString())
+			.id(new ProjectId(UUID.randomUUID()))
+			.communityId(new CommunityId(UUID.randomUUID()))
 			.name("test")
 			.build();
-		doNothing().when(unityClient).post(contains(project.getId()), any());
-		doNothing().when(unityClient).post(contains(project.getCommunityId()), any());
+		doNothing().when(unityClient).post(contains(project.getId().id.toString()), any());
+		doNothing().when(unityClient).post(contains(project.getCommunityId().id.toString()), any());
 		doNothing().when(unityClient).post(contains("users"), any());
 
 		//when
@@ -92,14 +94,14 @@ class UnityProjectGroupsDAOTest {
 	void shouldUpdateCommunity() {
 		//given
 		ProjectGroup project = ProjectGroup.builder()
-				.id(UUID.randomUUID().toString())
-				.communityId(UUID.randomUUID().toString())
+				.id(new ProjectId(UUID.randomUUID()))
+				.communityId(new CommunityId(UUID.randomUUID()))
 				.name("test")
 				.build();
 		Group group = new Group("/path/"+project.getId());
 		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(project.getId()), eq(Group.class))).thenReturn(group);
-		doNothing().when(unityClient).put(contains(project.getId()), eq(Group.class));
+		when(unityClient.get(contains(project.getId().id.toString()), eq(Group.class))).thenReturn(group);
+		doNothing().when(unityClient).put(contains(project.getId().id.toString()), eq(Group.class));
 
 		//when
 		unityProjectGroupsDAO.update(project);
@@ -111,9 +113,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldRemoveProject() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		doNothing().when(unityClient).delete(contains(projectId), anyMap());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		doNothing().when(unityClient).delete(contains(projectId.id.toString()), anyMap());
 
 		//when
 		unityProjectGroupsDAO.delete(communityId, projectId);
@@ -125,9 +127,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldGetProjectAdministrators() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id + "/projects/" + projectId.id +"/users";
 		when(userService.getAllUsersByRole(groupPath, PROJECT_ADMIN))
 			.thenReturn(List.of(
 				FURMSUser.builder()
@@ -156,9 +158,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldAddAdminToProject() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id + "/projects/" + projectId.id +"/users";
 		PersistentId userId = new PersistentId("userId");
 		//when
 		unityProjectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_ADMIN);
@@ -171,9 +173,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldRemoveAdminFromGroup() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id + "/projects/" + projectId.id +"/users";
 		PersistentId userId = new PersistentId("userId");
 		
 		//when
@@ -190,9 +192,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldRemoveAdminRole() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id + "/projects/" + projectId.id +"/users";
 		PersistentId userId = new PersistentId("userId");
 
 		//when
@@ -207,9 +209,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldGetUserAdministrators() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id + "/projects/" + projectId.id +"/users";
 		when(userService.getAllUsersByRole(groupPath, PROJECT_USER))
 			.thenReturn(List.of(
 				FURMSUser.builder()
@@ -238,9 +240,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldAddUserToProject() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id + "/projects/" + projectId.id +"/users";
 		PersistentId userId = new PersistentId("userId");
 		//when
 		unityProjectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_USER);
@@ -253,9 +255,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldRemoveUserFromGroup() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id + "/projects/" + projectId.id +"/users";
 		PersistentId userId = new PersistentId("userId");
 
 		//when
@@ -272,9 +274,9 @@ class UnityProjectGroupsDAOTest {
 	@Test
 	void shouldRemoveUserRole() {
 		//given
-		String communityId = UUID.randomUUID().toString();
-		String projectId = UUID.randomUUID().toString();
-		String groupPath = "/fenix/communities/"+ communityId + "/projects/" + projectId +"/users";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		String groupPath = "/fenix/communities/"+ communityId.id + "/projects/" + projectId.id +"/users";
 		PersistentId userId = new PersistentId("userId");
 
 		//when

@@ -8,22 +8,32 @@ package io.imunity.furms.db.project_allocation_installation;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationId;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
+import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationId;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -39,7 +49,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -78,11 +87,11 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 	@Autowired
 	private ProjectAllocationInstallationDatabaseRepository entityDatabaseRepository;
 
-	private UUID siteId;
+	private SiteId siteId;
 
-	private UUID projectId;
+	private ProjectId projectId;
 
-	private UUID projectAllocationId;
+	private ProjectAllocationId projectAllocationId;
 
 	@BeforeEach
 	void init() {
@@ -90,17 +99,17 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
 
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -110,52 +119,52 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
+		);
 
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
+		projectAllocationId = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(5))
 				.build()
-		));
+		);
 	}
 
 	@AfterEach
@@ -169,16 +178,16 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
 				.correlationId(new CorrelationId(correlationId.id))
-				.siteId(siteId.toString())
-				.projectAllocationId(projectAllocationId.toString())
+				.siteId(siteId)
+				.projectAllocationId(projectAllocationId)
 				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
+		ProjectAllocationInstallationId id = entityDatabaseRepository.create(request);
 
 		//then
-		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId.toString()).iterator().next();
+		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId).iterator().next();
 		assertThat(allocationInstallation.id).isEqualTo(id);
 		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
 		assertThat(allocationInstallation.status).isEqualTo(PROVISIONING_PROJECT);
@@ -190,17 +199,17 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectDeallocation request = ProjectDeallocation.builder()
 			.correlationId(new CorrelationId(correlationId.id))
-			.siteId(siteId.toString())
-			.projectAllocationId(projectAllocationId.toString())
+			.siteId(siteId)
+			.projectAllocationId(projectAllocationId)
 			.status(ProjectDeallocationStatus.PENDING)
 			.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
+		ProjectDeallocationId id = entityDatabaseRepository.create(request);
 
 		//then
 		ProjectDeallocationEntity deallocation = deallocationRepository.findAll().iterator().next();
-		assertThat(deallocation.getId().toString()).isEqualTo(id);
+		assertThat(deallocation.getId()).isEqualTo(id.id);
 		assertThat(deallocation.correlationId.toString()).isEqualTo(correlationId.id);
 		assertThat(deallocation.status).isEqualTo(ProjectDeallocationStatus.PENDING.getPersistentId());
 	}
@@ -210,19 +219,19 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
-				.id("id")
+				.id(UUID.randomUUID().toString())
 				.correlationId(new CorrelationId(correlationId.id))
-				.siteId(siteId.toString())
-				.projectAllocationId(projectAllocationId.toString())
+				.siteId(siteId)
+				.projectAllocationId(projectAllocationId)
 				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(correlationId.id, ACKNOWLEDGED, Optional.empty());
+		ProjectAllocationInstallationId id = entityDatabaseRepository.create(request);
+		entityDatabaseRepository.update(correlationId, ACKNOWLEDGED, Optional.empty());
 
 		//then
-		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId.toString()).iterator().next();
+		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId).iterator().next();
 		assertThat(allocationInstallation.id).isEqualTo(id);
 		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
 		assertThat(allocationInstallation.status).isEqualTo(ACKNOWLEDGED);
@@ -233,20 +242,20 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		//given
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectDeallocation request = ProjectDeallocation.builder()
-			.id("id")
+			.id(UUID.randomUUID().toString())
 			.correlationId(new CorrelationId(correlationId.id))
-			.siteId(siteId.toString())
-			.projectAllocationId(projectAllocationId.toString())
+			.siteId(siteId)
+			.projectAllocationId(projectAllocationId)
 			.status(ProjectDeallocationStatus.PENDING)
 			.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(correlationId.id, ProjectDeallocationStatus.ACKNOWLEDGED, Optional.empty());
+		ProjectDeallocationId id = entityDatabaseRepository.create(request);
+		entityDatabaseRepository.update(correlationId, ProjectDeallocationStatus.ACKNOWLEDGED, Optional.empty());
 
 		//then
 		ProjectDeallocationEntity projectDeallocationEntity = deallocationRepository.findAll().iterator().next();
-		assertThat(projectDeallocationEntity.getId().toString()).isEqualTo(id);
+		assertThat(projectDeallocationEntity.getId()).isEqualTo(id.id);
 		assertThat(projectDeallocationEntity.correlationId.toString()).isEqualTo(correlationId.id);
 		assertThat(projectDeallocationEntity.status).isEqualTo(ProjectDeallocationStatus.ACKNOWLEDGED.getPersistentId());
 	}
@@ -257,24 +266,24 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
 				.correlationId(new CorrelationId(correlationId.id))
-				.siteId(siteId.toString())
-				.projectAllocationId(projectAllocationId.toString())
+				.siteId(siteId)
+				.projectAllocationId(projectAllocationId)
 				.status(PROVISIONING_PROJECT)
 				.build();
 
 		//when
-		String id = entityDatabaseRepository.create(request);
+		ProjectAllocationInstallationId id = entityDatabaseRepository.create(request);
 		entityDatabaseRepository.deleteBy(id);
 
 		//then
-		assertThat(allocationRepository.findAll(projectId.toString())).isEmpty();
+		assertThat(allocationRepository.findAll(projectId)).isEmpty();
 	}
 
 	@Test
 	void shouldUpdateChunk(){
 		//given
 		ProjectAllocationChunkEntity request = ProjectAllocationChunkEntity.builder()
-			.projectAllocationId(projectAllocationId)
+			.projectAllocationId(projectAllocationId.id)
 			.chunkId("id")
 			.amount(BigDecimal.ONE)
 			.validTo(LocalDateTime.now().minusDays(3))
@@ -284,7 +293,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//when
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId.toString())
+			.projectAllocationId(projectAllocationId)
 			.chunkId("id")
 			.amount(BigDecimal.TEN)
 			.validTo(LocalDateTime.now().minusDays(2))

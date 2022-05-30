@@ -5,7 +5,9 @@
 
 package io.imunity.furms.core.resource_usage;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageSiteIdResolver;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -20,7 +22,7 @@ class ResourceUsageSiteIdResolverImpl implements ResourceUsageSiteIdResolver {
 	}
 
 	@Override
-	public SiteExternalId getSiteId(String projectId, String projectAllocationId) {
+	public SiteExternalId getSiteId(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId)
 			.orElseThrow(() -> new IllegalArgumentException("Project Allocation doesn't exist: " + projectAllocationId));
 		if(!projectAllocationResolved.projectId.equals(projectId))

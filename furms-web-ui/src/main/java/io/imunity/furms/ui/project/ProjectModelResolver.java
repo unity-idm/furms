@@ -4,15 +4,15 @@
  */
 package io.imunity.furms.ui.project;
 
-import java.time.ZoneId;
-import java.util.List;
-
-import org.springframework.stereotype.Component;
-
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
+import org.springframework.stereotype.Component;
+
+import java.time.ZoneId;
+import java.util.List;
 
 @Component
 public class ProjectModelResolver {
@@ -25,7 +25,7 @@ public class ProjectModelResolver {
 		this.userService = userService;
 	}
 
-	public ProjectViewModel resolve(String projectId, ZoneId zoneId) {
+	public ProjectViewModel resolve(ProjectId projectId, ZoneId zoneId) {
 		Project project = projectService.findById(projectId)
 				.orElseThrow(UnknownProjectException::new);
 		return resolve(project, zoneId);

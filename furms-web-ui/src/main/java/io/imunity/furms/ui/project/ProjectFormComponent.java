@@ -25,6 +25,7 @@ import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
@@ -180,7 +181,11 @@ public class ProjectFormComponent extends Composite<Div> {
 			.findAny()
 			.ifPresent(user -> projectViewModel.projectLeader = user);
 		binder.setBean(projectViewModel);
-		idFormItem.setIdAndShow(projectViewModel.id);
+		idFormItem.setIdAndShow(ofNullable(projectViewModel.id)
+			.flatMap(id -> ofNullable(id.id))
+			.map(UUID::toString)
+			.orElse(null)
+		);
 		uploadComponent.setValue(projectViewModel.getLogo());
 	}
 

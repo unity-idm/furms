@@ -5,13 +5,15 @@
 
 package io.imunity.furms.api.ssh_keys;
 
-import java.util.List;
-
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
+
+import java.util.List;
 
 public interface SSHKeyOperationService {
 
-	SSHKeyOperationJob findBySSHKeyIdAndSiteId(String sshkeyId, String siteId);
-	List<SSHKeyOperationJob> findBySSHKeyId(String sshkeyId);
+	SSHKeyOperationJob findBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId);
+	List<SSHKeyOperationJob> findBySSHKeyId(SSHKeyId sshkeyId);
 	
 }

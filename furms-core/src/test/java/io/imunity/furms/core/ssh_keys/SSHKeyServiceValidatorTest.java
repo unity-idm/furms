@@ -11,9 +11,12 @@ import io.imunity.furms.api.ssh_keys.SSHKeyAuthzException;
 import io.imunity.furms.api.ssh_keys.SSHKeyHistoryException;
 import io.imunity.furms.api.validation.exceptions.UninstalledUserError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.InvalidSSHKeyFromOptionException;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyHistory;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -35,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -77,7 +81,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldPassCreateForUniqueName() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").value(
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedckSp"
 						+ "gh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
 						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9"
@@ -108,12 +112,13 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		// given
-		final SSHKey key = getKey();
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = getKey(s1);
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
-		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists(s1)).thenReturn(true);
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
@@ -123,7 +128,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.exists(key.id)).thenReturn(false);
 
@@ -134,7 +139,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(true);
@@ -146,8 +151,8 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldPassDeleteForExistingId() {
 		// given
-		final String id = "id";
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
+		final SSHKeyId id = new SSHKeyId(UUID.randomUUID());
+		final SSHKey key = SSHKey.builder().id(id.id.toString()).name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.findById(id)).thenReturn(Optional.of(key));
@@ -161,7 +166,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassDeleteForNonExistingId() {
 		// given
-		final String id = "id";
+		final SSHKeyId id = new SSHKeyId(UUID.randomUUID());
 
 		when(sshKeysRepository.exists(id)).thenReturn(false);
 
@@ -172,8 +177,8 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldPassDeleteForOwner() {
 		// given
-		final String id = "id";
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
+		final SSHKeyId id = new SSHKeyId(UUID.randomUUID());
+		final SSHKey key = SSHKey.builder().id(id.id.toString()).name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.findById(id)).thenReturn(Optional.of(key));
@@ -187,8 +192,8 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassDeleteForNotOwner() {
 		// given
-		final String id = "id";
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
+		final SSHKeyId id = new SSHKeyId(UUID.randomUUID());
+		final SSHKey key = SSHKey.builder().id(id.id.toString()).name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id2"));
 		when(sshKeysRepository.findById(id)).thenReturn(Optional.of(key));
@@ -201,7 +206,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldPassForUniqueCombinationIdAndName() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
 
@@ -212,7 +217,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassForNonUniqueCombinationIdAndName() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").ownerId(new PersistentId("id")).build();
 
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(true);
 
@@ -224,11 +229,12 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldPassCreateForOwner() {
 		// given
-		final SSHKey key = getKey();
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = getKey(s1);
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.isNamePresent(key.name)).thenReturn(false);
-		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists(s1)).thenReturn(true);
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		
@@ -251,12 +257,13 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldPassUpdateForOwner() {
 		// given
-		final SSHKey key = getKey();
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = getKey(s1);
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
-		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists(s1)).thenReturn(true);
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		
@@ -267,7 +274,7 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNotOwner() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").ownerId(new PersistentId("id")).build();
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").ownerId(new PersistentId("id")).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id2"));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
@@ -280,10 +287,11 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassWhenSitesNotExists() {
 		// given
-		final SSHKey key = getKey();
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = getKey(s1);
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
-		when(siteRepository.exists("s1")).thenReturn(false);
+		when(siteRepository.exists(s1)).thenReturn(false);
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
@@ -293,12 +301,13 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateWhenSitesRequireFromOptionAndKeyWithoutFromOption() {
 		// given
-		final SSHKey key = getKey();
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = getKey(s1);
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
-		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists(s1)).thenReturn(true);
 		when(siteRepository.findAll()).thenReturn(
-				Sets.newHashSet(Site.builder().id("s1").sshKeyFromOptionMandatory(true).build()));
+				Sets.newHashSet(Site.builder().id(s1).sshKeyFromOptionMandatory(true).build()));
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
@@ -308,17 +317,18 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateWhenSitesRequireFromOptionAndKeyWithInvalidFromOption() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").value(
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").value(
 				"from=\"*.com\"  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/f"
 						+ "WMGol4PyhUHgRCn6/Hiaz/pnedckSpgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEX"
 						+ "hJD/78OSp/ZY8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tpbb"
 						+ "gd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5ALmb9xUkdFjZk9bL "
 						+ "demo@demo.pl\n" + "")
-				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet(s1)).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(siteRepository.findAll()).thenReturn(
-				Sets.newHashSet(Site.builder().id("s1").sshKeyFromOptionMandatory(true).build()));
+				Sets.newHashSet(Site.builder().id(s1).sshKeyFromOptionMandatory(true).build()));
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
@@ -328,13 +338,14 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassRemoveWhenUnfinishedOperationsExists() {
 		// given
-		final SSHKey key = getKey();
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = getKey(s1);
 		
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.findById(key.id)).thenReturn(Optional.of(key));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeyOperationRepository.findBySSHKey(key.id))
-				.thenReturn(List.of(SSHKeyOperationJob.builder().id("id").status(SSHKeyOperationStatus.SEND).build()));
+				.thenReturn(List.of(SSHKeyOperationJob.builder().id(UUID.randomUUID().toString()).status(SSHKeyOperationStatus.SEND).build()));
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		
@@ -345,14 +356,15 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateWhenUnfinishedOperationsExists() {
 		// given
-		final SSHKey key = getKey();
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = getKey(s1);
 		
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
-		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists(s1)).thenReturn(true);
 		when(sshKeyOperationRepository.findBySSHKey(key.id)).thenReturn(List
-				.of(SSHKeyOperationJob.builder().id("id").status(SSHKeyOperationStatus.SEND).build()));
+				.of(SSHKeyOperationJob.builder().id(UUID.randomUUID().toString()).status(SSHKeyOperationStatus.SEND).build()));
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
@@ -363,16 +375,17 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldCreateWhenSitesRequireFromOptionAndKeyWithFromOption() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").value(
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").value(
 				"from=\"*.sales.example.net,!pc.sales.example.net\"  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGo"
 						+ "l4PyhUHgRCn6/Hiaz/pnedckSpgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/"
 						+ "78OSp/ZY8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tpbbgd1Q2k"
 						+ "m5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5ALmb9xUkdFjZk9bL demo@demo.pl\n"
 						+ "")
-				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet(s1)).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
-		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists(s1)).thenReturn(true);
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		
@@ -383,14 +396,15 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateWhenSitesRequireFromOptionAndKeyWitoutFromOption() {
 		// given
-		final SSHKey key = getKey();
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = getKey(s1);
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
-		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists(s1)).thenReturn(true);
 		when(siteRepository.findAll()).thenReturn(
-				Sets.newHashSet(Site.builder().id("s1").sshKeyFromOptionMandatory(true).build()));
+				Sets.newHashSet(Site.builder().id(s1).sshKeyFromOptionMandatory(true).build()));
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		// when+then
@@ -400,18 +414,19 @@ class SSHKeyServiceValidatorTest {
 	@Test
 	void shouldUpdateWhenSitesRequireFromOptionAndKeyWithFromOption() {
 		// given
-		final SSHKey key = SSHKey.builder().id("id").name("name").value(
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		final SSHKey key = SSHKey.builder().id(UUID.randomUUID().toString()).name("name").value(
 				"from=\"*.sales.example.net,!pc.sales.example.net\"  ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/f"
 						+ "WMGol4PyhUHgRCn6/Hiaz/pnedckSpgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEX"
 						+ "hJD/78OSp/ZY8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tpbb"
 						+ "gd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5ALmb9xUkdFjZk9bL "
 						+ "demo@demo.pl\n" + "")
-				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet(s1)).build();
 
 		when(authzService.getCurrentUserId()).thenReturn(new PersistentId("id"));
 		when(sshKeysRepository.exists(key.id)).thenReturn(true);
 		when(sshKeysRepository.isNamePresentIgnoringRecord(key.name, key.id)).thenReturn(false);
-		when(siteRepository.exists("s1")).thenReturn(true);
+		when(siteRepository.exists(s1)).thenReturn(true);
 		when(usersDAO.findById(new PersistentId("id"))).thenReturn(Optional
 				.of(FURMSUser.builder().email("email").fenixUserId(new FenixUserId("id")).build()));
 		
@@ -423,49 +438,57 @@ class SSHKeyServiceValidatorTest {
 	void shouldNotPassHistoryValidation() {
 
 		//given
-		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("siteId", "id", 1))
-				.thenReturn(Collections.singletonList(SSHKeyHistory.builder().siteId("siteId")
-					.sshkeyOwnerId(new PersistentId("id")).sshkeyFingerprint(getKey().getFingerprint()).build()));
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo(s1, "id", 1))
+				.thenReturn(Collections.singletonList(SSHKeyHistory.builder().siteId(s1)
+					.sshkeyOwnerId(new PersistentId("id")).sshkeyFingerprint(getKey(s1).getFingerprint()).build()));
 		// when+then
-		assertThrows(SSHKeyHistoryException.class, () -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(1).build(),
-				getKey()));
+		assertThrows(SSHKeyHistoryException.class,
+			() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id(s1).sshKeyHistoryLength(1).build(),
+				getKey(s1)));
 	}
 	
 	@Test
 	void shouldPassHistoryValidationWhenHistoryIsNotActiveOnSite() {
 
 		// when+then
-		assertDoesNotThrow(() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(0).build(),
-				getKey()));
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		assertDoesNotThrow(() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id(new SiteId(UUID.randomUUID())).sshKeyHistoryLength(0).build(),
+				getKey(s1)));
 	}
 	
 	@Test
 	void shouldNotPassHistoryValidationWhenHistoryForKeyIsEmpty() {
 
 		//given
-		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo("siteId", "id", 1))
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+
+		when(sshKeyHistoryRepository.findBySiteIdAndOwnerIdLimitTo(s1, "id", 1))
 				.thenReturn(Collections.emptyList());
 		// when+then
-		assertDoesNotThrow(() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id("siteId").sshKeyHistoryLength(1).build(),
-				getKey()));
+		assertDoesNotThrow(() -> validator.assertKeyWasNotUsedPreviously(Site.builder().id(s1).sshKeyHistoryLength(1).build(),
+				getKey(s1)));
 	}
 
 	@Test
 	void shouldNotPassWhenUserIsNotInsalledOnSite() {
 
 		//given
-		when(userOperationRepository.isUserAdded("site", "user")).thenReturn(false);
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		FenixUserId fenixUserId = new FenixUserId("userId");
+		when(userOperationRepository.isUserAdded(s1, fenixUserId)).thenReturn(false);
 		// when+then
-		assertThrows(UninstalledUserError.class, () -> validator.assertUserIsInstalledOnSites(Sets.newHashSet("site"), new FenixUserId("user")));
+		assertThrows(UninstalledUserError.class, () -> validator.assertUserIsInstalledOnSites(Sets.newHashSet(s1),
+			fenixUserId));
 	}
-	
-	SSHKey getKey() {
-		return SSHKey.builder().id("id").name("name").value(
+
+	SSHKey getKey(SiteId siteId) {
+		return SSHKey.builder().id(UUID.randomUUID().toString()).name("name").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedckSpgh+"
 						+ "RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/ZY8"
 						+ "dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7"
 						+ "Tpbbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJT"
 						+ "KO5ALmb9xUkdFjZk9bL demo@demo.pl\n" + "")
-				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet(siteId)).build();
 	}
 }

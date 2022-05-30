@@ -10,8 +10,10 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
+import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.user_operation.UserAddition;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -61,50 +63,55 @@ public class ProjectAndUserRemoveListenerTest {
 
 	@Test
 	public void shouldProcessUserAfterRemoveFromProject() {
-
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		SiteId s2 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		UUID projectUUID = UUID.randomUUID();
-		SSHKey key = SSHKey.builder().id("id").name("key").value(
+		SSHKeyId sshKeyId = new SSHKeyId(UUID.randomUUID());
+		SSHKey key = SSHKey.builder().id(sshKeyId).name("key").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
 						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
 						+ "bbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5AL"
 						+ "mb9xUkdFjZk9bL demo@demo.pl")
-				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1", "s2")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet(s1, s2)).build();
 
 		when(usersDAO.getFenixUserId(new PersistentId("id"))).thenReturn(new FenixUserId("id"));
 		when(userOperationRepository.findAllUserAdditions(new FenixUserId("id"))).thenReturn(
 				Sets.newHashSet(UserAddition.builder().projectId(UUID.randomUUID().toString())
-						.siteId(new SiteId("s1", "id")).build()));
+						.siteId(s1).build()));
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));
 
 		listener.onUserRoleRemove(new UserProjectMembershipRevokedEvent(new PersistentId("id"),
 				new ResourceId(projectUUID, ResourceType.PROJECT), null));
 
-		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
-		verify(sshKeyHistoryRepository).deleteLatest("s2", "id");
-		verify(repository).update(SSHKey.builder().id("id").name("key").value(
+		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet(s2), new FenixUserId("id"));
+		verify(sshKeyHistoryRepository).deleteLatest(s2, "id");
+		verify(repository).update(SSHKey.builder().id(sshKeyId).name("key").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
 						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
 						+ "bbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5AL"
 						+ "mb9xUkdFjZk9bL demo@demo.pl")
-				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build());
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet(s1)).build());
 	}
 
 	@Test
 	public void shouldProcessUserAfterRemoveProject() {
+		SiteId s1 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		SiteId s2 = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		SSHKeyId sshKeyId = new SSHKeyId(UUID.randomUUID());
 
-		SSHKey key = SSHKey.builder().id("id").name("key").value(
+		SSHKey key = SSHKey.builder().id(sshKeyId).name("key").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
 						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
 						+ "bbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5AL"
 						+ "mb9xUkdFjZk9bL demo@demo.pl")
-				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1", "s2")).build();
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet(s1, s2)).build();
 
 		when(userOperationRepository.findAllUserAdditions(new FenixUserId("id"))).thenReturn(
 				Sets.newHashSet(UserAddition.builder().projectId(UUID.randomUUID().toString())
-						.siteId(new SiteId("s1", "id")).build()));
+						.siteId(s1).build()));
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));
 
 		listener.onProjectRemove(new ProjectRemovedEvent(
@@ -112,15 +119,15 @@ public class ProjectAndUserRemoveListenerTest {
 				.fenixUserId(new FenixUserId("id")).id(new PersistentId("id"))
 				.build()), Project.builder().build()));
 
-		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet("s2"), new FenixUserId("id"));
-		verify(sshKeyHistoryRepository).deleteLatest("s2", "id");
-		verify(repository).update(SSHKey.builder().id("id").name("key").value(
+		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet(s2), new FenixUserId("id"));
+		verify(sshKeyHistoryRepository).deleteLatest(s2, "id");
+		verify(repository).update(SSHKey.builder().id(sshKeyId).name("key").value(
 				"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDvFdnmjLkBdvUqojB/fWMGol4PyhUHgRCn6/Hiaz/pnedck"
 						+ "Spgh+RvDor7UsU8bkOQBYc0Yr1ETL1wUR1vIFxqTm23JmmJsyO5EJgUw92nVIc0gj1u5q6xRKg3ONnxEXhJD/78OSp/Z"
 						+ "Y8dJw4fnEYl22LfvGXIuCZbvtKNv1Az19y9LU57kDBi3B2ZBDn6rjI6sTeO2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tp"
 						+ "bbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5AL"
 						+ "mb9xUkdFjZk9bL demo@demo.pl")
-				.ownerId(new PersistentId("id")).sites(Sets.newHashSet("s1")).build());
+				.ownerId(new PersistentId("id")).sites(Sets.newHashSet(s1)).build());
 	}
 
 }

@@ -5,39 +5,44 @@
 
 package io.imunity.furms.spi.project_allocation;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.Set;
 
 public interface ProjectAllocationRepository {
-	Optional<ProjectAllocation> findById(String id);
+	Optional<ProjectAllocation> findById(ProjectAllocationId id);
 
-	Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(String id);
+	Optional<ProjectAllocationResolved> findByIdWithRelatedObjects(ProjectAllocationId id);
 
-	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String projectId);
+	Set<ProjectAllocationResolved> findAllWithRelatedObjects(ProjectId projectId);
 
-	Set<ProjectAllocationResolved> findAllWithRelatedObjects(String siteId, String projectId);
+	Set<ProjectAllocationResolved> findAllWithRelatedObjects(SiteId siteId, ProjectId projectId);
 
-	Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteId(String siteId);
+	Set<ProjectAllocationResolved> findAllWithRelatedObjectsBySiteId(SiteId siteId);
 
-	Set<ProjectAllocation> findAll(String projectId);
+	Set<ProjectAllocation> findAll(ProjectId projectId);
 
-	String create(ProjectAllocation projectAllocation);
+	ProjectAllocationId create(ProjectAllocation projectAllocation);
 
 	void update(ProjectAllocation projectAllocation);
 
-	BigDecimal getAvailableAmount(String communityAllocationId);
+	BigDecimal getAvailableAmount(CommunityAllocationId communityAllocationId);
 
-	boolean exists(String id);
+	boolean exists(ProjectAllocationId id);
 
-	boolean existsByCommunityAllocationId(String id);
+	boolean existsByCommunityAllocationId(CommunityAllocationId id);
 
-	boolean isNamePresent(String communityId, String name);
+	boolean isNamePresent(CommunityId communityId, String name);
 
-	void deleteById(String id);
+	void deleteById(ProjectAllocationId id);
 
 	void deleteAll();
 }

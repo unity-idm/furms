@@ -7,12 +7,14 @@ package io.imunity.furms.rest.workshop;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.resource_credits.ResourceCreditCreatedEvent;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentService;
@@ -148,7 +150,7 @@ class WorkshopService {
 				.description("Community for " + emailHandle)
 				.logo(FurmsImage.empty())
 				.build(); 
-		String communityId = communityRepository.create(community);
+		CommunityId communityId = communityRepository.create(community);
 		communityGroupsDAO.create(new CommunityGroup(communityId, community.getName()));
 		
 		LOG.info("Making user {} community {} admin", user.email, communityId);
@@ -171,7 +173,7 @@ class WorkshopService {
 			.name("SITE-" + siteExternalId.id)
 			.connectionInfo("Site for " + emailHandle)
 			.build();
-		String siteId = siteRepository.create(site, siteExternalId);
+		SiteId siteId = siteRepository.create(site, siteExternalId);
 		
 		siteAgentService.initializeSiteConnection(siteExternalId);
 		siteGroupDAO.create(Site.builder().id(siteId).name(site.getName()).build());

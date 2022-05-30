@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.site.resource_credits;
 
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.toMap;
 
 class ResourceTypeComboBoxModelResolver {
-	private final Map<String, ResourceTypeComboBoxModel> map;
+	private final Map<ResourceTypeId, ResourceTypeComboBoxModel> map;
 
 	public ResourceTypeComboBoxModelResolver(Set<ResourceType> resourceTypes) {
 		map = resourceTypes.stream()
@@ -27,11 +28,11 @@ class ResourceTypeComboBoxModelResolver {
 		return new ArrayList<>(map.values());
 	}
 
-	public String getName(String id){
+	public String getName(ResourceTypeId id){
 		return map.get(id).name;
 	}
 
-	public ResourceTypeComboBoxModel getResourceType(String id){
+	public ResourceTypeComboBoxModel getResourceType(ResourceTypeId id){
 		return map.get(id);
 	}
 }

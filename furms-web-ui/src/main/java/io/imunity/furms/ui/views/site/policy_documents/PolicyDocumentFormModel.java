@@ -9,12 +9,13 @@ import io.imunity.furms.domain.policy_documents.PolicyContentType;
 import io.imunity.furms.domain.policy_documents.PolicyFile;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 
 class PolicyDocumentFormModel {
 	public PolicyId id;
-	public final String siteId;
+	public final SiteId siteId;
 	public String name;
 	public PolicyWorkflow workflow;
 	public int revision;
@@ -23,7 +24,7 @@ class PolicyDocumentFormModel {
 	public PolicyFile policyFile = PolicyFile.empty();
 
 	PolicyDocumentFormModel(PolicyId id,
-	                               String siteId,
+	                               SiteId siteId,
 	                               String name,
 	                               PolicyWorkflow workflow,
 	                               int revision,
@@ -40,7 +41,7 @@ class PolicyDocumentFormModel {
 		this.policyFile = policyFile;
 	}
 
-	PolicyDocumentFormModel(String siteId){
+	PolicyDocumentFormModel(SiteId siteId){
 		this.siteId = siteId;
 	}
 
@@ -77,7 +78,7 @@ class PolicyDocumentFormModel {
 
 	public static final class PolicyDocumentFormModelBuilder {
 		private PolicyId id;
-		private String siteId;
+		private SiteId siteId;
 		private String name;
 		private PolicyWorkflow workflow;
 		private int revision;
@@ -93,7 +94,7 @@ class PolicyDocumentFormModel {
 			return this;
 		}
 
-		public PolicyDocumentFormModelBuilder siteId(String siteId) {
+		public PolicyDocumentFormModelBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

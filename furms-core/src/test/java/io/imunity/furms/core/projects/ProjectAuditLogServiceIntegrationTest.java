@@ -17,7 +17,9 @@ import io.imunity.furms.core.users.audit_log.RoleAssignmentAuditLogServiceTest;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
@@ -90,16 +92,19 @@ class ProjectAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectProjectDeletion() {
 		//given
-		String id = "id";
-		String id2 = "id";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId id = new ProjectId(UUID.randomUUID());
 		when(projectRepository.exists(id)).thenReturn(true);
 		List<FURMSUser> users = Collections.singletonList(FURMSUser.builder().id(new PersistentId("id")).email("email@test.com").build());
-		when(projectGroupsDAO.getAllUsers("id", "id")).thenReturn(users);
-		Project project = Project.builder().build();
-		when(projectRepository.findById("id")).thenReturn(Optional.of(project));
+		when(projectGroupsDAO.getAllUsers(communityId, id)).thenReturn(users);
+		Project project = Project.builder()
+			.id(id)
+			.communityId(communityId)
+			.build();
+		when(projectRepository.findById(id)).thenReturn(Optional.of(project));
 
 		//when
-		service.delete(id, id2);
+		service.delete(id, communityId);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -114,7 +119,7 @@ class ProjectAuditLogServiceIntegrationTest {
 		PersistentId projectLeaderId = new PersistentId(UUID.randomUUID().toString());
 		Project request = Project.builder()
 			.id(id)
-			.communityId("id")
+			.communityId(UUID.randomUUID().toString())
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
@@ -145,11 +150,12 @@ class ProjectAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectProjectCreation() {
 		//given
-		String id = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId id = new ProjectId(UUID.randomUUID());
 		PersistentId projectLeaderId = new PersistentId(UUID.randomUUID().toString());
 		Project request = Project.builder()
 			.id(id)
-			.communityId("id")
+			.communityId(communityId)
 			.name("userFacingName")
 			.acronym("acronym")
 			.researchField("research field")
@@ -157,7 +163,7 @@ class ProjectAuditLogServiceIntegrationTest {
 			.utcEndTime(LocalDateTime.now().plusWeeks(1))
 			.leaderId(projectLeaderId)
 			.build();
-		when(communityRepository.exists("id")).thenReturn(true);
+		when(communityRepository.exists(communityId)).thenReturn(true);
 		when(projectRepository.isNamePresent(request.getCommunityId(), request.getName())).thenReturn(true);
 		when(projectRepository.findById(id)).thenReturn(Optional.of(request));
 		when(projectRepository.create(request)).thenReturn(id);
@@ -179,19 +185,19 @@ class ProjectAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectAdminAddition() {
-		UUID communityId = UUID.randomUUID();
-		UUID projectId = UUID.randomUUID();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId id = new PersistentId("id");
 		Project project = Project.builder()
 			.name("userFacingName")
 			.build();
-		when(projectRepository.findById(projectId.toString())).thenReturn(Optional.of(project));
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 		when(usersDAO.findById(id)).thenReturn(Optional.of(FURMSUser.builder()
 			.id(id)
 			.email("email")
 			.build())
 		);
-		service.addAdmin(communityId.toString(), projectId.toString(), id);
+		service.addAdmin(communityId, projectId, id);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -201,19 +207,19 @@ class ProjectAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectAdminRemoval() {
-		UUID communityId = UUID.randomUUID();
-		UUID projectId = UUID.randomUUID();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId id = new PersistentId("id");
 		Project project = Project.builder()
 			.name("userFacingName")
 			.build();
-		when(projectRepository.findById(projectId.toString())).thenReturn(Optional.of(project));
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 		when(usersDAO.findById(id)).thenReturn(Optional.of(FURMSUser.builder()
 			.id(id)
 			.email("email")
 			.build())
 		);
-		service.removeAdmin(communityId.toString(), projectId.toString(), id);
+		service.removeAdmin(communityId, projectId, id);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -223,19 +229,19 @@ class ProjectAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectUserAddition() {
-		UUID communityId = UUID.randomUUID();
-		UUID projectId = UUID.randomUUID();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId id = new PersistentId("id");
 		Project project = Project.builder()
 			.name("userFacingName")
 			.build();
-		when(projectRepository.findById(projectId.toString())).thenReturn(Optional.of(project));
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 		when(usersDAO.findById(id)).thenReturn(Optional.of(FURMSUser.builder()
 			.id(id)
 			.email("email")
 			.build())
 		);
-		service.addUser(communityId.toString(), projectId.toString(), id);
+		service.addUser(communityId, projectId, id);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -245,19 +251,19 @@ class ProjectAuditLogServiceIntegrationTest {
 
 	@Test
 	void shouldDetectUserRemoval() {
-		UUID communityId = UUID.randomUUID();
-		UUID projectId = UUID.randomUUID();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		PersistentId id = new PersistentId("id");
 		Project project = Project.builder()
 			.name("userFacingName")
 			.build();
-		when(projectRepository.findById(projectId.toString())).thenReturn(Optional.of(project));
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 		when(usersDAO.findById(id)).thenReturn(Optional.of(FURMSUser.builder()
 			.id(id)
 			.email("email")
 			.build())
 		);
-		service.removeUser(communityId.toString(), projectId.toString(), id);
+		service.removeUser(communityId, projectId, id);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());

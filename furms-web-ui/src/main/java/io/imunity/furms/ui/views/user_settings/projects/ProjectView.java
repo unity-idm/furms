@@ -21,10 +21,12 @@ import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.resource_access.ResourceAccessService;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.UserGrant;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -67,7 +69,7 @@ public class ProjectView extends FurmsViewComponent {
 	private final AlarmService alarmService;
 
 	private final Grid<ProjectAllocationGridModel> grid;
-	private String projectId;
+	private ProjectId projectId;
 	private UsersProjectAllocationDataSnapshot projectDataSnapshot;
 	private BreadCrumbParameter breadCrumbParameter;
 
@@ -157,7 +159,7 @@ public class ProjectView extends FurmsViewComponent {
 		return grid;
 	}
 
-	private String getEnabledValue(String allocationId, boolean accessibleForAllProjectMembers) {
+	private String getEnabledValue(ProjectAllocationId allocationId, boolean accessibleForAllProjectMembers) {
 		if(accessibleForAllProjectMembers)
 			return getTranslation("view.project-admin.resource-access.grid.access.enabled");
 		UserGrant userGrant =  projectDataSnapshot.getUserGrant(allocationId);
@@ -168,7 +170,8 @@ public class ProjectView extends FurmsViewComponent {
 
 	private HorizontalLayout createLastColumnContent(ProjectAllocationGridModel projectAllocationGridModel) {
 		return new GridActionsButtonLayout(
-			new RouterGridLink(SPLINE_CHART, projectAllocationGridModel.id, ProjectResourceAllocationsDetailsView.class, "projectId", projectAllocationGridModel.projectId),
+			new RouterGridLink(SPLINE_CHART, projectAllocationGridModel.id.id.toString(),
+				ProjectResourceAllocationsDetailsView.class, "projectId", projectAllocationGridModel.projectId.id.toString()),
 			createContextMenu()
 		);
 	}
@@ -228,9 +231,9 @@ public class ProjectView extends FurmsViewComponent {
 
 	public static class UsersProjectAllocationDataSnapshot {
 		private final ProjectAllocationDataSnapshot projectAllocationDataSnapshot;
-		private final Map<String, UserGrant> allocationIdToGrants;
+		private final Map<ProjectAllocationId, UserGrant> allocationIdToGrants;
 
-		UsersProjectAllocationDataSnapshot(ProjectAllocationDataSnapshot projectAllocationDataSnapshot, Map<String, UserGrant> allocationIdToGrants) {
+		UsersProjectAllocationDataSnapshot(ProjectAllocationDataSnapshot projectAllocationDataSnapshot, Map<ProjectAllocationId, UserGrant> allocationIdToGrants) {
 			this.projectAllocationDataSnapshot = projectAllocationDataSnapshot;
 			this.allocationIdToGrants = allocationIdToGrants;
 		}
@@ -239,19 +242,20 @@ public class ProjectView extends FurmsViewComponent {
 			return projectAllocationDataSnapshot;
 		}
 
-		UserGrant getUserGrant(String allocationId) {
+		UserGrant getUserGrant(ProjectAllocationId allocationId) {
 			return allocationIdToGrants.get(allocationId);
 		}
 	}
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String projectId) {
-		Project project = handleExceptions(() -> projectService.findById(projectId))
+		ProjectId pId = new ProjectId(projectId);
+		Project project = handleExceptions(() -> projectService.findById(pId))
 			.flatMap(identity())
 			.orElseThrow(IllegalStateException::new);
-		this.projectId = projectId;
+		this.projectId = pId;
 		breadCrumbParameter = new BreadCrumbParameter(
-			project.getId(), project.getName(), getTranslation("view.user-settings.projects.bread-crumb")
+			project.getId().id.toString(), project.getName(), getTranslation("view.user-settings.projects.bread-crumb")
 		);
 		loadGridContent();
 	}

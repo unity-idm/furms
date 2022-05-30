@@ -50,10 +50,9 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
 
-		Site.SiteBuilder siteBuilder1 = defaultSite().name("site2")
-			.externalId(new SiteExternalId("se_i1"));
+		Site.SiteBuilder siteBuilder1 = defaultSite().name("site2");
 		site1 = siteBuilder1
-			.id(siteRepository.create(siteBuilder1.build(), siteBuilder1.build().getExternalId()))
+			.id(siteRepository.create(siteBuilder1.build(), new SiteExternalId("se_i1")))
 			.build();
 	}
 
@@ -86,7 +85,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 			.build());
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/protocolMessages", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/protocolMessages", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
@@ -119,7 +118,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 			.build());
 
 		//when
-		mockMvc.perform(adminDELETE("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId(), correlationId.id))
+		mockMvc.perform(adminDELETE("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId().id, correlationId.id))
 			.andDo(print());
 
 		assertEquals(Optional.empty(), siteAgentPendingMessageRepository.find(correlationId));
@@ -142,7 +141,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 			.build());
 
 		//when
-		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId(), correlationId.id))
+		mockMvc.perform(adminPOST("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId().id, correlationId.id))
 			.andDo(print());
 
 		assertEquals(2, siteAgentPendingMessageRepository.find(correlationId).get().retryCount);
@@ -159,7 +158,8 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnNotFoundIfCorrelationIdDoesNotExistDuringRemovingProtocolMessages() throws Exception {
 		//when
-		mockMvc.perform(delete("/rest-api/v1/sites/{siteId}/protocolMessages/{correlationId}", site, "randomText")
+		mockMvc.perform(delete("/rest-api/v1/sites/{siteId}/protocolMessages/{correlationId}", site.getId().id,
+				UUID.randomUUID())
 			.with(ADMIN_USER.getHttpBasic()))
 			.andDo(print())
 			.andExpect(status().isNotFound());
@@ -171,7 +171,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/protocolMessages", site.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/protocolMessages", site.getId().id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -198,7 +198,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 			.build());
 
 		//when
-		mockMvc.perform(delete("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId(), correlationId.id)
+		mockMvc.perform(delete("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId().id, correlationId.id)
 				.with(testUser.getHttpBasic()))
 			.andDo(print())
 			.andExpect(status().isForbidden());
@@ -224,7 +224,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 			.build());
 
 		//when
-		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId(), correlationId.id)
+		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId().id, correlationId.id)
 				.with(testUser.getHttpBasic()))
 			.andDo(print())
 			.andExpect(status().isForbidden());
@@ -249,7 +249,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 			.build());
 
 		//when
-		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId(), correlationId.id)
+		mockMvc.perform(post("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId().id, correlationId.id)
 				.with(ADMIN_USER.getHttpBasic()))
 			.andDo(print())
 			.andExpect(status().isNotFound());
@@ -274,7 +274,7 @@ class SiteProtocolMessageIntegrationTest extends IntegrationTestBase {
 			.build());
 
 		//when
-		mockMvc.perform(delete("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId(), correlationId.id)
+		mockMvc.perform(delete("/rest-api/v1/sites/{siteId}/protocolMessages/{messageId}", site.getId().id, correlationId.id)
 				.with(ADMIN_USER.getHttpBasic()))
 			.andDo(print())
 			.andExpect(status().isNotFound());

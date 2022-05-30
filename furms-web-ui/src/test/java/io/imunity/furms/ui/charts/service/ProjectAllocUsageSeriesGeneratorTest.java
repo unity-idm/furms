@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.charts.service;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -39,11 +41,13 @@ class ProjectAllocUsageSeriesGeneratorTest {
 			startDate.plusDays(6)
 		);
 		LocalDateTime date = startDate.atStartOfDay();
+		ProjectAllocationId allocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		Set<ResourceUsage> allocations = Set.of(
-			createUsage("alloc1", date.plusDays(1), BigDecimal.valueOf(2)),
-			createUsage("alloc1", date.plusDays(2), BigDecimal.valueOf(5)),
-			createUsage("alloc1", date.plusDays(4), BigDecimal.valueOf(10)),
-			createUsage("alloc1", date.plusDays(6), BigDecimal.valueOf(12))
+			createUsage(allocationId.id.toString(), date.plusDays(1), BigDecimal.valueOf(2)),
+			createUsage(allocationId.id.toString(), date.plusDays(2), BigDecimal.valueOf(5)),
+			createUsage(allocationId.id.toString(), date.plusDays(4), BigDecimal.valueOf(10)),
+			createUsage(allocationId.id.toString(), date.plusDays(6), BigDecimal.valueOf(12))
 		);
 
 		List<Double> values = projectAllocUsageSeriesGenerator.prepareYValuesForUserUsageLine(xTimeAxis, allocations, startDate.plusDays(4), startDate.plusDays(6), startDate.plusDays(5));
@@ -87,8 +91,10 @@ class ProjectAllocUsageSeriesGeneratorTest {
 			startDate.plusDays(6)
 		);
 		LocalDateTime date = startDate.atStartOfDay();
+		ProjectAllocationId allocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		Set<ResourceUsage> allocations = Set.of(
-			createUsage("alloc1", date.plusDays(1), BigDecimal.valueOf(2))
+			createUsage(allocationId.id.toString(), date.plusDays(1), BigDecimal.valueOf(2))
 		);
 
 		List<Double> values = projectAllocUsageSeriesGenerator.prepareYValuesForUserUsageLine(xTimeAxis, allocations, startDate.plusDays(1), startDate.plusDays(6), startDate.plusDays(3));
@@ -112,11 +118,13 @@ class ProjectAllocUsageSeriesGeneratorTest {
 			startDate.plusDays(6)
 		);
 		LocalDateTime date = startDate.atStartOfDay();
+		ProjectAllocationId allocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		Set<ResourceUsage> allocations = Set.of(
-			createUsage("alloc1", date.plusDays(1), BigDecimal.valueOf(2)),
-			createUsage("alloc1", date.plusDays(2), BigDecimal.valueOf(5)),
-			createUsage("alloc1", date.plusDays(4), BigDecimal.valueOf(10)),
-			createUsage("alloc1", date.plusDays(6), BigDecimal.valueOf(12))
+			createUsage(allocationId.id.toString(), date.plusDays(1), BigDecimal.valueOf(2)),
+			createUsage(allocationId.id.toString(), date.plusDays(2), BigDecimal.valueOf(5)),
+			createUsage(allocationId.id.toString(), date.plusDays(4), BigDecimal.valueOf(10)),
+			createUsage(allocationId.id.toString(), date.plusDays(6), BigDecimal.valueOf(12))
 		);
 
 		List<Double> values = projectAllocUsageSeriesGenerator.prepareYValuesForUserUsageLine(xTimeAxis, allocations, startDate.plusDays(4), null, startDate.plusDays(6));
@@ -140,11 +148,13 @@ class ProjectAllocUsageSeriesGeneratorTest {
 			startDate.plusDays(6)
 		);
 		LocalDateTime date = startDate.atStartOfDay();
+		ProjectAllocationId allocationId = new ProjectAllocationId(UUID.randomUUID());
+
 		Set<ResourceUsage> allocations = Set.of(
-			createUsage("alloc1", date.plusDays(1), BigDecimal.valueOf(2)),
-			createUsage("alloc1", date.plusDays(2), BigDecimal.valueOf(5)),
-			createUsage("alloc1", date.plusDays(4), BigDecimal.valueOf(10)),
-			createUsage("alloc1", date.plusDays(6), BigDecimal.valueOf(12))
+			createUsage(allocationId.id.toString(), date.plusDays(1), BigDecimal.valueOf(2)),
+			createUsage(allocationId.id.toString(), date.plusDays(2), BigDecimal.valueOf(5)),
+			createUsage(allocationId.id.toString(), date.plusDays(4), BigDecimal.valueOf(10)),
+			createUsage(allocationId.id.toString(), date.plusDays(6), BigDecimal.valueOf(12))
 		);
 
 		List<Double> values = projectAllocUsageSeriesGenerator.prepareYValuesForUserUsageLine(xTimeAxis, allocations, startDate.plusDays(6), startDate.plusDays(4), startDate.plusDays(5));

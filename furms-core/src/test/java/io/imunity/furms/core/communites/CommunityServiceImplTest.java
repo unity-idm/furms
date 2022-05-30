@@ -14,6 +14,7 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.communities.CommunityCreatedEvent;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.communities.CommunityRemovedEvent;
 import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -80,7 +81,7 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldReturnCommunityIfExistsInRepository() {
 		//given
-		String id = "id";
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		when(communityRepository.findById(id)).thenReturn(Optional.of(Community.builder()
 			.id(id)
 			.name("userFacingName")
@@ -89,7 +90,7 @@ class CommunityServiceImplTest {
 
 		//when
 		Optional<Community> byId = service.findById(id);
-		Optional<Community> otherId = service.findById("otherId");
+		Optional<Community> otherId = service.findById(new CommunityId(UUID.randomUUID()));
 
 		//then
 		assertThat(byId).isPresent();
@@ -101,8 +102,8 @@ class CommunityServiceImplTest {
 	void shouldReturnAllCommunitysIfExistsInRepository() {
 		//given
 		when(communityRepository.findAll()).thenReturn(Set.of(
-			Community.builder().id("id1").name("userFacingName").build(),
-			Community.builder().id("id2").name("userFacingName2").build()));
+			Community.builder().id(new CommunityId(UUID.randomUUID())).name("userFacingName").build(),
+			Community.builder().id(new CommunityId(UUID.randomUUID())).name("userFacingName2").build()));
 
 		//when
 		Set<Community> allCommunitys = service.findAll();
@@ -114,17 +115,18 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldAllowToCreateCommunity() {
 		//given
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		Community request = Community.builder()
-			.id("id")
+			.id(id)
 			.name("userFacingName")
 			.build();
 		CommunityGroup groupRequest = CommunityGroup.builder()
-			.id("id")
+			.id(id)
 			.name("userFacingName")
 			.build();
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
-		when(communityRepository.findById("id")).thenReturn(Optional.of(request));
-		when(communityRepository.create(request)).thenReturn("id");
+		when(communityRepository.findById(id)).thenReturn(Optional.of(request));
+		when(communityRepository.create(request)).thenReturn(id);
 
 		//when
 		service.create(request);
@@ -150,17 +152,18 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldAllowToUpdateCommunity() {
 		//given
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		Community request = Community.builder()
-			.id("id")
+			.id(id)
 			.name("userFacingName")
 			.build();
 		CommunityGroup groupRequest = CommunityGroup.builder()
-			.id("id")
+			.id(id)
 			.name("userFacingName")
 			.build();
 		when(communityRepository.exists(request.getId())).thenReturn(true);
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
-		when(communityRepository.findById("id")).thenReturn(Optional.of(request));
+		when(communityRepository.findById(id)).thenReturn(Optional.of(request));
 
 
 		//when
@@ -174,7 +177,7 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldAllowToDeleteCommunity() {
 		//given
-		String id = "id";
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		when(communityRepository.exists(id)).thenReturn(true);
 		Community community = Community.builder().build();
 		when(communityRepository.findById(id)).thenReturn(Optional.of(community));
@@ -190,7 +193,7 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldNotAllowToDeleteCommunityDueToCommunityNotExists() {
 		//given
-		String id = "id";
+		CommunityId id = new CommunityId(UUID.randomUUID());
 		when(communityRepository.exists(id)).thenReturn(false);
 
 		//when
@@ -201,7 +204,7 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldReturnAllCommunityAdmins() {
 		//given
-		String communityId = "id";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		when(communityGroupsDAO.getAllAdmins(communityId)).thenReturn(List.of(
 			FURMSUser.builder()
 				.id(new PersistentId("id"))
@@ -221,7 +224,7 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldAddAdminToCommunity() {
 		//given
-		String communityId = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		Community community = Community.builder().build();
 		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
@@ -236,7 +239,7 @@ class CommunityServiceImplTest {
 	@Test
 	void shouldRemoveAdminFromCommunity() {
 		//given
-		String communityId = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		Community community = Community.builder()
 			.name("name")
@@ -248,13 +251,14 @@ class CommunityServiceImplTest {
 
 		//then
 		verify(communityGroupsDAO, times(1)).removeAdmin(communityId, userId);
-		orderVerifier.verify(publisher).publishEvent(eq(new UserRoleRevokedEvent(userId, new ResourceId(communityId, COMMUNITY), "name", Role.COMMUNITY_ADMIN)));
+		orderVerifier.verify(publisher).publishEvent(eq(new UserRoleRevokedEvent(userId, new ResourceId(communityId.id,
+			COMMUNITY), "name", Role.COMMUNITY_ADMIN)));
 	}
 
 	@Test
 	void shouldThrowExceptionWhenWebClientFailedForRemoveAdmin() {
 		//given
-		String communityId = UUID.randomUUID().toString();
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		PersistentId userId = new PersistentId("userId");
 		doThrow(UnityFailureException.class).when(communityGroupsDAO).removeAdmin(communityId, userId);
 

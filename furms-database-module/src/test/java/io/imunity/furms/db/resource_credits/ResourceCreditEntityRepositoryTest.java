@@ -10,9 +10,12 @@ import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -27,7 +30,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.db.id.uuid.UUIDIdUtils.generateId;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,11 +46,11 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceCreditEntityRepository resourceCreditRepository;
 
-	private UUID siteId;
-	private UUID siteId2;
+	private SiteId siteId;
+	private SiteId siteId2;
 
-	private UUID resourceTypeId;
-	private UUID resourceTypeId2;
+	private ResourceTypeId resourceTypeId;
+	private ResourceTypeId resourceTypeId2;
 
 	private final LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
 	private final LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
@@ -65,47 +67,47 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
+		siteId2 = siteRepository.create(site1, new SiteExternalId("id2"));
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 		InfraService service1 = InfraService.builder()
-			.siteId(siteId2.toString())
+			.siteId(siteId2)
 			.name("name1")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
-		UUID serviceId2 = UUID.fromString(infraServiceRepository.create(service1));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
+		InfraServiceId serviceId2 = infraServiceRepository.create(service1);
 
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
 		ResourceType resourceType2 = ResourceType.builder()
-			.siteId(siteId2.toString())
-			.serviceId(serviceId2.toString())
+			.siteId(siteId2)
+			.serviceId(serviceId2)
 			.name("name2")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.MB)
 			.build();
 
-		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
-		resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
+		resourceTypeId = resourceTypeRepository.create(resourceType);
+		resourceTypeId2 = resourceTypeRepository.create(resourceType2);
 	}
 
 	@Test
 	void shouldCreateResourceType() {
 		//given
 		ResourceCreditEntity entityToSave = ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -121,8 +123,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(resourceCreditRepository.findAll()).hasSize(1);
 		Optional<ResourceCreditEntity> byId = resourceCreditRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().siteId).isEqualTo(siteId);
-		assertThat(byId.get().resourceTypeId).isEqualTo(resourceTypeId);
+		assertThat(byId.get().siteId).isEqualTo(siteId.id);
+		assertThat(byId.get().resourceTypeId).isEqualTo(resourceTypeId.id);
 		assertThat(byId.get().name).isEqualTo("name");
 		assertThat(byId.get().split).isEqualTo(true);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
@@ -135,8 +137,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateResourceCredit() {
 		//given
 		ResourceCreditEntity old = ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -146,8 +148,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 		resourceCreditRepository.save(old);
 		ResourceCreditEntity toUpdate = ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId2)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId2.id)
 			.name("name2")
 			.split(false)
 			.amount(new BigDecimal(111))
@@ -162,8 +164,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 		//then
 		Optional<ResourceCreditEntity> byId = resourceCreditRepository.findById(toUpdate.getId());
 		assertThat(byId).isPresent();
-		assertThat(byId.get().siteId).isEqualTo(siteId);
-		assertThat(byId.get().resourceTypeId).isEqualTo(resourceTypeId2);
+		assertThat(byId.get().siteId).isEqualTo(siteId.id);
+		assertThat(byId.get().resourceTypeId).isEqualTo(resourceTypeId2.id);
 		assertThat(byId.get().name).isEqualTo("name2");
 		assertThat(byId.get().split).isEqualTo(false);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(111));
@@ -176,8 +178,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindCreatedResourceCredits() {
 		//given
 		ResourceCreditEntity toFind = ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -198,8 +200,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllAvailableResourceCredits() {
 		//given
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -209,8 +211,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 			.build()
 		);
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name1")
 			.split(true)
 			.amount(new BigDecimal(342))
@@ -231,8 +233,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllBySiteNameAndIncludeExpired() {
 		//given
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId2)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId2.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("other1")
 				.split(true)
 				.amount(new BigDecimal(100))
@@ -241,8 +243,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.endTime(LocalDateTime.now().plusDays(10))
 				.build());
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId2)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId2.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("other2")
 				.split(true)
 				.amount(new BigDecimal(342))
@@ -251,8 +253,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.endTime(LocalDateTime.now().minusSeconds(1))
 				.build());
 		final ResourceCreditEntity otherSite = resourceCreditRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("other3")
 				.split(true)
 				.amount(new BigDecimal(342))
@@ -274,8 +276,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 		//given
 		final LocalDateTime utcNow = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("other1")
 				.split(true)
 				.amount(new BigDecimal(100))
@@ -284,8 +286,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.endTime(utcNow.plusDays(10))
 				.build());
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("other2")
 				.split(true)
 				.amount(new BigDecimal(342))
@@ -294,8 +296,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 				.endTime(utcNow.minusSeconds(1))
 				.build());
 		final ResourceCreditEntity differentName = resourceCreditRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("different")
 				.split(true)
 				.amount(new BigDecimal(342))
@@ -316,8 +318,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void savedServiceExistsByResourceCreditId() {
 		//given
 		ResourceCreditEntity service = resourceCreditRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -335,8 +337,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void savedResourceCreditExistsByName() {
 		//given
 		ResourceCreditEntity service = resourceCreditRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -356,8 +358,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void savedResourceCreditDoesNotExistByName() {
 		//given
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -367,7 +369,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when
-		boolean nonExists = resourceCreditRepository.existsByNameAndSiteId("wrong_name", siteId);
+		boolean nonExists = resourceCreditRepository.existsByNameAndSiteId("wrong_name", siteId.id);
 
 		//then
 		assertThat(nonExists).isFalse();
@@ -377,8 +379,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteService() {
 		//given
 		ResourceCreditEntity entityToRemove = resourceCreditRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -398,8 +400,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 	void shouldDeleteAllServices() {
 		//given
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -408,8 +410,8 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 			.endTime(endTime)
 			.build());
 		resourceCreditRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name1")
 			.split(false)
 			.amount(new BigDecimal(5345))

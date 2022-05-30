@@ -16,7 +16,8 @@ import java.util.UUID;
 public interface CommunityAllocationReadEntityRepository extends CrudRepository<CommunityAllocationReadEntity, UUID> {
 	@Override
 	@Query("select a.*, " +
-		"s.id as site_id, s.name as site_name, s.connection_info as site_connection_info , s.logo as site_logo , s.logo_type as site_logo_type, " +
+		"s.id as site_id, s.external_id AS site_external_id, s.name as site_name, s.connection_info as " +
+		"site_connection_info , s.logo as site_logo , s.logo_type as site_logo_type, " +
 		"rt.id as resourceType_id, rt.name as resourceType_name, rt.site_id as resourceType_site_id, rt.service_id as resourceType_service_id, rt.type as resourceType_type, rt.unit as resourceType_unit, rt.accessible as resourceType_accessible, " +
 		"rc.id as resourceCredit_id, rc.name as resourceCredit_name, rc.site_id as resourceCredit_site_id, rc.resource_type_id as resourceCredit_resource_type_id, rc.split as resourceCredit_split, rc.amount as resourceCredit_amount, rc.create_time as resourceCredit_create_time, rc.start_time as resourceCredit_start_time, rc.end_time as resourceCredit_end_time, " +
 		"c.name as community_name " +
@@ -29,7 +30,8 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 	Optional<CommunityAllocationReadEntity> findById(@Param("id") UUID id);
 
 	@Query("select a.*, " +
-		"s.id as site_id, s.name as site_name, s.connection_info as site_connection_info , s.logo as site_logo , s.logo_type as site_logo_type, " +
+		"s.id as site_id, s.external_id AS site_external_id, s.name as site_name, s.connection_info as " +
+		"site_connection_info , s.logo as site_logo , s.logo_type as site_logo_type, " +
 		"rt.id as resourceType_id, rt.name as resourceType_name, rt.site_id as resourceType_site_id, rt.service_id as resourceType_service_id, rt.type as resourceType_type, rt.unit as resourceType_unit, rt.accessible as resourceType_accessible, " +
 		"rc.id as resourceCredit_id, rc.name as resourceCredit_name, rc.site_id as resourceCredit_site_id, rc.resource_type_id as resourceCredit_resource_type_id, rc.split as resourceCredit_split, rc.amount as resourceCredit_amount, rc.create_time as resourceCredit_create_time, rc.start_time as resourceCredit_start_time, rc.end_time as resourceCredit_end_time, " +
 		"c.name as community_name " +
@@ -42,7 +44,8 @@ public interface CommunityAllocationReadEntityRepository extends CrudRepository<
 	Set<CommunityAllocationReadEntity> findAllByCommunityId(@Param("id") UUID id);
 
 	@Query("SELECT a.*, " +
-			"   s.id AS site_id, s.name AS site_name, s.connection_info AS site_connection_info, s.logo AS site_logo, " +
+			"   s.id AS site_id, s.external_id AS site_external_id, s.name AS site_name, s.connection_info AS " +
+			"   site_connection_info, s.logo AS site_logo, " +
 			"   s.logo_type AS site_logo_type, rt.id AS resourceType_id, rt.name AS resourceType_name, " +
 			"   rt.site_id AS resourceType_site_id, rt.service_id AS resourceType_service_id, rt.type AS resourceType_type, " +
 			"   rt.unit AS resourceType_unit, rc.id AS resourceCredit_id, rc.name AS resourceCredit_name, rt.accessible as resourceType_accessible, " +

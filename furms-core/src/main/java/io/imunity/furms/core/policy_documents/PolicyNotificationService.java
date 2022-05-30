@@ -11,6 +11,7 @@ import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.UserAcceptedPolicyEvent;
+import io.imunity.furms.domain.resource_access.GrantId;
 import io.imunity.furms.domain.resource_access.UserGrantRemovedEvent;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.sites.SiteId;
@@ -94,7 +95,7 @@ public class PolicyNotificationService {
 			});
 	}
 
-	public void notifyAboutAllNotAcceptedPolicies(String siteId, FenixUserId userId, String grantId) {
+	public void notifyAboutAllNotAcceptedPolicies(SiteId siteId, FenixUserId userId, GrantId grantId) {
 		Map<PolicyId, PolicyAcceptance> policyAcceptanceMap = policyDocumentDAO.getPolicyAcceptances(userId).stream()
 			.collect(Collectors.toMap(x -> x.policyDocumentId, Function.identity()));
 
@@ -116,7 +117,7 @@ public class PolicyNotificationService {
 	}
 
 	public void notifyAllUsersAboutPolicyAssignmentChange(SiteId siteId) {
-		final PolicyDocument sitePolicy = policyDocumentRepository.findSitePolicy(siteId.id)
+		final PolicyDocument sitePolicy = policyDocumentRepository.findSitePolicy(siteId)
 			.orElseThrow(() -> new IllegalArgumentException("Site hasn't policy document attached."));
 
 		notifyAllSiteUsersAboutPolicyAssignmentChange(siteId, sitePolicy);
@@ -126,15 +127,14 @@ public class PolicyNotificationService {
 		final PolicyDocument servicePolicy = policyDocumentRepository.findById(infraService.policyId)
 			.orElseThrow(() -> new IllegalArgumentException("Service hasn't policy document attached."));
 
-		notifyAllSiteUsersAboutPolicyAssignmentChange(new SiteId(infraService.siteId), servicePolicy);
+		notifyAllSiteUsersAboutPolicyAssignmentChange(infraService.siteId, servicePolicy);
 	}
 
 	private void notifyAllSiteUsersAboutPolicyAssignmentChange(SiteId siteId, PolicyDocument policy) {
 		Stream.concat(
-			userOperationRepository.findAllUserAdditionsBySiteId(siteId.id).stream()
-				.map(addition -> addition.userId)
-				.map(FenixUserId::new),
-			siteGroupDAO.getSiteUsers(siteId.id, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT)).stream()
+			userOperationRepository.findAllUserAdditionsBySiteId(siteId).stream()
+				.map(addition -> addition.userId),
+			siteGroupDAO.getSiteUsers(siteId, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT)).stream()
 				.filter(user -> user.fenixUserId.isPresent())
 				.map(user -> user.fenixUserId.get())
 		)

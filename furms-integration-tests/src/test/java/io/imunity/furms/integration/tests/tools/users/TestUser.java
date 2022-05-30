@@ -10,6 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.key.UserApiKey;
@@ -123,24 +126,24 @@ public class TestUser {
 		return attributes;
 	}
 
-	public void addSiteAdmin(String siteId) {
-		addRole("/fenix/sites/"+siteId+"/users", SITE_ADMIN);
+	public void addSiteAdmin(SiteId siteId) {
+		addRole("/fenix/sites/"+siteId.id+"/users", SITE_ADMIN);
 	}
 
-	public void addSiteSupport(String siteId) {
-		addRole("/fenix/sites/"+siteId+"/users", SITE_SUPPORT);
+	public void addSiteSupport(SiteId siteId) {
+		addRole("/fenix/sites/"+siteId.id+"/users", SITE_SUPPORT);
 	}
 
-	public void addProjectAdmin(String communityId, String projectId) {
-		addRole("/fenix/communities/"+communityId+"/projects/"+projectId+"/users", PROJECT_ADMIN);
+	public void addProjectAdmin(CommunityId communityId, ProjectId projectId) {
+		addRole("/fenix/communities/"+communityId.id+"/projects/"+projectId.id+"/users", PROJECT_ADMIN);
 	}
 
-	public void addProjectUser(String communityId, String projectId) {
-		addRole("/fenix/communities/"+communityId+"/projects/"+projectId+"/users", PROJECT_USER);
+	public void addProjectUser(CommunityId communityId, ProjectId projectId) {
+		addRole("/fenix/communities/"+communityId.id+"/projects/"+projectId.id+"/users", PROJECT_USER);
 	}
 
-	public void addCommunityAdmin(String communityId) {
-		addRole("/fenix/communities/"+communityId+"/users", COMMUNITY_ADMIN);
+	public void addCommunityAdmin(CommunityId communityId) {
+		addRole("/fenix/communities/"+communityId.id+"/users", COMMUNITY_ADMIN);
 	}
 
 	public void addFenixAdminRole() {

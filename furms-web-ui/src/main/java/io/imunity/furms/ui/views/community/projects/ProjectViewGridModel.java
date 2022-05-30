@@ -5,14 +5,16 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
 class ProjectViewGridModel {
 	public final String id;
-	public final String projectId;
-	public final String communityId;
+	public final ProjectId projectId;
+	public final CommunityId communityId;
 	public final String name;
 	public final String siteName;
 	public final String description;
@@ -20,7 +22,7 @@ class ProjectViewGridModel {
 	public final String message;
 	public final boolean expired;
 
-	ProjectViewGridModel(String id, String projectId, String communityId, String name, String siteName,
+	ProjectViewGridModel(String id, ProjectId projectId, CommunityId communityId, String name, String siteName,
 	                     String description, String status, String message, boolean expired) {
 		this.id = id;
 		this.projectId = projectId;
@@ -77,8 +79,8 @@ class ProjectViewGridModel {
 
 	public static final class ProjectViewGridModelBuilder {
 		public String id;
-		public String projectId;
-		public String communityId;
+		public ProjectId projectId;
+		public CommunityId communityId;
 		public String name;
 		public String siteName;
 		public String description;
@@ -94,12 +96,12 @@ class ProjectViewGridModel {
 			return this;
 		}
 
-		public ProjectViewGridModelBuilder projectId(String projectId) {
+		public ProjectViewGridModelBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
-		public ProjectViewGridModelBuilder communityId(String communityId) {
+		public ProjectViewGridModelBuilder communityId(CommunityId communityId) {
 			this.communityId = communityId;
 			return this;
 		}

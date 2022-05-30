@@ -28,6 +28,7 @@ import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationEr
 import io.imunity.furms.api.validation.exceptions.UserWithoutSitesError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperation;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationJob;
 import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
@@ -149,7 +150,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		Icon icon = grid.isDetailsVisible(item) ? ANGLE_DOWN.create() : ANGLE_RIGHT.create();
 		Component routerLink;
 		if (item.sites.stream().filter(s -> s.keyOperationStatus.inProgress()).findAny().isEmpty()) {
-			routerLink = new RouterLink(item.name, SSHKeyFormView.class, item.id);
+			routerLink = new RouterLink(item.name, SSHKeyFormView.class, item.id.id.toString());
 		} else {
 			routerLink = new NoWrapLabel(item.name);
 		}
@@ -179,7 +180,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 		return wrap;
 	}
 
-	private List<SSHKeyOperationJob> getKeyStatus(String sshKey) {
+	private List<SSHKeyOperationJob> getKeyStatus(SSHKeyId sshKey) {
 		try {
 			return sshKeyInstallationService.findBySSHKeyId(sshKey);
 
@@ -220,11 +221,11 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 
 	private Component createContextMenu(SSHKeyViewModel key, Grid<SSHKeyViewModel> grid) {
 		GridActionMenu contextMenu = new GridActionMenu();
-		contextMenu.setId(key.id);
+		contextMenu.setId(key.id.id.toString());
 
 		if (key.sites.stream().filter(s -> s.keyOperationStatus.inProgress()).findAny().isEmpty()) {
 			contextMenu.addItem(new MenuButton(getTranslation("view.sites.main.grid.item.menu.edit"), EDIT),
-					event -> UI.getCurrent().navigate(SSHKeyFormView.class, key.id));
+					event -> UI.getCurrent().navigate(SSHKeyFormView.class, key.id.id.toString()));
 			contextMenu.addItem(
 					new MenuButton(getTranslation("view.user-settings.ssh-keys.grid.menu.delete"),
 							TRASH),

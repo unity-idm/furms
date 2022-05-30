@@ -10,6 +10,8 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyDocumentExtended;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
+import io.imunity.furms.domain.resource_access.GrantId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 
 import java.time.LocalDateTime;
@@ -21,21 +23,21 @@ import java.util.function.BiFunction;
 public interface PolicyDocumentRepository {
 	Optional<PolicyDocument> findById(PolicyId id);
 
-	Optional<PolicyDocument> findByUserGrantId(String userGrantId);
+	Optional<PolicyDocument> findByUserGrantId(GrantId userGrantId);
 
-	Optional<PolicyDocument> findSitePolicy(String siteId);
+	Optional<PolicyDocument> findSitePolicy(SiteId siteId);
 
 	Set<PolicyDocument> findAll();
 
-	Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(String siteId);
+	Map<FenixUserId, Set<PolicyDocument>> findAllUsersPolicies(SiteId siteId);
 
-	Set<FenixUserId> findAllPolicyUsers(String siteId, PolicyId policyId);
+	Set<FenixUserId> findAllPolicyUsers(SiteId siteId, PolicyId policyId);
 
 	Set<PolicyDocumentExtended> findAllByUserId(FenixUserId userId, BiFunction<PolicyId, Integer, LocalDateTime> acceptedGetter);
 
-	Set<PolicyDocument> findAllBySiteId(String siteId);
+	Set<PolicyDocument> findAllBySiteId(SiteId siteId);
 
-	Set<AssignedPolicyDocument> findAllAssignPoliciesBySiteId(String siteId);
+	Set<AssignedPolicyDocument> findAllAssignPoliciesBySiteId(SiteId siteId);
 
 	Set<PolicyDocument> findAllSitePoliciesByUserId(FenixUserId userId);
 
@@ -45,7 +47,7 @@ public interface PolicyDocumentRepository {
 
 	PolicyId update(PolicyDocument policyDocument, boolean revision);
 
-	boolean isNamePresent(String siteId, String name);
+	boolean isNamePresent(SiteId siteId, String name);
 
 	void deleteById(PolicyId id);
 

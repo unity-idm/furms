@@ -5,6 +5,7 @@
 
 package io.imunity.furms.domain.sites;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.user_operation.UserAdditionErrorMessage;
 import io.imunity.furms.domain.user_operation.UserStatus;
 
@@ -12,13 +13,13 @@ import java.util.Objects;
 
 public class UserProjectsInstallationInfoData {
 
-	private final String projectId;
+	private final ProjectId projectId;
 	private final String name;
 	private final String remoteAccountName;
 	private final UserStatus status;
 	private final UserAdditionErrorMessage errorMessage;
 
-	public UserProjectsInstallationInfoData(String projectId,
+	public UserProjectsInstallationInfoData(ProjectId projectId,
 	                                        String name,
 	                                        String remoteAccountName,
 	                                        UserStatus status,
@@ -30,7 +31,7 @@ public class UserProjectsInstallationInfoData {
 		this.errorMessage = errorMessage;
 	}
 
-	public String getProjectId() {
+	public ProjectId getProjectId() {
 		return projectId;
 	}
 
@@ -83,7 +84,7 @@ public class UserProjectsInstallationInfoData {
 	}
 
 	public static final class UserProjectsInstallationInfoDataBuilder {
-		private String projectId;
+		private ProjectId projectId;
 		private String name;
 		private String remoteAccountName;
 		private UserStatus status;
@@ -92,7 +93,7 @@ public class UserProjectsInstallationInfoData {
 		private UserProjectsInstallationInfoDataBuilder() {
 		}
 
-		public UserProjectsInstallationInfoDataBuilder projectId(String projectId) {
+		public UserProjectsInstallationInfoDataBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}

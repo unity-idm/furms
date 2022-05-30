@@ -5,12 +5,16 @@
 
 package io.imunity.furms.core.project_installation;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.mockito.Mockito.verify;
 
@@ -23,25 +27,29 @@ class ProjectInstallationsServiceImplTest {
 
 	@Test
 	void findAllByCommunityId() {
-		service.findAllByCommunityId("id");
-		verify(projectOperationRepository).findAllByCommunityId("id");
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		service.findAllByCommunityId(communityId);
+		verify(projectOperationRepository).findAllByCommunityId(communityId);
 	}
 
 	@Test
 	void findAllUpdatesByCommunityId() {
-		service.findAllUpdatesByCommunityId("id");
-		verify(projectOperationRepository).findAllUpdatesByCommunityId("id");
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		service.findAllUpdatesByCommunityId(communityId);
+		verify(projectOperationRepository).findAllUpdatesByCommunityId(communityId);
 	}
 
 	@Test
 	void findAllByProjectId() {
-		service.findAllByProjectId("id");
-		verify(projectOperationRepository).findAllByProjectId("id");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		service.findAllByProjectId(projectId);
+		verify(projectOperationRepository).findAllByProjectId(projectId);
 	}
 
 	@Test
 	void findAllUpdatesByProjectId() {
-		service.findAllUpdatesByProjectId("id");
-		verify(projectOperationRepository).findAllUpdatesByProjectId("id");
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		service.findAllUpdatesByProjectId(projectId);
+		verify(projectOperationRepository).findAllUpdatesByProjectId(projectId);
 	}
 }

@@ -5,6 +5,8 @@
 
 package io.imunity.furms.core.config.security.method;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
 import org.springframework.stereotype.Service;
 
 import static io.imunity.furms.domain.authz.roles.Capability.*;
@@ -22,16 +24,16 @@ public class ServiceMock{
 	public void findAll() {
 	}
 
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "id")
-	public void getCommunity(String id) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "id.id")
+	public void getCommunity(CommunityId id) {
 	}
 
-	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id")
-	public void getProject(String id) {
+	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "id.id")
+	public void getProject(ProjectId id) {
 	}
 
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "id")
-	public void getLimitedProject(String id) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "id.id")
+	public void getLimitedProject(ProjectId id) {
 	}
 
 	public void findAllWithClassScopeAuthorization() {

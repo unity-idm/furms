@@ -5,17 +5,18 @@
 
 package io.imunity.furms.ui.components.support.models.allocation;
 
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 
 import java.util.Objects;
 
 public class AllocationCommunityComboBoxModel {
-	public final String id;
+	public final CommunityAllocationId id;
 	public final String name;
 	public final boolean split;
 	public final ResourceMeasureUnit unit;
 
-	public AllocationCommunityComboBoxModel(String id, String name, boolean split, ResourceMeasureUnit unit) {
+	public AllocationCommunityComboBoxModel(CommunityAllocationId id, String name, boolean split, ResourceMeasureUnit unit) {
 		this.id = id;
 		this.name = name;
 		this.split = split;

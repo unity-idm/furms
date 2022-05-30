@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client.message_resolvers_conector;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationResult;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationUpdate;
@@ -34,11 +35,11 @@ class ProjectAllocationChunkSiteIdResolversConnector implements SiteIdResolversC
 	public Optional<SiteExternalId> getSiteId(Payload<?> payload) {
 		if(payload.body.getClass().equals(AgentProjectAllocationInstallationResult.class)) {
 			AgentProjectAllocationInstallationResult body = (AgentProjectAllocationInstallationResult) payload.body;
-			return Optional.ofNullable(resolver.getSiteId(body.allocationIdentifier));
+			return Optional.ofNullable(resolver.getSiteId(new ProjectAllocationId(body.allocationIdentifier)));
 		}
 		if(payload.body.getClass().equals(AgentProjectAllocationUpdate.class)) {
 			AgentProjectAllocationUpdate body = (AgentProjectAllocationUpdate) payload.body;
-			return Optional.ofNullable(resolver.getSiteId(body.allocationIdentifier));
+			return Optional.ofNullable(resolver.getSiteId(new ProjectAllocationId(body.allocationIdentifier)));
 		}
 		throw new IllegalStateException("Error - not applicable class was send to process");
 	}

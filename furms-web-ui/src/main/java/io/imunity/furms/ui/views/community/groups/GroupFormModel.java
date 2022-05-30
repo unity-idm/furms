@@ -5,24 +5,25 @@
 
 package io.imunity.furms.ui.views.community.groups;
 
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 
 import java.util.Objects;
 
 class GroupFormModel {
 	public final GenericGroupId id;
-	public final String communityId;
+	public final CommunityId communityId;
 	public String name;
 	public String description;
 
-	GroupFormModel(GenericGroupId id, String communityId, String name, String description) {
+	GroupFormModel(GenericGroupId id, CommunityId communityId, String name, String description) {
 		this.id = id;
 		this.communityId = communityId;
 		this.name = name;
 		this.description = description;
 	}
 
-	GroupFormModel(String communityId) {
+	GroupFormModel(CommunityId communityId) {
 		this.id = GenericGroupId.empty();
 		this.communityId = communityId;
 	}

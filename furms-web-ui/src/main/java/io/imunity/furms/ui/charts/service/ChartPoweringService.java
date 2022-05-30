@@ -10,9 +10,13 @@ import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.resource_usage.ResourceUsageService;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.ui.charts.ChartData;
 import org.springframework.stereotype.Service;
@@ -61,7 +65,7 @@ public class ChartPoweringService {
 		this.communityAllocUsageSeriesGenerator = communityAllocUsageSeriesGenerator;
 	}
 
-	public ChartData getChartDataForProjectAlloc(String projectId, String projectAllocationId) {
+	public ChartData getChartDataForProjectAlloc(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		ProjectAllocationResolved projectAllocation =
 			projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId).get();
 		Set<ProjectAllocationChunk> allChunks = projectAllocationService.findAllChunks(projectId, projectAllocationId);
@@ -94,7 +98,7 @@ public class ChartPoweringService {
 			.build();
 	}
 
-	public ChartData getChartDataForProjectAllocWithUserUsages(String projectId, String projectAllocationId) {
+	public ChartData getChartDataForProjectAllocWithUserUsages(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		ProjectAllocationResolved projectAllocation =
 			projectAllocationService.findByIdValidatingProjectsWithRelatedObjects(projectAllocationId, projectId).get();
 		Optional<AlarmWithUserEmails> alarm = alarmService.find(projectId, projectAllocationId);
@@ -133,7 +137,7 @@ public class ChartPoweringService {
 			.build();
 	}
 
-	public ChartData getChartDataForCommunityAlloc(String communityId, String communityAllocationId) {
+	public ChartData getChartDataForCommunityAlloc(CommunityId communityId, CommunityAllocationId communityAllocationId) {
 		CommunityAllocationResolved communityAllocation =
 			communityAllocationService.findByIdWithRelatedObjects(communityAllocationId).get();
 		Set<ResourceUsage> allResourceUsageHistory =

@@ -13,6 +13,8 @@ import io.imunity.furms.domain.alarms.AlarmUpdatedEvent;
 import io.imunity.furms.domain.alarms.UserActiveAlarm;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_usage.ResourceUsageUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.spi.alarms.AlarmRepository;
@@ -25,7 +27,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
@@ -58,17 +59,19 @@ class FiredAlarmsServiceImpl implements FiredAlarmsService {
 		if(currentUser.fenixUserId.isEmpty())
 			return Set.of();
 		Map<ResourceId, Set<Role>> roles = authzService.getRoles();
-		List<UUID> projectIds = roles.entrySet().stream()
+		List<ProjectId> projectIds = roles.entrySet().stream()
 			.filter(e -> e.getValue().contains(Role.PROJECT_ADMIN))
 			.map(e -> e.getKey().id)
+			.map(ProjectId::new)
 			.collect(toList());
 
 		return alarmRepository.findAll(projectIds, currentUser.fenixUserId.get()).stream()
-			.map(activeAlarm -> new UserActiveAlarm(activeAlarm, currentUser.fenixUserId.get(), roles.get(new ResourceId(activeAlarm.projectId, PROJECT))))
+			.map(activeAlarm -> new UserActiveAlarm(activeAlarm, currentUser.fenixUserId.get(),
+				roles.get(new ResourceId(activeAlarm.projectId.id, PROJECT))))
 			.collect(toSet());
 	}
 
-	boolean isExceedThreshold(String projectAllocationId, int alarmThreshold) {
+	boolean isExceedThreshold(ProjectAllocationId projectAllocationId, int alarmThreshold) {
 		BigDecimal cumulativeConsumption = resourceUsageRepository.findCurrentResourceUsage(projectAllocationId)
 			.map(resourceUsage -> resourceUsage.cumulativeConsumption)
 			.orElse(BigDecimal.ZERO);

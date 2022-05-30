@@ -12,18 +12,17 @@ import java.util.Objects;
 
 public class Site {
 
-	private final String id;
+	private final SiteId id;
 	private final String name;
 	private final String oauthClientId;
 	private final String connectionInfo;
 	private final FurmsImage logo;
 	private final Boolean sshKeyFromOptionMandatory;
-	private final SiteExternalId externalId;
 	private final Integer sshKeyHistoryLength;
 	private final PolicyId policyId;
 
-	private Site(String id, String name, String oauthClientId, String connectionInfo, FurmsImage logo,
-	             Boolean sshKeyFromOptionMandatory, Integer sshKeyHistoryLength, SiteExternalId externalId,
+	private Site(SiteId id, String name, String oauthClientId, String connectionInfo, FurmsImage logo,
+	             Boolean sshKeyFromOptionMandatory, Integer sshKeyHistoryLength,
 	             PolicyId policyId) {
 		this.id = id;
 		this.name = name;
@@ -32,11 +31,10 @@ public class Site {
 		this.logo = logo;
 		this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 		this.sshKeyHistoryLength = sshKeyHistoryLength;
-		this.externalId = externalId;
 		this.policyId = policyId;
 	}
 
-	public String getId() {
+	public SiteId getId() {
 		return id;
 	}
 
@@ -62,7 +60,7 @@ public class Site {
 	}
 
 	public SiteExternalId getExternalId() {
-		return externalId;
+		return id.externalId;
 	}
 	
 	public Integer getSshKeyHistoryLength() {
@@ -93,13 +91,12 @@ public class Site {
 				Objects.equals(logo, site.logo) &&
 				Objects.equals(sshKeyFromOptionMandatory, site.sshKeyFromOptionMandatory) &&
 				Objects.equals(sshKeyHistoryLength, site.sshKeyHistoryLength) &&
-				Objects.equals(externalId, site.externalId) &&
 				Objects.equals(policyId, site.policyId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, name, oauthClientId, connectionInfo, logo, sshKeyFromOptionMandatory, externalId,
+		return Objects.hash(id, name, oauthClientId, connectionInfo, logo, sshKeyFromOptionMandatory,
 				sshKeyHistoryLength, policyId);
 	}
 
@@ -111,27 +108,25 @@ public class Site {
 				", oauthClientId='" + oauthClientId + '\'' +
 				", connectionInfo='" + connectionInfo + '\'' +
 				", sshKeyFromOptionMandatory=" + sshKeyFromOptionMandatory +
-				", externalId=" + externalId +
 				", sshKeyHistoryLength=" + sshKeyHistoryLength +
 				", policyId=" + policyId +
 				'}';
 	}
 
 	public static class SiteBuilder {
-		private String id;
+		private SiteId id;
 		private String name;
 		private String oauthClientId;
 		private String connectionInfo;
 		private FurmsImage logo;
 		private Boolean sshKeyFromOptionMandatory;
-		private SiteExternalId externalId;
 		private Integer sshKeyHistoryLength;
 		private PolicyId policyId = PolicyId.empty();
 
 		private SiteBuilder() {
 		}
 
-		public SiteBuilder id(String id) {
+		public SiteBuilder id(SiteId id) {
 			this.id = id;
 			return this;
 		}
@@ -165,11 +160,6 @@ public class Site {
 			this.sshKeyFromOptionMandatory = sshKeyFromOptionMandatory;
 			return this;
 		}
-
-		public SiteBuilder externalId(SiteExternalId externalId) {
-			this.externalId = externalId;
-			return this;
-		}
 		
 		public SiteBuilder sshKeyHistoryLength(Integer sshKeyHistoryLength) {
 			this.sshKeyHistoryLength = sshKeyHistoryLength;
@@ -178,7 +168,7 @@ public class Site {
 
 		public Site build() {
 			return new Site(id, name, oauthClientId, connectionInfo, logo, sshKeyFromOptionMandatory,
-					sshKeyHistoryLength, externalId, policyId);
+					sshKeyHistoryLength, policyId);
 		}
 
 	}

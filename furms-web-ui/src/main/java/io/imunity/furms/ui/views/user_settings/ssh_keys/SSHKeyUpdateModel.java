@@ -5,22 +5,23 @@
 
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
+import com.google.common.collect.Sets;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
+import io.imunity.furms.domain.users.PersistentId;
+
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
-
-import io.imunity.furms.domain.users.PersistentId;
-
 class SSHKeyUpdateModel {
 
-	public final String id;
+	public final SSHKeyId id;
 	public final PersistentId ownerId;
 	public final ZonedDateTime createTime;
 
-	private Set<String> sites;
+	private Set<SiteId> sites;
 	private String name;
 	private String value;
 	private ZonedDateTime updateTime;
@@ -32,7 +33,7 @@ class SSHKeyUpdateModel {
 		this.sites = Collections.emptySet();
 	}
 
-	SSHKeyUpdateModel(String id, PersistentId ownerId, String name, Set<String> sites, String value,
+	SSHKeyUpdateModel(SSHKeyId id, PersistentId ownerId, String name, Set<SiteId> sites, String value,
 			ZonedDateTime createTime, ZonedDateTime updateTime) {
 
 		this.id = id;
@@ -44,11 +45,11 @@ class SSHKeyUpdateModel {
 		this.updateTime = updateTime;
 	}
 
-	public Set<String> getSites() {
+	public Set<SiteId> getSites() {
 		return sites;
 	}
 
-	public void setSites(Set<String> sites) {
+	public void setSites(Set<SiteId> sites) {
 		this.sites = sites;
 	}
 
@@ -101,10 +102,10 @@ class SSHKeyUpdateModel {
 	}
 
 	public static final class Builder {
-		private String id;
+		private SSHKeyId id;
 		private PersistentId ownerId;
 		private ZonedDateTime createTime;
-		private Set<String> sites = Collections.emptySet();
+		private Set<SiteId> sites = Collections.emptySet();
 		private String name;
 		private String value;
 		private ZonedDateTime updateTime;
@@ -112,7 +113,7 @@ class SSHKeyUpdateModel {
 		private Builder() {
 		}
 
-		public Builder id(String id) {
+		public Builder id(SSHKeyId id) {
 			this.id = id;
 			return this;
 		}
@@ -127,7 +128,7 @@ class SSHKeyUpdateModel {
 			return this;
 		}
 
-		public Builder sites(Set<String> sites) {
+		public Builder sites(Set<SiteId> sites) {
 			this.sites = sites == null ? Sets.newHashSet() : sites;
 			return this;
 		}

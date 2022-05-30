@@ -8,9 +8,12 @@ package io.imunity.furms.core.alarms;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.alarms.AlarmWithUserIds;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.notification.UserAlarmListChangedEvent;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -40,6 +43,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -92,9 +96,9 @@ class AlarmNotificationServiceTest {
 
 	@Test
 	void shouldNotifyUsers() {
-		String communityId = "communityId";
-		String projectId = "projectId";
-		String projectAllocationId = "projectAllocationId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
 		FenixUserId fenixUserId1 = new FenixUserId("fenixUserId1");
 		FenixUserId fenixUserId2 = new FenixUserId("fenixUserId2");
@@ -183,9 +187,9 @@ class AlarmNotificationServiceTest {
 
 	@Test
 	void shouldCleanNotification(){
-		String communityId = "communityId";
-		String projectId = "projectId";
-		String projectAllocationId = "projectAllocationId";
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
 		FenixUserId fenixUserId1 = new FenixUserId("fenixUserId1");
 		FenixUserId fenixUserId2 = new FenixUserId("fenixUserId2");

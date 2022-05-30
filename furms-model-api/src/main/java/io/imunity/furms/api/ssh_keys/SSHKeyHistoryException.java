@@ -5,11 +5,13 @@
 
 package io.imunity.furms.api.ssh_keys;
 
+import io.imunity.furms.domain.sites.SiteId;
+
 public class SSHKeyHistoryException extends RuntimeException {
 
-	public final String siteId;
+	public final SiteId siteId;
 	
-	public SSHKeyHistoryException(String error, String siteId) {
+	public SSHKeyHistoryException(String error, SiteId siteId) {
 		super(error);
 		this.siteId = siteId;
 	}

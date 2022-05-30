@@ -8,12 +8,16 @@ package io.imunity.furms.db.resource_credits;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -53,10 +57,10 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private ResourceCreditEntityRepository entityRepository;
 
-	private UUID siteId;
+	private SiteId siteId;
 
-	private UUID resourceTypeId;
-	private UUID resourceTypeId2;
+	private ResourceTypeId resourceTypeId;
+	private ResourceTypeId resourceTypeId2;
 
 	private final LocalDateTime startTime = LocalDateTime.of(2020, 5, 20, 5, 12, 16);
 	private final LocalDateTime endTime = LocalDateTime.of(2021, 6, 21, 4, 18, 4);
@@ -73,47 +77,47 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		Site site1 = Site.builder()
 			.name("name2")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
-		UUID siteId2 = UUID.fromString(siteRepository.create(site1, new SiteExternalId("id2")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
+		SiteId siteId2 = siteRepository.create(site1, new SiteExternalId("id2"));
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 		InfraService service1 = InfraService.builder()
-			.siteId(siteId2.toString())
+			.siteId(siteId2)
 			.name("name1")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
-		UUID serviceId2 = UUID.fromString(infraServiceRepository.create(service1));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
+		InfraServiceId serviceId2 = infraServiceRepository.create(service1);
 
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.TERA)
 			.build();
 		ResourceType resourceType2 = ResourceType.builder()
-			.siteId(siteId2.toString())
-			.serviceId(serviceId2.toString())
+			.siteId(siteId2)
+			.serviceId(serviceId2)
 			.name("name2")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.MB)
 			.build();
 
-		resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
-		resourceTypeId2 = UUID.fromString(resourceTypeRepository.create(resourceType2));
+		resourceTypeId = resourceTypeRepository.create(resourceType);
+		resourceTypeId2 = resourceTypeRepository.create(resourceType2);
 	}
 
 	@Test
 	void shouldFindCreatedService() {
 		//given
 		ResourceCreditEntity entity = entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -124,12 +128,12 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Optional<ResourceCredit> byId = repository.findById(entity.getId().toString());
+		Optional<ResourceCredit> byId = repository.findById(new ResourceCreditId(entity.getId()));
 
 		//then
 		assertThat(byId).isPresent();
 		ResourceCredit project = byId.get();
-		assertThat(project.id).isEqualTo(entity.getId().toString());
+		assertThat(project.id.id).isEqualTo(entity.getId());
 		assertThat(project.name).isEqualTo(entity.name);
 		assertThat(byId.get().splittable).isEqualTo(true);
 		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
@@ -141,10 +145,10 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldNotFindByIdIfDoesntExist() {
 		//given
-		UUID wrongId = generateId();
+		ResourceCreditId wrongId = new ResourceCreditId(generateId());
 		entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -155,7 +159,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Optional<ResourceCredit> byId = repository.findById(wrongId.toString());
+		Optional<ResourceCredit> byId = repository.findById(wrongId);
 
 		//then
 		assertThat(byId).isEmpty();
@@ -165,8 +169,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllResourceCredits() {
 		//given
 		entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -176,8 +180,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.build()
 		);
 		entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name2")
 			.split(false)
 			.amount(new BigDecimal(455))
@@ -188,7 +192,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when
-		Set<ResourceCredit> all = repository.findAll(siteId.toString());
+		Set<ResourceCredit> all = repository.findAll(siteId);
 
 		//then
 		assertThat(all).hasSize(2);
@@ -198,8 +202,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldFindAllResourceCreditsByNameAndExpired() {
 		//given
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("test")
 				.split(true)
 				.amount(new BigDecimal(100))
@@ -208,8 +212,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.endTime(LocalDateTime.now().plusDays(1))
 				.build());
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("testAsPreffix")
 				.split(false)
 				.amount(new BigDecimal(455))
@@ -218,8 +222,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.endTime(LocalDateTime.now().plusDays(1))
 				.build());
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("insideTextTestIs")
 				.split(false)
 				.amount(new BigDecimal(455))
@@ -240,8 +244,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		final LocalDateTime utcNow = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("not-expired-1")
 				.split(true)
 				.amount(new BigDecimal(100))
@@ -250,8 +254,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.endTime(utcNow.plusDays(1))
 				.build());
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("not-expired-2")
 				.split(false)
 				.amount(new BigDecimal(455))
@@ -260,8 +264,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.endTime(utcNow.plusDays(1))
 				.build());
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("expired-1")
 				.split(false)
 				.amount(new BigDecimal(455))
@@ -271,7 +275,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.build());
 
 		//when
-		Set<ResourceCredit> all = repository.findAllNotExpiredByResourceTypeId(resourceTypeId.toString());
+		Set<ResourceCredit> all = repository.findAllNotExpiredByResourceTypeId(resourceTypeId);
 
 		//then
 		assertThat(all).hasSize(2);
@@ -283,8 +287,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		//given
 		final LocalDateTime utcNow = LocalDateTime.ofInstant(Instant.now(), ZoneOffset.UTC);
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("test")
 				.split(true)
 				.amount(new BigDecimal(100))
@@ -293,8 +297,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.endTime(utcNow.plusDays(1))
 				.build());
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("testAsPreffix")
 				.split(false)
 				.amount(new BigDecimal(455))
@@ -303,8 +307,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 				.endTime(utcNow.plusDays(1))
 				.build());
 		entityRepository.save(ResourceCreditEntity.builder()
-				.siteId(siteId)
-				.resourceTypeId(resourceTypeId)
+				.siteId(siteId.id)
+				.resourceTypeId(resourceTypeId.id)
 				.name("expiredButWithtest")
 				.split(false)
 				.amount(new BigDecimal(455))
@@ -325,8 +329,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldCreateResourceCredit() {
 		//given
 		ResourceCredit request = ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
@@ -336,7 +340,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		//when
-		String newResourceCreditId = repository.create(request);
+		ResourceCreditId newResourceCreditId = repository.create(request);
 
 		//then
 		Optional<ResourceCredit> byId = repository.findById(newResourceCreditId);
@@ -354,8 +358,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateResourceCredit() {
 		//given
 		ResourceCreditEntity old = entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("name")
 			.split(true)
 			.amount(new BigDecimal(100))
@@ -366,8 +370,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 		ResourceCredit requestToUpdate = ResourceCredit.builder()
 			.id(old.getId().toString())
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("new_name")
 			.splittable(true)
 			.amount(new BigDecimal(434))
@@ -380,7 +384,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		repository.update(requestToUpdate);
 
 		//then
-		Optional<ResourceCredit> byId = repository.findById(old.getId().toString());
+		Optional<ResourceCredit> byId = repository.findById(new ResourceCreditId(old.getId()));
 		assertThat(byId).isPresent();
 		assertThat(byId.get().name).isEqualTo("new_name");
 		assertThat(byId.get().splittable).isEqualTo(true);
@@ -394,8 +398,8 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 	void savedResourceCreditExists() {
 		//given
 		ResourceCreditEntity entity = entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("new_name")
 			.split(true)
 			.amount(new BigDecimal(434))
@@ -406,26 +410,26 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when + then
-		assertThat(repository.exists(entity.getId().toString())).isTrue();
+		assertThat(repository.exists(new ResourceCreditId(entity.getId()))).isTrue();
 	}
 
 	@Test
 	void shouldNotExistsDueToEmptyOrWrongId() {
 		//given
-		String nonExistedId = generateId().toString();
+		ResourceCreditId nonExistedId = new ResourceCreditId(generateId());
 
 		//when + then
 		assertThat(repository.exists(nonExistedId)).isFalse();
 		assertThat(repository.exists(null)).isFalse();
-		assertThat(repository.exists("")).isFalse();
+		assertThat(repository.exists(new ResourceCreditId((UUID) null))).isFalse();
 	}
 
 	@Test
 	void shouldReturnFalseForUniqueName() {
 		//given
 		entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("new_name")
 			.split(true)
 			.amount(new BigDecimal(434))
@@ -437,15 +441,15 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		String uniqueName = "unique_name";
 
 		//when + then
-		assertThat(repository.isNamePresent(uniqueName, siteId.toString())).isFalse();
+		assertThat(repository.isNamePresent(uniqueName, siteId)).isFalse();
 	}
 
 	@Test
 	void shouldReturnTrueForPresentNameInOtherSite() {
 		//given
 		entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("new_name")
 			.split(true)
 			.amount(new BigDecimal(434))
@@ -456,15 +460,15 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		);
 
 		//when + then
-		assertThat(repository.isNamePresent("new_name", UUID.randomUUID().toString())).isFalse();
+		assertThat(repository.isNamePresent("new_name", new SiteId(UUID.randomUUID()))).isFalse();
 	}
 	
 	@Test
 	void shouldReturnTrueForPresentName() {
 		//given
 		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("new_name")
 			.split(true)
 			.amount(new BigDecimal(434))
@@ -474,15 +478,15 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.isNamePresent(existedResourceCredit.name, siteId.toString())).isTrue();
+		assertThat(repository.isNamePresent(existedResourceCredit.name, siteId)).isTrue();
 	}
 
 	@Test
 	void shouldReturnTrueForExistingResourceTypeId() {
 		//given
 		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("new_name")
 			.split(true)
 			.amount(new BigDecimal(434))
@@ -492,15 +496,15 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.existsByResourceTypeId(existedResourceCredit.resourceTypeId.toString())).isTrue();
+		assertThat(repository.existsByResourceTypeId(new ResourceTypeId(existedResourceCredit.resourceTypeId))).isTrue();
 	}
 
 	@Test
 	void shouldReturnTrueForExistingInResourceTypeId() {
 		//given
 		ResourceCreditEntity existedResourceCredit = entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("new_name")
 			.split(true)
 			.amount(new BigDecimal(434))
@@ -510,15 +514,15 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.existsByResourceTypeIdIn(List.of(existedResourceCredit.resourceTypeId.toString()))).isTrue();
+		assertThat(repository.existsByResourceTypeIdIn(List.of(new ResourceTypeId(existedResourceCredit.resourceTypeId)))).isTrue();
 	}
 
 	@Test
 	void shouldReturnFalseForNonExistingResourceTypeId() {
 		//given
 		entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("new_name")
 			.split(true)
 			.amount(new BigDecimal(434))
@@ -528,15 +532,15 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.existsByResourceTypeId(resourceTypeId2.toString())).isFalse();
+		assertThat(repository.existsByResourceTypeId(resourceTypeId2)).isFalse();
 	}
 
 	@Test
 	void shouldReturnFalseForNonExistingInResourceTypeId() {
 		//given
 		entityRepository.save(ResourceCreditEntity.builder()
-			.siteId(siteId)
-			.resourceTypeId(resourceTypeId)
+			.siteId(siteId.id)
+			.resourceTypeId(resourceTypeId.id)
 			.name("new_name")
 			.split(true)
 			.amount(new BigDecimal(434))
@@ -546,6 +550,6 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 			.build());
 
 		//when + then
-		assertThat(repository.existsByResourceTypeIdIn(List.of(resourceTypeId2.toString()))).isFalse();
+		assertThat(repository.existsByResourceTypeIdIn(List.of(resourceTypeId2))).isFalse();
 	}
 }

@@ -15,8 +15,10 @@ import io.imunity.furms.rabbitmq.site.models.PolicyAcceptance;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static java.util.Comparator.comparing;
+import static java.util.Optional.*;
 import static java.util.function.BinaryOperator.maxBy;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -30,7 +32,8 @@ class PolicyAcceptancesMapper {
 			.collect(groupingBy(x -> x.id));
 
 		Optional<AssignedPolicyDocument> sitePolicyDocument = userPolicyAcceptances.sitePolicy
-			.map(policyDocument -> new AssignedPolicyDocument(policyDocument.id, null, policyDocument.name, policyDocument.revision));
+			.map(policyDocument -> new AssignedPolicyDocument(policyDocument.id, empty(), policyDocument.name,
+				policyDocument.revision));
 		return userPolicyAcceptances.policyAcceptances.stream()
 			.collect(
 				toMap(
@@ -46,7 +49,7 @@ class PolicyAcceptancesMapper {
 					.policyIdentifier(policyAcceptance.policyDocumentId.id.toString())
 					.currentVersion(servicePolicyDocument.revision)
 					.processedVersion(policyAcceptance.policyDocumentRevision)
-					.serviceIdentifier(servicePolicyDocument.serviceId)
+					.serviceIdentifier(servicePolicyDocument.serviceId.flatMap(infraServiceId -> ofNullable(infraServiceId.id)).map(UUID::toString).orElse(null))
 					.acceptanceStatus(getAcceptanceStatus(policyAcceptance.acceptanceStatus))
 					.build())
 			)

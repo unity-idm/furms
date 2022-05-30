@@ -8,12 +8,15 @@ package io.imunity.furms.core.invitations;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationAcceptedEvent;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -157,7 +160,7 @@ class InviteeServiceImplTest {
 
 		invitationService.acceptBy(invitationId);
 
-		orderVerifier.verify(siteGroupDAO).addSiteUser(resourceId.id.toString(), persistentId, Role.SITE_ADMIN);
+		orderVerifier.verify(siteGroupDAO).addSiteUser(new SiteId(resourceId.id), persistentId, Role.SITE_ADMIN);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
@@ -198,7 +201,7 @@ class InviteeServiceImplTest {
 
 		invitationService.acceptBy(invitationId);
 
-		orderVerifier.verify(communityGroupsDAO).addAdmin(resourceId.id.toString(), persistentId);
+		orderVerifier.verify(communityGroupsDAO).addAdmin(new CommunityId(resourceId.id), persistentId);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.COMMUNITY_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
@@ -207,9 +210,11 @@ class InviteeServiceImplTest {
 
 	@Test
 	void shouldAcceptInvitationForProjectLevel() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), PROJECT);
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ResourceId resourceId = new ResourceId(projectId.id, PROJECT);
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
 			.resourceId(resourceId)
@@ -237,13 +242,14 @@ class InviteeServiceImplTest {
 		when(usersDAO.getAllUsers()).thenReturn(List.of(user, originatorUser));
 		when(authzService.getCurrentAuthNUser()).thenReturn(user);
 		when(invitationRepository.findBy(invitationId)).thenReturn(Optional.of(invitation));
-		when(projectRepository.findById(resourceId.id.toString())).thenReturn(Optional.of(Project.builder()
-			.communityId("communityId")
+		when(projectRepository.findById(projectId)).thenReturn(Optional.of(Project.builder()
+			.id(projectId)
+			.communityId(communityId)
 			.build()));
 
 		invitationService.acceptBy(invitationId);
 
-		orderVerifier.verify(projectGroupsDAO).addProjectUser("communityId", resourceId.id.toString(), persistentId, Role.PROJECT_ADMIN);
+		orderVerifier.verify(projectGroupsDAO).addProjectUser(communityId, projectId, persistentId, Role.PROJECT_ADMIN);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.PROJECT_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));

@@ -7,28 +7,31 @@ package io.imunity.furms.spi.resource_type;
 
 
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Optional;
 import java.util.Set;
 
 public interface ResourceTypeRepository {
-	Optional<ResourceType> findById(String id);
+	Optional<ResourceType> findById(ResourceTypeId id);
 
-	Set<ResourceType> findAllBySiteId(String siteId);
+	Set<ResourceType> findAllBySiteId(SiteId siteId);
 
-	Set<ResourceType> findAllByInfraServiceId(String serviceId);
+	Set<ResourceType> findAllByInfraServiceId(InfraServiceId serviceId);
 
 	Set<ResourceType> findAll();
 
-	String create(ResourceType resourceType);
+	ResourceTypeId create(ResourceType resourceType);
 
 	void update(ResourceType resourceType);
 
-	boolean exists(String id);
+	boolean exists(ResourceTypeId id);
 
-	boolean isNamePresent(String name, String siteId);
+	boolean isNamePresent(String name, SiteId siteId);
 
-	void delete(String id);
+	void delete(ResourceTypeId id);
 
 	void deleteAll();
 }

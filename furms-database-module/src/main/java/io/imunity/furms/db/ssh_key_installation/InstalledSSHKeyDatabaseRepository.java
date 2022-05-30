@@ -5,12 +5,14 @@
 
 package io.imunity.furms.db.ssh_key_installation;
 
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.InstalledSSHKey;
+import io.imunity.furms.domain.ssh_keys.InstalledSSHKeyId;
+import io.imunity.furms.domain.ssh_keys.SSHKeyId;
 import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.stream.StreamSupport.stream;
@@ -32,26 +34,26 @@ class InstalledSSHKeyDatabaseRepository implements InstalledSSHKeyRepository {
 	}
 
 	@Override
-	public String create(InstalledSSHKey installedSSHKey) {
+	public InstalledSSHKeyId create(InstalledSSHKey installedSSHKey) {
 		InstalledSSHKeyEntity installedSSHKeyEntity = InstalledSSHKeyEntity.builder()
-				.siteId(UUID.fromString(installedSSHKey.siteId))
-				.sshkeyId(UUID.fromString(installedSSHKey.sshkeyId)).value(installedSSHKey.value)
+				.siteId(installedSSHKey.siteId.id)
+				.sshkeyId(installedSSHKey.sshkeyId.id).value(installedSSHKey.value)
 				.build();
 		InstalledSSHKeyEntity saved = repository.save(installedSSHKeyEntity);
-		return saved.getId().toString();
+		return new InstalledSSHKeyId(saved.getId());
 	}
 
 	@Override
-	public void update(String siteId, String keyId, String value) {
-		repository.findBySshkeyIdAndSiteId(UUID.fromString(keyId), UUID.fromString(siteId))
+	public void update(SiteId siteId, SSHKeyId keyId, String value) {
+		repository.findBySshkeyIdAndSiteId(keyId.id, siteId.id)
 				.map(entity -> InstalledSSHKeyEntity.builder().id(entity.getId()).siteId(entity.siteId)
 						.sshkeyId(entity.sshkeyId).value(value).build())
 				.ifPresent(repository::save);
 	}
 
 	@Override
-	public void delete(String id) {
-		repository.deleteById(UUID.fromString(id));
+	public void delete(InstalledSSHKeyId id) {
+		repository.deleteById(id.id);
 	}
 
 	@Override
@@ -60,20 +62,20 @@ class InstalledSSHKeyDatabaseRepository implements InstalledSSHKeyRepository {
 	}
 
 	@Override
-	public void deleteBySSHKeyIdAndSiteId(String sshkeyId, String siteId) {
-		repository.deleteBySshkeyIdAndSiteId(UUID.fromString(sshkeyId), UUID.fromString(siteId));
+	public void deleteBySSHKeyIdAndSiteId(SSHKeyId sshkeyId, SiteId siteId) {
+		repository.deleteBySshkeyIdAndSiteId(sshkeyId.id, siteId.id);
 
 	}
 	
 	@Override
-	public void deleteBySSHKey(String sshkeyId) {
-		repository.deleteBySshkeyId(UUID.fromString(sshkeyId));
+	public void deleteBySSHKey(SSHKeyId sshkeyId) {
+		repository.deleteBySshkeyId(sshkeyId.id);
 
 	}
 
 	@Override
-	public List<InstalledSSHKey> findBySSHKeyId(String sshkeyId) {
-		return repository.findBySshkeyId(UUID.fromString(sshkeyId)).stream()
+	public List<InstalledSSHKey> findBySSHKeyId(SSHKeyId sshkeyId) {
+		return repository.findBySshkeyId(sshkeyId.id).stream()
 				.map(entity -> InstalledSSHKey.builder().id(entity.getId().toString())
 						.siteId(entity.siteId.toString()).sshkeyId(entity.sshkeyId.toString())
 						.value(entity.value).build())

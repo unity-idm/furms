@@ -6,6 +6,7 @@
 package io.imunity.furms.core.project_allocation_installation;
 
 import io.imunity.furms.core.post_commit.PostCommitRunner;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
@@ -13,7 +14,9 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocation;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
@@ -47,24 +50,24 @@ public class ProjectAllocationInstallationService {
 		this.postCommitRunner = postCommitRunner;
 	}
 
-	public Set<ProjectAllocationInstallation> findAll(String projectId) {
+	public Set<ProjectAllocationInstallation> findAll(ProjectId projectId) {
 		return projectAllocationInstallationRepository.findAll(projectId);
 	}
 
-	public Set<ProjectDeallocation> findAllUninstallation(String projectId) {
+	public Set<ProjectDeallocation> findAllUninstallation(ProjectId projectId) {
 		return projectAllocationInstallationRepository.findAllDeallocation(projectId);
 	}
 
-	public Set<ProjectAllocationChunk> findAllChunks(String projectId) {
+	public Set<ProjectAllocationChunk> findAllChunks(ProjectId projectId) {
 		return projectAllocationInstallationRepository.findAllChunks(projectId);
 	}
 
-	public Set<ProjectAllocationChunk> findAllChunksByAllocationId(String projectAllocationId) {
+	public Set<ProjectAllocationChunk> findAllChunksByAllocationId(ProjectAllocationId projectAllocationId) {
 		return projectAllocationInstallationRepository.findAllChunksByAllocationId(projectAllocationId);
 	}
 
 	@Transactional
-	public void createAllocation(String projectAllocationId) {
+	public void createAllocation(ProjectAllocationId projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
 		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
@@ -79,7 +82,7 @@ public class ProjectAllocationInstallationService {
 	}
 
 	@Transactional
-	public void updateAndStartAllocation(String projectAllocationId) {
+	public void updateAndStartAllocation(ProjectAllocationId projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		projectAllocationInstallationRepository.update(projectAllocationId, ProjectAllocationInstallationStatus.UPDATING, correlationId);
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
@@ -91,7 +94,7 @@ public class ProjectAllocationInstallationService {
 	}
 
 	@Transactional
-	public void createAndStartAllocation(String projectAllocationId) {
+	public void createAndStartAllocation(ProjectAllocationId projectAllocationId) {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
 		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
@@ -108,9 +111,9 @@ public class ProjectAllocationInstallationService {
 	}
 
 	@Transactional
-	public void startWaitingAllocations(String projectId, String siteId) {
+	public void startWaitingAllocations(ProjectId projectId, SiteId siteId) {
 		projectAllocationInstallationRepository.findAll(projectId, siteId).forEach(allocation -> {
-			projectAllocationInstallationRepository.update(allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
+			projectAllocationInstallationRepository.update(allocation.correlationId, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId)
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation Id doesn't exist"));
 			postCommitRunner.runAfterCommit(() ->
@@ -122,10 +125,10 @@ public class ProjectAllocationInstallationService {
 	}
 
 	@Transactional
-	public void cancelWaitingAllocations(String projectId, ErrorMessage errorMessage) {
+	public void cancelWaitingAllocations(ProjectId projectId, ErrorMessage errorMessage) {
 		projectAllocationInstallationRepository.findAll(projectId).forEach(allocation -> {
 			projectAllocationInstallationRepository.update(
-				allocation.correlationId.id,
+				allocation.correlationId,
 				PROJECT_INSTALLATION_FAILED,
 				Optional.of(errorMessage)
 			);

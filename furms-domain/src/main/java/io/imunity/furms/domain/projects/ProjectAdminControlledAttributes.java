@@ -5,24 +5,24 @@
 
 package io.imunity.furms.domain.projects;
 
-import java.util.Objects;
-
 import io.imunity.furms.domain.images.FurmsImage;
 
+import java.util.Objects;
+
 public class ProjectAdminControlledAttributes {
-	private final String id;
+	private final ProjectId id;
 	private final String description;
 	private final String researchField;
 	private final FurmsImage logo;
 
-	public ProjectAdminControlledAttributes(String id, String description, String researchField, FurmsImage logo) {
+	public ProjectAdminControlledAttributes(ProjectId id, String description, String researchField, FurmsImage logo) {
 		this.id = id;
 		this.description = description;
 		this.researchField = researchField;
 		this.logo = logo;
 	}
 
-	public String getId() {
+	public ProjectId getId() {
 		return id;
 	}
 

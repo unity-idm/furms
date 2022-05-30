@@ -18,6 +18,7 @@ import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsLandingViewComponent;
@@ -72,7 +73,7 @@ public class UsersView extends FurmsLandingViewComponent {
 	}
 
 	private void loadPageContent() {
-		String projectId = getCurrentResourceId();
+		ProjectId projectId = new ProjectId(getCurrentResourceId());
 		project = projectService.findById(projectId)
 				.orElseThrow(() -> new IllegalStateException("Project not found: " + getCurrentResourceId()));
 		currentUserId = authzService.getCurrentUserId();
@@ -171,7 +172,7 @@ public class UsersView extends FurmsLandingViewComponent {
 		getContent().add(headerLayout, inviteUser, grid);
 	}
 
-	private void doInviteAction(InviteUserComponent inviteUserComponent, String projectId) {
+	private void doInviteAction(InviteUserComponent inviteUserComponent, ProjectId projectId) {
 		try {
 			inviteUserComponent.getUserId().ifPresentOrElse(
 				id -> projectService.inviteUser(projectId, id),

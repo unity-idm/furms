@@ -31,7 +31,7 @@ public class SiteAgentSetUserAccountStatusRequest {
 	}
 
 	public SiteAgentSetUserAccountStatusRequest(UserAddition userAddition, UserStatus status, UserAccountStatusUpdateReason reason) {
-		this(userAddition.siteId.externalId, CorrelationId.randomID(), new FenixUserId(userAddition.userId),
+		this(userAddition.siteId.externalId, CorrelationId.randomID(), userAddition.userId,
 				status, reason);
 	}
 

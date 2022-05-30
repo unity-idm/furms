@@ -22,7 +22,7 @@ public class SiteUserJson {
 	public final Set<String> sshKeys;
 
 	public SiteUserJson(SiteUser siteUser) {
-		this.siteId = siteUser.siteId;
+		this.siteId = siteUser.siteId.id.toString();
 		this.siteOauthClientId = siteUser.siteOauthClientId;
 		this.projectMemberships = siteUser.projectMemberships.stream()
 				.map(ProjectMembershipOnSiteJson::new)

@@ -20,7 +20,10 @@ import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.api.resource_types.ResourceTypeService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationModelsMapper;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationViewModel;
@@ -49,7 +52,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 	private final CommunityAllocationFormComponent communityAllocationFormComponent;
 	private final CommunityAllocationService communityAllocationService;
 	private final CommunityService communityService;
-	private String communityId;
+	private CommunityId communityId;
 	private BreadCrumbParameter breadCrumbParameter;
 
 	CommunityAllocationFormView(SiteService siteService, 
@@ -76,7 +79,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		getContent().add(communityAllocationFormComponent, buttons);
 	}
 
-	private BigDecimal getAvailableAmount(String resourceCreditId) {
+	private BigDecimal getAvailableAmount(ResourceCreditId resourceCreditId) {
 		CommunityAllocationViewModel allocationViewModel = binder.getBean();
 		return allocationViewModel.getId() == null ? 
 				communityAllocationService.getAvailableAmountForNew(resourceCreditId) :
@@ -89,7 +92,7 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 		Button closeButton = new Button(getTranslation("view.fenix-admin.resource-credits-allocation.form.button.cancel"));
 		closeButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		closeButton.addClickShortcut(Key.ESCAPE);
-		closeButton.addClickListener(x -> UI.getCurrent().navigate(CommunityView.class, communityId));
+		closeButton.addClickListener(x -> UI.getCurrent().navigate(CommunityView.class, communityId.id.toString()));
 		return closeButton;
 	}
 
@@ -125,22 +128,22 @@ class CommunityAllocationFormView extends FurmsViewComponent {
 				else
 					showErrorNotification(getTranslation(throwable.getMessage()));
 			},
-			() -> UI.getCurrent().navigate(CommunityView.class, communityId)
+			() -> UI.getCurrent().navigate(CommunityView.class, communityId.id.toString())
 		);
 	}
 
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
 		CommunityAllocationViewModel serviceViewModel = ofNullable(parameter)
-			.flatMap(id -> handleExceptions(() -> communityAllocationService.findByIdWithRelatedObjects(id)))
+			.flatMap(id -> handleExceptions(() -> communityAllocationService.findByIdWithRelatedObjects(new CommunityAllocationId(id))))
 			.flatMap(Function.identity())
 			.map(CommunityAllocationModelsMapper::map)
 			.orElseGet(() -> {
-				String communityId = event.getLocation()
+				CommunityId communityId = new CommunityId(event.getLocation()
 					.getQueryParameters()
 					.getParameters()
 					.get("communityId")
-					.iterator().next();
+					.iterator().next());
 				return new CommunityAllocationViewModel(communityId, communityService.findById(communityId).get().getName());
 			});
 

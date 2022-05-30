@@ -5,10 +5,12 @@
 
 package io.imunity.furms.domain.generic_groups;
 
+import io.imunity.furms.domain.Id;
+
 import java.util.Objects;
 import java.util.UUID;
 
-public class GenericGroupId {
+public class GenericGroupId implements Id {
 	public final UUID id;
 
 	public GenericGroupId(UUID id) {
@@ -41,5 +43,10 @@ public class GenericGroupId {
 		return "GenericGroupId{" +
 			"id=" + id +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

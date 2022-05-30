@@ -7,6 +7,7 @@ package io.imunity.furms.core.applications;
 
 import io.imunity.furms.domain.applications.ProjectApplicationEvent;
 import io.imunity.furms.domain.notification.UserApplicationsListChangedEvent;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.notifications.EmailNotificationSender;
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,7 +39,7 @@ class UserApplicationNotificationService {
 		emailNotificationSender.notifyUserAboutApplicationRejection(id, projectName);
 	}
 
-	public void notifyAdminAboutApplicationRequest(PersistentId id, String projectId, String projectName, String applicationUserEmail) {
+	public void notifyAdminAboutApplicationRequest(PersistentId id, ProjectId projectId, String projectName, String applicationUserEmail) {
 		emailNotificationSender.notifyAdminAboutApplicationRequest(id, projectId, projectName, applicationUserEmail);
 	}
 }

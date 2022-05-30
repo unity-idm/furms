@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 class ProjectsRestConverter {
@@ -52,6 +53,7 @@ class ProjectsRestConverter {
 				.filter(project -> project.getProjectId().equals(siteInstalledProject.project.getId()))
 				.findFirst()
 				.map(UsersWithProjectAccess::getUserIds)
+				.map(fenixUserIds -> fenixUserIds.stream().map(userId -> userId.id).collect(Collectors.toList()))
 				.orElse(List.of());
 		return new ProjectWithUsers(convert(siteInstalledProject.project), userIds);
 	}

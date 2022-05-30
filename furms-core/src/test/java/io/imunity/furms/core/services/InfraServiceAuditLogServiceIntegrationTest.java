@@ -15,7 +15,9 @@ import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
@@ -78,13 +80,16 @@ class InfraServiceAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectInfraServiceDeletion() {
 		//given
-		String id = "id";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId id = new InfraServiceId(UUID.randomUUID());
 		when(infraServiceRepository.exists(id)).thenReturn(true);
-		InfraService infraService = InfraService.builder().build();
+		InfraService infraService = InfraService.builder()
+			.id(id)
+			.build();
 		when(infraServiceRepository.findById(id)).thenReturn(Optional.of(infraService));
 
 		//when
-		service.delete(id, "");
+		service.delete(id, siteId);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -95,6 +100,8 @@ class InfraServiceAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectInfraServiceUpdate() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId id = new InfraServiceId(UUID.randomUUID());
 		PolicyId policyId = new PolicyId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(policyId)
@@ -103,24 +110,24 @@ class InfraServiceAuditLogServiceIntegrationTest {
 			.build();
 		SiteExternalId siteExternalId = new SiteExternalId("id");
 		InfraService oldService = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(id)
+			.siteId(siteId)
 			.name("userFacingName")
 			.policyId(policyId)
 			.build();
 
 		InfraService newService = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(id)
+			.siteId(siteId)
 			.name("userFacingName")
 			.policyId(null)
 			.build();
 
-		when(siteRepository.exists(oldService.id)).thenReturn(true);
+		when(siteRepository.exists(oldService.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(oldService.id)).thenReturn(true);
 		when(infraServiceRepository.findById(oldService.id)).thenReturn(Optional.of(oldService));
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
-		when(siteRepository.findByIdExternalId("id")).thenReturn(siteExternalId);
+		when(siteRepository.findByIdExternalId(oldService.siteId)).thenReturn(siteExternalId);
 
 		//when
 		service.update(newService);
@@ -134,15 +141,17 @@ class InfraServiceAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectInfraServiceCreation() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		InfraServiceId id = new InfraServiceId(UUID.randomUUID());
 		InfraService request = InfraService.builder()
-			.id("id")
-			.siteId("id")
+			.id(id)
+			.siteId(siteId)
 			.name("userFacingName")
 			.build();
 
-		when(siteRepository.exists(request.id)).thenReturn(true);
-		when(infraServiceRepository.findById("id")).thenReturn(Optional.of(request));
-		when(infraServiceRepository.create(request)).thenReturn("id");
+		when(siteRepository.exists(siteId)).thenReturn(true);
+		when(infraServiceRepository.findById(id)).thenReturn(Optional.of(request));
+		when(infraServiceRepository.create(request)).thenReturn(id);
 
 		//when
 		service.create(request);

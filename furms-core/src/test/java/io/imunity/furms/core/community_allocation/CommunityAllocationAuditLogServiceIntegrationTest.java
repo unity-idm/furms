@@ -13,6 +13,7 @@ import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
@@ -28,6 +29,7 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -64,15 +66,15 @@ class CommunityAllocationAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectCommunityAllocationDeletion() {
 		//given
-		String id = "id";
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
 		CommunityAllocation request = CommunityAllocation.builder()
-			.id("id")
-			.communityId("id")
-			.resourceCreditId("id")
+			.id(id)
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
-		when(communityAllocationRepository.findById("id")).thenReturn(Optional.of(request));
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.of(request));
 
 		//when
 		service.delete(id);
@@ -86,14 +88,15 @@ class CommunityAllocationAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectCommunityAllocationUpdate() {
 		//given
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
 		CommunityAllocation request = CommunityAllocation.builder()
-			.id("id")
-			.communityId("id")
-			.resourceCreditId("id")
+			.id(id)
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
-		when(communityAllocationRepository.findById("id")).thenReturn(Optional.of(request));
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.of(request));
 
 		//when
 		service.update(request);
@@ -107,15 +110,16 @@ class CommunityAllocationAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectCommunityAllocationCreation() {
 		//given
+		CommunityAllocationId id = new CommunityAllocationId(UUID.randomUUID());
 		CommunityAllocation request = CommunityAllocation.builder()
-			.id("id")
-			.communityId("id")
-			.resourceCreditId("id")
+			.id(id)
+			.communityId(UUID.randomUUID().toString())
+			.resourceCreditId(UUID.randomUUID().toString())
 			.name("name")
 			.amount(new BigDecimal(1))
 			.build();
-		when(communityAllocationRepository.findById("id")).thenReturn(Optional.of(request));
-		when(communityAllocationRepository.create(request)).thenReturn("id");
+		when(communityAllocationRepository.findById(id)).thenReturn(Optional.of(request));
+		when(communityAllocationRepository.create(request)).thenReturn(id);
 
 		//when
 		service.create(request);

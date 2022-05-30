@@ -14,6 +14,9 @@ import io.imunity.furms.domain.audit_log.Operation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -30,6 +33,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -67,13 +71,17 @@ class ResourceTypeAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectResourceTypeDeletion() {
 		//given
-		String id = "id";
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId id = new ResourceTypeId(UUID.randomUUID());
 		when(resourceTypeRepository.exists(id)).thenReturn(true);
-		ResourceType resourceType = ResourceType.builder().build();
-		when(resourceTypeRepository.findById("id")).thenReturn(Optional.of(resourceType));
+		ResourceType resourceType = ResourceType.builder()
+			.id(id)
+			.siteId(siteId)
+			.build();
+		when(resourceTypeRepository.findById(id)).thenReturn(Optional.of(resourceType));
 
 		//when
-		service.delete(id, "");
+		service.delete(id, siteId);
 
 		ArgumentCaptor<AuditLog> argument = ArgumentCaptor.forClass(AuditLog.class);
 		Mockito.verify(auditLogRepository).create(argument.capture());
@@ -84,10 +92,13 @@ class ResourceTypeAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectResourceTypeUpdate() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId id = new ResourceTypeId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType request = ResourceType.builder()
-			.id("id")
-			.siteId("id")
-			.serviceId("id")
+			.id(id)
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -110,10 +121,13 @@ class ResourceTypeAuditLogServiceIntegrationTest {
 	@Test
 	void shouldDetectResourceTypeCreation() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId id = new ResourceTypeId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		ResourceType request = ResourceType.builder()
-			.id("id")
-			.siteId("id")
-			.serviceId("id")
+			.id(id)
+			.siteId(siteId)
+			.serviceId(infraServiceId)
 			.name("name")
 			.type(ResourceMeasureType.DATA)
 			.unit(ResourceMeasureUnit.GB)
@@ -121,8 +135,8 @@ class ResourceTypeAuditLogServiceIntegrationTest {
 
 		when(siteRepository.exists(request.siteId)).thenReturn(true);
 		when(infraServiceRepository.exists(request.serviceId)).thenReturn(true);
-		when(resourceTypeRepository.findById("id")).thenReturn(Optional.of(request));
-		when(resourceTypeRepository.create(request)).thenReturn("id");
+		when(resourceTypeRepository.findById(id)).thenReturn(Optional.of(request));
+		when(resourceTypeRepository.create(request)).thenReturn(id);
 
 		//when
 		service.create(request);

@@ -10,13 +10,13 @@ import java.util.Set;
 
 public class UserSitesInstallationInfoData {
 
-	private final String siteId;
+	private final SiteId siteId;
 	private final String siteName;
 	private final String oauthClientId;
 	private final String connectionInfo;
 	private final Set<UserProjectsInstallationInfoData> projects;
 
-	public UserSitesInstallationInfoData(String siteId,
+	public UserSitesInstallationInfoData(SiteId siteId,
 	                                     String siteName,
 	                                     String oauthClientId,
 	                                     String connectionInfo,
@@ -28,7 +28,7 @@ public class UserSitesInstallationInfoData {
 		this.projects = projects;
 	}
 
-	public String getSiteId() {
+	public SiteId getSiteId() {
 		return siteId;
 	}
 
@@ -81,7 +81,7 @@ public class UserSitesInstallationInfoData {
 	}
 
 	public static final class UserSitesInstallationInfoDataBuilder {
-		private String siteId;
+		private SiteId siteId;
 		private String siteName;
 		private String oauthClientId;
 		private String connectionInfo;
@@ -90,7 +90,7 @@ public class UserSitesInstallationInfoData {
 		private UserSitesInstallationInfoDataBuilder() {
 		}
 
-		public UserSitesInstallationInfoDataBuilder siteId(String siteId) {
+		public UserSitesInstallationInfoDataBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}

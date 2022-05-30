@@ -4,6 +4,12 @@
  */
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rest.openapi.APIDocConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -64,7 +70,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}")
 	public Site getSite(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findOneById(siteId);
+		return sitesRestService.findOneById(new SiteId(siteId));
 	}
 
 	/********************************************************************************************
@@ -84,7 +90,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/credits")
 	public List<ResourceCredit> getResourceCredits(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllResourceCreditsBySiteId(siteId);
+		return sitesRestService.findAllResourceCreditsBySiteId(new SiteId(siteId));
 	}
 
 	@Operation(
@@ -99,7 +105,7 @@ public class SitesRestController {
 	public ResourceCredit getResourceCredit(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("creditId") String creditId) {
-		return sitesRestService.findResourceCreditBySiteIdAndId(siteId, creditId);
+		return sitesRestService.findResourceCreditBySiteIdAndId(new SiteId(siteId), new ResourceCreditId(creditId));
 	}
 
 	/********************************************************************************************
@@ -118,7 +124,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/resourceTypes")
 	public List<ResourceType> getResourceTypes(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllResourceTypesBySiteId(siteId);
+		return sitesRestService.findAllResourceTypesBySiteId(new SiteId(siteId));
 	}
 
 	@Operation(
@@ -132,7 +138,7 @@ public class SitesRestController {
 	public ResourceType getResourceType(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("resourceTypeId") String resourceTypeId) {
-		return sitesRestService.findResourceTypesBySiteIdAndId(siteId, resourceTypeId);
+		return sitesRestService.findResourceTypesBySiteIdAndId(new SiteId(siteId), new ResourceTypeId(resourceTypeId));
 	}
 
 	/********************************************************************************************
@@ -151,7 +157,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/services")
 	public List<InfraService> getServices(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllServicesBySiteId(siteId);
+		return sitesRestService.findAllServicesBySiteId(new SiteId(siteId));
 	}
 
 	@Operation(
@@ -165,7 +171,7 @@ public class SitesRestController {
 	public InfraService getService(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("serviceId") String serviceId) {
-		return sitesRestService.findServiceBySiteIdAndId(siteId, serviceId);
+		return sitesRestService.findServiceBySiteIdAndId(new SiteId(siteId), new InfraServiceId(serviceId));
 	}
 
 	/********************************************************************************************
@@ -184,7 +190,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/policies")
 	public List<Policy> getPolicies(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllPolicies(siteId);
+		return sitesRestService.findAllPolicies(new SiteId(siteId));
 	}
 
 	@Operation(
@@ -198,7 +204,7 @@ public class SitesRestController {
 	public Policy getPolicy(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("policyId") String policyId) {
-		return sitesRestService.findPolicy(siteId, policyId);
+		return sitesRestService.findPolicy(new SiteId(siteId), policyId);
 	}
 
 	/********************************************************************************************
@@ -219,7 +225,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/policyAcceptances")
 	public List<PolicyAcceptance> getPoliciesAcceptance(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllPoliciesAcceptances(siteId);
+		return sitesRestService.findAllPoliciesAcceptances(new SiteId(siteId));
 	}
 
 	@Operation(
@@ -235,7 +241,7 @@ public class SitesRestController {
 			@PathVariable("siteId") String siteId,
 			@PathVariable("policyId") String policyId, 
 			@PathVariable("fenixUserId") String fenixUserId) {
-		return sitesRestService.addPolicyAcceptance(siteId, policyId, fenixUserId);
+		return sitesRestService.addPolicyAcceptance(new SiteId(siteId), policyId, fenixUserId);
 	}
 
 	/********************************************************************************************
@@ -255,7 +261,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/protocolMessages")
 	public List<ProtocolMessage> getProtocolMessages(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.getProtocolMessages(siteId);
+		return sitesRestService.getProtocolMessages(new SiteId(siteId));
 	}
 
 	@Operation(
@@ -271,7 +277,7 @@ public class SitesRestController {
 	public void dropProtocolMessage(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("messageId") String messageId) {
-		sitesRestService.dropProtocolMessage(siteId, messageId);
+		sitesRestService.dropProtocolMessage(new SiteId(siteId), messageId);
 	}
 
 	@Operation(
@@ -286,7 +292,7 @@ public class SitesRestController {
 	public void retryProtocolMessage(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("messageId") String messageId) {
-		sitesRestService.retryProtocolMessage(siteId, messageId);
+		sitesRestService.retryProtocolMessage(new SiteId(siteId), messageId);
 	}
 	
 	
@@ -307,7 +313,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/projectInstallations")
 	public List<ProjectInstallation> getInstalledProjects(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllProjectInstallationsBySiteId(siteId);
+		return sitesRestService.findAllProjectInstallationsBySiteId(new SiteId(siteId));
 	}
 	
 	
@@ -323,7 +329,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/users")
 	public List<SiteUser> getSiteUsers(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllSiteUsersBySiteId(siteId);
+		return sitesRestService.findAllSiteUsersBySiteId(new SiteId(siteId));
 	}
 
 
@@ -338,7 +344,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/users/{userId}")
 	public SiteUser getSiteUsers(
 		@PathVariable("siteId") String siteId, @PathVariable("userId") String userId) {
-		return sitesRestService.findSiteUserByUserIdAndSiteId(userId, siteId);
+		return sitesRestService.findSiteUserByUserIdAndSiteId(new FenixUserId(userId), new SiteId(siteId));
 	}
 
 	/********************************************************************************************
@@ -358,7 +364,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/furmsAllocations")
 	public List<ProjectAllocation> getAllocations(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllProjectAllocationsBySiteId(siteId);
+		return sitesRestService.findAllProjectAllocationsBySiteId(new SiteId(siteId));
 	}
 
 	@Operation(
@@ -373,7 +379,8 @@ public class SitesRestController {
 	public List<ProjectAllocation> getProjectAllocations(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("projectId") String projectId) {
-		return sitesRestService.findAllProjectAllocationsBySiteIdAndProjectId(siteId, projectId);
+		return sitesRestService.findAllProjectAllocationsBySiteIdAndProjectId(new SiteId(siteId),
+			new ProjectId(projectId));
 	}
 	
 	@Operation(
@@ -387,7 +394,7 @@ public class SitesRestController {
 	@GetMapping("/{siteId}/siteAllocations")
 	public List<SiteAllocatedResources> getSiteAllocatedResources(
 			@PathVariable("siteId") String siteId) {
-		return sitesRestService.findAllSiteAllocatedResourcesBySiteId(siteId);
+		return sitesRestService.findAllSiteAllocatedResourcesBySiteId(new SiteId(siteId));
 	}
 
 	@Operation(
@@ -402,7 +409,8 @@ public class SitesRestController {
 	public List<SiteAllocatedResources> getSiteAllocatedProjectResources(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("projectId") String projectId) {
-		return sitesRestService.findAllSiteAllocatedResourcesBySiteIdAndProjectId(siteId, projectId);
+		return sitesRestService.findAllSiteAllocatedResourcesBySiteIdAndProjectId(new SiteId(siteId),
+			new ProjectId(projectId));
 	}
 	
 	@Operation(
@@ -418,7 +426,8 @@ public class SitesRestController {
 	public List<ProjectCumulativeResourceConsumption> getProjectCumulativeResourceConsumption(
 			@PathVariable("siteId") String siteId,
 			@PathVariable("projectId") String projectId) {
-		return sitesRestService.findAllProjectCumulativeResourceConsumptionBySiteIdAndProjectId(siteId, projectId);
+		return sitesRestService.findAllProjectCumulativeResourceConsumptionBySiteIdAndProjectId(new SiteId(siteId),
+			new ProjectId(projectId));
 	}
 
 	@Operation(
@@ -437,7 +446,8 @@ public class SitesRestController {
 			@PathVariable("projectId") String projectId,
 			@RequestParam(name = "from", required = false) @DateTimeFormat(iso = DATE_TIME) ZonedDateTime from,
 			@RequestParam(name = "until", required = false) @DateTimeFormat(iso = DATE_TIME) ZonedDateTime until) {
-		return sitesRestService.findAllProjectUsageRecordBySiteIdAndProjectIdInPeriod(siteId, projectId, from, until);
+		return sitesRestService.findAllProjectUsageRecordBySiteIdAndProjectIdInPeriod(new SiteId(siteId),
+			new ProjectId(projectId), from, until);
 	}
 
 }

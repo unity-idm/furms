@@ -10,9 +10,9 @@ import java.util.Objects;
 public class ProjectMembershipOnSite {
 
 	public final String localUserId;
-	public final String projectId;
+	public final ProjectId projectId;
 
-	public ProjectMembershipOnSite(String localUserId, String projectId) {
+	public ProjectMembershipOnSite(String localUserId, ProjectId projectId) {
 		this.localUserId = localUserId;
 		this.projectId = projectId;
 	}
@@ -45,7 +45,7 @@ public class ProjectMembershipOnSite {
 
 	public static final class ProjectMembershipOnSiteBuilder {
 		private String localUserId;
-		private String projectId;
+		private ProjectId projectId;
 
 		private ProjectMembershipOnSiteBuilder() {
 		}
@@ -55,7 +55,7 @@ public class ProjectMembershipOnSite {
 			return this;
 		}
 
-		public ProjectMembershipOnSiteBuilder projectId(String projectId) {
+		public ProjectMembershipOnSiteBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}

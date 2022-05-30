@@ -5,16 +5,18 @@
 
 package io.imunity.furms.api.resource_types;
 
+import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.util.Optional;
 import java.util.Set;
 
-import io.imunity.furms.domain.resource_types.ResourceType;
-
 public interface ResourceTypeService {
 	
-	Optional<ResourceType> findById(String id, String siteId);
+	Optional<ResourceType> findById(ResourceTypeId id, SiteId siteId);
 
-	Set<ResourceType> findAll(String siteId);
+	Set<ResourceType> findAll(SiteId siteId);
 
 	Set<ResourceType> findAll();
 
@@ -22,5 +24,5 @@ public interface ResourceTypeService {
 
 	void update(ResourceType resourceType);
 
-	void delete(String id, String siteId);
+	void delete(ResourceTypeId id, SiteId siteId);
 }

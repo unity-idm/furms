@@ -20,6 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -39,7 +40,7 @@ class UnityPolicyDocumentDAOTest {
 
 	@Test
 	void shouldGetUserPolicyAcceptances() {
-		String siteId = "siteId";
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		String userId = "userId1";
 		Map<String, Set<String>> map = Map.of("id", Set.of("id"));
 		FURMSUser furmsUser1 = FURMSUser.builder()
@@ -53,7 +54,7 @@ class UnityPolicyDocumentDAOTest {
 		UserPolicyAcceptances userPolicyAcceptances1 = new UserPolicyAcceptances(furmsUser1, Set.of());
 		UserPolicyAcceptances userPolicyAcceptances2 = new UserPolicyAcceptances(furmsUser2, Set.of());
 
-		when(siteRepository.findRelatedProjectIds(new SiteId(siteId))).thenReturn(map);
+		when(siteRepository.findRelatedProjectIds(siteId)).thenReturn(map);
 		when(userService.getAllUsersPolicyAcceptanceFromGroups(map)).thenReturn(Set.of(userPolicyAcceptances1, userPolicyAcceptances2));
 		when(resourceAccessRepository.findUsersBySiteId(siteId)).thenReturn(Set.of(new FenixUserId(userId)));
 

@@ -5,6 +5,8 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_access.AccessStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
@@ -16,6 +18,8 @@ import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.site.api.status_updater.UserAllocationStatusUpdater;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.UUID;
 
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -31,7 +35,9 @@ class SiteAgentResourceAccessServiceTest extends IntegrationTestBase {
 	void shouldGrantAccess() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("id", "mock"))
+			.allocationId(new ProjectAllocationId(UUID.randomUUID()))
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.siteId(new SiteId(UUID.randomUUID().toString(), "mock"))
 			.fenixUserId(new FenixUserId("id"))
 			.build();
 		FURMSUser furmsUser = FURMSUser.builder()
@@ -55,7 +61,9 @@ class SiteAgentResourceAccessServiceTest extends IntegrationTestBase {
 	void shouldRevokeAccess() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		GrantAccess grantAccess = GrantAccess.builder()
-			.siteId(new SiteId("id", "mock"))
+			.allocationId(new ProjectAllocationId(UUID.randomUUID()))
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.siteId(new SiteId(UUID.randomUUID().toString(), "mock"))
 			.fenixUserId(new FenixUserId("id"))
 			.build();
 		siteAgentResourceAccessService.revokeAccess(correlationId, grantAccess);

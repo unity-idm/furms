@@ -5,21 +5,24 @@
 
 package io.imunity.furms.domain.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class ProjectAllocationInstallation {
-	public final String id;
+	public final ProjectAllocationInstallationId id;
 	public final CorrelationId correlationId;
-	public final String siteId;
-	public final String projectAllocationId;
+	public final SiteId siteId;
+	public final ProjectAllocationId projectAllocationId;
 	public final ProjectAllocationInstallationStatus status;
 	public final Optional<ErrorMessage> errorMessage;
 
-	ProjectAllocationInstallation(String id, CorrelationId correlationId, String siteId, String projectAllocationId,
-	                              ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
+	ProjectAllocationInstallation(ProjectAllocationInstallationId id, CorrelationId correlationId, SiteId siteId,
+	                              ProjectAllocationId projectAllocationId, ProjectAllocationInstallationStatus status,
+	                              Optional<ErrorMessage> errorMessage) {
 		this.id = id;
 		this.correlationId = correlationId;
 		this.siteId = siteId;
@@ -63,10 +66,10 @@ public class ProjectAllocationInstallation {
 	}
 
 	public static final class ProjectAllocationInstallationBuilder {
-		public String id;
+		public ProjectAllocationInstallationId id;
 		public CorrelationId correlationId;
-		public String siteId;
-		public String projectAllocationId;
+		public SiteId siteId;
+		public ProjectAllocationId projectAllocationId;
 		public ProjectAllocationInstallationStatus status;
 		public Optional<ErrorMessage> errorMessage = Optional.empty();
 
@@ -74,6 +77,11 @@ public class ProjectAllocationInstallation {
 		}
 
 		public ProjectAllocationInstallationBuilder id(String id) {
+			this.id = new ProjectAllocationInstallationId(id);
+			return this;
+		}
+
+		public ProjectAllocationInstallationBuilder id(ProjectAllocationInstallationId id) {
 			this.id = id;
 			return this;
 		}
@@ -84,11 +92,21 @@ public class ProjectAllocationInstallation {
 		}
 
 		public ProjectAllocationInstallationBuilder siteId(String siteId) {
+			this.siteId = new SiteId(siteId);
+			return this;
+		}
+
+		public ProjectAllocationInstallationBuilder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}
 
 		public ProjectAllocationInstallationBuilder projectAllocationId(String projectAllocationId) {
+			this.projectAllocationId = new ProjectAllocationId(projectAllocationId);
+			return this;
+		}
+
+		public ProjectAllocationInstallationBuilder projectAllocationId(ProjectAllocationId projectAllocationId) {
 			this.projectAllocationId = projectAllocationId;
 			return this;
 		}

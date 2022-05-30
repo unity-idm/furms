@@ -17,10 +17,12 @@ import io.imunity.furms.domain.applications.ProjectApplicationRemovedEvent;
 import io.imunity.furms.domain.applications.ProjectApplicationWithUser;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.users.UserRoleGrantedEvent;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.spi.applications.ApplicationRepository;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
@@ -37,7 +39,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
@@ -76,7 +77,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public List<FURMSUser> findAllApplyingUsers(String projectId) {
+	public List<FURMSUser> findAllApplyingUsers(ProjectId projectId) {
 		Set<FenixUserId> usersIds = applicationRepository.findAllApplyingUsers(projectId);
 		return usersDAO.getAllUsers().stream()
 			.filter(usr -> usr.fenixUserId.isPresent())
@@ -87,9 +88,10 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED)
 	public List<ProjectApplicationWithUser> findAllApplicationsUsersForCurrentProjectAdmins() {
-		List<UUID> projectIds = authzService.getRoles().entrySet().stream()
+		List<ProjectId> projectIds = authzService.getRoles().entrySet().stream()
 			.filter(e -> e.getValue().contains(Role.PROJECT_ADMIN))
 			.map(e -> e.getKey().id)
+			.map(ProjectId::new)
 			.collect(toList());
 
 		Map<FenixUserId, FURMSUser> collect = usersDAO.getAllUsers().stream()
@@ -103,7 +105,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED)
-	public Set<String> findAllAppliedProjectsIdsForCurrentUser() {
+	public Set<ProjectId> findAllAppliedProjectsIdsForCurrentUser() {
 		FenixUserId fenixUserId = authzService.getCurrentAuthNUser().fenixUserId
 			.orElseThrow(UserWithoutFenixIdValidationError::new);
 		return applicationRepository.findAllAppliedProjectsIds(fenixUserId);
@@ -111,10 +113,10 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED)
-	public void createForCurrentUser(String projectId) {
+	public void createForCurrentUser(ProjectId projectId) {
 		projectRepository.findById(projectId).ifPresent(project -> {
 			FURMSUser currentUser = authzService.getCurrentAuthNUser();
-			if(invitationRepository.findBy(currentUser.email, Role.PROJECT_USER, new ResourceId(projectId, PROJECT)).isPresent())
+			if(invitationRepository.findBy(currentUser.email, Role.PROJECT_USER, new ResourceId(projectId.id, PROJECT)).isPresent())
 				throw new UserAlreadyInvitedException(String.format("User %s is invited for project %s", currentUser.email, projectId));
 			FenixUserId fenixUserId = currentUser.fenixUserId
 				.orElseThrow(UserWithoutFenixIdValidationError::new);
@@ -128,7 +130,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED)
-	public void removeForCurrentUser(String projectId) {
+	public void removeForCurrentUser(ProjectId projectId) {
 		FenixUserId fenixUserId = authzService.getCurrentAuthNUser().fenixUserId
 			.orElseThrow(UserWithoutFenixIdValidationError::new);
 
@@ -147,10 +149,10 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	@Override
 	@Transactional
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
-	public void accept(String projectId, FenixUserId fenixUserId) {
+	public void accept(ProjectId projectId, FenixUserId fenixUserId) {
 		if(applicationRepository.existsBy(projectId, fenixUserId)) {
 			projectRepository.findById(projectId).ifPresent(project -> {
-				String communityId = project.getCommunityId();
+				CommunityId communityId = project.getCommunityId();
 				PersistentId persistentId = usersDAO.getPersistentId(fenixUserId);
 				projectGroupsDAO.addProjectUser(communityId, projectId, persistentId, Role.PROJECT_USER);
 				applicationRepository.remove(projectId, fenixUserId);
@@ -158,7 +160,8 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 				publisher.publishEvent(
 					new ProjectApplicationAcceptedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)))
 				);
-				publisher.publishEvent(new UserRoleGrantedEvent(persistentId, new ResourceId(projectId, PROJECT), project.getName(), Role.PROJECT_USER));
+				publisher.publishEvent(new UserRoleGrantedEvent(persistentId, new ResourceId(projectId.id, PROJECT),
+					project.getName(), Role.PROJECT_USER));
 				LOG.info("User {} application for project ID: {} was accepted", projectId, fenixUserId);
 			});
 		} else
@@ -167,7 +170,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id = "projectId")
-	public void remove(String projectId, FenixUserId fenixUserId) {
+	public void remove(ProjectId projectId, FenixUserId fenixUserId) {
 		if(applicationRepository.existsBy(projectId, fenixUserId)) {
 			projectRepository.findById(projectId).ifPresent(project -> {
 				applicationRepository.remove(projectId, fenixUserId);

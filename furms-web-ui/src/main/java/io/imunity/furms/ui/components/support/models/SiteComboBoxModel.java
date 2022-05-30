@@ -1,22 +1,24 @@
 /*
- * Copyright (c) 2021 Bixbit s.c. All rights reserved.
- *  See LICENSE file for licensing information.
+ * Copyright (c) 2020 Bixbit s.c. All rights reserved.
+ * See LICENSE file for licensing information.
  */
 
 package io.imunity.furms.ui.components.support.models;
 
+import io.imunity.furms.domain.sites.SiteId;
+
 import java.util.Objects;
 
-public class ComboBoxModel {
-	private final String id;
+public class SiteComboBoxModel {
+	private final SiteId id;
 	private final String name;
 
-	public ComboBoxModel(String id, String name) {
+	public SiteComboBoxModel(SiteId id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	public String getId() {
+	public SiteId getId() {
 		return id;
 	}
 
@@ -28,7 +30,7 @@ public class ComboBoxModel {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		ComboBoxModel that = (ComboBoxModel) o;
+		SiteComboBoxModel that = (SiteComboBoxModel) o;
 		return Objects.equals(id, that.id);
 	}
 

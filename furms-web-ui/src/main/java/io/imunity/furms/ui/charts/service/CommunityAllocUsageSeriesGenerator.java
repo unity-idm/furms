@@ -5,6 +5,7 @@
 
 package io.imunity.furms.ui.charts.service;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +38,7 @@ class CommunityAllocUsageSeriesGenerator {
 	}
 
 	private Collection<Map<LocalDate, Double>> prepareAllocationsUsageValuesByProbedAtDates(Set<ResourceUsage> allResourceUsageHistory) {
-		Map<String, Map<LocalDate, Double>> usageDataByAllocationId = allResourceUsageHistory.stream()
+		Map<ProjectAllocationId, Map<LocalDate, Double>> usageDataByAllocationId = allResourceUsageHistory.stream()
 			.collect(
 				groupingBy(
 					usage -> usage.projectAllocationId,

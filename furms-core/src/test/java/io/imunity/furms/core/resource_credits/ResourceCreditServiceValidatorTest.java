@@ -8,6 +8,9 @@ package io.imunity.furms.core.resource_credits;
 import io.imunity.furms.api.validation.exceptions.CreditUpdateBelowDistributedAmountException;
 import io.imunity.furms.api.validation.exceptions.ResourceCreditHasAllocationException;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
@@ -21,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -46,9 +50,11 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldPassCreateForUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
-			.resourceTypeId("id")
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -66,9 +72,11 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullAmount() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
-			.resourceTypeId("id")
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
@@ -85,9 +93,11 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForWrongDates() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
-			.resourceTypeId("id")
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now().minusDays(10))
@@ -104,9 +114,11 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
-			.resourceTypeId("id")
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -124,8 +136,9 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonExistingSiteId() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
+			.siteId(siteId)
 			.name("name")
 			.build();
 
@@ -138,14 +151,16 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForNonExistingResourceTypeId() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
-			.resourceTypeId("id")
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.build();
 
 		when(siteRepository.exists(service.siteId)).thenReturn(true);
-		when(resourceTypeRepository.exists(service.siteId)).thenReturn(false);
+		when(resourceTypeRepository.exists(resourceTypeId)).thenReturn(false);
 
 		//when+then
 		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
@@ -165,8 +180,9 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForNullResourceTypeId() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
 		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
+			.siteId(siteId)
 			.name("name")
 			.build();
 
@@ -177,10 +193,13 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldPassUpdateForUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		final ResourceCredit credit = ResourceCredit.builder()
-			.id("id")
-			.siteId("id")
-			.resourceTypeId("id")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -199,10 +218,13 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonExistingObject() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		ResourceCredit community = ResourceCredit.builder()
-			.id("id")
-			.siteId("id")
-			.resourceTypeId("id")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -218,19 +240,22 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldForbidToDecreaseAmountBelowAlreadyDistributed() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		ResourceCredit original = ResourceCredit.builder()
-				.id("id")
-				.siteId("sid")
-				.resourceTypeId("rid")
+				.id(resourceCreditId)
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
 				.name("name")
 				.amount(new BigDecimal(10))
 				.utcStartTime(LocalDateTime.now())
 				.utcEndTime(LocalDateTime.now())
 				.build();
 		ResourceCredit updated = ResourceCredit.builder()
-				.id("id")
-				.siteId("sid")
-				.resourceTypeId("rid")
+				.id(resourceCreditId)
+				.siteId(siteId)
+				.resourceTypeId(resourceTypeId)
 				.name("name")
 				.amount(new BigDecimal(5))
 				.utcStartTime(LocalDateTime.now())
@@ -249,19 +274,22 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldForbidChangeStartTimeIfAlreadyCommunityAllocationWasCreated() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		ResourceCredit original = ResourceCredit.builder()
-			.id("id")
-			.siteId("sid")
-			.resourceTypeId("rid")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.utcStartTime(LocalDateTime.now())
 			.utcEndTime(LocalDateTime.now())
 			.build();
 		ResourceCredit updated = ResourceCredit.builder()
-			.id("id")
-			.siteId("sid")
-			.resourceTypeId("rid")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(10))
 			.utcStartTime(LocalDateTime.now().plusDays(1))
@@ -282,10 +310,13 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassUpdateForNonUniqueName() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
 		ResourceCredit resourceCredit = ResourceCredit.builder()
-			.id("id")
-			.siteId("id")
-			.resourceTypeId("id")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(new BigDecimal(1))
 			.utcStartTime(LocalDateTime.now())
@@ -293,9 +324,9 @@ class ResourceCreditServiceValidatorTest {
 			.build();
 
 		ResourceCredit resourceCredit2 = ResourceCredit.builder()
-			.id("id")
-			.siteId("id")
-			.resourceTypeId("id")
+			.id(resourceCreditId)
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name2")
 			.amount(new BigDecimal(2))
 			.utcStartTime(LocalDateTime.now())
@@ -314,7 +345,7 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldPassDeleteForExistingId() {
 		//given
-		String id = "id";
+		ResourceCreditId id = new ResourceCreditId(UUID.randomUUID());
 
 		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(mock(ResourceCredit.class)));
 
@@ -325,7 +356,7 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassDeleteForExistingResourceCredits() {
 		//given
-		String id = "id";
+		ResourceCreditId id = new ResourceCreditId(UUID.randomUUID());
 
 		when(resourceCreditRepository.findById(id)).thenReturn(Optional.of(mock(ResourceCredit.class)));
 		when(communityAllocationRepository.existsByResourceCreditId(id)).thenReturn(true);
@@ -337,7 +368,7 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassDeleteForNonExistingId() {
 		//given
-		String id = "id";
+		ResourceCreditId id = new ResourceCreditId(UUID.randomUUID());
 
 		when(resourceCreditRepository.findById(id)).thenReturn(Optional.empty());
 

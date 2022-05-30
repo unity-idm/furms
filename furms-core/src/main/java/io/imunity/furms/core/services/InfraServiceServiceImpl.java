@@ -12,8 +12,10 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.services.InfraServiceCreatedEvent;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.services.InfraServiceRemovedEvent;
 import io.imunity.furms.domain.services.InfraServiceUpdatedEvent;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.site.api.site_agent.SiteAgentPolicyDocumentService;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
@@ -62,13 +64,13 @@ class InfraServiceServiceImpl implements InfraServiceService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Optional<InfraService> findById(String id, String siteId) {
+	public Optional<InfraService> findById(InfraServiceId id, SiteId siteId) {
 		return infraServiceRepository.findById(id);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = SITE_READ, resourceType = SITE, id = "siteId")
-	public Set<InfraService> findAll(String siteId) {
+	public Set<InfraService> findAll(SiteId siteId) {
 		return infraServiceRepository.findAll(siteId);
 	}
 
@@ -82,7 +84,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "infraService.siteId")
 	public void create(InfraService infraService) {
 		validator.validateCreate(infraService);
-		String id = infraServiceRepository.create(infraService);
+		InfraServiceId id = infraServiceRepository.create(infraService);
 		InfraService created = infraServiceRepository.findById(id).get();
 		if(infraService.policyId != null && infraService.policyId.id != null)
 			sendUpdateToSite(id, infraService);
@@ -131,13 +133,13 @@ class InfraServiceServiceImpl implements InfraServiceService {
 			.orElseThrow(() -> new IllegalArgumentException(String.format("Policy id %s doesn't exist", policyId)));
 	}
 
-	private void sendUpdateToSite(String infraId, InfraService infraService) {
+	private void sendUpdateToSite(InfraServiceId infraId, InfraService infraService) {
 		PolicyDocument policyDocument = getPolicyDocument(infraService.policyId);
 
 		sendUpdateToSite(infraId, infraService, policyDocument.revision, policyDocument);
 	}
 
-	private void sendUpdateToSite(String siteId, InfraService infraService, int revision, PolicyDocument policyDocument) {
+	private void sendUpdateToSite(InfraServiceId infraServiceId, InfraService infraService, int revision, PolicyDocument policyDocument) {
 		siteAgentPolicyDocumentService.updatePolicyDocument(
 			siteRepository.findByIdExternalId(infraService.siteId),
 			PolicyDocument.builder()
@@ -145,7 +147,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 				.name(policyDocument.name)
 				.revision(revision)
 				.build(),
-			siteId);
+			Optional.of(infraServiceId));
 	}
 
 	private boolean isPolicyChange(InfraService infraService, InfraService oldInfraService) {
@@ -159,7 +161,7 @@ class InfraServiceServiceImpl implements InfraServiceService {
 
 	@Override
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
-	public void delete(String infraServiceId, String siteId) {
+	public void delete(InfraServiceId infraServiceId, SiteId siteId) {
 		validator.validateDelete(infraServiceId);
 		InfraService infraService = infraServiceRepository.findById(infraServiceId).get();
 		infraServiceRepository.delete(infraServiceId);

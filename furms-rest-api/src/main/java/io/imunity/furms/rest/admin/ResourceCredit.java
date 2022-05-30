@@ -27,10 +27,10 @@ class ResourceCredit {
 	}
 
 	ResourceCredit(ResourceCreditWithAllocations credit) {
-		this(credit.getId(),
+		this(credit.getId().id.toString(),
 				credit.getName(),
 				new Validity(convertToUTCZoned(credit.getUtcStartTime()), convertToUTCZoned(credit.getUtcEndTime())),
-				credit.getResourceType().id,
+				credit.getResourceType().id.id.toString(),
 				new ResourceAmount(credit.getAmount(), credit.getResourceType().unit.getSuffix()));
 	}
 

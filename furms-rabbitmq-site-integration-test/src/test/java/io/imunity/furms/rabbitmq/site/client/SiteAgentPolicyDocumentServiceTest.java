@@ -11,6 +11,7 @@ import io.imunity.furms.domain.policy_documents.PolicyDocument;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.AssignedPolicyDocument;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -64,19 +65,20 @@ class SiteAgentPolicyDocumentServiceTest extends IntegrationTestBase {
 		SiteExternalId siteExternalId = new SiteExternalId("mock");
 		UUID uuid = UUID.randomUUID();
 		PolicyId id = new PolicyId(uuid);
+		InfraServiceId serviceId = new InfraServiceId(UUID.randomUUID());
 		PolicyDocument policyDocument = PolicyDocument.builder()
 			.id(id)
 			.revision(1)
 			.name("policyName")
 			.build();
-		siteAgentPolicyDocumentService.updatePolicyDocument(siteExternalId, policyDocument, "serviceId");
+		siteAgentPolicyDocumentService.updatePolicyDocument(siteExternalId, policyDocument, Optional.of(serviceId));
 
 		verify(receiverMock, timeout(10000)).process(
 			AgentPolicyUpdate.builder()
 				.policyIdentifier(uuid.toString())
 				.policyName("policyName")
 				.currentVersion(1)
-				.serviceIdentifier("serviceId")
+				.serviceIdentifier(serviceId.id.toString())
 				.build()
 		);
 	}
@@ -87,6 +89,8 @@ class SiteAgentPolicyDocumentServiceTest extends IntegrationTestBase {
 		UUID uuid = UUID.randomUUID();
 		PolicyId policyId = new PolicyId(uuid);
 		FenixUserId fenixUserId = new FenixUserId("id");
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
+
 		FURMSUser furmsUser = FURMSUser.builder()
 			.email("email")
 			.fenixUserId(fenixUserId)
@@ -99,7 +103,7 @@ class SiteAgentPolicyDocumentServiceTest extends IntegrationTestBase {
 		AssignedPolicyDocument servicePolicyDocument = AssignedPolicyDocument.builder()
 			.id(policyId)
 			.revision(2)
-			.serviceId("serviceId")
+			.serviceId(infraServiceId)
 			.build();
 
 		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies =
@@ -112,7 +116,7 @@ class SiteAgentPolicyDocumentServiceTest extends IntegrationTestBase {
 					.policyIdentifier(uuid.toString())
 					.currentVersion(2)
 					.processedVersion(1)
-					.serviceIdentifier("serviceId")
+					.serviceIdentifier(infraServiceId.id.toString())
 					.acceptanceStatus(Acceptance.ACCEPTED)
 					.build()
 			))

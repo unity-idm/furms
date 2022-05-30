@@ -13,6 +13,8 @@ import io.imunity.furms.domain.alarms.UserActiveAlarm;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.ResourceUsageUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -60,19 +62,19 @@ class FiredAlarmServiceImplTest {
 	void shouldFindAllActiveAlarmsOffCurrentUser() {
 		AlarmId alarmId = new AlarmId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
-		UUID projectId = UUID.randomUUID();
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.fenixUserId(userId)
 			.email("email")
 			.build()
 		);
 		when(authzService.getRoles()).thenReturn(
-			Map.of(new ResourceId(projectId, PROJECT), Set.of(Role.PROJECT_ADMIN))
+			Map.of(new ResourceId(projectId.id, PROJECT), Set.of(Role.PROJECT_ADMIN))
 		);
 		FiredAlarm firedAlarm = FiredAlarm.builder()
 			.alarmId(alarmId)
-			.projectId(projectId.toString())
-			.projectAllocationId("projectAllocationId")
+			.projectId(projectId)
+			.projectAllocationId(new ProjectAllocationId(UUID.randomUUID()))
 			.alarmName("alarmName")
 			.projectAllocationName("projectAllocationName")
 			.build();
@@ -85,8 +87,8 @@ class FiredAlarmServiceImplTest {
 
 	@Test
 	void shouldNotifyUsersAfterResourceUsageUpdatedWhenThresholdIsLessThenUsage() {
-		String projectId = "projectId";
-		String projectAllocationId = "projectAllocationId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
 		FenixUserId fenixUserId1 = new FenixUserId("fenixUserId1");
 		FenixUserId fenixUserId2 = new FenixUserId("fenixUserId2");
@@ -111,8 +113,8 @@ class FiredAlarmServiceImplTest {
 
 	@Test
 	void shouldNotifyUsersAfterResourceUsageUpdatedWhenThresholdEqualsUsage() {
-		String projectId = "projectId";
-		String projectAllocationId = "projectAllocationId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
 		FenixUserId fenixUserId1 = new FenixUserId("fenixUserId1");
 		FenixUserId fenixUserId2 = new FenixUserId("fenixUserId2");
@@ -137,8 +139,8 @@ class FiredAlarmServiceImplTest {
 
 	@Test
 	void shouldNotNotifyUsersAfterResourceUsageUpdatedWhenThresholdExceedsUsage() {
-		String projectId = "projectId";
-		String projectAllocationId = "projectAllocationId";
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		FenixUserId fenixUserId = new FenixUserId("fenixUserId");
 		FenixUserId fenixUserId1 = new FenixUserId("fenixUserId1");
 		FenixUserId fenixUserId2 = new FenixUserId("fenixUserId2");
@@ -163,7 +165,7 @@ class FiredAlarmServiceImplTest {
 
 	@Test
 	void shouldExceedWhenUsageIsBiggerThenThreshold() {
-		String projectAllocationId = "projectAllocationId";
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 
 		when(resourceUsageRepository.findCurrentResourceUsage(projectAllocationId)).thenReturn(Optional.of(
 			ResourceUsage.builder()
@@ -183,7 +185,7 @@ class FiredAlarmServiceImplTest {
 
 	@Test
 	void shouldExceedWhenUsageIsEqualThenThreshold() {
-		String projectAllocationId = "projectAllocationId";
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 
 		when(resourceUsageRepository.findCurrentResourceUsage(projectAllocationId)).thenReturn(Optional.of(
 			ResourceUsage.builder()
@@ -203,7 +205,7 @@ class FiredAlarmServiceImplTest {
 
 	@Test
 	void shouldNotExceedWhenUsageIsLessThenThreshold() {
-		String projectAllocationId = "projectAllocationId";
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 
 		when(resourceUsageRepository.findCurrentResourceUsage(projectAllocationId)).thenReturn(Optional.of(
 			ResourceUsage.builder()

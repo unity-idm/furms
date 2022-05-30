@@ -5,27 +5,35 @@
 
 package io.imunity.furms.domain.sites;
 
-import java.util.Objects;
+import io.imunity.furms.domain.Id;
 
-public class SiteId {
-	public final String id;
+import java.util.Objects;
+import java.util.UUID;
+
+public class SiteId implements Id {
+	public final UUID id;
 	public final SiteExternalId externalId;
 
 	public SiteId(String id, SiteExternalId externalId) {
 		if(id == null || id.isBlank() || externalId == null || externalId.id == null || externalId.id.isBlank())
 			throw new IllegalArgumentException("Site id or external id should not be null or empty");
-		this.id = id;
+		this.id = UUID.fromString(id);
 		this.externalId = externalId;
 	}
 
 	public SiteId(String id, String externalId) {
 		if(id == null || id.isBlank() || externalId == null || externalId.isBlank())
 			throw new IllegalArgumentException("Site id or external id should not be null or empty");
-		this.id = id;
+		this.id = UUID.fromString(id);
 		this.externalId = new SiteExternalId(externalId);
 	}
 
 	public SiteId(String id) {
+		this.id = UUID.fromString(id);
+		this.externalId = null;
+	}
+
+	public SiteId(UUID id) {
 		this.id = id;
 		this.externalId = null;
 	}
@@ -35,12 +43,12 @@ public class SiteId {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		SiteId siteId = (SiteId) o;
-		return Objects.equals(id, siteId.id) && Objects.equals(externalId, siteId.externalId);
+		return Objects.equals(id, siteId.id);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, externalId);
+		return Objects.hash(id);
 	}
 
 	@Override
@@ -49,5 +57,10 @@ public class SiteId {
 			"id='" + id + '\'' +
 			", externalId=" + externalId +
 			'}';
+	}
+
+	@Override
+	public UUID getId() {
+		return id;
 	}
 }

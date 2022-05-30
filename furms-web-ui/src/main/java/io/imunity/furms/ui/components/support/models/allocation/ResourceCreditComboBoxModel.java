@@ -5,16 +5,18 @@
 
 package io.imunity.furms.ui.components.support.models.allocation;
 
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ResourceCreditComboBoxModel {
-	public final String id;
+	public final ResourceCreditId id;
 	public final String name;
 	public final BigDecimal amount;
 	public final boolean split;
 
-	public ResourceCreditComboBoxModel(String id, String name, BigDecimal amount, boolean split) {
+	public ResourceCreditComboBoxModel(ResourceCreditId id, String name, BigDecimal amount, boolean split) {
 		this.id = id;
 		this.name = name;
 		this.amount = amount;

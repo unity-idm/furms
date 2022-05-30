@@ -5,23 +5,26 @@
 
 package io.imunity.furms.domain.user_operation;
 
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.FenixUserId;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class UserAddition {
-	public final String id;
+	public final UserAdditionId id;
 	public final SiteId siteId;
-	public final String projectId;
+	public final ProjectId projectId;
 	public final CorrelationId correlationId;
 	public final String uid;
-	public final String userId;
+	public final FenixUserId userId;
 	public final UserStatus status;
 	public final Optional<UserAdditionErrorMessage> errorMessage;
 
-	UserAddition(String id, SiteId siteId, String projectId, CorrelationId correlationId, String uid, String userId,
+	UserAddition(UserAdditionId id, SiteId siteId, ProjectId projectId, CorrelationId correlationId, String uid,
+	             FenixUserId userId,
 	             UserStatus status, Optional<UserAdditionErrorMessage> errorMessage) {
 		this.id = id;
 		this.siteId = siteId;
@@ -71,12 +74,12 @@ public class UserAddition {
 	}
 
 	public static final class UserAdditionBuilder {
-		private String id;
+		private UserAdditionId id;
 		private SiteId siteId;
-		private String projectId;
+		private ProjectId projectId;
 		private CorrelationId correlationId;
 		private String uid;
-		private String userId;
+		private FenixUserId userId;
 		private UserStatus status;
 		private Optional<UserAdditionErrorMessage> errorMessage = Optional.empty();
 
@@ -84,11 +87,21 @@ public class UserAddition {
 		}
 
 		public UserAdditionBuilder id(String id) {
+			this.id = new UserAdditionId(id);
+			return this;
+		}
+
+		public UserAdditionBuilder id(UserAdditionId id) {
 			this.id = id;
 			return this;
 		}
 
 		public UserAdditionBuilder projectId(String projectId) {
+			this.projectId = new ProjectId(projectId);
+			return this;
+		}
+
+		public UserAdditionBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}
@@ -99,6 +112,11 @@ public class UserAddition {
 		}
 
 		public UserAdditionBuilder userId(String userId) {
+			this.userId = new FenixUserId(userId);
+			return this;
+		}
+
+		public UserAdditionBuilder userId(FenixUserId userId) {
 			this.userId = userId;
 			return this;
 		}

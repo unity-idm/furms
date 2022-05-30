@@ -34,7 +34,8 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 	public void addUser(UserAddition userAddition, UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances) {
 		AgentUser agentUser = UserMapper.map(userPolicyAcceptances.user);
 		try {
-			UserProjectAddRequest body = new UserProjectAddRequest(agentUser, getPolicyAcceptances(userPolicyAcceptances), userAddition.projectId);
+			UserProjectAddRequest body = new UserProjectAddRequest(agentUser,
+				getPolicyAcceptances(userPolicyAcceptances), userAddition.projectId.id.toString());
 			rabbitTemplate.convertAndSend(
 				getFurmsPublishQueueName(userAddition.siteId.externalId),
 				new Payload<>(new Header(VERSION, userAddition.correlationId.id), body)
@@ -51,7 +52,7 @@ class SiteAgentUserServiceImpl implements SiteAgentUserService {
 				getFurmsPublishQueueName(userAddition.siteId.externalId),
 				new Payload<>(
 					new Header(VERSION, userAddition.correlationId.id),
-					new UserProjectRemovalRequest(userAddition.userId, userAddition.projectId)
+					new UserProjectRemovalRequest(userAddition.userId.id, userAddition.projectId.id.toString())
 				)
 			);
 		}catch (AmqpConnectException e){

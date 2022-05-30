@@ -8,16 +8,20 @@ package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.user_operation.UserAddition;
+import io.imunity.furms.domain.user_operation.UserAdditionId;
 import io.imunity.furms.domain.user_operation.UserAdditionJob;
 import io.imunity.furms.domain.user_operation.UserAdditionWithProject;
 import io.imunity.furms.domain.user_operation.UserStatus;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
@@ -49,24 +53,24 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Autowired
 	private UserOperationDatabaseRepository userOperationDatabaseRepository;
 
-	private UUID siteId;
-	private UUID projectId;
+	private SiteId siteId;
+	private ProjectId projectId;
 
 	@BeforeEach
 	void init() {
 		Site site = Site.builder()
 			.name("name")
 			.build();
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -76,27 +80,27 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 	}
 
 	@Test
 	void shouldCreateUserAddition() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAddition = UserAddition.builder()
-			.siteId(new SiteId(siteId.toString(), new SiteExternalId("id")))
-			.projectId(projectId.toString())
+			.siteId(new SiteId(siteId.id.toString(), new SiteExternalId("id")))
+			.projectId(projectId)
 			.correlationId(correlationId)
 			.userId("userId")
 			.status(UserStatus.ADDING_ACKNOWLEDGED)
 			.build();
 
-		String id = userOperationDatabaseRepository.create(userAddition);
+		UserAdditionId id = userOperationDatabaseRepository.create(userAddition);
 
-		Optional<UserAdditionSaveEntity> byId = userAdditionEntityRepository.findById(UUID.fromString(id));
+		Optional<UserAdditionSaveEntity> byId = userAdditionEntityRepository.findById(id.id);
 		Optional<UserAdditionJobEntity> byIdJob = userAdditionJobEntityRepository.findByCorrelationId(UUID.fromString(correlationId.id));
 		assertThat(byId).isPresent();
-		assertThat(byId.get().siteId.toString()).isEqualTo(userAddition.siteId.id);
-		assertThat(byId.get().projectId.toString()).isEqualTo(userAddition.projectId);
+		assertThat(byId.get().siteId).isEqualTo(userAddition.siteId.id);
+		assertThat(byId.get().projectId).isEqualTo(userAddition.projectId.id);
 		assertThat(byIdJob.get().status).isEqualTo(UserStatus.ADDING_ACKNOWLEDGED.getPersistentId());
 	}
 
@@ -104,26 +108,26 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldRemoveUserAdditionByCorrelationId() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAddition = UserAddition.builder()
-			.siteId(new SiteId(siteId.toString(), new SiteExternalId("id")))
-			.projectId(projectId.toString())
+			.siteId(new SiteId(siteId.id.toString(), new SiteExternalId("id")))
+			.projectId(projectId)
 			.correlationId(correlationId)
 			.userId("userId")
 			.status(UserStatus.ADDING_ACKNOWLEDGED)
 			.build();
 
-		String id = userOperationDatabaseRepository.create(userAddition);
+		UserAdditionId id = userOperationDatabaseRepository.create(userAddition);
 
-		userOperationDatabaseRepository.deleteByCorrelationId(correlationId.id);
+		userOperationDatabaseRepository.deleteByCorrelationId(correlationId);
 
-		assertThat(userAdditionEntityRepository.findById(UUID.fromString(id))).isEmpty();
+		assertThat(userAdditionEntityRepository.findById(id.id)).isEmpty();
 	}
 
 	@Test
 	void shouldFindAllWithRelatedSiteAndProjectBySiteIdAndUserId() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAddition userAddition = UserAddition.builder()
-				.siteId(new SiteId(siteId.toString(), new SiteExternalId("id")))
-				.projectId(projectId.toString())
+				.siteId(new SiteId(siteId.id.toString(), new SiteExternalId("id")))
+				.projectId(projectId)
 				.correlationId(correlationId)
 				.userId("userId")
 				.status(UserStatus.ADDING_ACKNOWLEDGED)
@@ -132,7 +136,7 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		userOperationDatabaseRepository.create(userAddition);
 
 		final Set<UserAdditionWithProject> userAdditions = userOperationDatabaseRepository
-				.findAllUserAdditionsWithSiteAndProjectBySiteId("userId", userAddition.siteId.id);
+				.findAllUserAdditionsWithSiteAndProjectBySiteId(new FenixUserId("userId"), userAddition.siteId);
 		assertThat(userAdditions).hasSize(1);
 		assertThat(userAdditions.stream().findFirst().get().getStatus()).isEqualTo(UserStatus.ADDING_ACKNOWLEDGED);
 	}
@@ -141,8 +145,8 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateJob() {
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("userId")
 				.build()
 		);
@@ -171,8 +175,8 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateUserAddition() {
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("id")
 				.build()
 		);
@@ -206,8 +210,8 @@ class UserOperationDatabaseRepositoryTest extends DBIntegrationTest {
 		CorrelationId correlationId = CorrelationId.randomID();
 		UserAdditionSaveEntity userAdditionSaveEntity = userAdditionEntityRepository.save(
 			UserAdditionSaveEntity.builder()
-				.siteId(siteId)
-				.projectId(projectId)
+				.siteId(siteId.id)
+				.projectId(projectId.id)
 				.userId("id")
 				.build()
 		);

@@ -7,17 +7,20 @@ package io.imunity.furms.spi.resource_credits;
 
 
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
 public interface ResourceCreditRepository {
-	Optional<ResourceCredit> findById(String id);
+	Optional<ResourceCredit> findById(ResourceCreditId id);
 
-	Set<ResourceCredit> findAll(String siteId);
+	Set<ResourceCredit> findAll(SiteId siteId);
 
-	Set<ResourceCredit> findAllNotExpiredByResourceTypeId(String resourceTypeId);
+	Set<ResourceCredit> findAllNotExpiredByResourceTypeId(ResourceTypeId resourceTypeId);
 
 	Set<ResourceCredit> findAll();
 
@@ -25,21 +28,21 @@ public interface ResourceCreditRepository {
 
 	Set<ResourceCredit> findAllNotExpiredByNameOrSiteName(String name);
 
-	String create(ResourceCredit resourceType);
+	ResourceCreditId create(ResourceCredit resourceCredit);
 
 	void update(ResourceCredit resourceType);
 
-	boolean exists(String id);
+	boolean exists(ResourceCreditId id);
 
-	boolean existsBySiteId(String id);
+	boolean existsBySiteId(SiteId id);
 
-	boolean existsByResourceTypeId(String id);
+	boolean existsByResourceTypeId(ResourceTypeId id);
 
-	boolean existsByResourceTypeIdIn(Collection<String> ids);
+	boolean existsByResourceTypeIdIn(Collection<ResourceTypeId> ids);
 
-	boolean isNamePresent(String name, String siteId);
+	boolean isNamePresent(String name, SiteId siteId);
 
-	void delete(String id);
+	void delete(ResourceCreditId id);
 
 	void deleteAll();
 }

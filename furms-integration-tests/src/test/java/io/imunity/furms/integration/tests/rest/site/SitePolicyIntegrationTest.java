@@ -5,8 +5,10 @@
 
 package io.imunity.furms.integration.tests.rest.site;
 
+import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,29 +40,28 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 				.id(siteRepository.create(siteBuilder.build(), siteBuilder.build().getExternalId()))
 				.build();
 		Site.SiteBuilder darkSiteBuilder = defaultSite()
-				.name("Dark Site")
-				.externalId(new SiteExternalId("dsid"));
+				.name("Dark Site");
 		darkSite = darkSiteBuilder
-				.id(siteRepository.create(darkSiteBuilder.build(), darkSiteBuilder.build().getExternalId()))
+				.id(siteRepository.create(darkSiteBuilder.build(), new SiteExternalId("dsid")))
 				.build();
 	}
 
 	@Test
 	void shouldFindAllPoliciesForSpecificSite() throws Exception {
 		//given
-		final String policy1 = createPolicy(site.getId(), "Test 1", 1);
-		final String policy2 = createPolicy(site.getId(),"Test 2", 1);
+		final PolicyId policy1 = createPolicy(site.getId(), "Test 1", 1);
+		final PolicyId policy2 = createPolicy(site.getId(),"Test 2", 1);
 		createPolicy(darkSite.getId(),"Test 3", 1);
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))
-				.andExpect(jsonPath("$.[0].policyId", in(Set.of(policy1, policy2))))
+				.andExpect(jsonPath("$.[0].policyId", in(Set.of(policy1.id.toString(), policy2.id.toString()))))
 				.andExpect(jsonPath("$.[0].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[0].revision", equalTo(1)))
-				.andExpect(jsonPath("$.[1].policyId", in(Set.of(policy1, policy2))))
+				.andExpect(jsonPath("$.[1].policyId", in(Set.of(policy1.id.toString(), policy2.id.toString()))))
 				.andExpect(jsonPath("$.[1].name", in(Set.of("Test 1", "Test 2"))))
 				.andExpect(jsonPath("$.[1].revision", equalTo(1)));
 	}
@@ -76,7 +77,7 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnEmptyArrayWhenThereAreNoBelongsPolicies() throws Exception {
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies", site.getId()))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies", site.getId().id))
 				.andDo(print())
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$").isArray())
@@ -91,7 +92,7 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 		setupUser(testUser);
 
 		//when
-		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/policies", darkSite.getId())
+		mockMvc.perform(get("/rest-api/v1/sites/{siteId}/policies", darkSite.getId().id)
 				.with(testUser.getHttpBasic()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
@@ -100,14 +101,14 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldFindPolicyThatBelongsToSite() throws Exception {
 		//given
-		final String policy = createPolicy(site.getId(), "Test 1", 1);
+		final PolicyId policyId = createPolicy(site.getId(), "Test 1", 1);
 		createPolicy(darkSite.getId(),"Test 2", 1);
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", site.getId(), policy))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", site.getId().id, policyId.id))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.policyId", equalTo(policy)))
+				.andExpect(jsonPath("$.policyId", equalTo(policyId.id.toString())))
 				.andExpect(jsonPath("$.name", equalTo("Test 1")))
 				.andExpect(jsonPath("$.revision", equalTo(1)));
 	}
@@ -115,11 +116,11 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	@Test
 	void shouldReturnForbiddenIfPolicyNotBelongsToSite() throws Exception {
 		//given
-		final String service = createPolicy(site.getId(), "Test 1", 1);
+		final PolicyId policy = createPolicy(site.getId(), "Test 1", 1);
 		createPolicy(darkSite.getId(),"Test 2", 1);
 
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", darkSite.getId(), service))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", darkSite.getId().id, policy.id.toString()))
 				.andDo(print())
 				.andExpect(status().isForbidden());
 	}
@@ -128,27 +129,26 @@ public class SitePolicyIntegrationTest extends IntegrationTestBase {
 	void shouldReturnNotFoundIfPolicyDoesNotExistsWhileGettingPolicies() throws Exception {
 		final String policy = UUID.randomUUID().toString();
 		//when
-		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", site.getId(), policy))
+		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", site.getId().id, policy))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}
 
 	@Test
 	void shouldReturnNotFoundIfSiteDoesNotExistsWhileGettingPolicy() throws Exception {
-		final String policy = createPolicy(site.getId(), "Test 1", 1);
+		final PolicyId policy = createPolicy(site.getId(), "Test 1", 1);
 		//when
 		mockMvc.perform(adminGET("/rest-api/v1/sites/{siteId}/policies/{policyId}", UUID.randomUUID().toString(), policy))
 				.andDo(print())
 				.andExpect(status().isNotFound());
 	}
 
-	private String createPolicy(String siteId, String name, int revision) {
+	private PolicyId createPolicy(SiteId siteId, String name, int revision) {
 		return policyDocumentRepository.create(defaultPolicy()
 				.siteId(siteId)
 				.name(name)
 				.revision(revision)
-				.build())
-				.id.toString();
+				.build());
 	}
 
 }

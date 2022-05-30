@@ -5,19 +5,20 @@
 
 package io.imunity.furms.domain.ssh_keys;
 
+import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.domain.users.PersistentId;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-import io.imunity.furms.domain.users.PersistentId;
-
 public class SSHKeyHistory {
-	public final String id;
-	public final String siteId;
+	public final SSHKeyHistoryId id;
+	public final SiteId siteId;
 	public final PersistentId  sshkeyOwnerId;
 	public final String sshkeyFingerprint;
 	public final LocalDateTime originationTime;
 
-	SSHKeyHistory(String id, String siteId, PersistentId  sshkeyOwnerId, String sshkeyFingerprint, LocalDateTime originationTime) {
+	SSHKeyHistory(SSHKeyHistoryId id, SiteId siteId, PersistentId  sshkeyOwnerId, String sshkeyFingerprint, LocalDateTime originationTime) {
 		this.id = id;
 		this.siteId = siteId;
 		this.sshkeyOwnerId = sshkeyOwnerId;
@@ -58,8 +59,8 @@ public class SSHKeyHistory {
 	}
 
 	public static final class Builder {
-		private String id;
-		private String siteId;
+		private SSHKeyHistoryId id;
+		private SiteId siteId;
 		private PersistentId  sshkeyOwnerId;
 		private String sshkeyFingerprint;
 		private LocalDateTime originationTime;
@@ -68,15 +69,20 @@ public class SSHKeyHistory {
 		}
 
 		public Builder id(String id) {
-			this.id = id;
+			this.id = new SSHKeyHistoryId(id);
 			return this;
 		}
 
 		public Builder siteId(String siteId) {
+			this.siteId = new SiteId(siteId);
+			return this;
+		}
+
+		public Builder siteId(SiteId siteId) {
 			this.siteId = siteId;
 			return this;
 		}
-		
+
 		public Builder sshkeyOwnerId(PersistentId sshkeyOwnerId) {
 			this.sshkeyOwnerId = sshkeyOwnerId;
 			return this;

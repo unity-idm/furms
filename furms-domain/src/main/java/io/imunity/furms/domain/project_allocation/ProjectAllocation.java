@@ -5,19 +5,22 @@
 
 package io.imunity.furms.domain.project_allocation;
 
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
 public class ProjectAllocation {
 
-	public final String id;
-	public final String projectId;
-	public final String communityAllocationId;
+	public final ProjectAllocationId id;
+	public final ProjectId projectId;
+	public final CommunityAllocationId communityAllocationId;
 	public final String name;
 	public final BigDecimal amount;
 
-	private ProjectAllocation(String id, String projectId,
-	                          String communityAllocationId, String name, BigDecimal amount) {
+	private ProjectAllocation(ProjectAllocationId id, ProjectId projectId,
+	                          CommunityAllocationId communityAllocationId, String name, BigDecimal amount) {
 		this.id = id;
 		this.projectId = projectId;
 		this.communityAllocationId = communityAllocationId;
@@ -58,21 +61,31 @@ public class ProjectAllocation {
 	}
 
 	public static final class ProjectAllocationBuilder {
-		protected String id;
-		public String projectId;
-		public String communityAllocationId;
-		public String name;
-		public BigDecimal amount;
+		private ProjectAllocationId id;
+		private ProjectId projectId;
+		private CommunityAllocationId communityAllocationId;
+		private String name;
+		private BigDecimal amount;
 
 		private ProjectAllocationBuilder() {
 		}
 
 		public ProjectAllocationBuilder projectId(String projectId) {
+			this.projectId = new ProjectId(projectId);
+			return this;
+		}
+
+		public ProjectAllocationBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}
 
 		public ProjectAllocationBuilder communityAllocationId(String communityAllocationId) {
+			this.communityAllocationId = new CommunityAllocationId(communityAllocationId);
+			return this;
+		}
+
+		public ProjectAllocationBuilder communityAllocationId(CommunityAllocationId communityAllocationId) {
 			this.communityAllocationId = communityAllocationId;
 			return this;
 		}
@@ -83,6 +96,11 @@ public class ProjectAllocation {
 		}
 
 		public ProjectAllocationBuilder id(String id) {
+			this.id = new ProjectAllocationId(id);
+			return this;
+		}
+
+		public ProjectAllocationBuilder id(ProjectAllocationId id) {
 			this.id = id;
 			return this;
 		}

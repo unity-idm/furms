@@ -4,6 +4,9 @@
  */
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
+import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.rest.openapi.APIDocConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -60,7 +63,7 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
 	@GetMapping("/{communityId}")
 	public Community getCommunity(@PathVariable("communityId") String communityId) {
-		return restService.findOneById(communityId);
+		return restService.findOneById(new CommunityId(communityId));
 	}
 
 	@Operation(
@@ -73,7 +76,7 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
 	@GetMapping("/{communityId}/projects")
 	public List<Project> getCommunityProjects(@PathVariable("communityId") String communityId) {
-		return restService.findAllProjectsByCommunityId(communityId);
+		return restService.findAllProjectsByCommunityId(new CommunityId(communityId));
 	}
 
 	/********************************************************************************************
@@ -92,7 +95,7 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
 	@GetMapping("/{communityId}/allocations")
 	public List<CommunityAllocation> getAllocations(@PathVariable("communityId") String communityId) {
-		return restService.findAllocationByCommunityId(communityId);
+		return restService.findAllocationByCommunityId(new CommunityId(communityId));
 	}
 
 	@Operation(
@@ -107,7 +110,7 @@ public class CommunityRestController {
 	@GetMapping("/{communityId}/allocations/{communityAllocationId}")
 	public CommunityAllocation getAllocation(@PathVariable("communityId") String communityId,
 	                                         @PathVariable("communityAllocationId") String communityAllocationId) {
-		return restService.findAllocationByIdAndCommunityId(communityAllocationId, communityId);
+		return restService.findAllocationByIdAndCommunityId(new CommunityAllocationId(communityAllocationId), new CommunityId(communityId));
 	}
 
 	@Operation(
@@ -121,7 +124,7 @@ public class CommunityRestController {
 	@PostMapping("/{communityId}/allocations")
 	public List<CommunityAllocation> addAllocation(@PathVariable("communityId") String communityId,
 	                                               @RequestBody CommunityAllocationAddRequest request) {
-		return restService.addAllocation(communityId, request);
+		return restService.addAllocation(new CommunityId(communityId), request);
 	}
 
 	/********************************************************************************************
@@ -140,7 +143,7 @@ public class CommunityRestController {
 			@ApiResponse(responseCode = "404", description = "Community not found", content = { @Content }) })
 	@GetMapping("/{communityId}/groups")
 	public List<Group> getGroups(@PathVariable("communityId") String communityId) {
-		return restService.getGroups(communityId);
+		return restService.getGroups(new CommunityId(communityId));
 	}
 
 	@Operation(
@@ -155,7 +158,7 @@ public class CommunityRestController {
 	@GetMapping("/{communityId}/groups/{groupId}")
 	public GroupWithMembers getGroup(@PathVariable("communityId") String communityId,
 	                                 @PathVariable("groupId") String groupId) {
-		return restService.getGroupWithMember(communityId, groupId);
+		return restService.getGroupWithMember(new CommunityId(communityId), new GenericGroupId(groupId));
 	}
 
 	@Operation(
@@ -169,7 +172,7 @@ public class CommunityRestController {
 	@DeleteMapping("/{communityId}/groups/{groupId}")
 	public void deleteGroup(@PathVariable("communityId") String communityId,
 	                        @PathVariable("groupId") String groupId) {
-		restService.deleteGroup(communityId, groupId);
+		restService.deleteGroup(new CommunityId(communityId), new GenericGroupId(groupId));
 	}
 
 	@Operation(
@@ -184,7 +187,7 @@ public class CommunityRestController {
 	public Group updateGroup(@PathVariable("communityId") String communityId,
 	                         @PathVariable("groupId") String groupId,
 	                         @RequestBody GroupDefinitionRequest request) {
-		return restService.updateGroup(communityId, groupId, request);
+		return restService.updateGroup(new CommunityId(communityId), new GenericGroupId(groupId), request);
 	}
 
 	@Operation(
@@ -198,7 +201,7 @@ public class CommunityRestController {
 	@PostMapping("/{communityId}/groups")
 	public Group addGroup(@PathVariable("communityId") String communityId,
 	                      @RequestBody GroupDefinitionRequest request) {
-		return restService.addGroup(communityId, request);
+		return restService.addGroup(new CommunityId(communityId), request);
 	}
 
 }

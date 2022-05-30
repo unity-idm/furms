@@ -6,6 +6,7 @@
 package io.imunity.furms.domain.resource_usage;
 
 import io.imunity.furms.domain.FurmsEvent;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -13,9 +14,9 @@ import java.util.Objects;
 public class ResourceUsageUpdatedEvent implements FurmsEvent {
 	public final BigDecimal amount;
 	public final BigDecimal cumulativeConsumption;
-	public final String projectAllocationId;
+	public final ProjectAllocationId projectAllocationId;
 
-	public ResourceUsageUpdatedEvent(BigDecimal amount, BigDecimal cumulativeConsumption, String projectAllocationId) {
+	public ResourceUsageUpdatedEvent(BigDecimal amount, BigDecimal cumulativeConsumption, ProjectAllocationId projectAllocationId) {
 		this.amount = amount;
 		this.cumulativeConsumption = cumulativeConsumption;
 		this.projectAllocationId = projectAllocationId;

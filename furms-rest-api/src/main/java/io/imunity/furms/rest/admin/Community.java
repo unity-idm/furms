@@ -24,10 +24,10 @@ class Community {
 	}
 
 	Community(io.imunity.furms.domain.communities.Community community, Set<CommunityAllocation> allocations) {
-		this(community.getId(),
+		this(community.getId().id.toString(),
 				community.getName(),
 				allocations.stream()
-				.map(allocation -> allocation.id)
+				.map(allocation -> allocation.id.id.toString())
 				.collect(toList()));
 	}
 

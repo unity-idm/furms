@@ -11,8 +11,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.imunity.furms.api.export.ResourceUsageJSONExporter;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationResolved;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
@@ -20,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import static io.imunity.furms.domain.authz.roles.Capability.COMMUNITY_READ;
@@ -51,20 +54,20 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
-	public Supplier<String> getJsonForProjectAllocation(String projectId, String projectAllocationId) {
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	public Supplier<String> getJsonForProjectAllocation(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		return () -> {
 			exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
 			ProjectAllocationResolved projectAllocation = projectAllocationRepository.findByIdWithRelatedObjects(projectAllocationId).get();
-			List<Consumption> consumption = resourceUsageRepository.findResourceUsagesHistory(UUID.fromString(projectAllocationId)).stream()
+			List<Consumption> consumption = resourceUsageRepository.findResourceUsagesHistory(projectAllocationId).stream()
 				.sorted(Comparator.comparing(usage -> usage.utcProbedAt))
 				.map(usage -> new Consumption(usage.utcProbedAt, usage.cumulativeConsumption))
 				.collect(toList());
 
 			ProjectResourceUsage projectResourceUsage = ProjectResourceUsage.builder()
-				.projectId(projectAllocation.projectId)
+				.projectId(projectAllocation.projectId.id.toString())
 				.project(projectAllocation.projectName)
-				.allocationId(projectAllocation.id)
+				.allocationId(projectAllocation.id.id.toString())
 				.allocation(projectAllocation.name)
 				.unit(projectAllocation.resourceType.unit.getSuffix())
 				.consumption(consumption)
@@ -79,8 +82,8 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
-	public Supplier<String> getJsonForCommunityAllocation(String communityId, String communityAllocationId) {
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	public Supplier<String> getJsonForCommunityAllocation(CommunityId communityId, CommunityAllocationId communityAllocationId) {
 		return () -> {
 			exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
 			CommunityAllocationResolved communityAllocation = communityAllocationRepository.findByIdWithRelatedObjects(communityAllocationId).get();
@@ -91,7 +94,7 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 			CommunityResourceUsage communityResourceUsage = CommunityResourceUsage.builder()
 				.communityId(communityAllocation.communityId)
 				.community(communityAllocation.communityName)
-				.allocationId(communityAllocation.id)
+				.allocationId(communityAllocation.id.id.toString())
 				.allocation(communityAllocation.name)
 				.unit(communityAllocation.resourceType.unit.getSuffix())
 				.consumption(consumption)

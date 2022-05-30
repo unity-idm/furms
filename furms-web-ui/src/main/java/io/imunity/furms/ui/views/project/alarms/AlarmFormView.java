@@ -34,6 +34,8 @@ import io.imunity.furms.api.validation.exceptions.FiredAlarmThresholdReduceExcep
 import io.imunity.furms.domain.alarms.AlarmId;
 import io.imunity.furms.domain.alarms.AlarmWithUserEmails;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -66,15 +68,15 @@ public class AlarmFormView extends FurmsViewComponent {
 	private final EmailValidator emailValidator = new EmailValidator("Not valid email");
 	private final Binder<AlarmFormModel> binder = new BeanValidationBinder<>(AlarmFormModel.class);
 	private final Div buttonLayout = new Div();
-	private final String projectId;
-	private final ComboBox<String> allocationComboBox =  new ComboBox<>();
+	private final ProjectId projectId;
+	private final ComboBox<ProjectAllocationId> allocationComboBox =  new ComboBox<>();
 
 	private BreadCrumbParameter breadCrumbParameter;
 
 	AlarmFormView(AlarmService alarmService, ProjectAllocationService allocationService, ProjectService projectService) {
 		this.alarmService = alarmService;
 		this.allocationService = allocationService;
-		this.projectId = getCurrentResourceId();
+		this.projectId = new ProjectId(getCurrentResourceId());
 		FormLayout formLayout = new FurmsFormLayout();
 
 		TextField nameField = new TextField();
@@ -82,11 +84,11 @@ public class AlarmFormView extends FurmsViewComponent {
 		nameField.setMaxLength(25);
 		formLayout.addFormItem(nameField, getTranslation("view.project-admin.alarms.form.layout.name"));
 
-		Set<String> occupiedAllocationIds = alarmService.findAll(projectId)
+		Set<ProjectAllocationId> occupiedAllocationIds = alarmService.findAll(projectId)
 			.stream()
 			.map(alarm -> alarm.projectAllocationId)
 			.collect(Collectors.toSet());
-		Map<String, String> allocationIdToName = allocationService.findAllWithRelatedObjects(projectId).stream()
+		Map<ProjectAllocationId, String> allocationIdToName = allocationService.findAllWithRelatedObjects(projectId).stream()
 			.filter(allocation -> !occupiedAllocationIds.contains(allocation.id))
 			.collect(Collectors.toMap(allocation -> allocation.id, allocation -> allocation.name));
 		allocationComboBox.setItems(allocationIdToName.keySet());
@@ -132,7 +134,7 @@ public class AlarmFormView extends FurmsViewComponent {
 	}
 
 	private void prepareValidator(TextField nameField,
-	                              ComboBox<String> allocationComboBox,
+	                              ComboBox<ProjectAllocationId> allocationComboBox,
 	                              IntegerField thresholdField,
 	                              Checkbox checkbox, MultiselectComboBox<String> multiselectComboBox) {
 		binder.forField(nameField)

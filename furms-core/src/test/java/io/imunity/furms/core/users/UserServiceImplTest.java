@@ -6,10 +6,13 @@
 package io.imunity.furms.core.users;
 
 import io.imunity.furms.api.users.UserAllocationsService;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GroupAccess;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.projects.ProjectMembershipOnSite;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.sites.SiteUser;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -54,6 +57,12 @@ class UserServiceImplTest {
 		final PersistentId pid = new PersistentId("id");
 		final UUID policy1 = UUID.randomUUID();
 		final UUID policy2 = UUID.randomUUID();
+
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		CommunityId communityId1 = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+
 		final FURMSUser furmsUser = FURMSUser.builder()
 				.id(pid)
 				.fenixUserId(fid)
@@ -63,18 +72,18 @@ class UserServiceImplTest {
 				.status(ENABLED)
 				.build();
 		final Set<SiteUser> siteUser = Set.of(new SiteUser(
-				"siteId",
+			siteId,
 				"siteOauthClientId",
-				Set.of(new ProjectMembershipOnSite("localUserId", "projId")),
-				new PolicyAcceptanceAtSite(new PolicyId(policy1), "siteId", 1,
+				Set.of(new ProjectMembershipOnSite("localUserId", projectId)),
+				new PolicyAcceptanceAtSite(new PolicyId(policy1), siteId, 1,
 						1, ACCEPTED, Instant.now()),
-				Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), "siteId", 2,
+				Set.of(new PolicyAcceptanceAtSite(new PolicyId(policy2), siteId, 2,
 						1, ACCEPTED, Instant.now())),
-				new SiteSSHKeys("siteId", Set.of("sshKey1"))));
+				new SiteSSHKeys(siteId, Set.of("sshKey1"))));
 
 		Set<GroupAccess> userGroupsAccesses = Set.of(
-			new GroupAccess("communityId", Set.of("group", "group1")),
-			new GroupAccess("communityId1", Set.of("group", "group1"))
+			new GroupAccess(communityId, Set.of("group", "group1")),
+			new GroupAccess(communityId1, Set.of("group", "group1"))
 		);
 
 		when(usersDAO.getPersistentId(fid)).thenReturn(pid);

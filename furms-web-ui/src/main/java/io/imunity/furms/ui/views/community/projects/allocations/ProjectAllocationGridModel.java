@@ -5,6 +5,8 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_types.AmountWithUnit;
 import io.imunity.furms.domain.resource_types.PositiveAmountWithUnit;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
@@ -14,8 +16,8 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 class ProjectAllocationGridModel {
-	public final String id;
-	public final String projectId;
+	public final ProjectAllocationId id;
+	public final ProjectId projectId;
 	public final String siteName;
 	public final String resourceTypeName;
 	public final String name;
@@ -26,7 +28,7 @@ class ProjectAllocationGridModel {
 	public final LocalDateTime validFrom;
 	public final LocalDateTime validTo;
 
-	ProjectAllocationGridModel(String id, String projectId, String siteName, String resourceTypeName,
+	ProjectAllocationGridModel(ProjectAllocationId id, ProjectId projectId, String siteName, String resourceTypeName,
 	                           ResourceMeasureUnit resourceTypeUnit, String name, BigDecimal amount, BigDecimal consumed,
 	                           LocalDateTime creationTime, LocalDateTime validFrom, LocalDateTime validTo) {
 		this.id = id;
@@ -74,8 +76,8 @@ class ProjectAllocationGridModel {
 	}
 
 	public static final class ProjectAllocationGridModelBuilder {
-		private String id;
-		private String projectId;
+		private ProjectAllocationId id;
+		private ProjectId projectId;
 		private String siteName;
 		private String resourceTypeName;
 		private ResourceMeasureUnit resourceTypeUnit;
@@ -89,12 +91,12 @@ class ProjectAllocationGridModel {
 		private ProjectAllocationGridModelBuilder() {
 		}
 
-		public ProjectAllocationGridModelBuilder id(String id) {
+		public ProjectAllocationGridModelBuilder id(ProjectAllocationId id) {
 			this.id = id;
 			return this;
 		}
 
-		public ProjectAllocationGridModelBuilder projectId(String projectId) {
+		public ProjectAllocationGridModelBuilder projectId(ProjectId projectId) {
 			this.projectId = projectId;
 			return this;
 		}

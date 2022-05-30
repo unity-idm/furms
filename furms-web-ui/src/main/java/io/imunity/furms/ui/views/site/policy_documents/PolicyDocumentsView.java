@@ -5,22 +5,6 @@
 
 package io.imunity.furms.ui.views.site.policy_documents;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
-import static io.imunity.furms.domain.constant.RoutesConst.SITE_BASE_LANDING_PAGE;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -32,10 +16,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
 import io.imunity.furms.api.validation.exceptions.AssignedPolicyRemovingException;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsLandingViewComponent;
@@ -47,6 +31,21 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
+import static io.imunity.furms.domain.constant.RoutesConst.SITE_BASE_LANDING_PAGE;
+import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 @Route(value = SITE_BASE_LANDING_PAGE, layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.policy-documents.page.title")
@@ -91,7 +90,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 	}
 
 	private List<PolicyDocumentGridModel> loadPolicyDocumentsGridModels() {
-		String siteId = getCurrentResourceId();
+		SiteId siteId = new SiteId(getCurrentResourceId());
 		return handleExceptions(() -> policyDocumentService.findAllBySiteId(siteId))
 			.orElseGet(Collections::emptySet)
 			.stream()
@@ -133,7 +132,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 			return new GridActionsButtonLayout(new RouterGridLink(USERS, model.id.id.toString(), acceptanceView));
 	}
 
-	private Component createContextMenu(PolicyId policyDocumentId, String policyDocumentName, String siteId) {
+	private Component createContextMenu(PolicyId policyDocumentId, String policyDocumentName, SiteId siteId) {
 		GridActionMenu contextMenu = new GridActionMenu();
 
 		contextMenu.addItem(new MenuButton(
@@ -151,7 +150,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 		return contextMenu.getTarget();
 	}
 
-	private Dialog createConfirmDialog(PolicyId policyDocumentId, String policyDocumentName, String siteId) {
+	private Dialog createConfirmDialog(PolicyId policyDocumentId, String policyDocumentName, SiteId siteId) {
 		FurmsDialog furmsDialog = new FurmsDialog(getTranslation("view.site-admin.policy-documents.dialog.text", policyDocumentName));
 		furmsDialog.addConfirmButtonClickListener(event -> {
 			try {

@@ -9,6 +9,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.domain.sites.Site;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,7 @@ class SiteServiceValidator {
 		validateIsNamePresentIgnoringRecord(request.getName(), request.getId());
 	}
 
-	void validateDelete(String id) {
+	void validateDelete(SiteId id) {
 		validateId(id);
 		if (resourceCreditRepository.existsBySiteId(id)) {
 			throw new SiteHasResourceCreditsRemoveValidationError("Site should not have ResourceCredits.");
@@ -50,13 +51,14 @@ class SiteServiceValidator {
 		assertTrue(!siteRepository.isNamePresent(name), () -> new DuplicatedNameValidationError("Site name has to be unique."));
 	}
 
-	void validateIsNamePresentIgnoringRecord(String name, String recordToIgnore) {
-		notNull(recordToIgnore, "Site id has to be declared.");
+	void validateIsNamePresentIgnoringRecord(String name, SiteId siteId) {
+		notNull(siteId, "Site id has to be declared.");
+		notNull(siteId.id, "Site id has to be declared.");
 		notNull(name, "Invalid Site name: Site name is empty.");
-		assertTrue(!siteRepository.isNamePresentIgnoringRecord(name, recordToIgnore), () -> new DuplicatedNameValidationError("Invalid Site name: Site name has to be unique."));
+		assertTrue(!siteRepository.isNamePresentIgnoringRecord(name, siteId), () -> new DuplicatedNameValidationError("Invalid Site name: Site name has to be unique."));
 	}
 
-	private void validateId(String id) {
+	private void validateId(SiteId id) {
 		notNull(id, "Site ID has to be declared.");
 		assertTrue(siteRepository.exists(id), () -> new IdNotFoundValidationError("Site with declared ID is not exists."));
 	}

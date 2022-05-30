@@ -9,6 +9,7 @@ import io.imunity.furms.api.validation.exceptions.RemovingCommunityException;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.IdNotFoundValidationError;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,7 @@ class CommunityServiceValidator {
 		validateDescription(request);
 	}
 
-	void validateDelete(String id) {
+	void validateDelete(CommunityId id) {
 		validateId(id);
 		if(!projectRepository.findAllByCommunityId(id).isEmpty())
 			throw new RemovingCommunityException("Removed Community cannot have projects");
@@ -71,7 +72,7 @@ class CommunityServiceValidator {
 			(optionalCommunity.isEmpty() || !optionalCommunity.get().getName().equals(community.getName()));
 	}
 
-	private void validateId(String id) {
+	private void validateId(CommunityId id) {
 		notNull(id, "Community ID has to be declared.");
 		assertTrue(communityRepository.exists(id), () -> new IdNotFoundValidationError("Community with declared ID is not exists."));
 
