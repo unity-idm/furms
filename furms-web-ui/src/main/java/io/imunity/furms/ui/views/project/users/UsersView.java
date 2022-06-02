@@ -122,7 +122,7 @@ public class UsersView extends FurmsLandingViewComponent {
 					projectApplicationsService.accept(projectId, userGridItem.getFenixUserId().get());
 					showSuccessNotification(getTranslation("view.project-admin.users.application.accept"));
 				} catch (RuntimeException e) {
-					CommonExceptionsHandler.handleInDefaultWay(e);
+					CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 				}
 					usersDAO.reload();
 					grid.reloadGrid();
@@ -184,7 +184,7 @@ public class UsersView extends FurmsLandingViewComponent {
 		} catch (UserAlreadyAppliedForMembershipException e) {
 			showErrorNotification(getTranslation("invite.error.application.exist"));
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.handleInDefaultWay(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

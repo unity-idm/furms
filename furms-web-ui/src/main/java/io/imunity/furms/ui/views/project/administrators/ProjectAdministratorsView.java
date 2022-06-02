@@ -95,7 +95,7 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.handleInDefaultWay(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

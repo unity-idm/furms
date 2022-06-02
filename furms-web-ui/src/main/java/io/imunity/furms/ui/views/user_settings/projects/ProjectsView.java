@@ -174,7 +174,7 @@ public class ProjectsView extends FurmsViewComponent {
 					try {
 						projectApplicationsService.removeForCurrentUser(project.id);
 					} catch (RuntimeException e){
-						CommonExceptionsHandler.handleInDefaultWay(e);
+						CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 					}
 					loadGridContent();
 				});

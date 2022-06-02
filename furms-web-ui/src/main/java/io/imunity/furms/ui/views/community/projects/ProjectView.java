@@ -189,7 +189,7 @@ public class ProjectView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.handleInDefaultWay(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

@@ -155,7 +155,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 				policyDocumentService.delete(siteId, policyDocumentId);
 				loadGridContent();
 			} catch (RuntimeException e) {
-				CommonExceptionsHandler.handleInDefaultWay(e);
+				CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 			}
 		});
 		return furmsDialog;

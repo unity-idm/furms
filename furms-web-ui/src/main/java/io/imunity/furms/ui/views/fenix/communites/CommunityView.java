@@ -185,7 +185,7 @@ public class CommunityView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.handleInDefaultWay(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

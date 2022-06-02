@@ -23,7 +23,7 @@ import static io.imunity.furms.ui.utils.VaadinTranslator.getTranslation;
 public class CommonExceptionsHandler {
 	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private static Map<Class<? extends RuntimeException>, String> exceptionToNotificationMessageKey = Map.of(
+	private final static Map<Class<? extends RuntimeException>, String> exceptionToNotificationMessageKey = Map.of(
 		DuplicatedInvitationError.class, "invite.error.duplicate",
 		UserAlreadyHasRoleError.class, "invite.error.role.own",
 		InvalidEmailException.class, "invite.error.email",
@@ -32,12 +32,18 @@ public class CommonExceptionsHandler {
 		ApplicationNotExistingException.class, "application.already.not.existing"
 	);
 
-	public static void handleInDefaultWay(RuntimeException e) {
+	/**
+	 * @return true if exception handled by default way, otherwise false
+	 */
+	public static boolean showExceptionBasedNotificationError(RuntimeException e) {
+		boolean handled = true;
 		String message = exceptionToNotificationMessageKey.get(e.getClass());
 		if(message == null) {
 			message = "base.error.message";
-			LOG.error("Could not handle exception. ", e);
+			LOG.warn("No human readable message defined for exception. ", e);
+			handled = false;
 		}
 		showErrorNotification(getTranslation(message));
+		return handled;
 	}
 }

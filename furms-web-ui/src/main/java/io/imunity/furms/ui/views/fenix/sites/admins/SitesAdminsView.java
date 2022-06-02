@@ -144,7 +144,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 			gridReload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.handleInDefaultWay(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

@@ -119,7 +119,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			else
 				showErrorNotification(getTranslation("name.duplicated.error.message"));
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.handleInDefaultWay(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 
 	}

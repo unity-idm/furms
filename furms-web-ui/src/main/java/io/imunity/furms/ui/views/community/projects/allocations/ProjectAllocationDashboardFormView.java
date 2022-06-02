@@ -19,7 +19,6 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.DefaultNameField;
@@ -43,7 +42,6 @@ import static com.vaadin.flow.component.Key.ESCAPE;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static java.math.BigDecimal.ZERO;
 import static java.util.stream.Collectors.toSet;
 
@@ -134,7 +132,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 			projectAllocationService.create(viewModel.getCommunityId(), projectAllocation);
 			UI.getCurrent().navigate(DashboardView.class);
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.handleInDefaultWay(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 
