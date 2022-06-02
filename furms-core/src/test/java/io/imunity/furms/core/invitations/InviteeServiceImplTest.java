@@ -263,7 +263,7 @@ class InviteeServiceImplTest {
 
 		invitationService.findAllByCurrentUser();
 
-		orderVerifier.verify(invitationRepository).findAllBy(userId, "email");
+		orderVerifier.verify(invitationRepository).findAllBy(userId);
 	}
 
 	@Test

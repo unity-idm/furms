@@ -53,8 +53,15 @@ class InvitationDatabaseRepository implements InvitationRepository {
 	}
 
 	@Override
-	public Set<Invitation> findAllBy(FenixUserId id, String email) {
-		return repository.findByUserIdOrEmail(id.id, email).stream()
+	public Set<Invitation> findAllBy(FenixUserId id) {
+		return repository.findAllByUserId(id.id).stream()
+			.map(InvitationEntity::toInvitation)
+			.collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<Invitation> findAllBy(String email) {
+		return repository.findAllByEmail(email).stream()
 			.map(InvitationEntity::toInvitation)
 			.collect(Collectors.toSet());
 	}

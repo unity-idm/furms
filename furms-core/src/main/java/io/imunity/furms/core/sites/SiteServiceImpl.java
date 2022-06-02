@@ -339,7 +339,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	}
 
 	private boolean hasRole(PersistentId userId, ResourceId resourceId, Role role) {
-		return usersDAO.getUserAttributes(usersDAO.getFenixUserId(userId))
+		return usersDAO.getUserAttributes(userId)
 			.attributesByResource
 			.getOrDefault(resourceId, Set.of()).contains(new UserAttribute(role));
 	}
@@ -348,8 +348,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		return usersDAO.getAllUsers().stream()
 			.filter(user -> user.email.equals(email))
 			.findAny()
-			.filter(user -> user.fenixUserId.isPresent())
-			.flatMap(user -> user.fenixUserId)
+			.filter(user -> user.id.isPresent())
+			.flatMap(user -> user.id)
 			.map(userId -> usersDAO.getUserAttributes(userId)
 				.attributesByResource.getOrDefault(resourceId, Set.of())
 				.contains(new UserAttribute(role)))

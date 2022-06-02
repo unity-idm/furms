@@ -18,7 +18,8 @@ public interface InvitationEntityRepository extends CrudRepository<InvitationEnt
 	Optional<InvitationEntity> findByIdAndEmail(UUID id, String email);
 	Optional<InvitationEntity> findByCode(String code);
 	Optional<InvitationEntity> findByEmailAndRoleAttributeAndRoleValueAndResourceId(String email, String roleAttribute, String roleVale, UUID resourceId);
-	Set<InvitationEntity> findByUserIdOrEmail(String userId, String email);
+	Set<InvitationEntity> findAllByUserId(String userId);
+	Set<InvitationEntity> findAllByEmail(String email);
 	Set<InvitationEntity> findByRoleAttributeAndRoleValueAndResourceId(String roleAttribute, String roleVale, UUID resourceId);
 	@Modifying
 	@Query("delete from invitation where code = :code")

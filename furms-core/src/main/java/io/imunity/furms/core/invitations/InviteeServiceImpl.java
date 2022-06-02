@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.imunity.furms.domain.authz.roles.Capability.AUTHENTICATED;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -75,6 +77,15 @@ class InviteeServiceImpl implements InviteeService {
 		FURMSUser user = authzService.getCurrentAuthNUser();
 		Invitation invitation = invitationRepository.findBy(id)
 			.orElseThrow(() -> new InvitationNotExistingException(String.format("Invitation id %s doesn't exist for user %s", id, user.fenixUserId)));
+		acceptUserInvitation(user, invitation);
+		invitationRepository.deleteBy(invitation.id);
+		notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> userInvitationNotificationService.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
+		publisher.publishEvent(new InvitationAcceptedEvent(user.fenixUserId.orElse(FenixUserId.empty()), user.email,
+			invitation.resourceId));
+		publisher.publishEvent(new UserRoleGrantedByInvitationEvent(invitation.originator, user.id.get(), invitation.resourceId, invitation.resourceName, invitation.role));
+	}
+
+	void acceptUserInvitation(FURMSUser user, Invitation invitation) {
 		switch (invitation.resourceId.type){
 			case APP_LEVEL:
 				fenixUsersDAO.addFenixAdminRole(user.id.get());
@@ -91,10 +102,6 @@ class InviteeServiceImpl implements InviteeService {
 				projectGroupsDAO.addProjectUser(communityId, projectId, user.id.get(), invitation.role);
 				break;
 		}
-		invitationRepository.deleteBy(invitation.id);
-		notifyOriginatorAndSameHierarchyAdmins(invitation, usr -> userInvitationNotificationService.notifyAdminAboutRoleAcceptance(usr.id.get(), invitation.role, invitation.email));
-		publisher.publishEvent(new InvitationAcceptedEvent(user.fenixUserId.get(), user.email, invitation.resourceId));
-		publisher.publishEvent(new UserRoleGrantedByInvitationEvent(invitation.originator, user.id.get(), invitation.resourceId, invitation.resourceName, invitation.role));
 	}
 
 	private void notifyOriginatorAndSameHierarchyAdmins(Invitation invitation, Consumer<FURMSUser> notifier){
@@ -131,10 +138,12 @@ class InviteeServiceImpl implements InviteeService {
 	@FurmsAuthorize(capability = AUTHENTICATED)
 	public Set<Invitation> findAllByCurrentUser() {
 		FURMSUser user = authzService.getCurrentAuthNUser();
+		Set<Invitation> invitationsRelatedWithEmail = invitationRepository.findAllBy(user.email);
 		if(user.fenixUserId.isEmpty())
-			return Set.of();
+			return invitationsRelatedWithEmail;
 		Optional<FenixUserId> fenixUserId = user.fenixUserId;
-		return invitationRepository.findAllBy(fenixUserId.get(), user.email);
+		return Stream.concat(invitationsRelatedWithEmail.stream(), invitationRepository.findAllBy(fenixUserId.get()).stream())
+			.collect(Collectors.toSet());
 	}
 
 	@Override

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -81,7 +80,7 @@ class InvitationEntityRepositoryTest extends DBIntegrationTest {
 		Set<InvitationEntity> users1InvitationEntitiesSet = StreamSupport.stream(users1InvitationEntities.spliterator(), false)
 			.collect(Collectors.toSet());
 
-		assertEquals(users1InvitationEntitiesSet, entityRepository.findByUserIdOrEmail("user1Id", null));
+		assertEquals(users1InvitationEntitiesSet, entityRepository.findAllByUserId("user1Id"));
 	}
 
 	@Test
@@ -226,7 +225,7 @@ class InvitationEntityRepositoryTest extends DBIntegrationTest {
 		Set<InvitationEntity> users1InvitationEntitiesSet = StreamSupport.stream(users1InvitationEntities.spliterator(), false)
 			.collect(Collectors.toSet());
 
-		assertEquals(users1InvitationEntitiesSet, entityRepository.findByUserIdOrEmail(null, "email"));
+		assertEquals(users1InvitationEntitiesSet, entityRepository.findAllByEmail("email"));
 	}
 
 	@Test

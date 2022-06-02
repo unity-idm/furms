@@ -8,7 +8,6 @@ package io.imunity.furms.core.invitations;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
-import io.imunity.furms.api.validation.exceptions.UnsupportedUserException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -20,8 +19,10 @@ import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
 import io.imunity.furms.domain.invitations.UpdateInvitationUserEvent;
 import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttribute;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.spi.applications.ApplicationRepository;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -52,19 +53,21 @@ public class InvitatoryService {
 	private final AuthzService authzService;
 	private final UserInvitationNotificationService userInvitationNotificationService;
 	private final ApplicationRepository applicationRepository;
+	private final InviteeServiceImpl inviteeService;
 	private final ApplicationEventPublisher publisher;
 	private final Clock clock;
 	private final int expirationTimeInSeconds;
 
 	InvitatoryService(UsersDAO usersDAO, InvitationRepository invitationRepository, AuthzService authzService,
 	                  UserInvitationNotificationService userInvitationNotificationService, ApplicationEventPublisher publisher, Clock clock,
-	                  ApplicationRepository applicationRepository,
+	                  ApplicationRepository applicationRepository, InviteeServiceImpl inviteeService,
 	                  @Value("${furms.invitations.expiration-time-in-seconds}") String expirationTime) {
 		this.usersDAO = usersDAO;
 		this.invitationRepository = invitationRepository;
 		this.authzService = authzService;
 		this.userInvitationNotificationService = userInvitationNotificationService;
 		this.applicationRepository = applicationRepository;
+		this.inviteeService = inviteeService;
 		this.publisher = publisher;
 		this.clock = clock;
 		this.expirationTimeInSeconds = Integer.parseInt(expirationTime);
@@ -84,8 +87,6 @@ public class InvitatoryService {
 		FURMSUser user = usersDAO.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("Could not invite user due to wrong email address."));
 
-		if(user.fenixUserId.isEmpty())
-			throw new UnsupportedUserException("Only fenix users supported");
 		if(invitationRepository.findBy(user.email, role, resourceId).isPresent())
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(isSupportRoleCheckExistingAlsoForAdminRole(resourceId, role, user.email))
@@ -94,23 +95,36 @@ public class InvitatoryService {
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy(resourceId.id.toString(), user.fenixUserId.get()))
 			throw new UserAlreadyAppliedForMembershipException("User waiting for application approval");
-		if(containsRole(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()), role))
+		if(containsRole(usersDAO.getUserAttributes(userId).attributesByResource.getOrDefault(resourceId, Set.of()), role))
 			throw new UserAlreadyHasRoleError("User already has this role");
+
+		String originator = authzService.getCurrentAuthNUser().email;
 
 		Invitation invitation = Invitation.builder()
 			.resourceId(resourceId)
 			.role(role)
 			.resourceName(resourceName)
-			.userId(user.fenixUserId.get())
-			.originator(authzService.getCurrentAuthNUser().email)
+			.userId(user.fenixUserId.orElse(FenixUserId.empty()))
+			.originator(originator)
 			.email(user.email)
 			.utcExpiredAt(getExpiredAtTime())
 			.build();
 
+		if(originator.equals(user.email)){
+			autoAcceptInvitation(userId, user, invitation);
+			return;
+		}
+
 		invitationRepository.create(invitation);
 		LOG.info("Inviting FENIX admin role to {}", userId);
-		userInvitationNotificationService.notifyUserAboutNewRole(user.id.get(), invitation.role);
-		publisher.publishEvent(new InviteUserEvent(user.fenixUserId.get(), user.email, resourceId));
+		userInvitationNotificationService.notifyUserAboutNewRole(userId, invitation.role);
+		publisher.publishEvent(new InviteUserEvent(user.fenixUserId.orElse(FenixUserId.empty()), user.email, resourceId));
+	}
+
+	private void autoAcceptInvitation(PersistentId userId, FURMSUser user, Invitation invitation) {
+		inviteeService.acceptUserInvitation(user, invitation);
+		publisher.publishEvent(new UserRoleGrantedEvent(userId,  invitation.resourceId, invitation.resourceName,
+			invitation.role));
 	}
 
 	private boolean containsRole(Set<UserAttribute> userAttributes, Role role) {
