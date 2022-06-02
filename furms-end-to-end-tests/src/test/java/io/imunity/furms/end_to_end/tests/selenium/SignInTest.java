@@ -18,11 +18,11 @@ class SignInTest {
     void shouldSignIn() {
         FurmsUIChromeDriverFactory.create()
             .getLogInPage()
-            .waitSeconds(5)
+            .assertViewIsVisible()
             .writeUsername("a")
             .writePassword("a")
             .logIn()
-            .verifyViewIsAvailable()
+            .assertViewIsVisible()
             .verifyLandingPageRolesNumber(LANDING_PAGE_ROLES_NUMBER)
             .quit();
     }

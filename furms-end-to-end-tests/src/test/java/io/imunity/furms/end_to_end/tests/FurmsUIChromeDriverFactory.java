@@ -10,7 +10,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 public class FurmsUIChromeDriverFactory {
-	public static FurmsUIChromeDriver<?> create(){
+	public static FurmsUIDriver<?> create(){
 		String getenv = System.getenv("chrome-driver-path");
 		System.setProperty("webdriver.chrome.driver", getenv);
 
@@ -18,6 +18,6 @@ public class FurmsUIChromeDriverFactory {
 		options.addArguments("allow-insecure-localhost");
 		WebDriver driver = new ChromeDriver(options);
 
-		return new FurmsUIChromeDriver<>(driver);
+		return new FurmsUIDriver<>(driver);
 	}
 }

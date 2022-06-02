@@ -6,7 +6,7 @@
 package io.imunity.furms.end_to_end.tests.selenium;
 
 import io.imunity.furms.end_to_end.tests.FurmsSeleniumExtension;
-import io.imunity.furms.end_to_end.tests.FurmsUIChromeDriver;
+import io.imunity.furms.end_to_end.tests.FurmsUIDriver;
 import io.imunity.furms.end_to_end.tests.FurmsUIChromeDriverFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,17 +16,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith({FurmsSeleniumExtension.class})
 class ViewTypeSelectorTest {
 
-    private FurmsUIChromeDriver.LandingPage driver;
+    private FurmsUIDriver.LandingPage driver;
 
     @BeforeEach
     void setUp() {
         driver = FurmsUIChromeDriverFactory.create()
             .getLogInPage()
-            .waitSeconds(5)
+            .assertViewIsVisible()
             .writeUsername("a")
             .writePassword("a")
             .logIn()
-            .waitSeconds(5);
+            .assertViewIsVisible();
     }
 
     @AfterEach
@@ -36,36 +36,36 @@ class ViewTypeSelectorTest {
 
     @Test
     void shouldLoadFenixAdminViewType() {
-        driver.getSiteView()
-            .getFenixView()
-            .verifyFenixView();
+        driver.visitSiteView()
+            .visitFenixView()
+            .assertFenixViewIsVisible();
     }
 
     @Test
     void shouldLoadSiteAdminViewType() {
-        driver.getFenixView()
-            .getSiteView()
-            .verifySiteView();
+        driver.visitFenixView()
+            .visitSiteView()
+            .assertSiteViewIsVisible();
     }
 
     @Test
     void shouldLoadCommunityAdminViewType() {
-        driver.getProjectView()
-            .getCommunityView()
-            .verifyCommunityView();
+        driver.visitProjectView()
+            .visitCommunityView()
+            .assertCommunityViewIsVisible();
     }
 
     @Test
     void shouldLoadProjectAdminViewType() {
-        driver.getCommunityView()
-            .getProjectView()
-            .verifyProjectView();
+        driver.visitCommunityView()
+            .visitProjectView()
+            .assertProjectViewIsVisible();
     }
 
     @Test
     void shouldLoadUserSettingsViewType() {
-        driver.getFenixView()
-            .getUserView()
-            .verifyUserView();
+        driver.visitFenixView()
+            .visitUserView()
+            .assertUserViewIsVisible();
     }
 }

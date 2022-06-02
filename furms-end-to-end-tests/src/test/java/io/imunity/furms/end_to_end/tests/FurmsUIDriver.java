@@ -14,13 +14,15 @@ import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
+public class FurmsUIDriver<T extends FurmsUIDriver<T>> {
+	private static final int TIMEOUT_IN_SECONDS = 5;
+
 	protected final WebDriver driver;
 	private final WebDriverWait waitDriver;
 
-	FurmsUIChromeDriver(WebDriver driver) {
+	FurmsUIDriver(WebDriver driver) {
 		this.driver = driver;
-		this.waitDriver = new WebDriverWait(driver, 5);
+		this.waitDriver = new WebDriverWait(driver, TIMEOUT_IN_SECONDS);
 	}
 
 	public LoginPage getLogInPage(){
@@ -45,10 +47,14 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 		driver.quit();
 	}
 
-	public static class LoginPage extends FurmsUIChromeDriver<LoginPage> {
+	public static class LoginPage extends FurmsUIDriver<LoginPage> {
 
 		private LoginPage(WebDriver driver) {
 			super(driver);
+		}
+
+		public LoginPage assertViewIsVisible() {
+			return checkUrlLoadedCorrectly("oauth2-as/oauth2-authz-web-entry");
 		}
 
 		public LoginPage writeUsername(String username) {
@@ -67,7 +73,7 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 		}
 	}
 
-	public static class LandingPage extends FurmsUIChromeDriver<LandingPage> {
+	public static class LandingPage extends FurmsUIDriver<LandingPage> {
 		private static final int FENIX_ADMIN_VIEW_PAGE_ID = 0;
 		private static final int SITE_ADMIN_VIEW_PAGE_ID = 1;
 		private static final int COMMUNITY_ADMIN_VIEW_PAGE_ID = 2;
@@ -78,7 +84,7 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 			super(driver);
 		}
 
-		public LandingPage verifyViewIsAvailable() {
+		public LandingPage assertViewIsVisible() {
 			return checkUrlLoadedCorrectly("front/start/role/chooser");
 		}
 
@@ -87,33 +93,33 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 			return this;
 		}
 
-		public FenixView getFenixView(){
+		public FenixView visitFenixView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(FENIX_ADMIN_VIEW_PAGE_ID).click();
 			return new FenixView(super.driver);
 		}
 
-		public SiteView getSiteView(){
+		public SiteView visitSiteView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(SITE_ADMIN_VIEW_PAGE_ID).click();
 			return new SiteView(super.driver);
 		}
 
-		public CommunityView getCommunityView(){
+		public CommunityView visitCommunityView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(COMMUNITY_ADMIN_VIEW_PAGE_ID).click();
 			return new CommunityView(super.driver);
 		}
 
-		public ProjectView getProjectView(){
+		public ProjectView visitProjectView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(PROJECT_ADMIN_VIEW_PAGE_ID).click();
 			return new ProjectView(super.driver);
 		}
 
-		public UserView getUserView(){
+		public UserView visitUserView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(USER_VIEW_PAGE_ID).click();
 			return new UserView(super.driver);
 		}
 	}
 
-	public static abstract class MainView<Z extends FurmsUIChromeDriver<Z>> extends FurmsUIChromeDriver<Z> {
+	public static abstract class MainView<Z extends FurmsUIDriver<Z>> extends FurmsUIDriver<Z> {
 		private static final int FENIX_ADMIN_VIEW_SELECTOR_ID = 1;
 		private static final int SITE_ADMIN_VIEW_SELECTOR_ID = 2;
 		private static final int COMMUNITY_ADMIN_VIEW_SELECTOR_ID = 3;
@@ -124,27 +130,27 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 			super(driver);
 		}
 
-		public FenixView getFenixView(){
+		public FenixView visitFenixView(){
 			clikRoleInRolePicker(FENIX_ADMIN_VIEW_SELECTOR_ID);
 			return new FenixView(super.driver);
 		}
 
-		public SiteView getSiteView(){
+		public SiteView visitSiteView(){
 			clikRoleInRolePicker(SITE_ADMIN_VIEW_SELECTOR_ID);
 			return new SiteView(super.driver);
 		}
 
-		public CommunityView getCommunityView(){
+		public CommunityView visitCommunityView(){
 			clikRoleInRolePicker(COMMUNITY_ADMIN_VIEW_SELECTOR_ID);
 			return new CommunityView(super.driver);
 		}
 
-		public ProjectView getProjectView(){
+		public ProjectView visitProjectView(){
 			clikRoleInRolePicker(PROJECT_ADMIN_VIEW_SELECTOR_ID);
 			return new ProjectView(super.driver);
 		}
 
-		public UserView getUserView(){
+		public UserView visitUserView(){
 			clikRoleInRolePicker(USER_SETTINGS_VIEW_SELECTOR_ID);
 			return new UserView(super.driver);
 		}
@@ -160,7 +166,7 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 			super(driver);
 		}
 
-		public FenixView verifyFenixView() {
+		public FenixView assertFenixViewIsVisible() {
 			return checkUrlLoadedCorrectly("fenix/admin/dashboard");
 		}
 	}
@@ -170,7 +176,7 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 			super(driver);
 		}
 
-		public SiteView verifySiteView() {
+		public SiteView assertSiteViewIsVisible() {
 			return checkUrlLoadedCorrectly("site/admin/policy/document");
 		}
 	}
@@ -180,7 +186,7 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 			super(driver);
 		}
 
-		public CommunityView verifyCommunityView() {
+		public CommunityView assertCommunityViewIsVisible() {
 			return checkUrlLoadedCorrectly("community/admin/dashboard");
 		}
 	}
@@ -190,7 +196,7 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 			super(driver);
 		}
 
-		public ProjectView verifyProjectView() {
+		public ProjectView assertProjectViewIsVisible() {
 			return checkUrlLoadedCorrectly("project/admin/users");
 		}
 	}
@@ -200,7 +206,7 @@ public class FurmsUIChromeDriver<T extends FurmsUIChromeDriver<T>> {
 			super(driver);
 		}
 
-		public UserView verifyUserView() {
+		public UserView assertUserViewIsVisible() {
 			return checkUrlLoadedCorrectly("users/settings/profile");
 		}
 	}
