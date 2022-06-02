@@ -33,7 +33,7 @@ public class CommonExceptionsHandler {
 	);
 
 	public static void handleInDefaultWay(RuntimeException e) {
-		String message = exceptionToNotificationMessageKey.get(e);
+		String message = exceptionToNotificationMessageKey.get(e.getClass());
 		if(message == null) {
 			message = "base.error.message";
 			LOG.error("Could not handle exception. ", e);
