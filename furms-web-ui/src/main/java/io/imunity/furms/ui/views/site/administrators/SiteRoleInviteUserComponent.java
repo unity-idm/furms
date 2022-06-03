@@ -105,7 +105,7 @@ class SiteRoleInviteUserComponent extends HorizontalLayout {
 			} catch (UserIsSiteSupport e) {
 				showErrorNotification(getTranslation("invite.error.role.site.support"));
 			} catch (RuntimeException e) {
-				CommonExceptionsHandler.handleInDefaultWay(e);
+				CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 			}
 		});
 	}

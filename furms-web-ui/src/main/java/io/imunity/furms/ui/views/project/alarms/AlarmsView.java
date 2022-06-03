@@ -165,7 +165,7 @@ public class AlarmsView extends FurmsViewComponent {
 				alarmService.remove(projectId, alarmId);
 				loadGridContent();
 			} catch (RuntimeException e) {
-				CommonExceptionsHandler.handleInDefaultWay(e);
+				CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 			}
 		});
 		return furmsDialog;
