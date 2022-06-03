@@ -55,7 +55,8 @@ class MembershipResolver {
 	
 	private Optional<CommunityMembership> resolveCommunityMembership(ResourceId community, 
 			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
-		Optional<Community> communityOpt = communitiesDAO.findById(new CommunityId(community.id));
+		CommunityId id = (CommunityId) community.id;
+		Optional<Community> communityOpt = communitiesDAO.findById(id);
 		if (communityOpt.isEmpty()) {
 			LOG.warn("Community {} is defined in users directory (unity) but not in FURMS DB", community.id);
 			return Optional.empty();
@@ -63,20 +64,20 @@ class MembershipResolver {
 		Set<ProjectMembership> projectsMembership = resolveProjectsMembership(community, attributesByResource);
 		Set<UserAttribute> communityAttributes = filterExposedAttribtues(
 				attributesByResource.getOrDefault(community, Collections.emptySet()));
-		return Optional.of(new CommunityMembership(community.id.toString(), communityOpt.get().getName(), 
+		return Optional.of(new CommunityMembership(id.id.toString(), communityOpt.get().getName(),
 				projectsMembership, communityAttributes));
 	}
 
 	private Set<ProjectMembership> resolveProjectsMembership(ResourceId community, 
 			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
 		Map<ProjectId, Project> communityProjects =
-			projectsDAO.findAllByCommunityId(new CommunityId(community.id)).stream()
+			projectsDAO.findAllByCommunityId((CommunityId)community.id).stream()
 				.collect(Collectors.toMap(Project::getId, proj -> proj));
 		return attributesByResource.entrySet().stream()
 			.filter(entry -> entry.getKey().type == ResourceType.PROJECT)
-			.filter(entry -> communityProjects.containsKey(new ProjectId(entry.getKey().id)))
+			.filter(entry -> communityProjects.containsKey((ProjectId)entry.getKey().id))
 			.map(entry -> resolveProjectMembership(entry.getValue(),
-					communityProjects.get(new ProjectId(entry.getKey().id))))
+					communityProjects.get((ProjectId)entry.getKey().id)))
 			.collect(Collectors.toSet());
 	}
 

@@ -6,6 +6,8 @@ package io.imunity.furms.unity.users;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
@@ -53,7 +55,7 @@ public class UnityUsersDAOTest {
 	@Test
 	public void shouldParseCommunityResourceAttributes() {
 		UUID id = UUID.randomUUID();
-		String idStr = id.toString();
+		CommunityId communityId = new CommunityId(id);
 		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		UnityClient unityClient = mock(UnityClient.class);
 		UserService userService = mock(UserService.class);
@@ -69,7 +71,7 @@ public class UnityUsersDAOTest {
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
-		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(idStr, ResourceType.COMMUNITY),
+		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(communityId, ResourceType.COMMUNITY),
 				Set.of(new UserAttribute("attr1", "val1")));	
 	}
 
@@ -78,7 +80,7 @@ public class UnityUsersDAOTest {
 	public void shouldParseProjectResourceAttributes() {
 		UUID id = UUID.randomUUID();
 		UUID idC = UUID.randomUUID();
-		String idStr = id.toString();
+		ProjectId projectId = new ProjectId(id);
 		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		UnityClient unityClient = mock(UnityClient.class);
 		UserService userService = mock(UserService.class);
@@ -97,7 +99,7 @@ public class UnityUsersDAOTest {
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
-		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(idStr, ResourceType.PROJECT),
+		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(projectId, ResourceType.PROJECT),
 				Set.of(new UserAttribute("attr1", "val1")));	
 	}
 
@@ -106,7 +108,7 @@ public class UnityUsersDAOTest {
 	@Test
 	public void shouldAppendGroupsWithoutAttributes() {
 		UUID id = UUID.randomUUID();
-		String idStr = id.toString();
+		CommunityId communityId = new CommunityId(id);
 		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		UnityClient unityClient = mock(UnityClient.class);
 		UserService userService = mock(UserService.class);
@@ -121,7 +123,7 @@ public class UnityUsersDAOTest {
 		
 		UserAttributes userAttributes = unityUsersDAO.getUserAttributes(new FenixUserId("user1"));
 		
-		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(idStr, ResourceType.COMMUNITY),
+		assertThat(userAttributes.attributesByResource).containsEntry(new ResourceId(communityId, ResourceType.COMMUNITY),
 				Collections.emptySet());	
 	}
 

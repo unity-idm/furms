@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Capability.FENIX_ADMINS_MANAGEMENT;
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
@@ -59,7 +58,7 @@ class FenixUserServiceImpl implements FenixUserService {
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public void inviteFenixAdmin(PersistentId userId) {
-		invitatoryService.inviteUser(userId, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, RESOURCE_NAME);
+		invitatoryService.inviteUser(userId, new ResourceId(null, APP_LEVEL), Role.FENIX_ADMIN, RESOURCE_NAME);
 	}
 
 	@Override
@@ -79,7 +78,7 @@ class FenixUserServiceImpl implements FenixUserService {
 	@Override
 	@FurmsAuthorize(capability = FENIX_ADMINS_MANAGEMENT)
 	public void inviteFenixAdmin(String email) {
-		invitatoryService.inviteUser(email, new ResourceId((UUID) null, APP_LEVEL), Role.FENIX_ADMIN, RESOURCE_NAME);
+		invitatoryService.inviteUser(email, new ResourceId(null, APP_LEVEL), Role.FENIX_ADMIN, RESOURCE_NAME);
 	}
 
 	@Override
@@ -87,6 +86,6 @@ class FenixUserServiceImpl implements FenixUserService {
 	public void removeFenixAdminRole(PersistentId userId){
 		LOG.info("Removing FENIX admin role from {}", userId);
 		usersDAO.removeFenixAdminRole(userId);
-		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId((String) null, APP_LEVEL), RESOURCE_NAME, Role.FENIX_ADMIN));
+		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(null, APP_LEVEL), RESOURCE_NAME, Role.FENIX_ADMIN));
 	}
 }

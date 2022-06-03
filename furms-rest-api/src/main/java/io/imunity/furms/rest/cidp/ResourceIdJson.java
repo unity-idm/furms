@@ -5,7 +5,6 @@
 
 package io.imunity.furms.rest.cidp;
 
-import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 
 import java.util.Objects;
@@ -20,9 +19,9 @@ public class ResourceIdJson {
 		this.type = type;
 	}
 
-	public ResourceIdJson(ResourceId resourceId) {
-		this(resourceId.id, resourceId.type);
-	}
+//	public ResourceIdJson(ResourceId resourceId) {
+//		this(resourceId.id, resourceId.type);
+//	}
 
 	@Override
 	public boolean equals(Object o) {

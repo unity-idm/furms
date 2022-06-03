@@ -5,14 +5,8 @@
 
 package io.imunity.furms.rest.cidp;
 
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.users.UserAttribute;
-
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 public class ResourceAttributeJson {
 	public final ResourceIdJson resource;
@@ -23,10 +17,10 @@ public class ResourceAttributeJson {
 		this.attributes = attributes;
 	}
 
-	public ResourceAttributeJson(Map.Entry<ResourceId, Set<UserAttribute>> entry) {
-		this(new ResourceIdJson(entry.getKey()),
-				entry.getValue().stream().map(AttributeJson::new).collect(toSet()));
-	}
+//	public ResourceAttributeJson(Map.Entry<ResourceId, Set<UserAttribute>> entry) {
+//		this(new ResourceIdJson(entry.getKey()),
+//				entry.getValue().stream().map(AttributeJson::new).collect(toSet()));
+//	}
 
 	@Override
 	public boolean equals(Object o) {

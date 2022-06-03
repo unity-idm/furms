@@ -7,6 +7,7 @@ package io.imunity.furms.core.authz;
 
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.authz.FURMSUserProvider;
+import io.imunity.furms.domain.Id;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -20,10 +21,8 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.Capability.REST_API_KEY_MANAGEMENT;
-import static java.util.Optional.ofNullable;
 
 @Service
 public class AuthzServiceImpl implements AuthzService {
@@ -46,9 +45,9 @@ public class AuthzServiceImpl implements AuthzService {
 	}
 
 	@Override
-	public boolean isResourceMember(String resourceId, Role role) {
+	public boolean isResourceMember(Id id, Role role) {
 		return getCurrent().roles.entrySet().stream()
-			.filter(entry -> resourceId.equals(ofNullable(entry.getKey().id).map(UUID::toString).orElse(null)))
+			.filter(entry -> id.equals(entry.getKey().id))
 			.anyMatch(entry -> entry.getValue().contains(role));
 	}
 

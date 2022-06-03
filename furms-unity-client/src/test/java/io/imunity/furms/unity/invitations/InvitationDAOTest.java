@@ -9,6 +9,7 @@ import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationCode;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.unity.client.UnityClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class InvitationDAOTest {
 	@Test
 	void shouldCreateInvitation() {
 		//given
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(UUID.randomUUID()), ResourceType.SITE);
 		Instant instant = Instant.now();
 		Role fenixAdmin = Role.FENIX_ADMIN;
 		
@@ -66,7 +67,7 @@ class InvitationDAOTest {
 	@Test
 	void shouldUpdateInvitation() {
 		//given
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(UUID.randomUUID()), ResourceType.SITE);
 		Instant instant = Instant.now();
 		Role role = Role.SITE_SUPPORT;
 		String email = "email";

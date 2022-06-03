@@ -5,6 +5,7 @@
 
 package io.imunity.furms.api.authz;
 
+import io.imunity.furms.domain.Id;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -18,7 +19,7 @@ public interface AuthzService {
 	void reloadRoles();
 	Map<ResourceId, Set<Role>> getRoles();
 	PersistentId getCurrentUserId();
-	boolean isResourceMember(String resourceId, Role role);
+	boolean isResourceMember(Id resourceId, Role role);
 	boolean hasRESTAPITokensCreationRights();
 	boolean hasRESTAPITokensCreationRights(PersistentId userId);
 }

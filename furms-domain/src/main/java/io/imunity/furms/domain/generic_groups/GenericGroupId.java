@@ -44,9 +44,4 @@ public class GenericGroupId implements Id {
 			"id=" + id +
 			'}';
 	}
-
-	@Override
-	public UUID getId() {
-		return id;
-	}
 }

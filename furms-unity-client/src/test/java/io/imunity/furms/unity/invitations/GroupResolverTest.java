@@ -8,8 +8,10 @@ package io.imunity.furms.unity.invitations;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +36,7 @@ class GroupResolverTest {
 
 	@Test
 	void shouldResolveFenixAdminGroup(){
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		Role role = Role.FENIX_ADMIN;
 
 		String group = groupResolver.resolveGroup(resourceId, role);
@@ -45,7 +47,7 @@ class GroupResolverTest {
 	@Test
 	void shouldResolveSiteAdminGroup(){
 		UUID id = UUID.randomUUID();
-		ResourceId resourceId = new ResourceId(id, ResourceType.SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(id), ResourceType.SITE);
 		Role role = Role.SITE_ADMIN;
 
 		String group = groupResolver.resolveGroup(resourceId, role);
@@ -56,7 +58,7 @@ class GroupResolverTest {
 	@Test
 	void shouldResolveSiteSupportGroup(){
 		UUID id = UUID.randomUUID();
-		ResourceId resourceId = new ResourceId(id, ResourceType.SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(id), ResourceType.SITE);
 		Role role = Role.SITE_SUPPORT;
 
 		String group = groupResolver.resolveGroup(resourceId, role);
@@ -67,7 +69,7 @@ class GroupResolverTest {
 	@Test
 	void shouldResolveCommunityAdminGroup(){
 		UUID id = UUID.randomUUID();
-		ResourceId resourceId = new ResourceId(id, ResourceType.COMMUNITY);
+		ResourceId resourceId = new ResourceId(new CommunityId(id), ResourceType.COMMUNITY);
 		Role role = Role.COMMUNITY_ADMIN;
 
 		String group = groupResolver.resolveGroup(resourceId, role);
@@ -79,7 +81,7 @@ class GroupResolverTest {
 	void shouldResolveProjectAdminGroup(){
 		UUID id = UUID.randomUUID();
 		UUID communityId = UUID.randomUUID();
-		ResourceId resourceId = new ResourceId(id, ResourceType.PROJECT);
+		ResourceId resourceId = new ResourceId(new ProjectId(id), ResourceType.PROJECT);
 		Role role = Role.PROJECT_ADMIN;
 		Project project = Project.builder()
 			.id(id.toString())
@@ -96,7 +98,7 @@ class GroupResolverTest {
 	void shouldResolveProjectUserGroup(){
 		UUID id = UUID.randomUUID();
 		UUID communityId = UUID.randomUUID();
-		ResourceId resourceId = new ResourceId(id, ResourceType.PROJECT);
+		ResourceId resourceId = new ResourceId(new ProjectId(id), ResourceType.PROJECT);
 		Role role = Role.PROJECT_USER;
 		Project project = Project.builder()
 			.id(id.toString())

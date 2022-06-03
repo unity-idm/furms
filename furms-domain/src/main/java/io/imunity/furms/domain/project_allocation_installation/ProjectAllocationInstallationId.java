@@ -49,9 +49,4 @@ public class ProjectAllocationInstallationId implements Id {
 			"id=" + id +
 			'}';
 	}
-
-	@Override
-	public UUID getId() {
-		return id;
-	}
 }

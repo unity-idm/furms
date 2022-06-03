@@ -7,6 +7,7 @@ package io.imunity.furms.unity.client.users;
 
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -215,7 +216,7 @@ public class UserServiceTest {
 				.id(new PersistentId("1"))
 				.email("email")
 				.status(UserStatus.ENABLED)
-				.roles(Map.of(new ResourceId((String) null, APP_LEVEL), Set.of()))
+				.roles(Map.of(new ResourceId(null, APP_LEVEL), Set.of()))
 				.build()
 		));
 		assertThat(groupedUsers.getUsers(communityPath)).isEqualTo(List.of(
@@ -223,7 +224,7 @@ public class UserServiceTest {
 				.id(new PersistentId("2"))
 				.email("email2")
 				.status(UserStatus.ENABLED)
-				.roles(Map.of(new ResourceId(communityId, COMMUNITY), Set.of(COMMUNITY_ADMIN)))
+				.roles(Map.of(new ResourceId(new CommunityId(communityId), COMMUNITY), Set.of(COMMUNITY_ADMIN)))
 				.build()
 		));
 	}

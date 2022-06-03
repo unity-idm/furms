@@ -10,6 +10,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UnsupportedUserException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.domain.Id;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
@@ -74,9 +75,9 @@ public class InvitatoryService {
 		return invitationRepository.findAllBy(role, resourceId);
 	}
 
-	public boolean checkAssociation(String resourceId, InvitationId invitationId) {
+	public boolean checkAssociation(Id resourceId, InvitationId invitationId) {
 		return invitationRepository.findBy(invitationId)
-			.filter(invitation -> invitation.resourceId.id.toString().equals(resourceId))
+			.filter(invitation -> invitation.resourceId.id.equals(resourceId))
 			.isPresent();
 	}
 
@@ -92,7 +93,7 @@ public class InvitatoryService {
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(isSiteAdminRoleCheckExistingAlsoForSupportRole(resourceId, role, user.email))
 			throw new DuplicatedInvitationError("This invitation already exists");
-		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy(new ProjectId(resourceId.id),
+		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy((ProjectId)resourceId.id,
 			user.fenixUserId.get()))
 			throw new UserAlreadyAppliedForMembershipException("User waiting for application approval");
 		if(containsRole(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()), role))

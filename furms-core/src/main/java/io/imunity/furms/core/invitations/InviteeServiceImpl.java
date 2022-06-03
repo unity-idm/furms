@@ -83,13 +83,13 @@ class InviteeServiceImpl implements InviteeService {
 				fenixUsersDAO.addFenixAdminRole(user.id.get());
 				break;
 			case SITE:
-				siteGroupDAO.addSiteUser(new SiteId(invitation.resourceId.id), user.id.get(), invitation.role);
+				siteGroupDAO.addSiteUser((SiteId)invitation.resourceId.id, user.id.get(), invitation.role);
 				break;
 			case COMMUNITY:
-				communityGroupsDAO.addAdmin(new CommunityId(invitation.resourceId.id), user.id.get());
+				communityGroupsDAO.addAdmin((CommunityId)invitation.resourceId.id, user.id.get());
 				break;
 			case PROJECT:
-				ProjectId projectId = new ProjectId(invitation.resourceId.id);
+				ProjectId projectId = (ProjectId)invitation.resourceId.id;
 				CommunityId communityId = projectRepository.findById(projectId).get().getCommunityId();
 				projectGroupsDAO.addProjectUser(communityId, projectId, user.id.get(), invitation.role);
 				break;
@@ -107,15 +107,15 @@ class InviteeServiceImpl implements InviteeService {
 				adminsToNotify = fenixUsersDAO.getAdminUsers();
 				break;
 			case SITE:
-				SiteId siteId = new SiteId(invitation.resourceId.id);
+				SiteId siteId = (SiteId)invitation.resourceId.id;
 				adminsToNotify = siteGroupDAO.getSiteUsers(siteId, Set.of(Role.SITE_ADMIN));
 				break;
 			case COMMUNITY:
-				CommunityId communityId = new CommunityId(invitation.resourceId.id);
+				CommunityId communityId = (CommunityId)invitation.resourceId.id;
 				adminsToNotify = communityGroupsDAO.getAllAdmins(communityId);
 				break;
 			case PROJECT:
-				ProjectId projectId = new ProjectId(invitation.resourceId.id);
+				ProjectId projectId = (ProjectId)invitation.resourceId.id;
 				CommunityId comId = projectRepository.findById(projectId).get().getCommunityId();
 				adminsToNotify = projectGroupsDAO.getAllAdmins(comId, projectId);
 				break;

@@ -9,9 +9,12 @@ package io.imunity.furms.db.invitations;
 import io.imunity.furms.db.DBIntegrationTest;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +28,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.ResourceType.PROJECT;
+import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -63,7 +68,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Optional<Invitation> invitation = invitationDatabaseRepository.findBy(new InvitationId(invitationEntity.getId()));
 		assertTrue(invitation.isPresent());
-		assertEquals(invitationEntity.resourceId, invitation.get().resourceId.id);
+		assertEquals(new ProjectId(invitationEntity.resourceId), invitation.get().resourceId.id);
 		assertEquals(invitationEntity.resourceType, invitation.get().resourceId.type.getPersistentId());
 		assertEquals(invitationEntity.resourceName, invitation.get().resourceName);
 		assertEquals(invitationEntity.code, invitation.get().code.code);
@@ -94,7 +99,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Optional<Invitation> invitation = invitationDatabaseRepository.findBy(new InvitationCode(invitationEntity.code));
 		assertTrue(invitation.isPresent());
-		assertEquals(invitationEntity.resourceId, invitation.get().resourceId.id);
+		assertEquals(new ProjectId(invitationEntity.resourceId), invitation.get().resourceId.id);
 		assertEquals(invitationEntity.resourceType, invitation.get().resourceId.type.getPersistentId());
 		assertEquals(invitationEntity.resourceName, invitation.get().resourceName);
 		assertEquals(invitationEntity.code, invitation.get().code.code);
@@ -124,9 +129,11 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		entityRepository.save(invitationEntity);
 
-		Optional<Invitation> invitation = invitationDatabaseRepository.findBy("email", role, new ResourceId(resourceId, PROJECT));
+		ProjectId projectId = new ProjectId(resourceId);
+		ResourceId resourceId1 = new ResourceId(projectId, PROJECT);
+		Optional<Invitation> invitation = invitationDatabaseRepository.findBy("email", role, resourceId1);
 		assertTrue(invitation.isPresent());
-		assertEquals(invitationEntity.resourceId, invitation.get().resourceId.id);
+		assertEquals(projectId, invitation.get().resourceId.id);
 		assertEquals(invitationEntity.resourceType, invitation.get().resourceId.type.getPersistentId());
 		assertEquals(invitationEntity.resourceName, invitation.get().resourceName);
 		assertEquals(invitationEntity.code, invitation.get().code.code);
@@ -149,7 +156,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId")
 			.email("email")
-			.resourceType(APP_LEVEL)
+			.resourceType(COMMUNITY)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code")
@@ -161,7 +168,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId1")
 			.email("email1")
-			.resourceType(APP_LEVEL)
+			.resourceType(COMMUNITY)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code1")
@@ -174,7 +181,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId1")
 			.email("email1")
-			.resourceType(APP_LEVEL)
+			.resourceType(COMMUNITY)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code2")
@@ -186,8 +193,8 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		assertEquals(2, invitations.size());
 		Invitation invitation = invitations.iterator().next();
-		assertThat(invitation.resourceId.id).isIn(resourceId, resourceId1);
-		assertEquals(invitation.resourceId.type, APP_LEVEL);
+		assertThat(invitation.resourceId.id).isIn(new CommunityId(resourceId), new CommunityId(resourceId1));
+		assertEquals(invitation.resourceId.type, COMMUNITY);
 		assertEquals(invitation.resourceName, "resourceName");
 		assertThat(invitation.code.code).isIn("code1", "code2");
 		assertThat(invitation.email).isEqualTo("email1");
@@ -208,7 +215,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId")
 			.email("email")
-			.resourceType(APP_LEVEL)
+			.resourceType(SITE)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code")
@@ -220,7 +227,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId1")
 			.email("email1")
-			.resourceType(APP_LEVEL)
+			.resourceType(SITE)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code1")
@@ -233,7 +240,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId1")
 			.email("email1")
-			.resourceType(APP_LEVEL)
+			.resourceType(SITE)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code2")
@@ -245,8 +252,8 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		assertEquals(2, invitations.size());
 		Invitation invitation = invitations.iterator().next();
-		assertThat(invitation.resourceId.id).isIn(resourceId, resourceId1);
-		assertEquals(invitation.resourceId.type, APP_LEVEL);
+		assertThat(invitation.resourceId.id).isIn(new SiteId(resourceId), new SiteId(resourceId1));
+		assertEquals(invitation.resourceId.type, SITE);
 		assertEquals(invitation.resourceName, "resourceName");
 		assertThat(invitation.code.code).isIn("code1", "code2");
 		assertThat(invitation.email).isEqualTo("email1");
@@ -267,7 +274,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId")
 			.email("email")
-			.resourceType(APP_LEVEL)
+			.resourceType(SITE)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code")
@@ -279,7 +286,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId1")
 			.email("email1")
-			.resourceType(APP_LEVEL)
+			.resourceType(SITE)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code1")
@@ -291,7 +298,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.originator("originator")
 			.userId("userId1")
 			.email("email1")
-			.resourceType(APP_LEVEL)
+			.resourceType(SITE)
 			.roleAttribute(role.unityRoleAttribute)
 			.roleValue(role.unityRoleValue)
 			.code("code2")
@@ -303,8 +310,8 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 
 		assertEquals(2, invitations.size());
 		Invitation invitation = invitations.iterator().next();
-		assertEquals(invitation.resourceId.id, resourceId);
-		assertEquals(invitation.resourceId.type, APP_LEVEL);
+		assertEquals(invitation.resourceId.id, new SiteId(resourceId));
+		assertEquals(invitation.resourceId.type, SITE);
 		assertEquals(invitation.resourceName, "resourceName");
 		assertThat(invitation.code.code).isIn("code", "code1");
 		assertThat(invitation.email).isIn("email", "email1");
@@ -318,7 +325,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldCreate() {
 		Invitation invitation = Invitation.builder()
-			.resourceId(new ResourceId(UUID.randomUUID(), APP_LEVEL))
+			.resourceId(new ResourceId(null, APP_LEVEL))
 			.resourceName("resourceName")
 			.originator("originator")
 			.userId(new FenixUserId("userId"))
@@ -348,7 +355,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 	void shouldUpdateExpiredAt() {
 		LocalDateTime dateTime = LocalDate.now().atStartOfDay().plusDays(5);
 		Invitation invitation = Invitation.builder()
-			.resourceId(new ResourceId(UUID.randomUUID(), APP_LEVEL))
+			.resourceId(new ResourceId(null, APP_LEVEL))
 			.resourceName("resourceName")
 			.originator("originator")
 			.userId(new FenixUserId("userId"))

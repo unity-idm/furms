@@ -47,9 +47,10 @@ class InvitationEntity extends UUIDIdentifiable {
 	}
 
 	Invitation toInvitation(){
+		ResourceType type = ResourceType.valueOf(resourceType);
 		return Invitation.builder()
 			.id(new InvitationId(id))
-			.resourceId(new ResourceId(resourceId, ResourceType.valueOf(resourceType)))
+			.resourceId(new ResourceId(ResourceIdToUUIDMapper.map(resourceId, type), type))
 			.resourceName(resourceName)
 			.originator(originator)
 			.userId(new FenixUserId(userId))

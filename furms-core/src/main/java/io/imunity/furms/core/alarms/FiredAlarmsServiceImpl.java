@@ -61,13 +61,12 @@ class FiredAlarmsServiceImpl implements FiredAlarmsService {
 		Map<ResourceId, Set<Role>> roles = authzService.getRoles();
 		List<ProjectId> projectIds = roles.entrySet().stream()
 			.filter(e -> e.getValue().contains(Role.PROJECT_ADMIN))
-			.map(e -> e.getKey().id)
-			.map(ProjectId::new)
+			.map(e -> (ProjectId)e.getKey().id)
 			.collect(toList());
 
 		return alarmRepository.findAll(projectIds, currentUser.fenixUserId.get()).stream()
 			.map(activeAlarm -> new UserActiveAlarm(activeAlarm, currentUser.fenixUserId.get(),
-				roles.get(new ResourceId(activeAlarm.projectId.id, PROJECT))))
+				roles.get(new ResourceId(activeAlarm.projectId, PROJECT))))
 			.collect(toSet());
 	}
 

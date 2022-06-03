@@ -92,7 +92,7 @@ class InviteeServiceImplTest {
 		FenixUserId userId = new FenixUserId("userId");
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
-			.resourceId(new ResourceId((UUID) null, APP_LEVEL))
+			.resourceId(new ResourceId(null, APP_LEVEL))
 			.resourceName("resourceName")
 			.originator("originator")
 			.userId(userId)
@@ -130,7 +130,7 @@ class InviteeServiceImplTest {
 	void shouldAcceptInvitationForSiteLevel() {
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(UUID.randomUUID()), SITE);
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
 			.resourceId(resourceId)
@@ -160,7 +160,7 @@ class InviteeServiceImplTest {
 
 		invitationService.acceptBy(invitationId);
 
-		orderVerifier.verify(siteGroupDAO).addSiteUser(new SiteId(resourceId.id), persistentId, Role.SITE_ADMIN);
+		orderVerifier.verify(siteGroupDAO).addSiteUser((SiteId)resourceId.id, persistentId, Role.SITE_ADMIN);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
@@ -171,7 +171,7 @@ class InviteeServiceImplTest {
 	void shouldAcceptInvitationForCommunityLevel() {
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), COMMUNITY);
+		ResourceId resourceId = new ResourceId(new CommunityId(UUID.randomUUID()), COMMUNITY);
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
 			.resourceId(resourceId)
@@ -201,7 +201,7 @@ class InviteeServiceImplTest {
 
 		invitationService.acceptBy(invitationId);
 
-		orderVerifier.verify(communityGroupsDAO).addAdmin(new CommunityId(resourceId.id), persistentId);
+		orderVerifier.verify(communityGroupsDAO).addAdmin((CommunityId)resourceId.id, persistentId);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.COMMUNITY_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
@@ -214,7 +214,7 @@ class InviteeServiceImplTest {
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 		FenixUserId userId = new FenixUserId("userId");
 		ProjectId projectId = new ProjectId(UUID.randomUUID());
-		ResourceId resourceId = new ResourceId(projectId.id, PROJECT);
+		ResourceId resourceId = new ResourceId(projectId, PROJECT);
 		Invitation invitation = Invitation.builder()
 			.id(invitationId)
 			.resourceId(resourceId)
@@ -292,7 +292,7 @@ class InviteeServiceImplTest {
 			.role(Role.SITE_ADMIN)
 			.email("email")
 			.originator("originator")
-			.resourceId(new ResourceId(UUID.randomUUID(), SITE))
+			.resourceId(new ResourceId(new SiteId(UUID.randomUUID()), SITE))
 			.userId(userId)
 			.build();
 
@@ -328,7 +328,7 @@ class InviteeServiceImplTest {
 			.email("email")
 			.role(Role.SITE_ADMIN)
 			.originator("originator")
-			.resourceId(new ResourceId(UUID.randomUUID(), SITE))
+			.resourceId(new ResourceId(new SiteId(UUID.randomUUID()), SITE))
 			.code(invitationCode)
 			.build();
 

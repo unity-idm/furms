@@ -72,7 +72,7 @@ class UserCapabilityCollector implements CapabilityCollector {
 			.filter(role -> role.getValue().contains(Role.COMMUNITY_ADMIN))
 			.map(Map.Entry::getKey)
 			.filter(rId -> rId.type.equals(COMMUNITY))
-			.map(resourceId -> new CommunityId(resourceId.id))
+			.map(resourceId -> (CommunityId)resourceId.id)
 			.collect(Collectors.toSet());
 
 		return mapProjectToCommunityResourceId(communityIds)
@@ -86,14 +86,14 @@ class UserCapabilityCollector implements CapabilityCollector {
 			.filter(role -> role.getValue().contains(Role.COMMUNITY_ADMIN))
 			.map(Map.Entry::getKey)
 			.filter(rId -> rId.type.equals(COMMUNITY))
-			.map(resourceId -> new CommunityId(resourceId.id))
+			.map(resourceId -> (CommunityId)resourceId.id)
 			.collect(Collectors.toSet());
 
 		Map<ResourceId, ResourceId> projectToCommunity = projects.stream()
 			.filter(project -> communityIds.contains(project.getCommunityId()))
 			.map(project -> Map.entry(
-				new ResourceId(project.getId().id, PROJECT),
-				new ResourceId(project.getCommunityId().id, COMMUNITY))
+				new ResourceId(project.getId(), PROJECT),
+				new ResourceId(project.getCommunityId(), COMMUNITY))
 			)
 			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 		return projectIds.stream()
@@ -104,8 +104,8 @@ class UserCapabilityCollector implements CapabilityCollector {
 	private Stream<Map.Entry<ResourceId, ResourceId>> mapProjectToCommunityResourceId(Set<CommunityId> communityResourceIds) {
 		return projectRepository.findAllByCommunityIds(communityResourceIds).stream()
 			.map(project -> Map.entry(
-				new ResourceId(project.getId().id, PROJECT),
-				new ResourceId(project.getCommunityId().id, COMMUNITY))
+				new ResourceId(project.getId(), PROJECT),
+				new ResourceId(project.getCommunityId(), COMMUNITY))
 			);
 	}
 

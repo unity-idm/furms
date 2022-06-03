@@ -27,7 +27,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -57,7 +56,7 @@ public class RoleAssignmentAuditLogServiceTest {
 
 		roleAssignmentAuditLogService.onUserRoleRevokedEvent(new UserRoleRevokedEvent(
 			id,
-			new ResourceId(UUID.randomUUID(), ResourceType.APP_LEVEL),
+			new ResourceId(null, ResourceType.APP_LEVEL),
 			"",
 			Role.FENIX_ADMIN
 		));

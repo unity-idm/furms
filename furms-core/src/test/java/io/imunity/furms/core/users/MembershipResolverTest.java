@@ -45,10 +45,10 @@ public class MembershipResolverTest {
 		Set<UserAttribute> p1Attributes = Set.of(new UserAttribute("a2", "a2Val"));
 		Set<UserAttribute> p2Attributes = Set.of(new UserAttribute("a3", "a3Val"));
 		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of(
-				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes,
-				new ResourceId(COMMUNITY2_ID, ResourceType.COMMUNITY), c2Attributes,
-				new ResourceId(PROJECT1_ID, ResourceType.PROJECT), p1Attributes,
-				new ResourceId(PROJECT2_ID, ResourceType.PROJECT), p2Attributes);
+				new ResourceId(new CommunityId(COMMUNITY1_ID), ResourceType.COMMUNITY), c1Attributes,
+				new ResourceId(new CommunityId(COMMUNITY2_ID), ResourceType.COMMUNITY), c2Attributes,
+				new ResourceId(new ProjectId(PROJECT1_ID), ResourceType.PROJECT), p1Attributes,
+				new ResourceId(new ProjectId(PROJECT2_ID), ResourceType.PROJECT), p2Attributes);
 		when(communitiesDAO.findById(new CommunityId(COMMUNITY1_ID))).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
 		when(communitiesDAO.findById(new CommunityId(COMMUNITY2_ID))).thenReturn(Optional.of(
@@ -76,8 +76,8 @@ public class MembershipResolverTest {
 		Set<UserAttribute> c1Attributes = Set.of(new UserAttribute("sys:a1", "a1Val"));
 		Set<UserAttribute> p1Attributes = Set.of(new UserAttribute("sys:a2", "a2Val"));
 		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of(
-				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes,
-				new ResourceId(PROJECT1_ID, ResourceType.PROJECT), p1Attributes);
+				new ResourceId(new CommunityId(COMMUNITY1_ID), ResourceType.COMMUNITY), c1Attributes,
+				new ResourceId(new ProjectId(PROJECT1_ID), ResourceType.PROJECT), p1Attributes);
 		when(communitiesDAO.findById(new CommunityId(COMMUNITY1_ID))).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
 		when(projectsDAO.findAllByCommunityId(new CommunityId(COMMUNITY1_ID))).thenReturn(Set.of(
@@ -96,7 +96,7 @@ public class MembershipResolverTest {
 		MembershipResolver resolver = new MembershipResolver(communitiesDAO, projectsDAO);
 		Set<UserAttribute> c1Attributes = Collections.emptySet();
 		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of(
-				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes);
+				new ResourceId(new CommunityId(COMMUNITY1_ID), ResourceType.COMMUNITY), c1Attributes);
 		when(communitiesDAO.findById(new CommunityId(COMMUNITY1_ID))).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
 		when(projectsDAO.findAllByCommunityId(new CommunityId(COMMUNITY1_ID))).thenReturn(Collections.emptySet());
@@ -127,8 +127,8 @@ public class MembershipResolverTest {
 		Set<UserAttribute> c1Attributes = Collections.emptySet();
 		Set<UserAttribute> p1Attributes = Collections.emptySet();
 		Map<ResourceId, Set<UserAttribute>> attrByResource = Map.of(
-				new ResourceId(COMMUNITY1_ID, ResourceType.COMMUNITY), c1Attributes,
-				new ResourceId(PROJECT1_ID, ResourceType.PROJECT), p1Attributes);
+				new ResourceId(new CommunityId(COMMUNITY1_ID), ResourceType.COMMUNITY), c1Attributes,
+				new ResourceId(new ProjectId(PROJECT1_ID), ResourceType.PROJECT), p1Attributes);
 		when(communitiesDAO.findById(new CommunityId(COMMUNITY1_ID))).thenReturn(Optional.of(
 				Community.builder().id(COMMUNITY1_ID.toString()).name("c1").build()));
 		when(projectsDAO.findAllByCommunityId(new CommunityId(COMMUNITY1_ID))).thenReturn(Set.of(

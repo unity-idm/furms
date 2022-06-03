@@ -5,8 +5,5 @@
 
 package io.imunity.furms.domain;
 
-import java.util.UUID;
-
 public interface Id {
-	UUID getId();
 }
