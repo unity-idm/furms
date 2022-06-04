@@ -85,7 +85,9 @@ public class FurmsUIDriver<T extends FurmsUIDriver<T>> {
 		}
 
 		public LandingPage assertViewIsVisible() {
-			return checkUrlLoadedCorrectly("front/start/role/chooser");
+			checkUrlLoadedCorrectly("front/start/role/chooser");
+			super.waitDriver.until(ExpectedConditions.elementToBeClickable(By.tagName("vaadin-button")));
+			return this;
 		}
 
 		public LandingPage verifyLandingPageRolesNumber(int rolesNumber) {
@@ -95,26 +97,31 @@ public class FurmsUIDriver<T extends FurmsUIDriver<T>> {
 
 		public FenixView visitFenixView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(FENIX_ADMIN_VIEW_PAGE_ID).click();
+			super.waitDriver.until(ExpectedConditions.elementToBeClickable(By.className("furms-select")));
 			return new FenixView(super.driver);
 		}
 
 		public SiteView visitSiteView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(SITE_ADMIN_VIEW_PAGE_ID).click();
+			super.waitDriver.until(ExpectedConditions.elementToBeClickable(By.className("furms-select")));
 			return new SiteView(super.driver);
 		}
 
 		public CommunityView visitCommunityView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(COMMUNITY_ADMIN_VIEW_PAGE_ID).click();
+			super.waitDriver.until(ExpectedConditions.elementToBeClickable(By.className("furms-select")));
 			return new CommunityView(super.driver);
 		}
 
 		public ProjectView visitProjectView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(PROJECT_ADMIN_VIEW_PAGE_ID).click();
+			super.waitDriver.until(ExpectedConditions.elementToBeClickable(By.className("furms-select")));
 			return new ProjectView(super.driver);
 		}
 
 		public UserView visitUserView(){
 			super.driver.findElements(By.tagName("vaadin-button")).get(USER_VIEW_PAGE_ID).click();
+			super.waitDriver.until(ExpectedConditions.elementToBeClickable(By.className("furms-select")));
 			return new UserView(super.driver);
 		}
 	}
@@ -131,31 +138,31 @@ public class FurmsUIDriver<T extends FurmsUIDriver<T>> {
 		}
 
 		public FenixView visitFenixView(){
-			clikRoleInRolePicker(FENIX_ADMIN_VIEW_SELECTOR_ID);
+			clickRoleInRolePicker(FENIX_ADMIN_VIEW_SELECTOR_ID);
 			return new FenixView(super.driver);
 		}
 
 		public SiteView visitSiteView(){
-			clikRoleInRolePicker(SITE_ADMIN_VIEW_SELECTOR_ID);
+			clickRoleInRolePicker(SITE_ADMIN_VIEW_SELECTOR_ID);
 			return new SiteView(super.driver);
 		}
 
 		public CommunityView visitCommunityView(){
-			clikRoleInRolePicker(COMMUNITY_ADMIN_VIEW_SELECTOR_ID);
+			clickRoleInRolePicker(COMMUNITY_ADMIN_VIEW_SELECTOR_ID);
 			return new CommunityView(super.driver);
 		}
 
 		public ProjectView visitProjectView(){
-			clikRoleInRolePicker(PROJECT_ADMIN_VIEW_SELECTOR_ID);
+			clickRoleInRolePicker(PROJECT_ADMIN_VIEW_SELECTOR_ID);
 			return new ProjectView(super.driver);
 		}
 
 		public UserView visitUserView(){
-			clikRoleInRolePicker(USER_SETTINGS_VIEW_SELECTOR_ID);
+			clickRoleInRolePicker(USER_SETTINGS_VIEW_SELECTOR_ID);
 			return new UserView(super.driver);
 		}
 
-		private void clikRoleInRolePicker(int fenixAdminViewSelectorId) {
+		private void clickRoleInRolePicker(int fenixAdminViewSelectorId) {
 			super.driver.findElement(By.className("furms-select")).click();
 			super.driver.findElements(By.tagName("vaadin-select-item")).get(fenixAdminViewSelectorId).click();
 		}
