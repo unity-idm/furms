@@ -76,7 +76,8 @@
 		<module>furms-integration-tests</module>
 		<module>furms-cli</module>
 		<module>furms-performance-tests</module>
-    </modules>
+		<module>furms-end-to-end-tests</module>
+	</modules>
 
 	<developers>
 		<developer>

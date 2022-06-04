@@ -1,0 +1,323 @@
+[
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": false,
+		"syntaxState": {
+			"allowed": [
+				"ADMIN"
+			]
+		},
+		"displayedName": {
+			"DefaultValue": "furmsCommunityRole",
+			"Map": {}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"metadata": {},
+		"name": "furmsCommunityRole",
+		"syntaxId": "enumeration"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": true,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "userName",
+			"Map": {
+				"pl": "Nazwa użytkownika",
+				"en": "Username"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"metadata": {},
+		"name": "userName",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 5,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": false,
+		"syntaxState": {},
+		"displayedName": {
+			"DefaultValue": "mobile",
+			"Map": {
+				"de": "Mobiltelefonnummer",
+				"en": "Mobile number",
+				"pl": "Numer tel. komórkowego",
+				"fr": "Numéro de téléphone portable"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				"de": "Mobiltelefonnummer",
+				"en": "Mobile number",
+				"pl": "Numer tel. komórkowego",
+				"fr": "Numéro de téléphone portable"
+			}
+		},
+		"metadata": {
+			"contactMobile": ""
+		},
+		"name": "mobile",
+		"syntaxId": "verifiableMobileNumber"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": true,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "firstname",
+			"Map": {
+				"pl": "Imię",
+				"en": "Firstname"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"metadata": {},
+		"name": "firstname",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": true,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "surname",
+			"Map": {
+				"pl": "Nazwisko",
+				"en": "Surname"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"metadata": {},
+		"name": "surname",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": false,
+		"syntaxState": {
+			"allowed": [
+				"ADMIN"
+			]
+		},
+		"displayedName": {
+			"DefaultValue": "furmsFenixRole",
+			"Map": {}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"metadata": {},
+		"name": "furmsFenixRole",
+		"syntaxId": "enumeration"
+	},
+	{
+		"flags": 0,
+		"maxElements": 5,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": true,
+		"syntaxState": {
+			"emailConfirmationConfiguration": {
+				"messageTemplate": null,
+				"validityTime": 2880
+			}
+		},
+		"displayedName": {
+			"DefaultValue": "email",
+			"Map": {
+				"de": "E-mail-Adresse",
+				"en": "E-mail address",
+				"pl": "Adres e-mail",
+				"fr": "Adresse courriel"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				"de": "E-mail-Adresse",
+				"en": "E-mail address",
+				"pl": "Adres e-mail",
+				"fr": "Adresse courriel"
+			}
+		},
+		"metadata": {
+			"contactEmail": ""
+		},
+		"name": "email",
+		"syntaxId": "verifiableEmail"
+	},
+	{
+		"flags": 0,
+		"maxElements": 2,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": false,
+		"syntaxState": {
+			"allowed": [
+				"ADMIN",
+				"USER"
+			]
+		},
+		"displayedName": {
+			"DefaultValue": "furmsProjectRole",
+			"Map": {}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"metadata": {},
+		"name": "furmsProjectRole",
+		"syntaxId": "enumeration"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": true,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "organization",
+			"Map": {
+				"pl": "Organizacja",
+				"en": "Organization"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"metadata": {},
+		"name": "organization",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": false,
+		"syntaxState": {
+			"allowed": [
+				"SUPPORT",
+				"ADMIN"
+			]
+		},
+		"displayedName": {
+			"DefaultValue": "furmsSiteRole",
+			"Map": {}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"metadata": {},
+		"name": "furmsSiteRole",
+		"syntaxId": "enumeration"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": true,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 100
+		},
+		"displayedName": {
+			"DefaultValue": "name",
+			"Map": {
+				"pl": "Nazwa",
+				"en": "Name"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				"pl": "Nazwa",
+				"en": "Name"
+			}
+		},
+		"metadata": {
+			"entityDisplayedName": ""
+		},
+		"name": "name",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 2147483647,
+		"minElements": 0,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"global": true,
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {}
+		},
+		"name": "furmsPolicyAgreementState",
+		"syntaxId": "string"
+	}
+]

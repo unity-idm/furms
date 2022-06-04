@@ -1,0 +1,80 @@
+server:
+   port: 3443
+   ssl:
+      key-store: classpath:keystore.p12
+      key-store-type: PKCS12
+      key-store-password: the!test
+      key-password: the!test
+      enabled-protocols: TLSv1.2
+
+
+furms:
+   unity:
+      admin-url: ${furms.unity.url}/rest-admin/v1
+      admin-user: furms-rest-client
+      admin-password: AdminP@SSword1234!@&
+      url: https://localhost:2443
+      ssl:
+         trust-store: classpath:demoTruststore.jks
+         trust-store-password: unicore
+      oAuth:
+         clientId: oauth-client
+         clientSecret: oauth-pass1
+   front:
+      language: en
+      maxSessionInactivity: 600
+      secondsBeforeShowingSessionExpirationWarning: 60
+      layout:
+         styles:
+            custom:
+         panels:
+            top:
+            left:
+            right:
+            bottom:
+
+   url: https://localhost:${server.port}
+   psk:
+      centralIdPUser: cidp
+      centralIdPSecret: cidppass
+   sshkeys:
+      cleanStaleRequestsAfter: 60S
+   notification:
+      new-policy-template-id: policyAcceptanceNew
+      new-policy-revision-template-id: policyAcceptanceRevision
+      new-invitation-template-id: invitationNew
+      accepted-invitation-template-id: invitationAccepted
+      rejected-invitation-template-id: invitationRejected
+      new-application-template-id: applicationNew
+      accepted-application-template-id: applicationAccepted
+      rejected-application-template-id: applicationRejected
+      resource-usage-alarm-template-id: resourceUsageAlarm
+      resource-usage-alarm-without-url-template-id: resourceUsageAlarmWithoutUrl
+   invitations:
+      expiration-time-in-seconds: 604800
+      fenix-form: fenixForm
+      site-form: siteForm
+      community-form: communityForm
+      project-form: projectForm
+
+spring:
+   profiles:
+      active: demo-data-provisioning,workshop
+   datasource:
+      url: jdbc:h2:mem:furms;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DB_CLOSE_ON_EXIT=FALSE;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;
+      username: sa
+      password: sa
+      driver-class-name: org.h2.Driver
+   rabbitmq:
+      host: localhost
+      username: guest
+      password: guest
+      port: 44444
+      connection-timeout: 10000
+      ssl:
+         enabled: true
+         trustStore: ${furms.unity.ssl.trust-store}
+         trustStorePassword: ${furms.unity.ssl.trust-store-password}
+         algorithm: TLSv1.2
+
+

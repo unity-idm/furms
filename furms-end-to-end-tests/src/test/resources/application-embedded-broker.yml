@@ -1,0 +1,3 @@
+spring:
+   rabbitmq:
+      port: ${random.int(30000,40000)}
