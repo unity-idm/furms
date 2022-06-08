@@ -7,9 +7,11 @@ package io.imunity.furms.end_to_end.tests.selenium;
 
 import io.imunity.furms.end_to_end.tests.FurmsSeleniumExtension;
 import io.imunity.furms.end_to_end.tests.FurmsUIChromeDriverFactory;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+@Disabled("Disabled until environment has been fixed!")
 @ExtendWith({FurmsSeleniumExtension.class})
 class SignInTest {
     private static final int LANDING_PAGE_ROLES_NUMBER = 5;
