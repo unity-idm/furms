@@ -19,7 +19,6 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.validation.exceptions.ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.DefaultNameField;
@@ -30,6 +29,7 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.resource_allocations.ResourceAllocationsGridItem;
 import io.imunity.furms.ui.components.support.models.allocation.AllocationCommunityComboBoxModel;
 import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComboBoxModel;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.DashboardView;
 
@@ -42,7 +42,6 @@ import static com.vaadin.flow.component.Key.ESCAPE;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static java.math.BigDecimal.ZERO;
 import static java.util.stream.Collectors.toSet;
 
@@ -132,10 +131,8 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 		try {
 			projectAllocationService.create(viewModel.getCommunityId(), projectAllocation);
 			UI.getCurrent().navigate(DashboardView.class);
-		}catch (ProjectHasMoreThenOneResourceTypeAllocationInGivenTimeException e) {
-			showErrorNotification(getTranslation("project.allocation.resource.type.unique.message"));
-		} catch (Exception e) {
-			showErrorNotification(getTranslation("base.error.message"));
+		} catch (RuntimeException e) {
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

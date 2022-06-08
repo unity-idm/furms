@@ -21,6 +21,7 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
@@ -91,13 +91,8 @@ public class CommunityAdminsView extends FurmsViewComponent {
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
-		} catch (DuplicatedInvitationError e) {
-			showErrorNotification(getTranslation("invite.error.duplicate"));
-		} catch (UserAlreadyHasRoleError e) {
-			showErrorNotification(getTranslation("invite.error.role.own"));
 		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("invite.error.unexpected"));
-			LOG.error("Could not invite user. ", e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

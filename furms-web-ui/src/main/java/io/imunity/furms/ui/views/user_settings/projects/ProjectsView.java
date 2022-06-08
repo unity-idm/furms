@@ -24,7 +24,6 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.applications.ProjectApplicationsService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyInvitedException;
 import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationError;
 import io.imunity.furms.domain.communities.CommunityId;
@@ -39,6 +38,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
 
 import java.util.Collections;
@@ -175,11 +175,8 @@ public class ProjectsView extends FurmsViewComponent {
 				removeApplicationButton.addClickListener(x -> {
 					try {
 						projectApplicationsService.removeForCurrentUser(project.id);
-					}catch (ApplicationNotExistingException e){
-						showErrorNotification(getTranslation("application.already.not.existing"));
-					} catch (Exception e){
-						showErrorNotification(getTranslation("base.error.message"));
-						throw e;
+					} catch (RuntimeException e){
+						CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 					}
 					loadGridContent();
 				});

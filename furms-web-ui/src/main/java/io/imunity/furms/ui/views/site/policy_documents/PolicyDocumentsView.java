@@ -17,7 +17,6 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.policy_documents.PolicyDocumentService;
-import io.imunity.furms.api.validation.exceptions.AssignedPolicyRemovingException;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.DenseGrid;
@@ -30,6 +29,7 @@ import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,6 +42,20 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
 import static io.imunity.furms.domain.constant.RoutesConst.SITE_BASE_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
+import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
+import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Collections;
+import java.util.List;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
+import static io.imunity.furms.domain.constant.RoutesConst.SITE_BASE_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -156,10 +170,8 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 			try {
 				policyDocumentService.delete(siteId, policyDocumentId);
 				loadGridContent();
-			} catch (AssignedPolicyRemovingException e) {
-				showErrorNotification(getTranslation("policy.document.assigned.removing"));
-			} catch (Exception e) {
-				showErrorNotification(getTranslation("base.error.message"));
+			} catch (RuntimeException e) {
+				CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 			}
 		});
 		return furmsDialog;

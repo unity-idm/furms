@@ -49,6 +49,8 @@ import static io.imunity.furms.unity.client.UnityGroupParser.usersGroupPredicate
 import static io.imunity.furms.unity.common.UnityConst.FENIX_GROUP;
 import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 import static io.imunity.furms.unity.common.UnityConst.ID;
+import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 import static io.imunity.furms.unity.common.UnityPaths.ENTITY_BASE;
 import static io.imunity.furms.unity.common.UnityPaths.GROUP_ATTRIBUTES;
 import static java.util.Collections.emptyList;
@@ -157,11 +159,23 @@ class UnityUsersDAO implements UsersDAO {
 	public UserAttributes getUserAttributes(FenixUserId fenixUserId) {
 		Map<String, List<Attribute>> userAttributes = fetchUserAttributes(fenixUserId);
 		Set<String> userGroups = fetchUserGroups(fenixUserId);
+		return getUserAttributes(userAttributes, userGroups);
+	}
+
+	@Override
+	public UserAttributes getUserAttributes(PersistentId persistentId) {
+		Map<String, List<Attribute>> userAttributes = fetchUserAttributes(persistentId);
+		Set<String> userGroups = fetchUserGroups(persistentId);
+		return getUserAttributes(userAttributes, userGroups);
+	}
+
+	private UserAttributes getUserAttributes(Map<String, List<Attribute>> userAttributes, Set<String> userGroups) {
 		Map<ResourceId, Set<Attribute>> resourceToAttributesMap = getResourceToAttributesMap(userAttributes);
 		Map<ResourceId, Set<Attribute>> resourceToAttributesMapComplete = addEmptyMemberships(
-				resourceToAttributesMap, userGroups);
-		List<Attribute> rootAttributes = userAttributes.getOrDefault(UnityConst.ROOT_GROUP, emptyList()); 
-		return new UserAttributes(toFurmsAttributes(rootAttributes), toFurmsAttributesMap(resourceToAttributesMapComplete));
+			resourceToAttributesMap, userGroups);
+		List<Attribute> rootAttributes = userAttributes.getOrDefault(UnityConst.ROOT_GROUP, emptyList());
+		return new UserAttributes(toFurmsAttributes(rootAttributes),
+			toFurmsAttributesMap(resourceToAttributesMapComplete));
 	}
 
 	@Override
@@ -208,36 +222,54 @@ class UnityUsersDAO implements UsersDAO {
 	}
 	
 	private Map<String, List<Attribute>> fetchUserAttributes(FenixUserId fenixUserId) {
+		return fetchUserAttributes(fenixUserId.id, IDENTIFIER_IDENTITY);
+	}
+
+	private Map<String, List<Attribute>> fetchUserAttributes(PersistentId persistentId) {
+		return fetchUserAttributes(persistentId.id, PERSISTENT_IDENTITY);
+	}
+
+	private Map<String, List<Attribute>> fetchUserAttributes(String id, String identityType) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(GROUP_ATTRIBUTES)
-			.uriVariables(Map.of(ID, fenixUserId.id))
+			.uriVariables(Map.of(ID, id))
 			.build()
 			.toUriString();
 
 		try {
-			return unityClient.getWithListParam(path, new ParameterizedTypeReference<>() {}, 
-					Map.of("groupsPatterns", List.of("/", "/fenix/**/users"),
-							"identityType", List.of("identifier")));
+			return unityClient.getWithListParam(path, new ParameterizedTypeReference<>() {
+				},
+				Map.of("groupsPatterns", List.of("/", "/fenix/**/users"),
+					"identityType", List.of(identityType)));
 		} catch (WebClientResponseException e) {
 			throw new UnityFailureException(e.getMessage(), e);
 		}
 	}
-	
+
 	private Set<String> fetchUserGroups(FenixUserId fenixUserId) {
+		return fetchUserGroups(fenixUserId.id, IDENTIFIER_IDENTITY);
+	}
+
+	private Set<String> fetchUserGroups(PersistentId persistentId) {
+		return fetchUserGroups(persistentId.id, PERSISTENT_IDENTITY);
+	}
+
+	private Set<String> fetchUserGroups(String id, String identityType) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(UnityPaths.ENTITY_GROUPS)
-			.uriVariables(Map.of(ID, fenixUserId.id))
+			.uriVariables(Map.of(ID, id))
 			.build()
 			.toUriString();
 
 		try {
-			return unityClient.get(path, new ParameterizedTypeReference<>() {}, 
-					Map.of("identityType", "identifier"));
+			return unityClient.get(path, new ParameterizedTypeReference<>() {
+				},
+				Map.of("identityType", identityType));
 		} catch (WebClientResponseException e) {
 			throw new UnityFailureException(e.getMessage(), e);
 		}
 	}
-	
+
 	private static Map<ResourceId, Set<Attribute>> getResourceToAttributesMap(Map<String, List<Attribute>> attributes) {
 		return attributes.values().stream()
 			.flatMap(Collection::stream)

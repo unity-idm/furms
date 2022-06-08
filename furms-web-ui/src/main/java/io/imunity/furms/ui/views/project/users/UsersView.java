@@ -12,9 +12,7 @@ import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.api.validation.exceptions.ApplicationNotExistingException;
-import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
@@ -32,6 +30,7 @@ import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UserGridItem;
 import io.imunity.furms.ui.components.administrators.UserUIStatus;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,8 +122,8 @@ public class UsersView extends FurmsLandingViewComponent {
 				try {
 					projectApplicationsService.accept(projectId, userGridItem.getFenixUserId().get());
 					showSuccessNotification(getTranslation("view.project-admin.users.application.accept"));
-				} catch (ApplicationNotExistingException e) {
-					showErrorNotification(getTranslation("application.already.not.existing"));
+				} catch (RuntimeException e) {
+					CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 				}
 					usersDAO.reload();
 					grid.reloadGrid();
@@ -183,15 +182,10 @@ public class UsersView extends FurmsLandingViewComponent {
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
 			membershipLayout.loadAppropriateButton();
-		} catch (DuplicatedInvitationError e) {
-			showErrorNotification(getTranslation("invite.error.duplicate"));
-		} catch (UserAlreadyHasRoleError e) {
-			showErrorNotification(getTranslation("invite.error.role.own"));
 		} catch (UserAlreadyAppliedForMembershipException e) {
 			showErrorNotification(getTranslation("invite.error.application.exist"));
 		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("invite.error.unexpected"));
-			LOG.error("Could not invite user. ", e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

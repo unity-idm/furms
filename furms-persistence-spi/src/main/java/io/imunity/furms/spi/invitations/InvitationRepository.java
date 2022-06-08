@@ -28,7 +28,9 @@ public interface InvitationRepository {
 
 	Optional<Invitation> findBy(String email, Role role, ResourceId resourceId);
 
-	Set<Invitation> findAllBy(FenixUserId id, String email);
+	Set<Invitation> findAllBy(FenixUserId id);
+
+	Set<Invitation> findAllBy(String email);
 
 	Set<Invitation> findAllBy(Role role, UUID resourceId);
 

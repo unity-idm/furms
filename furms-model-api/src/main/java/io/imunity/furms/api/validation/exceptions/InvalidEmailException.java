@@ -5,9 +5,9 @@
 
 package io.imunity.furms.api.validation.exceptions;
 
-public class UnsupportedUserException extends IllegalArgumentException {
+public class InvalidEmailException extends IllegalArgumentException {
 
-	public UnsupportedUserException(String message) {
+	public InvalidEmailException(String message) {
 		super(message);
 	}
 }

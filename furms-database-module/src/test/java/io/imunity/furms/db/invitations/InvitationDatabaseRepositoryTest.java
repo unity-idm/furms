@@ -182,7 +182,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		entityRepository.saveAll(Set.of(invitationEntity, invitationEntity1, invitationEntity2));
 
-		Set<Invitation> invitations = invitationDatabaseRepository.findAllBy(new FenixUserId("userId1"), null);
+		Set<Invitation> invitations = invitationDatabaseRepository.findAllBy(new FenixUserId("userId1"));
 
 		assertEquals(2, invitations.size());
 		Invitation invitation = invitations.iterator().next();
@@ -241,7 +241,7 @@ class InvitationDatabaseRepositoryTest extends DBIntegrationTest {
 			.build();
 		entityRepository.saveAll(Set.of(invitationEntity, invitationEntity1, invitationEntity2));
 
-		Set<Invitation> invitations = invitationDatabaseRepository.findAllBy(FenixUserId.empty(), "email1");
+		Set<Invitation> invitations = invitationDatabaseRepository.findAllBy("email1");
 
 		assertEquals(2, invitations.size());
 		Invitation invitation = invitations.iterator().next();

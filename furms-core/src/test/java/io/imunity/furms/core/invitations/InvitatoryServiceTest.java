@@ -21,6 +21,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttribute;
 import io.imunity.furms.domain.users.UserAttributes;
+import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.spi.applications.ApplicationRepository;
 import io.imunity.furms.spi.invitations.InvitationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -69,6 +70,8 @@ class InvitatoryServiceTest {
 	@Mock
 	private ApplicationRepository applicationRepository;
 	@Mock
+	private InviteeServiceImpl inviteeService;
+	@Mock
 	private ApplicationEventPublisher publisher;
 
 	private InvitatoryService invitatoryService;
@@ -78,7 +81,8 @@ class InvitatoryServiceTest {
 	void setUp() {
 		fixedClock = Clock.fixed(LOCAL_DATE, ZoneId.systemDefault());
 		invitatoryService = new InvitatoryService(usersDAO, invitationRepository, authzService,
-			userInvitationNotificationService, publisher, fixedClock, applicationRepository, String.valueOf(EXPIRATION_TIME));
+			userInvitationNotificationService, publisher, fixedClock, applicationRepository, inviteeService,
+			String.valueOf(EXPIRATION_TIME));
 	}
 
 	@Test
@@ -148,7 +152,7 @@ class InvitatoryServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(usersDAO.getUserAttributes(fenixId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
+		when(usersDAO.getUserAttributes(persistentId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")
@@ -159,6 +163,42 @@ class InvitatoryServiceTest {
 
 		verify(invitationRepository).create(invitation);
 		verify(userInvitationNotificationService).notifyUserAboutNewRole(persistentId, invitation.role);
+	}
+
+	@Test
+	void shouldAutoAcceptSelfInvitation() {
+		Role role = Role.FENIX_ADMIN;
+		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		PersistentId persistentId = new PersistentId("id");
+		FenixUserId fenixId = FenixUserId.empty();
+		FURMSUser user = FURMSUser.builder()
+			.id(persistentId)
+			.fenixUserId(fenixId)
+			.email("email@email.com")
+			.build();
+		Invitation invitation = Invitation.builder()
+			.resourceId(resourceId)
+			.role(role)
+			.userId(user.fenixUserId.get())
+			.resourceName("system")
+			.originator("email@email.com")
+			.email(user.email)
+			.utcExpiredAt(getExpiredAt())
+			.build();
+
+		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(user));
+		when(usersDAO.getUserAttributes(persistentId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
+		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
+		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
+			.email("email@email.com")
+			.build()
+		);
+
+		invitatoryService.inviteUser(persistentId, resourceId, role, "system");
+
+		verify(inviteeService).acceptUserInvitation(user, invitation);
+		verify(publisher).publishEvent(new UserRoleGrantedEvent(user.id.get(),  invitation.resourceId,
+			invitation.resourceName, invitation.role));
 	}
 
 	@Test
@@ -174,7 +214,7 @@ class InvitatoryServiceTest {
 			.build();
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
-		when(usersDAO.getUserAttributes(fenixId))
+		when(usersDAO.getUserAttributes(persistentId))
 			.thenReturn(new UserAttributes(Set.of(), Map.of(resourceId,
 				Set.of(new UserAttribute(role.unityRoleAttribute, List.of(role.unityRoleValue, Role.PROJECT_USER.unityRoleValue))))));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
@@ -252,7 +292,7 @@ class InvitatoryServiceTest {
 
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(usersDAO.getAllUsers()).thenReturn(List.of(furmsUser));
-		when(usersDAO.getUserAttributes(fenixId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
+		when(usersDAO.getUserAttributes(persistentId)).thenReturn(new UserAttributes(Set.of(), Map.of()));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
 		when(authzService.getCurrentAuthNUser()).thenReturn(FURMSUser.builder()
 			.email("originator")

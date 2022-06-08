@@ -8,8 +8,6 @@ package io.imunity.furms.ui.views.project.administrators;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectId;
@@ -22,6 +20,7 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
@@ -97,13 +95,8 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
-		} catch (DuplicatedInvitationError e) {
-			showErrorNotification(getTranslation("invite.error.duplicate"));
-		} catch (UserAlreadyHasRoleError e) {
-			showErrorNotification(getTranslation("invite.error.role.own"));
 		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("invite.error.unexpected"));
-			LOG.error("Could not invite user. ", e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

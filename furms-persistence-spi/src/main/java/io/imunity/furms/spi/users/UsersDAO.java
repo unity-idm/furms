@@ -33,6 +33,7 @@ public interface UsersDAO {
 	Optional<FURMSUser> findById(PersistentId userId);
 	Optional<FURMSUser> findById(FenixUserId userId);
 	UserAttributes getUserAttributes(FenixUserId fenixUserId);
+	UserAttributes getUserAttributes(PersistentId persistentId);
 	AllUsersAndFenixAdmins getAllUsersAndFenixAdmins();
 	PersistentId getPersistentId(FenixUserId userId);
 	FenixUserId getFenixUserId(PersistentId userId);

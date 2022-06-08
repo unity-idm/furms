@@ -9,8 +9,6 @@ import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.users.FenixUserService;
 import io.imunity.furms.api.users.UserService;
-import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.users.AllUsersAndFenixAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -20,6 +18,7 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
@@ -88,13 +86,8 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			inviteUserComponent.reload();
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
-		} catch (DuplicatedInvitationError e) {
-				showErrorNotification(getTranslation("invite.error.duplicate"));
-		} catch (UserAlreadyHasRoleError e) {
-			showErrorNotification(getTranslation("invite.error.role.own"));
 		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("invite.error.unexpected"));
-			LOG.error("Could not invite user. ", e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

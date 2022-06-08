@@ -12,8 +12,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.EmailValidator;
-import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.api.validation.exceptions.UserIsSiteAdmin;
 import io.imunity.furms.api.validation.exceptions.UserIsSiteSupport;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -21,6 +19,7 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.ui.components.FurmsUserComboBox;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,17 +100,12 @@ class SiteRoleInviteUserComponent extends HorizontalLayout {
 				reload();
 				gridReloader.run();
 				showSuccessNotification(getTranslation("invite.successful.added"));
-			} catch (DuplicatedInvitationError e) {
-				showErrorNotification(getTranslation("invite.error.duplicate"));
-			} catch (UserAlreadyHasRoleError e) {
-				showErrorNotification(getTranslation("invite.error.role.own"));
 			} catch (UserIsSiteAdmin e) {
 				showErrorNotification(getTranslation("invite.error.role.site.admin"));
 			} catch (UserIsSiteSupport e) {
 				showErrorNotification(getTranslation("invite.error.role.site.support"));
 			} catch (RuntimeException e) {
-				showErrorNotification(getTranslation("invite.error.unexpected"));
-				LOG.error("Could not invite user. ", e);
+				CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 			}
 		});
 	}

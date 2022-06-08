@@ -17,13 +17,11 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
-import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.AllUsersAndCommunityAdmins;
 import io.imunity.furms.ui.components.FurmsTabs;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.InviteUserComponent;
@@ -34,6 +32,7 @@ import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.fenix.communites.allocations.CommunityAllocationComponent;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
 import org.slf4j.Logger;
@@ -186,13 +185,8 @@ public class CommunityView extends FurmsViewComponent {
 			gridReload();
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
-		} catch (DuplicatedInvitationError e) {
-			showErrorNotification(getTranslation("invite.error.duplicate"));
-		} catch (UserAlreadyHasRoleError e) {
-			showErrorNotification(getTranslation("invite.error.role.own"));
 		} catch (RuntimeException e) {
-			showErrorNotification(getTranslation("view.sites.invite.error.unexpected"));
-			LOG.error("Could not invite Site Administrator. ", e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 	}
 

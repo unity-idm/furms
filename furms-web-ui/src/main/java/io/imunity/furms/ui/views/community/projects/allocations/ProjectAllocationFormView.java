@@ -32,6 +32,8 @@ import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.ProjectView;
 
@@ -123,8 +125,8 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			}
 			else
 				showErrorNotification(getTranslation("name.duplicated.error.message"));
-		} catch (Exception e) {
-			showErrorNotification(getTranslation("base.error.message"));
+		} catch (RuntimeException e) {
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 
 	}
