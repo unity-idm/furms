@@ -11,8 +11,10 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 public class FurmsUIChromeDriverFactory {
 	public static FurmsUIDriver<?> create(){
-		String getenv = System.getenv("CHROME_DRIVER_PATH");
-		System.setProperty("webdriver.chrome.driver", getenv);
+		String chromeDriverPath = System.getenv("CHROME_DRIVER_PATH");
+		if(chromeDriverPath == null)
+			throw new RuntimeException("System env CHROME_DRIVER_PATH have to be set!");
+		System.setProperty("webdriver.chrome.driver", chromeDriverPath);
 
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments("allow-insecure-localhost");
