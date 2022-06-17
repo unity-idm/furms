@@ -53,6 +53,27 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 
 	@Override
 	@Transactional
+	public boolean isFirstChunk(String projectAllocationId) {
+		return projectAllocationInstallationRepository.findAllChunksByAllocationId(projectAllocationId).isEmpty();
+	}
+
+	@Override
+	@Transactional
+	public void updateStatus(String projectAllocationId, ProjectAllocationInstallationStatus status,
+	                         Optional<ErrorMessage> errorMessage) {
+		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocationId);
+		if(job.status.isTerminal())
+			throw new IllegalStateTransitionException(String.format("ProjectAllocation status is %s, cannot be " +
+				"modified to %s", job.status, status));
+
+		projectAllocationInstallationRepository.updateByProjectAllocationId(projectAllocationId, status, errorMessage);
+
+		LOG.info("ProjectAllocationInstallation status with given project allocation id {} was updated to {}",
+			projectAllocationId, status);
+	}
+
+	@Override
+	@Transactional
 	public void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
 		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByCorrelationId(correlationId)
 			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found: " + correlationId));

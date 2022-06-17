@@ -769,6 +769,7 @@ channels:
                         - InvalidCorrelationId
                         - IllegalStateTransition
                         - IllegalArgument
+                        - UnsupportedFailedChunk
                      description: Type of problem
                   description:
                      type: string

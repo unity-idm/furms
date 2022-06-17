@@ -34,6 +34,9 @@ public interface ProjectAllocationInstallationRepository {
 
 	void update(String projectAllocationId, ProjectAllocationInstallationStatus status, CorrelationId correlationId);
 
+	void updateByProjectAllocationId(String projectAllocationId, ProjectAllocationInstallationStatus status,
+	             Optional<ErrorMessage> errorMessage);
+
 	String create(ProjectAllocationChunk projectAllocationChunk);
 
 	void update(ProjectAllocationChunk projectAllocationChunk);

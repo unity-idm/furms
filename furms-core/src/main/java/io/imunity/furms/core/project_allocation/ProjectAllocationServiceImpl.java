@@ -264,8 +264,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 			throw new RemovalOfConsumedProjectAllocationIsFirbiddenException(id);
 		}
 		projectAllocationInstallationService.createDeallocation(projectAllocationResolved);
-		ProjectAllocation projectAllocation = projectAllocationRepository.findById(id).get();
-		publisher.publishEvent(new ProjectAllocationRemovedEvent(projectAllocation));
+		projectAllocationRepository.findById(id)
+			.ifPresent(projectAllocation -> publisher.publishEvent(new ProjectAllocationRemovedEvent(projectAllocation)));
 		LOG.info("ProjectAllocation with given ID: {} was deleted", id);
 	}
 }
