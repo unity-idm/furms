@@ -31,8 +31,6 @@ import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 class ProjectAllocationFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 20;
-
 	private final Binder<ProjectAllocationViewModel> binder;
 	final ProjectAllocationComboBoxesModelsResolver resolver;
 

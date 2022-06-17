@@ -32,8 +32,6 @@ import java.util.function.Supplier;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 public class CommunityAllocationFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 20;
-
 	private final Binder<CommunityAllocationViewModel> binder;
 	private final CommunityAllocationComboBoxesModelsResolver resolver;
 

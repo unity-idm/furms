@@ -5,7 +5,6 @@
 
 package io.imunity.furms.core.ssh_keys;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.domain.audit_log.Action;
@@ -21,11 +20,8 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
-import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
-import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -37,8 +33,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -62,26 +56,10 @@ class SSHKeyAuditLogServiceIntegrationTest {
 	@Autowired
 	private SSHKeyOperationRepository sshKeyOperationRepository;
 	@Autowired
-	private SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService;
-	@Autowired
-	private SSHKeyHistoryRepository sshKeyHistoryRepository;
-	@Autowired
 	private UserOperationRepository userOperationRepository;
-	@Autowired
-	private InstalledSSHKeyRepository installedSSHKeyRepository;
-	@Autowired
-	private SSHKeyServiceValidator validator;
-	@Autowired
-	private SSHKeyFromSiteRemover sshKeyFromSiteRemover;
-	@Autowired
-	private TaskScheduler taskScheduler;
 
 	@Autowired
 	private AuthzService authzService;
-	@Autowired
-	private ObjectMapper objectMapper;
-	@Autowired
-	private ApplicationEventPublisher publisher;
 	@Autowired
 	private AuditLogRepository auditLogRepository;
 

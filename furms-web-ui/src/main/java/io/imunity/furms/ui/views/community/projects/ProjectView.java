@@ -35,10 +35,7 @@ import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.allocations.ProjectAllocationComponent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,8 +53,6 @@ import static java.util.function.Function.identity;
 @Route(value = "community/admin/project", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project.page.title")
 public class ProjectView extends FurmsViewComponent {
-	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	private final ProjectService projectService;
 	private final PersistentId currentUserId;
 	private final ProjectAllocationService projectAllocationService;

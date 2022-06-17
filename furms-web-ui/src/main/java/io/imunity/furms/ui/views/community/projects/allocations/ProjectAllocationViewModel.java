@@ -63,16 +63,8 @@ class ProjectAllocationViewModel {
 		return projectName;
 	}
 
-	void setId(ProjectAllocationId id) {
-		this.id = id;
-	}
-
 	CommunityId getCommunityId() {
 		return communityId;
-	}
-
-	void setCommunityId(CommunityId communityId) {
-		this.communityId = communityId;
 	}
 
 	ResourceTypeComboBoxModel getResourceType() {

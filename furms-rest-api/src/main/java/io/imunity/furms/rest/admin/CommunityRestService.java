@@ -9,7 +9,6 @@ import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
 import io.imunity.furms.api.generic_groups.GenericGroupService;
 import io.imunity.furms.api.projects.ProjectService;
-import io.imunity.furms.api.resource_credits.ResourceCreditService;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
@@ -31,21 +30,18 @@ class CommunityRestService {
 	private final ResourceChecker resourceChecker;
 	private final ProjectsRestConverter projectsRestConverter;
 	private final GenericGroupService genericGroupService;
-	private final ResourceCreditService resourceCreditService;
 
 	CommunityRestService(CommunityService communityService,
 	                     ProjectService projectService,
 	                     CommunityAllocationService communityAllocationService,
 	                     ProjectsRestConverter projectsRestConverter,
-	                     GenericGroupService genericGroupService,
-	                     ResourceCreditService resourceCreditService) {
+	                     GenericGroupService genericGroupService) {
 		this.communityService = communityService;
 		this.projectService = projectService;
 		this.communityAllocationService = communityAllocationService;
 		this.resourceChecker = new ResourceChecker(id -> communityService.existsById(new CommunityId(id)));
 		this.projectsRestConverter = projectsRestConverter;
 		this.genericGroupService = genericGroupService;
-		this.resourceCreditService = resourceCreditService;
 	}
 
 	List<Community> findAll() {

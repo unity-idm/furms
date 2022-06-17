@@ -11,11 +11,8 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,11 +42,10 @@ class RoleTranslatorService implements RoleTranslator {
 	private final ProjectService projectService;
 	private final AuthzService authzService;
 
-	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final String FENIX_ADMIN_CONTEXT_ID = "__fenix_admin__";
 	private static final String USER_PROPERTIES_CONTEXT_ID = "__user_settings__";
 
-	public RoleTranslatorService(SiteService siteService, CommunityService communityService,
+	RoleTranslatorService(SiteService siteService, CommunityService communityService,
 	                             ProjectService projectService, AuthzService authzService) {
 		this.siteService = siteService;
 		this.communityService = communityService;

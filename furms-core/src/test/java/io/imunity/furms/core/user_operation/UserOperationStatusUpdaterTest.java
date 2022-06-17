@@ -29,7 +29,6 @@ import org.mockito.InOrder;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -58,11 +57,10 @@ class UserOperationStatusUpdaterTest {
 	@Autowired
 	private ResourceAccessRepository resourceAccessRepository;
 	@Autowired
-	private ApplicationEventPublisher publisher;
-	@Autowired
 	private UsersDAO usersDAO;
 	@Autowired
 	private UserOperationStatusUpdater service;
+
 	private InOrder orderVerifier;
 
 	@BeforeEach

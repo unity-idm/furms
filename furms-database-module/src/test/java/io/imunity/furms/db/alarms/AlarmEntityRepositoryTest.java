@@ -33,7 +33,6 @@ import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
-import io.imunity.furms.spi.resource_usage.ResourceUsageRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -70,8 +69,6 @@ class AlarmEntityRepositoryTest extends DBIntegrationTest {
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
-	@Autowired
-	private ResourceUsageRepository resourceUsageRepository;
 
 	@Autowired
 	private AlarmEntityRepository alarmEntityRepository;

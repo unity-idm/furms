@@ -21,10 +21,7 @@ import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -34,8 +31,6 @@ import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 @Route(value = "community/admin/administrators", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.administrators.page.title")
 public class CommunityAdminsView extends FurmsViewComponent {
-	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	private final CommunityService communityService;
 	private final UsersGridComponent grid;
 	private final CommunityId communityId;

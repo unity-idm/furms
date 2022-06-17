@@ -20,10 +20,7 @@ import io.imunity.furms.ui.components.FurmsUserComboBox;
 import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 import io.imunity.furms.ui.user_context.FurmsViewUserModelMapper;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,8 +34,6 @@ import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotificatio
 
 @CssImport("./styles/components/furms-combo-box.css")
 class SiteRoleInviteUserComponent extends HorizontalLayout {
-	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	private final Button inviteButton;
 	private final ComboBox<SiteRole> siteRoleComboBox = new ComboBox<>();
 	private final FurmsUserComboBox furmsUserComboBox;

@@ -23,10 +23,8 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.ssh_keys.SiteAgentSSHKeyOperationService;
-import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.ssh_key_history.SSHKeyHistoryRepository;
-import io.imunity.furms.spi.ssh_key_installation.InstalledSSHKeyRepository;
 import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -38,8 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.lang.reflect.Method;
@@ -65,40 +61,20 @@ public class SSHKeyServiceImplTest {
 
 	@Autowired
 	private SSHKeyRepository repository;
-
 	@Autowired
 	private SiteRepository siteRepository;
-
 	@Autowired
 	private AuthzService authzService;
-
 	@Autowired
 	private UsersDAO usersDAO;
-
 	@Autowired
 	private SSHKeyOperationRepository sshKeyOperationRepository;
-
 	@Autowired
 	private SiteAgentSSHKeyOperationService siteAgentSSHKeyInstallationService;
-
 	@Autowired
 	private SSHKeyHistoryRepository sshKeyHistoryRepository;
-
 	@Autowired
 	private UserOperationRepository userOperationRepository;
-
-	@Autowired
-	private InstalledSSHKeyRepository installedSSHKeyRepository;
-
-	@Autowired
-	private TaskScheduler taskScheduler;
-
-	@Autowired
-	private AuditLogRepository auditLogRepository;
-
-	@Autowired
-	private ApplicationEventPublisher publisher;
-
 	@Autowired
 	private SSHKeyService service;
 

@@ -22,7 +22,7 @@ public class FurmsUIDriver<T extends FurmsUIDriver<T>> {
 
 	FurmsUIDriver(WebDriver driver) {
 		this.driver = driver;
-		this.waitDriver = new WebDriverWait(driver, TIMEOUT_IN_SECONDS);
+		this.waitDriver = new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT_IN_SECONDS));
 	}
 
 	public LoginPage getLogInPage(){
@@ -30,11 +30,13 @@ public class FurmsUIDriver<T extends FurmsUIDriver<T>> {
 		return new LoginPage(driver);
 	}
 
+	@SuppressWarnings("unchecked")
 	public T waitSeconds(long wait) {
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(wait));
 		return (T)this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public T checkUrlLoadedCorrectly(String url) {
 		waitDriver.until(ExpectedConditions.urlContains(url));
 		assertThat(driver.getPageSource().toUpperCase().contains("INTERNAL SERVER ERROR"))

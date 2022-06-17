@@ -26,10 +26,7 @@ import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -41,9 +38,6 @@ import static java.util.function.Function.identity;
 @Route(value = "fenix/admin/sites/details", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.sites.details.title")
 public class SitesAdminsView extends FurmsViewComponent {
-
-	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	private final SiteService siteService;
 	private final PersistentId currentUserId;
 	private String breadCrumbParameter;

@@ -15,7 +15,6 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rabbitmq.site.IntegrationTestBase;
 import io.imunity.furms.site.api.AgentPendingMessageSiteService;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
-import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,8 +31,6 @@ class SiteAgentListenerRouterTest extends IntegrationTestBase {
 	private SiteAgentUserService siteAgentUserService;
 	@Autowired
 	private AgentPendingMessageSiteService agentPendingMessageSiteService;
-	@Autowired
-	private UserOperationStatusUpdater userOperationStatusUpdater;
 
 	@Test
 	void shouldHandlePendingUserAdditionMessage() {

@@ -120,7 +120,6 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@Test
 	void shouldUpdateProjectDeallocation() {
 		//given
-		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 		CorrelationId id = new CorrelationId("id");
 
 		//when

@@ -470,7 +470,7 @@ class DemoDataInitializer implements CommandLineRunner {
 			communityAllocationRepository.create(communityAllocation);
 			communityAllocationRepository.create(communityAllocation1);
 			CommunityAllocationId communityAllocationId = communityAllocationRepository.create(communityAllocation2);
-			CommunityAllocationId communityAllocationId1 = communityAllocationRepository.create(communityAllocation3);
+			communityAllocationRepository.create(communityAllocation3);
 
 			ProjectAllocation projectAllocation = ProjectAllocation.builder()
 				.projectId(projectId)

@@ -7,20 +7,14 @@ package io.imunity.furms.unity.client.oauth;
 
 import io.imunity.furms.spi.tokens.AccessTokenRepository;
 import io.imunity.furms.unity.client.UnityClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.lang.invoke.MethodHandles;
 import java.net.URI;
 
 @Component
 class UnityOauthAccessTokenRepository implements AccessTokenRepository {
-
-	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	private final UnityClient unityClient;
 	private final UnityOauthProperties unityOauthProperties;
 

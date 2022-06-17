@@ -19,8 +19,6 @@ import io.imunity.furms.site.api.status_updater.SSHKeyOperationStatusUpdater;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.concurrent.ExecutionException;
-
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.ACK;
 import static io.imunity.furms.domain.ssh_keys.SSHKeyOperationStatus.DONE;
 import static org.mockito.Mockito.timeout;

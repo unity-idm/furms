@@ -19,10 +19,8 @@ import io.imunity.furms.spi.ssh_key_operation.SSHKeyOperationRepository;
 import io.imunity.furms.spi.ssh_keys.SSHKeyRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -46,7 +44,7 @@ class SpringBootLauncher {
 	@MockBean
 	private UserOperationRepository userOperationRepository;
 	@MockBean
-	private InstalledSSHKeyRepository installedSSHKeyRepository;;
+	private InstalledSSHKeyRepository installedSSHKeyRepository;
 	@MockBean
 	private TaskScheduler taskScheduler;
 
@@ -54,8 +52,6 @@ class SpringBootLauncher {
 	private AuthzService authzService;
 	@MockBean
 	private ObjectMapper objectMapper;
-	@Autowired
-	private ApplicationEventPublisher publisher;
 	@MockBean
 	private AuditLogRepository auditLogRepository;
 

@@ -8,7 +8,6 @@ package io.imunity.furms;
 import io.imunity.furms.core.users.api.key.AdminApiKeyFinder;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import io.imunity.furms.api.user.api.key.UserApiKeyService;
 import io.imunity.furms.api.users.UserService;
 import io.imunity.furms.spi.roles.RoleLoader;
 

@@ -14,19 +14,13 @@ import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Status;
 import io.imunity.furms.rabbitmq.site.models.UserResourceUsageRecord;
 import io.imunity.furms.site.api.message_resolver.ResourceUsageUpdater;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-
-import java.lang.invoke.MethodHandles;
 
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Service
 class SiteAgentResourceUsageService {
-	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 	private final ResourceUsageUpdater resourceUsageUpdater;
 
 	SiteAgentResourceUsageService(ResourceUsageUpdater resourceUsageUpdater) {

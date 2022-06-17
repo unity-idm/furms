@@ -33,7 +33,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
@@ -79,8 +78,6 @@ class AlarmNotificationServiceTest {
 	private ResourceUsageRepository resourceUsageRepository;
 	@Autowired
 	private ApplicationEvents applicationEvents;
-	@Autowired
-	private ApplicationEventPublisher publisher;
 	@Autowired
 	private AlarmNotificationService alarmNotificationService;
 
@@ -181,7 +178,7 @@ class AlarmNotificationServiceTest {
 	private List<Object> getApplicationEvents() {
 		return applicationEvents.stream()
 			.filter(x -> x instanceof PayloadApplicationEvent)
-			.map(x -> ((PayloadApplicationEvent)x).getPayload())
+			.map(x -> ((PayloadApplicationEvent<?>)x).getPayload())
 			.collect(Collectors.toList());
 	}
 

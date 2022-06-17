@@ -6,7 +6,6 @@
 package io.imunity.furms.core.resource_access;
 
 import io.imunity.furms.api.resource_access.ResourceAccessService;
-import io.imunity.furms.core.MockedTransactionManager;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.Operation;
@@ -30,7 +29,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -53,11 +51,7 @@ class ResourceAccessAuditLogServiceIntegrationTest {
 	@Autowired
 	private UsersDAO usersDAO;
 	@Autowired
-	private ApplicationEventPublisher publisher;
-	@Autowired
 	private AuditLogRepository auditLogRepository;
-	@Autowired
-	private MockedTransactionManager mockedTransactionManager;
 
 	@Autowired
 	private ResourceAccessService service;

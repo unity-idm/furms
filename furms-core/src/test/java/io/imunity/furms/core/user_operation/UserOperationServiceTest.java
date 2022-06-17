@@ -5,9 +5,7 @@
 
 package io.imunity.furms.core.user_operation;
 
-import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
-import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.PolicyId;
@@ -25,9 +23,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
-import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
-import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +35,6 @@ import org.mockito.InOrder;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.Optional;
@@ -63,23 +58,13 @@ class UserOperationServiceTest {
 	@Autowired
 	private SiteAgentUserService siteAgentUserService;
 	@Autowired
-	private SiteRepository siteRepository;
-	@Autowired
 	private UsersDAO usersDAO;
-	@Autowired
-	private AuthzService authzService;
 	@Autowired
 	private SiteService siteService;
 	@Autowired
 	private PolicyDocumentServiceHelper policyService;
 	@Autowired
-	private SSHKeyService sshKeyService;
-	@Autowired
 	private ResourceAccessRepository resourceAccessRepository;
-	@Autowired
-	private UserSiteAccessRepository userSiteAccessRepository;
-	@Autowired
-	private ApplicationEventPublisher publisher;
 
 	@Autowired
 	private UserOperationService service;
