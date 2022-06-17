@@ -27,7 +27,7 @@ public class SecurityUserUtils {
 	public static void createSecurityUser(Map<ResourceId, Set<Role>> extraRoles) {
 		SecurityContextHolder.getContext().setAuthentication(null);
 		final Map<ResourceId, Set<Role>> roles = new HashMap<>();
-		roles.put(new ResourceId((UUID) null, APP_LEVEL), Set.of(Role.values()));
+		roles.put(new ResourceId(null, APP_LEVEL), Set.of(Role.values()));
 		roles.putAll(extraRoles);
 
 		final FURMSUser userWithRoles = new FURMSUser(FURMSUser.builder()
