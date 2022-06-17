@@ -49,9 +49,4 @@ public class ProjectId implements Id {
 			"id=" + id +
 			'}';
 	}
-
-	@Override
-	public UUID getId() {
-		return id;
-	}
 }

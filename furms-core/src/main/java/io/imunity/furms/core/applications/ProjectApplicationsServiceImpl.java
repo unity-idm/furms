@@ -90,8 +90,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	public List<ProjectApplicationWithUser> findAllApplicationsUsersForCurrentProjectAdmins() {
 		List<ProjectId> projectIds = authzService.getRoles().entrySet().stream()
 			.filter(e -> e.getValue().contains(Role.PROJECT_ADMIN))
-			.map(e -> e.getKey().id)
-			.map(ProjectId::new)
+			.map(e -> e.getKey().asProjectId())
 			.collect(toList());
 
 		Map<FenixUserId, FURMSUser> collect = usersDAO.getAllUsers().stream()
@@ -116,7 +115,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	public void createForCurrentUser(ProjectId projectId) {
 		projectRepository.findById(projectId).ifPresent(project -> {
 			FURMSUser currentUser = authzService.getCurrentAuthNUser();
-			if(invitationRepository.findBy(currentUser.email, Role.PROJECT_USER, new ResourceId(projectId.id, PROJECT)).isPresent())
+			if(invitationRepository.findBy(currentUser.email, Role.PROJECT_USER, new ResourceId(projectId, PROJECT)).isPresent())
 				throw new UserAlreadyInvitedException(String.format("User %s is invited for project %s", currentUser.email, projectId));
 			FenixUserId fenixUserId = currentUser.fenixUserId
 				.orElseThrow(UserWithoutFenixIdValidationError::new);
@@ -160,7 +159,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 				publisher.publishEvent(
 					new ProjectApplicationAcceptedEvent(fenixUserId, projectId, new HashSet<>(projectGroupsDAO.getAllAdmins(project.getCommunityId(), projectId)))
 				);
-				publisher.publishEvent(new UserRoleGrantedEvent(persistentId, new ResourceId(projectId.id, PROJECT),
+				publisher.publishEvent(new UserRoleGrantedEvent(persistentId, new ResourceId(projectId, PROJECT),
 					project.getName(), Role.PROJECT_USER));
 				LOG.info("User {} application for project ID: {} was accepted", projectId, fenixUserId);
 			});

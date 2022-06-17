@@ -481,7 +481,7 @@ class SiteServiceImplTest {
 		assertThrows(UnityFailureException.class, () -> service.addAdmin(siteId, userId));
 		verify(webClient, times(1)).get(siteId);
 		verify(webClient, times(1)).removeSiteUser(siteId, userId);
-		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId.id, SITE), null
+		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE), null
 			, SITE_ADMIN));
 	}
 
@@ -501,7 +501,7 @@ class SiteServiceImplTest {
 
 		//then
 		verify(webClient, times(1)).removeSiteUser(siteId, userId);
-		verify(publisher, times(1)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId.id, SITE),
+		verify(publisher, times(1)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE),
 			"name", SITE_ADMIN));
 	}
 
@@ -530,7 +530,7 @@ class SiteServiceImplTest {
 
 		//then
 		assertThrows(UnityFailureException.class, () -> service.removeSiteUser(siteId, userId));
-		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId.id, SITE),
+		verify(publisher, times(0)).publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(siteId, SITE),
 			"name", SITE_ADMIN));
 	}
 

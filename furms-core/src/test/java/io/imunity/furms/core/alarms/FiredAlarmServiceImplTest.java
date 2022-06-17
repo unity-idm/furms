@@ -69,7 +69,7 @@ class FiredAlarmServiceImplTest {
 			.build()
 		);
 		when(authzService.getRoles()).thenReturn(
-			Map.of(new ResourceId(projectId.id, PROJECT), Set.of(Role.PROJECT_ADMIN))
+			Map.of(new ResourceId(projectId, PROJECT), Set.of(Role.PROJECT_ADMIN))
 		);
 		FiredAlarm firedAlarm = FiredAlarm.builder()
 			.alarmId(alarmId)

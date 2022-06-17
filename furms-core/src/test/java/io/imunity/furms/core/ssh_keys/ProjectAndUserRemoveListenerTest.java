@@ -9,6 +9,7 @@ import com.google.common.collect.Sets;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.projects.ProjectRemovedEvent;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -82,7 +83,7 @@ public class ProjectAndUserRemoveListenerTest {
 		when(repository.findAllByOwnerId(new PersistentId("id"))).thenReturn(Sets.newHashSet(key));
 
 		listener.onUserRoleRemove(new UserProjectMembershipRevokedEvent(new PersistentId("id"),
-				new ResourceId(projectUUID, ResourceType.PROJECT), null));
+				new ResourceId(new ProjectId(projectUUID), ResourceType.PROJECT), null));
 
 		verify(sshKeyFromSiteRemover).removeKeyFromSites(key, Sets.newHashSet(s2), new FenixUserId("id"));
 		verify(sshKeyHistoryRepository).deleteLatest(s2, "id");

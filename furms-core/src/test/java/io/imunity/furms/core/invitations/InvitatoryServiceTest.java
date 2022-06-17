@@ -16,6 +16,7 @@ import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -102,7 +103,7 @@ class InvitatoryServiceTest {
 
 	@Test
 	void shouldFindInvitationAssociationWithResourceId() {
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(UUID.randomUUID()), ResourceType.SITE);
 		Invitation invitation = Invitation.builder()
 			.id(new InvitationId(UUID.randomUUID()))
 			.resourceId(resourceId)
@@ -110,14 +111,14 @@ class InvitatoryServiceTest {
 
 		when(invitationRepository.findBy(invitation.id)).thenReturn(Optional.of(invitation));
 
-		boolean associated = invitatoryService.checkAssociation(resourceId.id.toString(), invitation.id);
+		boolean associated = invitatoryService.checkAssociation(resourceId.id, invitation.id);
 
 		assertTrue(associated);
 	}
 
 	@Test
 	void shouldNotFindInvitationAssociationWithResourceId() {
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(UUID.randomUUID()), ResourceType.SITE);
 		Invitation invitation = Invitation.builder()
 			.id(new InvitationId(UUID.randomUUID()))
 			.resourceId(resourceId)
@@ -125,7 +126,7 @@ class InvitatoryServiceTest {
 
 		when(invitationRepository.findBy(invitation.id)).thenReturn(Optional.of(invitation));
 
-		boolean associated = invitatoryService.checkAssociation(UUID.randomUUID().toString(), invitation.id);
+		boolean associated = invitatoryService.checkAssociation(new SiteId(UUID.randomUUID()), invitation.id);
 
 		assertFalse(associated);
 	}
@@ -133,7 +134,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldInviteExistingUser() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
 		FenixUserId fenixId = new FenixUserId("fenixId");
 		FURMSUser furmsUser = FURMSUser.builder()
@@ -204,7 +205,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldNotInviteExistingUserIfUserAlreadyHasRole() {
 		Role role = Role.PROJECT_ADMIN;
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.PROJECT);
+		ResourceId resourceId = new ResourceId(new ProjectId(UUID.randomUUID()), ResourceType.PROJECT);
 		PersistentId persistentId = new PersistentId("id");
 		FenixUserId fenixId = new FenixUserId("fenixId");
 		FURMSUser furmsUser = FURMSUser.builder()
@@ -226,7 +227,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldThrowExceptionWhenUserAppliedForMembership() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.PROJECT);
+		ResourceId resourceId = new ResourceId(new ProjectId(UUID.randomUUID()), ResourceType.PROJECT);
 		PersistentId persistentId = new PersistentId("id");
 		FenixUserId fenixId = new FenixUserId("fenixId");
 		FURMSUser furmsUser = FURMSUser.builder()
@@ -238,7 +239,7 @@ class InvitatoryServiceTest {
 		when(usersDAO.findById(persistentId)).thenReturn(Optional.of(furmsUser));
 		when(invitationRepository.findBy("email@email.com", role, resourceId)).thenReturn(Optional.empty());
 
-		when(applicationRepository.existsBy(new ProjectId(resourceId.id), fenixId)).thenReturn(true);
+		when(applicationRepository.existsBy((ProjectId)resourceId.id, fenixId)).thenReturn(true);
 
 		assertThrows(UserAlreadyAppliedForMembershipException.class, () -> invitatoryService.inviteUser(persistentId, resourceId, role, "system"));
 	}
@@ -246,7 +247,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldNotInviteExistingUserWhenInvitationAlreadyExists() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
@@ -272,7 +273,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldDetectAndInviteExistingUser() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
 		FenixUserId fenixId = new FenixUserId("fenixId");
 		FURMSUser furmsUser = FURMSUser.builder()
@@ -308,7 +309,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldInviteNewUser() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
 		InvitationCode code = new InvitationCode("code");
 		FURMSUser furmsUser = FURMSUser.builder()
@@ -342,7 +343,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldThrowExceptionWhenEmailIsIncorrect() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 
 		String message = assertThrows(IllegalArgumentException.class, () -> invitatoryService.inviteUser("email", resourceId, role, "system"))
 			.getMessage();
@@ -353,7 +354,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldNotInviteNewUserWhenInvitationAlreadyExists() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(persistentId)
@@ -377,7 +378,7 @@ class InvitatoryServiceTest {
 	@MockitoSettings(strictness = LENIENT)
 	void shouldRemoveInvitationWhenCreatingFailed() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
 		InvitationCode invitationCode = new InvitationCode("code");
 
@@ -411,7 +412,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldResendInvitationForNewUser() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		InvitationCode invitationCode = new InvitationCode("code");
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 
@@ -435,7 +436,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldUpdateInvitationRoleForNewUser() {
 		Role role = Role.SITE_SUPPORT;
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(UUID.randomUUID()), ResourceType.SITE);
 		InvitationCode invitationCode = new InvitationCode("code");
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 
@@ -460,7 +461,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldResendInvitationForExistingUser() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 		PersistentId persistentId = new PersistentId("id");
 		FenixUserId fenixId = new FenixUserId("fenixId");
@@ -491,7 +492,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldUpdateInvitationRoleForExistingUser() {
 		Role role = Role.SITE_ADMIN;
-		ResourceId resourceId = new ResourceId(UUID.randomUUID(), ResourceType.SITE);
+		ResourceId resourceId = new ResourceId(new SiteId(UUID.randomUUID()), ResourceType.SITE);
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 		PersistentId persistentId = new PersistentId("id");
 		FenixUserId fenixId = new FenixUserId("fenixId");
@@ -523,7 +524,7 @@ class InvitatoryServiceTest {
 	@Test
 	void removeInvitationForExistingUser() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 
 		Invitation invitation = Invitation.builder()
@@ -545,7 +546,7 @@ class InvitatoryServiceTest {
 	@Test
 	void removeInvitationForNewUser() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		InvitationCode invitationCode = new InvitationCode("code");
 		InvitationId invitationId = new InvitationId(UUID.randomUUID());
 

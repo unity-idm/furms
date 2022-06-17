@@ -11,9 +11,6 @@ import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.communities.CommunityId;
-import io.imunity.furms.domain.projects.ProjectId;
-import io.imunity.furms.domain.sites.SiteId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,9 +20,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,10 +71,9 @@ class RoleTranslatorService implements RoleTranslator {
 			.flatMap(Collection::stream)
 			.distinct()
 			.flatMap(role -> {
-				Set<String> ids = roles.entrySet().stream()
+				Set<ResourceId> ids = roles.entrySet().stream()
 					.filter(y -> y.getValue().contains(role))
 					.map(Map.Entry::getKey)
-					.map(resourceId -> Optional.ofNullable(resourceId.id).map(UUID::toString).orElse(null))
 					.collect(Collectors.toSet());
 				return getFurmsUserContexts(ids, role);
 			}).distinct()
@@ -92,29 +86,29 @@ class RoleTranslatorService implements RoleTranslator {
 			);
 	}
 
-	private Stream<FurmsViewUserContext> getFurmsUserContexts(Set<String> resourceIds, Role role) {
+	private Stream<FurmsViewUserContext> getFurmsUserContexts(Set<ResourceId> resourceIds, Role role) {
 		FurmsViewUserContext userSettings = new FurmsViewUserContext(USER_PROPERTIES_CONTEXT_ID, "User settings", USER);
 		Stream<FurmsViewUserContext> furmsViewUserContextStream = getFurmsViewUserContextStream(resourceIds, role);
 		return Stream.concat(furmsViewUserContextStream, Stream.of(userSettings));
 	}
 
-	private Stream<FurmsViewUserContext> getFurmsViewUserContextStream(Set<String> resourceIds, Role role) {
+	private Stream<FurmsViewUserContext> getFurmsViewUserContextStream(Set<ResourceId> resourceIds, Role role) {
 		switch (role) {
 			case FENIX_ADMIN:
 				return Stream.of(new FurmsViewUserContext(FENIX_ADMIN_CONTEXT_ID, "Fenix admin", FENIX));
 			case SITE_ADMIN:
-				return siteService.findAll(resourceIds.stream().map(SiteId::new).collect(toSet())).stream()
+				return siteService.findAll(resourceIds.stream().map(ResourceId::asSiteId).collect(toSet())).stream()
 					.map(site -> new FurmsViewUserContext(site.getId().id.toString(), getAdminName(site.getName()), SITE));
 			case SITE_SUPPORT:
-				return siteService.findAll(resourceIds.stream().map(SiteId::new).collect(toSet())).stream()
+				return siteService.findAll(resourceIds.stream().map(ResourceId::asSiteId).collect(toSet())).stream()
 					.map(site -> new FurmsViewUserContext(site.getId().id.toString(), getSupportName(site.getName()), SITE,
 						SITE_SUPPORT_LANDING_PAGE));
 			case COMMUNITY_ADMIN:
-				return communityService.findAll(resourceIds.stream().map(CommunityId::new).collect(toSet())).stream()
+				return communityService.findAll(resourceIds.stream().map(ResourceId::asCommunityId).collect(toSet())).stream()
 					.map(community -> new FurmsViewUserContext(community.getId().id.toString(), getAdminName(community.getName()),
 						COMMUNITY));
 			case PROJECT_ADMIN:
-				return projectService.findAll(resourceIds.stream().map(ProjectId::new).collect(toSet())).stream()
+				return projectService.findAll(resourceIds.stream().map(ResourceId::asProjectId).collect(toSet())).stream()
 					.map(project -> new FurmsViewUserContext(project.getId().id.toString(), getAdminName(project.getName()),
 						PROJECT));
 			case PROJECT_USER:

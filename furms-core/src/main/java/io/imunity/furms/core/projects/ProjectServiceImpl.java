@@ -152,7 +152,7 @@ class ProjectServiceImpl implements ProjectService {
 
 	private boolean isProjectAdmin(Project project, Map<ResourceId, Set<Role>> roles) {
 		final Set<Capability> capabilities = Set.of(PROJECT_READ, PROJECT_WRITE);
-		return capabilityCollector.getCapabilities(roles, new ResourceId(project.getId().id, PROJECT))
+		return capabilityCollector.getCapabilities(roles, new ResourceId(project.getId(), PROJECT))
 				.stream().anyMatch(capabilities::contains);
 	}
 
@@ -268,7 +268,7 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_READ, resourceType = PROJECT, id = "projectId")
 	public boolean isAdmin(ProjectId projectId){
-		return authzService.isResourceMember(projectId.id.toString(), PROJECT_ADMIN);
+		return authzService.isResourceMember(projectId, PROJECT_ADMIN);
 	}
 
 	@Override
@@ -276,8 +276,8 @@ class ProjectServiceImpl implements ProjectService {
 	public boolean hasAdminRights(ProjectId projectId) {
 		final Optional<Project> project = projectRepository.findById(projectId);
 		return project.isPresent()
-				&& (authzService.isResourceMember(project.get().getId().id.toString(), PROJECT_ADMIN)
-					|| authzService.isResourceMember(project.get().getCommunityId().id.toString(), COMMUNITY_ADMIN));
+				&& (authzService.isResourceMember(project.get().getId(), PROJECT_ADMIN)
+					|| authzService.isResourceMember(project.get().getCommunityId(), COMMUNITY_ADMIN));
 	}
 
 	@Override
@@ -285,7 +285,7 @@ class ProjectServiceImpl implements ProjectService {
 	public void addAdmin(CommunityId communityId, ProjectId projectId, PersistentId userId){
 		projectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_ADMIN);
 		String projectName = projectRepository.findById(projectId).get().getName();
-		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId.id, PROJECT), projectName,
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId, PROJECT), projectName,
 			PROJECT_ADMIN));
 	}
 
@@ -305,7 +305,7 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
 	public void inviteAdmin(ProjectId projectId, PersistentId id){
 		projectRepository.findById(projectId).ifPresent(project ->
-			invitatoryService.inviteUser(id, new ResourceId(projectId.id, PROJECT), PROJECT_ADMIN, project.getName())
+			invitatoryService.inviteUser(id, new ResourceId(projectId, PROJECT), PROJECT_ADMIN, project.getName())
 		);
 	}
 
@@ -313,7 +313,7 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_ADMINS_MANAGEMENT, resourceType = PROJECT, id = "projectId")
 	public void inviteAdmin(ProjectId projectId, String email){
 		projectRepository.findById(projectId).ifPresent(project ->
-			invitatoryService.inviteUser(email, new ResourceId(projectId.id, PROJECT), PROJECT_ADMIN, project.getName())
+			invitatoryService.inviteUser(email, new ResourceId(projectId, PROJECT), PROJECT_ADMIN, project.getName())
 		);
 	}
 
@@ -322,7 +322,7 @@ class ProjectServiceImpl implements ProjectService {
 	public void removeAdmin(CommunityId communityId, ProjectId projectId, PersistentId userId){
 		projectGroupsDAO.removeAdmin(communityId, projectId, userId);
 		String projectName = projectRepository.findById(projectId).get().getName();
-		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(projectId.id, PROJECT), projectName,
+		publisher.publishEvent(new UserRoleRevokedEvent(userId, new ResourceId(projectId, PROJECT), projectName,
 			PROJECT_ADMIN));
 	}
 
@@ -359,7 +359,7 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = AUTHENTICATED, resourceType = PROJECT)
 	public boolean isUser(ProjectId projectId) {
-		return authzService.isResourceMember(projectId.id.toString(), PROJECT_USER);
+		return authzService.isResourceMember(projectId, PROJECT_USER);
 	}
 
 	@Override
@@ -367,9 +367,8 @@ class ProjectServiceImpl implements ProjectService {
 	public Set<ProjectId> getUsersProjectIds() {
 		return authzService.getRoles().entrySet().stream()
 			.filter(entry -> entry.getValue().stream().anyMatch(role -> role.equals(PROJECT_USER)))
-			.map(entry -> entry.getKey().id)
+			.map(entry -> entry.getKey().asProjectId())
 			.filter(Objects::nonNull)
-			.map(ProjectId::new)
 			.collect(Collectors.toSet());
 	}
 
@@ -378,7 +377,7 @@ class ProjectServiceImpl implements ProjectService {
 	public void addUser(CommunityId communityId, ProjectId projectId, PersistentId userId){
 		projectGroupsDAO.addProjectUser(communityId, projectId, userId, PROJECT_USER);
 		String projectName = projectRepository.findById(projectId).get().getName();
-		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId.id, PROJECT), projectName,
+		publisher.publishEvent(new UserRoleGrantedEvent(userId, new ResourceId(projectId, PROJECT), projectName,
 			PROJECT_USER));
 	}
 
@@ -386,7 +385,7 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void inviteUser(ProjectId projectId, PersistentId userId) {
 		projectRepository.findById(projectId).ifPresent(project ->
-			invitatoryService.inviteUser(userId, new ResourceId(projectId.id, PROJECT), PROJECT_USER, project.getName())
+			invitatoryService.inviteUser(userId, new ResourceId(projectId, PROJECT), PROJECT_USER, project.getName())
 		);
 	}
 
@@ -394,14 +393,14 @@ class ProjectServiceImpl implements ProjectService {
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void inviteUser(ProjectId projectId, String email) {
 		projectRepository.findById(projectId).ifPresent(project ->
-			invitatoryService.inviteUser(email, new ResourceId(projectId.id, PROJECT), PROJECT_USER, project.getName())
+			invitatoryService.inviteUser(email, new ResourceId(projectId, PROJECT), PROJECT_USER, project.getName())
 		);
 	}
 
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void resendInvitation(ProjectId projectId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(projectId.id.toString(), invitationId))
+		if(!invitatoryService.checkAssociation(projectId, invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", projectId, invitationId));
 		invitatoryService.resendInvitation(invitationId);
 	}
@@ -409,7 +408,7 @@ class ProjectServiceImpl implements ProjectService {
 	@Override
 	@FurmsAuthorize(capability = PROJECT_LIMITED_WRITE, resourceType = PROJECT, id="projectId")
 	public void removeInvitation(ProjectId projectId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(projectId.id.toString(), invitationId))
+		if(!invitatoryService.checkAssociation(projectId, invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", projectId, invitationId));
 		invitatoryService.removeInvitation(invitationId);
 	}
@@ -433,7 +432,7 @@ class ProjectServiceImpl implements ProjectService {
 		userOperationService.createUserRemovals(projectId, userId);
 		projectGroupsDAO.removeUser(communityId, projectId, userId);
 		String projectName = projectRepository.findById(projectId).get().getName();
-		publisher.publishEvent(new UserProjectMembershipRevokedEvent(userId, new ResourceId(projectId.id, PROJECT),
+		publisher.publishEvent(new UserProjectMembershipRevokedEvent(userId, new ResourceId(projectId, PROJECT),
 			projectName));
 	}
 }

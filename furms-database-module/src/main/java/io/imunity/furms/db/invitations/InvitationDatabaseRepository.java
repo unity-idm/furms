@@ -48,7 +48,7 @@ class InvitationDatabaseRepository implements InvitationRepository {
 
 	@Override
 	public Optional<Invitation> findBy(String email, Role role, ResourceId resourceId) {
-		return repository.findByEmailAndRoleAttributeAndRoleValueAndResourceId(email, role.unityRoleAttribute, role.unityRoleValue, resourceId.id)
+		return repository.findByEmailAndRoleAttributeAndRoleValueAndResourceId(email, role.unityRoleAttribute, role.unityRoleValue, ResourceIdToUUIDMapper.map(resourceId))
 			.map(InvitationEntity::toInvitation);
 	}
 
@@ -76,7 +76,7 @@ class InvitationDatabaseRepository implements InvitationRepository {
 	@Override
 	public InvitationId create(Invitation invitation) {
 		InvitationEntity invitationEntity = InvitationEntity.builder()
-			.resourceId(invitation.resourceId.id)
+			.resourceId(ResourceIdToUUIDMapper.map(invitation.resourceId))
 			.resourceType(invitation.resourceId.type)
 			.resourceName(invitation.resourceName)
 			.originator(invitation.originator)

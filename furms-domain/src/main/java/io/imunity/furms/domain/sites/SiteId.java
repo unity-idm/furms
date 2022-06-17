@@ -58,9 +58,4 @@ public class SiteId implements Id {
 			", externalId=" + externalId +
 			'}';
 	}
-
-	@Override
-	public UUID getId() {
-		return id;
-	}
 }

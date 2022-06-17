@@ -5,18 +5,20 @@
 
 package io.imunity.furms.unity.client;
 
-import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_PREFIX;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.ResourceType;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
+import org.springframework.util.AntPathMatcher;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-import org.springframework.util.AntPathMatcher;
-
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.ResourceType;
-import pl.edu.icm.unity.types.basic.Attribute;
+import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_PREFIX;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
 
 public class UnityGroupParser {
 	private static final AntPathMatcher matcher = new AntPathMatcher();
@@ -52,7 +54,19 @@ public class UnityGroupParser {
 			id = UUID.fromString(groupElements[idIndex]);
 		}
 		ResourceType type = getResourceType(group);
-		return new ResourceId(id, type);
+		switch (type){
+			case APP_LEVEL:
+				return new ResourceId(null, type);
+			case SITE:
+				return new ResourceId(new SiteId(id), type);
+			case COMMUNITY:
+				return new ResourceId(new CommunityId(id), type);
+			case PROJECT:
+				return new ResourceId(new ProjectId(id), type);
+			default:
+				throw new IllegalArgumentException("This shouldn't happen. Resource type always have to be set");
+		}
+
 	}
 
 	private static ResourceType getResourceType(String group) {

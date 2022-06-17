@@ -131,7 +131,7 @@ class ProjectApplicationsServiceImplTest {
 		));
 		when(projectGroupsDAO.getAllAdmins(communityId, projectId))
 			.thenReturn(List.of(user));
-		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId.id, ResourceType.PROJECT)))
+		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId, ResourceType.PROJECT)))
 			.thenReturn(Optional.empty());
 
 		applicationService.createForCurrentUser(projectId);
@@ -159,7 +159,7 @@ class ProjectApplicationsServiceImplTest {
 				.id(projectId)
 				.build()
 		));
-		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId.id, ResourceType.PROJECT)))
+		when(invitationRepository.findBy("email", Role.PROJECT_USER, new ResourceId(projectId, ResourceType.PROJECT)))
 			.thenReturn(Optional.of(Invitation.builder().build()));
 
 		assertThrows(UserAlreadyInvitedException.class,() -> applicationService.createForCurrentUser(projectId));

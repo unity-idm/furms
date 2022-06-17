@@ -102,7 +102,7 @@ class RESTAPISecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	private PresetUser createCentralIdPUser() {
-		Map<ResourceId, Set<Role>> rolesMap = Map.of(new ResourceId((String) null, ResourceType.APP_LEVEL),
+		Map<ResourceId, Set<Role>> rolesMap = Map.of(new ResourceId(null, ResourceType.APP_LEVEL),
 				Set.of(Role.CENTRAL_IDP));
 
 		return new PresetUser(configuration.getCentralIdPUsername().get(),

@@ -54,7 +54,6 @@ class FurmsMethodSecurityExpressionRoot
 
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
 		List<ResourceId> resourceIds = ids.stream()
-			.map(Id::getId)
 			.map(id -> new ResourceId(id, resourceType))
 			.collect(Collectors.toList());
 		Set<Capability> userCapabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceIds, resourceType);
@@ -75,7 +74,7 @@ class FurmsMethodSecurityExpressionRoot
 			return false;
 
 		FURMSUser principal = ((FURMSUserProvider) authentication.getPrincipal()).getFURMSUser();
-		ResourceId resourceId = new ResourceId(id != null ? id.getId() : null, resourceType);
+		ResourceId resourceId = new ResourceId(id, resourceType);
 		Set<Capability> userCapabilities = userCapabilityCollector.getCapabilities(principal.roles, resourceId);
 		userCapabilities.addAll(ELEMENTARY_CAPABILITIES);
 

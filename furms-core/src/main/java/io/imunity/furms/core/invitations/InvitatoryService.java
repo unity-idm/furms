@@ -10,6 +10,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
 import io.imunity.furms.api.validation.exceptions.InvalidEmailException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyAppliedForMembershipException;
 import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
+import io.imunity.furms.domain.Id;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.Invitation;
@@ -18,7 +19,6 @@ import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
 import io.imunity.furms.domain.invitations.UpdateInvitationUserEvent;
-import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
@@ -78,9 +78,9 @@ public class InvitatoryService {
 		return invitationRepository.findAllBy(role, resourceId);
 	}
 
-	public boolean checkAssociation(String resourceId, InvitationId invitationId) {
+	public boolean checkAssociation(Id resourceId, InvitationId invitationId) {
 		return invitationRepository.findBy(invitationId)
-			.filter(invitation -> invitation.resourceId.id.toString().equals(resourceId))
+			.filter(invitation -> invitation.resourceId.id.equals(resourceId))
 			.isPresent();
 	}
 
@@ -94,7 +94,7 @@ public class InvitatoryService {
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(isSiteAdminRoleCheckExistingAlsoForSupportRole(resourceId, role, user.email))
 			throw new DuplicatedInvitationError("This invitation already exists");
-		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy(new ProjectId(resourceId.id),
+		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy(resourceId.asProjectId(),
 			user.fenixUserId.get()))
 			throw new UserAlreadyAppliedForMembershipException("User waiting for application approval");
 		if(containsRole(usersDAO.getUserAttributes(userId).attributesByResource.getOrDefault(resourceId, Set.of()), role))

@@ -251,7 +251,7 @@ class CommunityServiceImplTest {
 
 		//then
 		verify(communityGroupsDAO, times(1)).removeAdmin(communityId, userId);
-		orderVerifier.verify(publisher).publishEvent(eq(new UserRoleRevokedEvent(userId, new ResourceId(communityId.id,
+		orderVerifier.verify(publisher).publishEvent(eq(new UserRoleRevokedEvent(userId, new ResourceId(communityId,
 			COMMUNITY), "name", Role.COMMUNITY_ADMIN)));
 	}
 

@@ -180,7 +180,7 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void inviteAdmin(CommunityId communityId, PersistentId userId) {
 		communityRepository.findById(communityId).ifPresent(community ->
-			invitatoryService.inviteUser(userId, new ResourceId(communityId.id, COMMUNITY), COMMUNITY_ADMIN,
+			invitatoryService.inviteUser(userId, new ResourceId(communityId, COMMUNITY), COMMUNITY_ADMIN,
 				community.getName())
 		);
 	}
@@ -189,7 +189,7 @@ class CommunityServiceImpl implements CommunityService {
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void inviteAdmin(CommunityId communityId, String email) {
 		communityRepository.findById(communityId).ifPresent(community ->
-			invitatoryService.inviteUser(email, new ResourceId(communityId.id, COMMUNITY), COMMUNITY_ADMIN,
+			invitatoryService.inviteUser(email, new ResourceId(communityId, COMMUNITY), COMMUNITY_ADMIN,
 				community.getName())
 		);
 	}
@@ -197,7 +197,7 @@ class CommunityServiceImpl implements CommunityService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void resendInvitation(CommunityId communityId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(communityId.id.toString(), invitationId))
+		if(!invitatoryService.checkAssociation(communityId, invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", communityId, invitationId));
 		invitatoryService.resendInvitation(invitationId);
 	}
@@ -205,7 +205,7 @@ class CommunityServiceImpl implements CommunityService {
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_WRITE, resourceType = COMMUNITY, id="communityId")
 	public void removeInvitation(CommunityId communityId, InvitationId invitationId) {
-		if(!invitatoryService.checkAssociation(communityId.id.toString(), invitationId))
+		if(!invitatoryService.checkAssociation(communityId, invitationId))
 			throw new IllegalArgumentException(String.format("Invitation %s is not associate with this resource %s", communityId, invitationId));
 		invitatoryService.removeInvitation(invitationId);
 	}
@@ -216,7 +216,7 @@ class CommunityServiceImpl implements CommunityService {
 		communityGroupsDAO.addAdmin(communityId, userId);
 		LOG.info("Added Site Administrator ({}) in Unity for Site ID={}", userId, communityId);
 		String communityName = communityRepository.findById(communityId).get().getName();
-		publisher.publishEvent(new UserRoleGrantedEvent(userId,  new ResourceId(communityId.id, COMMUNITY),
+		publisher.publishEvent(new UserRoleGrantedEvent(userId,  new ResourceId(communityId, COMMUNITY),
 			communityName, COMMUNITY_ADMIN));
 	}
 
@@ -226,19 +226,19 @@ class CommunityServiceImpl implements CommunityService {
 		communityGroupsDAO.removeAdmin(communityId, userId);
 		String communityName = communityRepository.findById(communityId).get().getName();
 		LOG.info("Removed Community Administrator ({}) from Unity for Site ID={}", userId, communityId);
-		publisher.publishEvent(new UserRoleRevokedEvent(userId,  new ResourceId(communityId.id, COMMUNITY),
+		publisher.publishEvent(new UserRoleRevokedEvent(userId,  new ResourceId(communityId, COMMUNITY),
 			communityName, COMMUNITY_ADMIN));
 	}
 
 	@Override
 	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id="communityId")
 	public boolean isAdmin(CommunityId communityId) {
-		return authzService.isResourceMember(communityId.id.toString(), COMMUNITY_ADMIN);
+		return authzService.isResourceMember(communityId, COMMUNITY_ADMIN);
 	}
 
 	private boolean isBelongToCommunity(Community community, FURMSUser user) {
 		final Set<Capability> capabilities = Set.of(COMMUNITY_READ, COMMUNITY_WRITE);
-		return capabilityCollector.getCapabilities(user.roles, new ResourceId(community.getId().id, COMMUNITY)).stream()
+		return capabilityCollector.getCapabilities(user.roles, new ResourceId(community.getId(), COMMUNITY)).stream()
 				.anyMatch(capabilities::contains);
 	}
 }

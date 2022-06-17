@@ -5,29 +5,19 @@
 
 package io.imunity.furms.domain.authz.roles;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 
-import static java.lang.String.format;
+import java.util.Objects;
 
 public class ResourceId {
-	public final UUID id;
+	public final Id id;
 	public final ResourceType type;
 
-	public ResourceId(UUID id, ResourceType type) {
+	public ResourceId(Id id, ResourceType type) {
 		this.id = id;
-		this.type = type;
-	}
-
-	public ResourceId(String id, ResourceType type) {
-		try {
-			this.id = Optional.ofNullable(id)
-					.map(UUID::fromString)
-					.orElse(null);
-		} catch (IllegalArgumentException e) {
-			throw new IncorrectResourceIdException(format("Incorrect Resource ID: %s", id));
-		}
 		this.type = type;
 	}
 
@@ -51,5 +41,32 @@ public class ResourceId {
 			"id='" + id + '\'' +
 			", type='" + type + '\'' +
 			'}';
+	}
+
+	public ProjectId asProjectId() {
+		try {
+			return (ProjectId) id;
+		} catch (ClassCastException e) {
+			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
+				ProjectId.class.getName()) , e);
+		}
+	}
+
+	public CommunityId asCommunityId() {
+		try {
+			return (CommunityId) id;
+		} catch (ClassCastException e) {
+			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
+				CommunityId.class.getName()) , e);
+		}
+	}
+
+	public SiteId asSiteId() {
+		try {
+			return (SiteId) id;
+		} catch (ClassCastException e) {
+			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
+				SiteId.class.getName()) , e);
+		}
 	}
 }

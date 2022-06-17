@@ -68,7 +68,7 @@ class AuthTest {
 	@Test
 	void authShouldPassFenixAdminHasAccessToAPPLevel(){
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId((String) null, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
+			new ResourceId(null, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -105,8 +105,9 @@ class AuthTest {
 	@Test
 	void authShouldPassFenixAdminHasAccessToResource(){
 		UUID uuid = UUID.randomUUID();
+		SiteId siteId = new SiteId(uuid);
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
+			new ResourceId(siteId, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -118,15 +119,15 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		Throwable throwable = catchThrowable(() -> mockService.findById(new SiteId(uuid)));
+		Throwable throwable = catchThrowable(() -> mockService.findById(siteId));
 		assertThat(throwable).isNull();
 	}
 
 	@Test
 	void authShouldPassFenixAdminHasSpecialAdminRights(){
-		CommunityId uuid = new CommunityId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid.id, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
+			new ResourceId(communityId, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -138,7 +139,7 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		Throwable throwable = catchThrowable(() -> mockService.getCommunity(uuid));
+		Throwable throwable = catchThrowable(() -> mockService.getCommunity(communityId));
 		assertThat(throwable).isNull();
 	}
 
@@ -147,8 +148,9 @@ class AuthTest {
 	void authShouldNotPassWrongResourceId(){
 		UUID uuid = UUID.randomUUID();
 		UUID uuid1 = UUID.randomUUID();
+		SiteId siteId = new SiteId(uuid1);
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid, APP_LEVEL), Set.of(Role.FENIX_ADMIN)
+			new ResourceId(new SiteId(uuid), APP_LEVEL), Set.of(Role.FENIX_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -159,15 +161,15 @@ class AuthTest {
 			.build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
-
-		assertThrows(AccessDeniedException.class, () -> mockService.findById(new SiteId(uuid1)));
+		assertThrows(AccessDeniedException.class, () -> mockService.findById(siteId));
 	}
 
 	@Test
 	void authShouldNotPassWrongResourceType(){
 		UUID uuid = UUID.randomUUID();
+		SiteId siteId = new SiteId(uuid);
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid, PROJECT), Set.of(Role.FENIX_ADMIN)
+			new ResourceId(siteId, PROJECT), Set.of(Role.FENIX_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -179,14 +181,14 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		assertThrows(AccessDeniedException.class, () -> mockService.findById(new SiteId(uuid)));
+		assertThrows(AccessDeniedException.class, () -> mockService.findById(siteId));
 	}
 
 	@Test
 	void authShouldNotPassWrongRole(){
-		CommunityId uuid = new CommunityId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid.id, COMMUNITY), Set.of(Role.SITE_ADMIN)
+			new ResourceId(communityId, COMMUNITY), Set.of(Role.SITE_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -198,15 +200,15 @@ class AuthTest {
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
 
-		assertThrows(AccessDeniedException.class, () -> mockService.getCommunity(uuid));
+		assertThrows(AccessDeniedException.class, () -> mockService.getCommunity(communityId));
 	}
 
 	@Test
 	void authShouldNotPassCommunityAdminDoesntOwnProject(){
-		CommunityId uuid = new CommunityId(UUID.randomUUID());
-		ProjectId uuid2 = new ProjectId(UUID.randomUUID());
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(uuid.id, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
+			new ResourceId(communityId, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -215,10 +217,10 @@ class AuthTest {
 			.email("a@a.pl")
 			.roles(roles)
 			.build();
-		Project project = Project.builder().id(uuid2).build();
+		Project project = Project.builder().id(projectId).build();
 
 		when(provider.getFURMSUser()).thenReturn(furmsUser);
-		when(projectRepository.findAllByCommunityId(uuid)).thenReturn(Set.of(project));
+		when(projectRepository.findAllByCommunityId(communityId)).thenReturn(Set.of(project));
 
 		assertThrows(AccessDeniedException.class, () -> mockService.getProject(new ProjectId(UUID.randomUUID())));
 	}
@@ -228,7 +230,7 @@ class AuthTest {
 		CommunityId communityUUID = new CommunityId(UUID.randomUUID());
 		ProjectId projectUUID = new ProjectId(UUID.randomUUID());
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId(communityUUID.id, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
+			new ResourceId(communityUUID, COMMUNITY), Set.of(Role.COMMUNITY_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
@@ -252,7 +254,7 @@ class AuthTest {
 	@Test
 	void authShouldNotPassCommunityAdminHasNotAccessToAppLevel(){
 		Map<ResourceId, Set<Role>> roles = Map.of(
-			new ResourceId((String) null, APP_LEVEL), Set.of(Role.COMMUNITY_ADMIN)
+			new ResourceId(null, APP_LEVEL), Set.of(Role.COMMUNITY_ADMIN)
 		);
 		FURMSUser furmsUser = FURMSUser.builder()
 			.id(new PersistentId("id"))
