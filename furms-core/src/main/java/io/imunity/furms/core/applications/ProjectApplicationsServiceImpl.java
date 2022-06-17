@@ -90,7 +90,7 @@ class ProjectApplicationsServiceImpl implements ProjectApplicationsService {
 	public List<ProjectApplicationWithUser> findAllApplicationsUsersForCurrentProjectAdmins() {
 		List<ProjectId> projectIds = authzService.getRoles().entrySet().stream()
 			.filter(e -> e.getValue().contains(Role.PROJECT_ADMIN))
-			.map(e -> (ProjectId)e.getKey().id)
+			.map(e -> e.getKey().asProjectId())
 			.collect(toList());
 
 		Map<FenixUserId, FURMSUser> collect = usersDAO.getAllUsers().stream()

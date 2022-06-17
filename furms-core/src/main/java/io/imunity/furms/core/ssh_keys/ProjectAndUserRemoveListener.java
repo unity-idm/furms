@@ -76,7 +76,7 @@ public class ProjectAndUserRemoveListener {
 			return;
 		}
 		try {
-			processUser(removeUserRoleEvent.id, fenixUserId, (ProjectId)removeUserRoleEvent.resourceId.id);
+			processUser(removeUserRoleEvent.id, fenixUserId, removeUserRoleEvent.resourceId.asProjectId());
 		} catch (Exception e) {
 			LOG.error("Can not remove sites from ssh keys owned by user {} after project {} remove",
 					removeUserRoleEvent.id, removeUserRoleEvent.resourceId.id.toString());

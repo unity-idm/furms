@@ -53,17 +53,17 @@ class MembershipResolver {
 				.collect(Collectors.toSet());
 	}
 	
-	private Optional<CommunityMembership> resolveCommunityMembership(ResourceId community, 
+	private Optional<CommunityMembership> resolveCommunityMembership(ResourceId resourceId,
 			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
-		CommunityId id = (CommunityId) community.id;
+		CommunityId id = resourceId.asCommunityId();
 		Optional<Community> communityOpt = communitiesDAO.findById(id);
 		if (communityOpt.isEmpty()) {
-			LOG.warn("Community {} is defined in users directory (unity) but not in FURMS DB", community.id);
+			LOG.warn("Community {} is defined in users directory (unity) but not in FURMS DB", resourceId.id);
 			return Optional.empty();
 		}
-		Set<ProjectMembership> projectsMembership = resolveProjectsMembership(community, attributesByResource);
+		Set<ProjectMembership> projectsMembership = resolveProjectsMembership(resourceId, attributesByResource);
 		Set<UserAttribute> communityAttributes = filterExposedAttribtues(
-				attributesByResource.getOrDefault(community, Collections.emptySet()));
+				attributesByResource.getOrDefault(resourceId, Collections.emptySet()));
 		return Optional.of(new CommunityMembership(id.id.toString(), communityOpt.get().getName(),
 				projectsMembership, communityAttributes));
 	}
@@ -71,13 +71,13 @@ class MembershipResolver {
 	private Set<ProjectMembership> resolveProjectsMembership(ResourceId community, 
 			Map<ResourceId, Set<UserAttribute>> attributesByResource) {
 		Map<ProjectId, Project> communityProjects =
-			projectsDAO.findAllByCommunityId((CommunityId)community.id).stream()
+			projectsDAO.findAllByCommunityId(community.asCommunityId()).stream()
 				.collect(Collectors.toMap(Project::getId, proj -> proj));
 		return attributesByResource.entrySet().stream()
 			.filter(entry -> entry.getKey().type == ResourceType.PROJECT)
-			.filter(entry -> communityProjects.containsKey((ProjectId)entry.getKey().id))
+			.filter(entry -> communityProjects.containsKey(entry.getKey().asProjectId()))
 			.map(entry -> resolveProjectMembership(entry.getValue(),
-					communityProjects.get((ProjectId)entry.getKey().id)))
+					communityProjects.get(entry.getKey().asProjectId())))
 			.collect(Collectors.toSet());
 	}
 

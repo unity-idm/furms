@@ -20,11 +20,11 @@ class ResourceIdToUUIDMapper {
 			case APP_LEVEL:
 				return null;
 			case SITE:
-				return ((SiteId)resourceId.id).id;
+				return resourceId.asSiteId().id;
 			case COMMUNITY:
-				return ((CommunityId)resourceId.id).id;
+				return resourceId.asCommunityId().id;
 			case PROJECT:
-				return ((ProjectId)resourceId.id).id;
+				return resourceId.asProjectId().id;
 			default:
 				throw new IllegalArgumentException("This shouldn't happen. Resource type have to be set");
 		}

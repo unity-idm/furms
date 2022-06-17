@@ -6,6 +6,9 @@
 package io.imunity.furms.domain.authz.roles;
 
 import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.projects.ProjectId;
+import io.imunity.furms.domain.sites.SiteId;
 
 import java.util.Objects;
 
@@ -38,5 +41,32 @@ public class ResourceId {
 			"id='" + id + '\'' +
 			", type='" + type + '\'' +
 			'}';
+	}
+
+	public ProjectId asProjectId() {
+		try {
+			return (ProjectId) id;
+		} catch (ClassCastException e) {
+			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
+				ProjectId.class.getName()) , e);
+		}
+	}
+
+	public CommunityId asCommunityId() {
+		try {
+			return (CommunityId) id;
+		} catch (ClassCastException e) {
+			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
+				CommunityId.class.getName()) , e);
+		}
+	}
+
+	public SiteId asSiteId() {
+		try {
+			return (SiteId) id;
+		} catch (ClassCastException e) {
+			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
+				SiteId.class.getName()) , e);
+		}
 	}
 }

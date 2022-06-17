@@ -160,7 +160,7 @@ class InviteeServiceImplTest {
 
 		invitationService.acceptBy(invitationId);
 
-		orderVerifier.verify(siteGroupDAO).addSiteUser((SiteId)resourceId.id, persistentId, Role.SITE_ADMIN);
+		orderVerifier.verify(siteGroupDAO).addSiteUser(resourceId.asSiteId(), persistentId, Role.SITE_ADMIN);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.SITE_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));
@@ -201,7 +201,7 @@ class InviteeServiceImplTest {
 
 		invitationService.acceptBy(invitationId);
 
-		orderVerifier.verify(communityGroupsDAO).addAdmin((CommunityId)resourceId.id, persistentId);
+		orderVerifier.verify(communityGroupsDAO).addAdmin(resourceId.asCommunityId(), persistentId);
 		orderVerifier.verify(invitationRepository).deleteBy(invitationId);
 		orderVerifier.verify(userInvitationNotificationService).notifyAdminAboutRoleAcceptance(originatorId, Role.COMMUNITY_ADMIN, "email");
 		orderVerifier.verify(publisher).publishEvent(new InvitationAcceptedEvent(userId, "email", invitation.resourceId));

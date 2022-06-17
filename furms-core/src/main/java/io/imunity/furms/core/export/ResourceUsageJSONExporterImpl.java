@@ -54,7 +54,7 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId.id")
+	@FurmsAuthorize(capability = PROJECT_LIMITED_READ, resourceType = PROJECT, id = "projectId")
 	public Supplier<String> getJsonForProjectAllocation(ProjectId projectId, ProjectAllocationId projectAllocationId) {
 		return () -> {
 			exportHelper.assertProjectAndAllocationAreRelated(projectId, projectAllocationId);
@@ -82,7 +82,7 @@ class ResourceUsageJSONExporterImpl implements ResourceUsageJSONExporter {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Supplier<String> getJsonForCommunityAllocation(CommunityId communityId, CommunityAllocationId communityAllocationId) {
 		return () -> {
 			exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);

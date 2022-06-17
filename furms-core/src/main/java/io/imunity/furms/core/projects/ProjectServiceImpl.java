@@ -367,7 +367,7 @@ class ProjectServiceImpl implements ProjectService {
 	public Set<ProjectId> getUsersProjectIds() {
 		return authzService.getRoles().entrySet().stream()
 			.filter(entry -> entry.getValue().stream().anyMatch(role -> role.equals(PROJECT_USER)))
-			.map(entry -> (ProjectId)entry.getKey().id)
+			.map(entry -> entry.getKey().asProjectId())
 			.filter(Objects::nonNull)
 			.collect(Collectors.toSet());
 	}

@@ -19,7 +19,6 @@ import io.imunity.furms.domain.invitations.InvitationId;
 import io.imunity.furms.domain.invitations.InviteUserEvent;
 import io.imunity.furms.domain.invitations.RemoveInvitationUserEvent;
 import io.imunity.furms.domain.invitations.UpdateInvitationUserEvent;
-import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserAttribute;
@@ -93,7 +92,7 @@ public class InvitatoryService {
 			throw new DuplicatedInvitationError("This invitation already exists");
 		if(isSiteAdminRoleCheckExistingAlsoForSupportRole(resourceId, role, user.email))
 			throw new DuplicatedInvitationError("This invitation already exists");
-		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy((ProjectId)resourceId.id,
+		if(resourceId.type.equals(PROJECT) && applicationRepository.existsBy(resourceId.asProjectId(),
 			user.fenixUserId.get()))
 			throw new UserAlreadyAppliedForMembershipException("User waiting for application approval");
 		if(containsRole(usersDAO.getUserAttributes(user.fenixUserId.get()).attributesByResource.getOrDefault(resourceId, Set.of()), role))
