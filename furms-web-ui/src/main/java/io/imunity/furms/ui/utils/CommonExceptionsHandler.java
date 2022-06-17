@@ -35,11 +35,12 @@ public class CommonExceptionsHandler {
 	/**
 	 * @return true if exception handled by default way, otherwise false
 	 */
-	public static boolean showExceptionBasedNotificationError(RuntimeException e) {
+	public static boolean showExceptionBasedNotificationError(RuntimeException e, String errorDescription) {
 		boolean handled = true;
 		String message = exceptionToNotificationMessageKey.get(e.getClass());
 		if(message == null) {
 			message = "base.error.message";
+			LOG.error(errorDescription);
 			LOG.warn("No human readable message defined for exception. ", e);
 			handled = false;
 		}

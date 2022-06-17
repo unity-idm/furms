@@ -186,7 +186,7 @@ public class CommunityView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not invite community admin.");
 		}
 	}
 

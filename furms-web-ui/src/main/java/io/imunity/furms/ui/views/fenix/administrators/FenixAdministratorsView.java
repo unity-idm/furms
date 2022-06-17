@@ -87,7 +87,7 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not invite Fenix admin.");
 		}
 	}
 

@@ -8,8 +8,6 @@ package io.imunity.furms.ui.views.community.adminstrators;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.communites.CommunityService;
-import io.imunity.furms.api.validation.exceptions.DuplicatedInvitationError;
-import io.imunity.furms.api.validation.exceptions.UserAlreadyHasRoleError;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.users.CommunityUsersAndAdmins;
 import io.imunity.furms.domain.users.FURMSUser;
@@ -92,7 +90,7 @@ public class CommunityAdminsView extends FurmsViewComponent {
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not invite community admin.");
 		}
 	}
 

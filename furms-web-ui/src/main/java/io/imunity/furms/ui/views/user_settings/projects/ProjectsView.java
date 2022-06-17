@@ -176,7 +176,7 @@ public class ProjectsView extends FurmsViewComponent {
 					try {
 						projectApplicationsService.removeForCurrentUser(project.id);
 					} catch (RuntimeException e){
-						CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+						CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not remove application.");
 					}
 					loadGridContent();
 				});

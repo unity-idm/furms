@@ -190,7 +190,7 @@ public class ProjectView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 			inviteUser.reload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not invite project user.");
 		}
 	}
 

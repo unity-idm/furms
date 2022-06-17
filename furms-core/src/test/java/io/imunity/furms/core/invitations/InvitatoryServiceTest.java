@@ -169,7 +169,7 @@ class InvitatoryServiceTest {
 	@Test
 	void shouldAutoAcceptSelfInvitation() {
 		Role role = Role.FENIX_ADMIN;
-		ResourceId resourceId = new ResourceId((UUID) null, ResourceType.APP_LEVEL);
+		ResourceId resourceId = new ResourceId(null, ResourceType.APP_LEVEL);
 		PersistentId persistentId = new PersistentId("id");
 		FenixUserId fenixId = FenixUserId.empty();
 		FURMSUser user = FURMSUser.builder()

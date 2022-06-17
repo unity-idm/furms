@@ -28,7 +28,6 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectId;
-import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -126,7 +125,7 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			else
 				showErrorNotification(getTranslation("name.duplicated.error.message"));
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not create allocation.");
 		}
 
 	}

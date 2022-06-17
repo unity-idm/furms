@@ -146,7 +146,7 @@ public class SitesAdminsView extends FurmsViewComponent {
 			membershipLayout.loadAppropriateButton();
 			gridReload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not invite site admin.");
 		}
 	}
 

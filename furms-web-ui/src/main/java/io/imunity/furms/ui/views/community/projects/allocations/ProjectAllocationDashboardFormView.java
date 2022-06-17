@@ -132,7 +132,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 			projectAllocationService.create(viewModel.getCommunityId(), projectAllocation);
 			UI.getCurrent().navigate(DashboardView.class);
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not create allocation.");
 		}
 	}
 

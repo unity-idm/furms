@@ -41,21 +41,6 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
 import static io.imunity.furms.domain.constant.RoutesConst.SITE_BASE_LANDING_PAGE;
-import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
-import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
-import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Collections;
-import java.util.List;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
-import static io.imunity.furms.domain.constant.RoutesConst.SITE_BASE_LANDING_PAGE;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.handleExceptions;
 import static java.util.Comparator.comparing;
@@ -171,7 +156,7 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 				policyDocumentService.delete(siteId, policyDocumentId);
 				loadGridContent();
 			} catch (RuntimeException e) {
-				CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+				CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not remove policy.");
 			}
 		});
 		return furmsDialog;
