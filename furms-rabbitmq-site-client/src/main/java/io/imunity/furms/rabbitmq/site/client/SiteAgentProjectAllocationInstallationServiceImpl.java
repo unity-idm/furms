@@ -90,8 +90,8 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 			projectAllocationInstallationStatusUpdater.updateStatus(result.body.allocationIdentifier, INSTALLED, empty());
 		}
 		if(Status.FAILED.equals(result.header.status))
-			throw new UnsupportedFailedChunkException(String.format("Status of chuck request of allocation %s is " +
-				"failed - this is not supported", result.body.allocationIdentifier));
+			throw new UnsupportedFailedChunkException(String.format("Subsequent allocation %s chunk can not be sent " +
+				"with a failed status", result.body.allocationIdentifier));
 
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
 			.projectAllocationId(result.body.allocationIdentifier)
@@ -107,8 +107,8 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	@EventListener
 	void receiveProjectResourceAllocationUpdate(Payload<AgentProjectAllocationUpdate> result) {
 		if(Status.FAILED.equals(result.header.status))
-			throw new UnsupportedFailedChunkException(String.format("Status of chuck update of allocation %s is failed - " +
-				"this is not supported", result.body.allocationIdentifier));
+			throw new UnsupportedFailedChunkException(String.format("Update of chunk of allocation %s can not be set " +
+				"to failed", result.body.allocationIdentifier));
 
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
 			.projectAllocationId(result.body.allocationIdentifier)

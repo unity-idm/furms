@@ -512,7 +512,7 @@ channels:
    site/site_id/resource/allocate/resp:
       publish:
          summary: Information about allocated resources
-         description: In case when a request is generally accepted, the site should actually allocate resources. Since the allocation scheme can vary from site to site, the site agent can report multiple allocations, with different amounts then the requested ones. Reporting of allocation is communicated with the message ResourceAllocationResult
+         description: In case when a request is generally accepted, the site should actually allocate resources. Since the allocation scheme can vary from site to site, the site agent can report multiple allocations, with different amounts then the requested ones. Reporting of allocation is communicated with the message ResourceAllocationResult. In case when an allocation failed, only the first ResourceAllocationResult can be used to send an error status, subsequent responses won't be accepted.
          operationId: ProjectResourceAllocationResult
          message:
             name: ProjectResourceAllocationResult
@@ -541,7 +541,7 @@ channels:
    site/site_id/resource/allocate/update:
       publish:
          summary: Update of allocated resources
-         description: Carries an update of a previously sent allocation with the ResourceAllocationResult message.
+         description: Carries an update of a previously sent allocation with the ResourceAllocationResult message. Messages with failed status won't be accepted.
          operationId: ProjectResourceAllocationUpdate
          message:
             name: ProjectResourceAllocationUpdate

@@ -91,7 +91,7 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 	}
 
 	@Test
-	void shouldSavedProjectAllocationAsFailedIfFirstAndSecondChunkFailed() {
+	void shouldSetProjectAllocationAsFailedIfFirstAndSecondChunkFailed() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
 			.id("id")
@@ -125,13 +125,14 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000)).updateStatus(projectAllocationResolved.id,
 			ProjectAllocationInstallationStatus.FAILED, Optional.of(new ErrorMessage("1", "FAILED")));
 		verify(receiverMock, timeout(15000)).process(
-			new AgentMessageErrorInfo(correlationId.id, "UnsupportedFailedChunk", "Status of chuck request of allocation id is failed - this is not supported")
+			new AgentMessageErrorInfo(correlationId.id, "UnsupportedFailedChunk", "Subsequent allocation id chunk can" +
+				" not be sent with a failed status")
 		);
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000).times(0)).createChunk(any());
 	}
 
 	@Test
-	void shouldNotUpdateProjectAllocationChunkIfStatusFailed() {
+	void shouldNotUpdateProjectAllocationChunkIfIsFailed() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		AgentProjectAllocationUpdate update = AgentProjectAllocationUpdate.builder()
 			.allocationIdentifier(UUID.randomUUID().toString())
@@ -148,7 +149,7 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 
 		verify(receiverMock, timeout(15000)).process(
 			new AgentMessageErrorInfo(correlationId.id, "UnsupportedFailedChunk",
-				"Status of chuck update of allocation " + update.allocationIdentifier + " is failed - this is not supported")
+				"Update of chunk of allocation " + update.allocationIdentifier + " can not be set to failed")
 		);
 		verify(projectAllocationInstallationStatusUpdater, timeout(10000).times(0)).updateChunk(any());
 	}
