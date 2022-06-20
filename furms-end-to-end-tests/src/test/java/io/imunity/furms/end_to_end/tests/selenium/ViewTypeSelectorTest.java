@@ -6,15 +6,13 @@
 package io.imunity.furms.end_to_end.tests.selenium;
 
 import io.imunity.furms.end_to_end.tests.FurmsSeleniumExtension;
-import io.imunity.furms.end_to_end.tests.FurmsUIDriver;
 import io.imunity.furms.end_to_end.tests.FurmsUIChromeDriverFactory;
+import io.imunity.furms.end_to_end.tests.FurmsUIDriver;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-@Disabled("Disabled until environment has been fixed!")
 @ExtendWith({FurmsSeleniumExtension.class})
 class ViewTypeSelectorTest {
 
