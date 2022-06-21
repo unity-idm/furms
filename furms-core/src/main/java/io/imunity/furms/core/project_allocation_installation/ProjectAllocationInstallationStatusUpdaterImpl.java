@@ -14,8 +14,8 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocati
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
@@ -30,8 +30,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING_FAILED;
 
@@ -115,9 +115,9 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	@Transactional
 	public void createChunk(ProjectAllocationChunk result) {
 		ProjectAllocationInstallation allocationInstallation = projectAllocationInstallationRepository.findByProjectAllocationId(result.projectAllocationId);
-		if(!allocationInstallation.status.equals(ACKNOWLEDGED))
+		if(!allocationInstallation.status.equals(INSTALLED))
 			throw new IllegalStateTransitionException(String.format(
-				"Protocol error, only acknowledged allocation get add chunk - project allocation %s status is %s",
+				"Protocol error, only installed allocation get add chunk - project allocation %s status is %s",
 				allocationInstallation.projectAllocationId,
 				allocationInstallation.status)
 			);

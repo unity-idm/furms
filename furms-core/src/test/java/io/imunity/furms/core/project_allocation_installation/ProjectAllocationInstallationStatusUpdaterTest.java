@@ -136,7 +136,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findByProjectAllocationId("id")).thenReturn(ProjectAllocationInstallation.builder()
-			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
+			.status(ProjectAllocationInstallationStatus.INSTALLED)
 			.build());
 		service.createChunk(chunk);
 
