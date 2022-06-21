@@ -14,8 +14,8 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocati
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.resource_access.GrantAccess;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
 import io.imunity.furms.spi.project_allocation_installation.ProjectAllocationInstallationRepository;
@@ -30,8 +30,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING_FAILED;
 
@@ -49,6 +49,27 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.resourceAccessRepository = resourceAccessRepository;
 		this.publisher = publisher;
+	}
+
+	@Override
+	@Transactional
+	public boolean isFirstChunk(String projectAllocationId) {
+		return projectAllocationInstallationRepository.findAllChunksByAllocationId(projectAllocationId).isEmpty();
+	}
+
+	@Override
+	@Transactional
+	public void updateStatus(String projectAllocationId, ProjectAllocationInstallationStatus status,
+	                         Optional<ErrorMessage> errorMessage) {
+		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocationId);
+		if(job.status.isTerminal())
+			throw new IllegalStateTransitionException(String.format("ProjectAllocation status is %s, cannot be " +
+				"modified to %s", job.status, status));
+
+		projectAllocationInstallationRepository.updateByProjectAllocationId(projectAllocationId, status, errorMessage);
+
+		LOG.info("ProjectAllocationInstallation status with given project allocation id {} was updated to {}",
+			projectAllocationId, status);
 	}
 
 	@Override
@@ -94,9 +115,9 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	@Transactional
 	public void createChunk(ProjectAllocationChunk result) {
 		ProjectAllocationInstallation allocationInstallation = projectAllocationInstallationRepository.findByProjectAllocationId(result.projectAllocationId);
-		if(!allocationInstallation.status.equals(ACKNOWLEDGED))
+		if(!allocationInstallation.status.equals(INSTALLED))
 			throw new IllegalStateTransitionException(String.format(
-				"Protocol error, only acknowledged allocation get add chunk - project allocation %s status is %s",
+				"Protocol error, only installed allocation get add chunk - project allocation %s status is %s",
 				allocationInstallation.projectAllocationId,
 				allocationInstallation.status)
 			);

@@ -19,7 +19,7 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 @Component
 public class SiteAgentChunkUpdateProducerMock {
 
-	private static final String MOCK_FURMS_PUB = "mock-furms-pub";
+	private static final String MOCK_SITE_PUB = "mock-site-pub";
 	private final RabbitTemplate rabbitTemplate;
 
 	public SiteAgentChunkUpdateProducerMock(RabbitTemplate rabbitTemplate){
@@ -28,7 +28,11 @@ public class SiteAgentChunkUpdateProducerMock {
 
 	public void sendAgentProjectAllocationUpdate(AgentProjectAllocationUpdate update) {
 		Header header = getHeader(UUID.randomUUID().toString());
-		rabbitTemplate.convertAndSend(MOCK_FURMS_PUB, new Payload<>(header, update));
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, update));
+	}
+
+	public void sendAgentProjectAllocationUpdate(AgentProjectAllocationUpdate update, Header header) {
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, update));
 	}
 
 	private Header getHeader(String messageCorrelationId) {

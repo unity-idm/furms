@@ -40,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -211,6 +212,25 @@ class ProjectAllocationServiceImplTest {
 
 		orderVerifier.verify(projectAllocationInstallationService).createDeallocation(projectAllocationResolved);
 		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationRemovedEvent(projectAllocation)));
+	}
+
+	@Test
+	void shouldAllowToDeleteProjectAllocationWhenProjectAllocationIsFailed() {
+		//given
+		String id = "id";
+		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
+			.amount(BigDecimal.TEN)
+			.consumed(BigDecimal.ZERO)
+			.build();
+		ProjectAllocation projectAllocation = ProjectAllocation.builder().build();
+		when(projectAllocationRepository.findByIdWithRelatedObjects(id)).thenReturn(Optional.of(projectAllocationResolved));
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.empty());
+
+		//when
+		service.delete("projectId", id);
+
+		orderVerifier.verify(projectAllocationInstallationService).createDeallocation(projectAllocationResolved);
+		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new ProjectAllocationRemovedEvent(projectAllocation)));
 	}
 
 	@Test

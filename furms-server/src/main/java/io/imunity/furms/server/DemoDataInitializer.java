@@ -484,7 +484,7 @@ class DemoDataInitializer implements CommandLineRunner {
 			ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
 				.projectAllocationId(projectAllocationId)
 				.siteId(cinecaId)
-				.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
+				.status(ProjectAllocationInstallationStatus.INSTALLED)
 				.correlationId(new CorrelationId(UUID.randomUUID().toString()))
 				.build();
 
@@ -709,7 +709,7 @@ class DemoDataInitializer implements CommandLineRunner {
 			ProjectAllocationInstallation projectAllocationInstallation1 = ProjectAllocationInstallation.builder()
 				.projectAllocationId(projectAllocationId1)
 				.siteId(cinecaId)
-				.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
+				.status(ProjectAllocationInstallationStatus.INSTALLED)
 				.correlationId(new CorrelationId(UUID.randomUUID().toString()))
 				.build();
 

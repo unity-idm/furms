@@ -69,7 +69,7 @@ public class SitesAddView extends FurmsViewComponent {
 
 	private void addForm() {
 		FormLayout formLayout = new FurmsFormLayout();
-		formLayout.setSizeFull();
+		formLayout.setWidthFull();
 		SiteCreationParam formData = new SiteCreationParam();
 		Binder<SiteCreationParam> binder = new Binder<>(SiteCreationParam.class);
 		binder.setBean(formData);

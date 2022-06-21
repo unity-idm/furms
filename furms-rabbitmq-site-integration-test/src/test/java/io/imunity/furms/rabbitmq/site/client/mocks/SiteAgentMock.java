@@ -212,6 +212,7 @@ public class SiteAgentMock {
 
 		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 
+		header = projectInstallationRequest.header;
 		AgentProjectAllocationInstallationResult result = AgentProjectAllocationInstallationResult.builder()
 			.allocationIdentifier(projectInstallationRequest.body.allocationIdentifier)
 			.allocationChunkIdentifier("1")

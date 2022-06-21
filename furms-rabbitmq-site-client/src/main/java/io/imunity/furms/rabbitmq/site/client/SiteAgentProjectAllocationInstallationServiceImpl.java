@@ -11,6 +11,7 @@ import io.imunity.furms.domain.project_allocation_installation.ProjectAllocation
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
+import io.imunity.furms.domain.site_agent.UnsupportedFailedChunkException;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationResult;
@@ -32,9 +33,11 @@ import java.util.Optional;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+import static java.util.Optional.empty;
 
 @Service
 class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProjectAllocationInstallationService {
@@ -50,7 +53,7 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	void receiveProjectResourceAllocationAck(Payload<AgentProjectAllocationInstallationAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			projectAllocationInstallationStatusUpdater.updateStatus(correlationId, ACKNOWLEDGED, Optional.empty());
+			projectAllocationInstallationStatusUpdater.updateStatus(correlationId, ACKNOWLEDGED, empty());
 		else
 			projectAllocationInstallationStatusUpdater.updateStatus(
 				correlationId,
@@ -63,7 +66,7 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	void receiveProjectResourceDeallocationAck(Payload<AgentProjectDeallocationRequestAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			projectAllocationInstallationStatusUpdater.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ProjectDeallocationStatus.ACKNOWLEDGED, Optional.empty());
+			projectAllocationInstallationStatusUpdater.updateStatus(new CorrelationId(ack.header.messageCorrelationId), ProjectDeallocationStatus.ACKNOWLEDGED, empty());
 		else
 			projectAllocationInstallationStatusUpdater.updateStatus(
 				correlationId,
@@ -74,6 +77,22 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 
 	@EventListener
 	void receiveProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
+		boolean isFirstChunk = projectAllocationInstallationStatusUpdater.isFirstChunk(result.body.allocationIdentifier);
+		if(isFirstChunk) {
+			if(Status.FAILED.equals(result.header.status)) {
+				projectAllocationInstallationStatusUpdater.updateStatus(
+					result.body.allocationIdentifier,
+					FAILED,
+					getErrorMessage(result.header.error)
+				);
+				return;
+			}
+			projectAllocationInstallationStatusUpdater.updateStatus(result.body.allocationIdentifier, INSTALLED, empty());
+		}
+		if(Status.FAILED.equals(result.header.status))
+			throw new UnsupportedFailedChunkException(String.format("Subsequent allocation %s chunk can not be sent " +
+				"with a failed status", result.body.allocationIdentifier));
+
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
 			.projectAllocationId(result.body.allocationIdentifier)
 			.chunkId(result.body.allocationChunkIdentifier)
@@ -87,6 +106,10 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 
 	@EventListener
 	void receiveProjectResourceAllocationUpdate(Payload<AgentProjectAllocationUpdate> result) {
+		if(Status.FAILED.equals(result.header.status))
+			throw new UnsupportedFailedChunkException(String.format("Update of chunk of allocation %s can not be set " +
+				"to failed", result.body.allocationIdentifier));
+
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
 			.projectAllocationId(result.body.allocationIdentifier)
 			.chunkId(result.body.allocationChunkIdentifier)

@@ -152,7 +152,24 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 			.map(ProjectAllocationInstallationEntity::getId)
 			.map(UUID::toString)
 			.orElseThrow(() -> new IllegalArgumentException("Correlation Id not found: " + correlationId));
+	}
 
+	@Override
+	public void updateByProjectAllocationId(String projectAllocationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
+		allocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+			.map(old -> ProjectAllocationInstallationEntity.builder()
+				.id(old.getId())
+				.correlationId(old.correlationId)
+				.siteId(old.siteId)
+				.projectAllocationId(old.projectAllocationId)
+				.status(status)
+				.code(errorMessage.map(e -> e.code).orElse(null))
+				.message(errorMessage.map(e -> e.message).orElse(null))
+				.build())
+			.map(allocationRepository::save)
+			.map(ProjectAllocationInstallationEntity::getId)
+			.map(UUID::toString)
+			.orElseThrow(() -> new IllegalArgumentException("Project Allocation Id not found: " + projectAllocationId));
 	}
 
 	@Override
