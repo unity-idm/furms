@@ -57,7 +57,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@Test
 	void shouldReturnTrueIfChunkIsFirst() {
 		//given
-		String projectAllocationId = "id";
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 
 		//when
 		when(repository.findAllChunksByAllocationId(projectAllocationId)).thenReturn(Set.of());
@@ -69,7 +69,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@Test
 	void shouldReturnFalseIfChunkIsNotFirst() {
 		//given
-		String projectAllocationId = "id";
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 
 		//when
 		when(repository.findAllChunksByAllocationId(projectAllocationId)).thenReturn(Set.of(
@@ -83,11 +83,11 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	@Test
 	void shouldUpdateProjectAllocationInstallationStatusByProjectAllocationId() {
 		//given
-		String projectAllocationId = "id";
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 
 		//when
 		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
-			.projectAllocationId("allocationId")
+			.projectAllocationId(projectAllocationId)
 			.status(ProjectAllocationInstallationStatus.PENDING)
 			.build());
 		service.updateStatus(projectAllocationId, ProjectAllocationInstallationStatus.INSTALLED, Optional.empty());

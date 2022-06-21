@@ -217,7 +217,7 @@ class ProjectAllocationServiceImplTest {
 	@Test
 	void shouldAllowToDeleteProjectAllocationWhenProjectAllocationIsFailed() {
 		//given
-		String id = "id";
+		ProjectAllocationId id = new ProjectAllocationId(UUID.randomUUID());
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
 			.amount(BigDecimal.TEN)
 			.consumed(BigDecimal.ZERO)
@@ -227,7 +227,7 @@ class ProjectAllocationServiceImplTest {
 		when(projectAllocationRepository.findById(id)).thenReturn(Optional.empty());
 
 		//when
-		service.delete("projectId", id);
+		service.delete(new CommunityId(UUID.randomUUID()), id);
 
 		orderVerifier.verify(projectAllocationInstallationService).createDeallocation(projectAllocationResolved);
 		orderVerifier.verify(publisher, times(0)).publishEvent(eq(new ProjectAllocationRemovedEvent(projectAllocation)));

@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
@@ -77,17 +78,18 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 
 	@EventListener
 	void receiveProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
-		boolean isFirstChunk = projectAllocationInstallationStatusUpdater.isFirstChunk(result.body.allocationIdentifier);
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
+		boolean isFirstChunk = projectAllocationInstallationStatusUpdater.isFirstChunk(projectAllocationId);
 		if(isFirstChunk) {
 			if(Status.FAILED.equals(result.header.status)) {
 				projectAllocationInstallationStatusUpdater.updateStatus(
-					result.body.allocationIdentifier,
+					projectAllocationId,
 					FAILED,
 					getErrorMessage(result.header.error)
 				);
 				return;
 			}
-			projectAllocationInstallationStatusUpdater.updateStatus(result.body.allocationIdentifier, INSTALLED, empty());
+			projectAllocationInstallationStatusUpdater.updateStatus(projectAllocationId, INSTALLED, empty());
 		}
 		if(Status.FAILED.equals(result.header.status))
 			throw new UnsupportedFailedChunkException(String.format("Subsequent allocation %s chunk can not be sent " +

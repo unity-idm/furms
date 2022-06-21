@@ -5,6 +5,7 @@
 
 package io.imunity.furms.core.project_allocation_installation;
 
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
@@ -53,13 +54,13 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 
 	@Override
 	@Transactional
-	public boolean isFirstChunk(String projectAllocationId) {
+	public boolean isFirstChunk(ProjectAllocationId projectAllocationId) {
 		return projectAllocationInstallationRepository.findAllChunksByAllocationId(projectAllocationId).isEmpty();
 	}
 
 	@Override
 	@Transactional
-	public void updateStatus(String projectAllocationId, ProjectAllocationInstallationStatus status,
+	public void updateStatus(ProjectAllocationId projectAllocationId, ProjectAllocationInstallationStatus status,
 	                         Optional<ErrorMessage> errorMessage) {
 		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocationId);
 		if(job.status.isTerminal())

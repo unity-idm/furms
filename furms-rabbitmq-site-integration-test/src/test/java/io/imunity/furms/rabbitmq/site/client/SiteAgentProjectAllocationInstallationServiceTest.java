@@ -97,19 +97,18 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 	void shouldSetProjectAllocationAsFailedIfFirstAndSecondChunkFailed() {
 		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
-			.id("id")
-			.projectId("id")
+			.id(new ProjectAllocationId(UUID.randomUUID()))
+			.projectId(new ProjectId(UUID.randomUUID()))
 			.amount(BigDecimal.TEN)
 			.site(Site.builder()
-				.id("id")
-				.externalId(new SiteExternalId("mock"))
+				.id(new SiteId(UUID.randomUUID().toString(), new SiteExternalId("mock")))
 				.build()
 			)
 			.resourceType(ResourceType.builder()
 				.name("name")
 				.build())
 			.resourceCredit(ResourceCredit.builder()
-				.id("id")
+				.id(new ResourceCreditId(UUID.randomUUID()))
 				.utcStartTime(LocalDateTime.now())
 				.utcEndTime(LocalDateTime.now())
 				.build())
@@ -128,8 +127,8 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000)).updateStatus(projectAllocationResolved.id,
 			ProjectAllocationInstallationStatus.FAILED, Optional.of(new ErrorMessage("1", "FAILED")));
 		verify(receiverMock, timeout(15000)).process(
-			new AgentMessageErrorInfo(correlationId.id, "UnsupportedFailedChunk", "Subsequent allocation id chunk can" +
-				" not be sent with a failed status")
+			new AgentMessageErrorInfo(correlationId.id, "UnsupportedFailedChunk",
+				"Subsequent allocation "+  projectAllocationResolved.id.id +" chunk can not be sent with a failed status")
 		);
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000).times(0)).createChunk(any());
 	}
