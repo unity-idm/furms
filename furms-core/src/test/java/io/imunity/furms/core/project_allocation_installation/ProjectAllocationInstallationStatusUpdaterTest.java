@@ -93,7 +93,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		service.updateStatus(projectAllocationId, ProjectAllocationInstallationStatus.INSTALLED, Optional.empty());
 
 		//then
-		orderVerifier.verify(repository).updateByProjectAllocationId(projectAllocationId,
+		orderVerifier.verify(repository).update(projectAllocationId,
 			ProjectAllocationInstallationStatus.INSTALLED, Optional.empty());
 	}
 

@@ -39,8 +39,8 @@ public interface ProjectAllocationInstallationRepository {
 
 	void create(ProjectAllocationChunk projectAllocationChunk);
 
-	void updateByProjectAllocationId(ProjectAllocationId projectAllocationId, ProjectAllocationInstallationStatus status,
-	                                 Optional<ErrorMessage> errorMessage);
+	void update(ProjectAllocationId projectAllocationId, ProjectAllocationInstallationStatus status,
+	            Optional<ErrorMessage> errorMessage);
 
 	void update(ProjectAllocationChunk projectAllocationChunk);
 

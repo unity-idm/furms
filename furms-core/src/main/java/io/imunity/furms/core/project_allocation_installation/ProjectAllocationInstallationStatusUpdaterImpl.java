@@ -67,7 +67,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			throw new IllegalStateTransitionException(String.format("ProjectAllocation status is %s, cannot be " +
 				"modified to %s", job.status, status));
 
-		projectAllocationInstallationRepository.updateByProjectAllocationId(projectAllocationId, status, errorMessage);
+		projectAllocationInstallationRepository.update(projectAllocationId, status, errorMessage);
 
 		LOG.info("ProjectAllocationInstallation status with given project allocation id {} was updated to {}",
 			projectAllocationId, status);

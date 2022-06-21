@@ -155,8 +155,9 @@ class ProjectAllocationInstallationDatabaseRepository implements ProjectAllocati
 	}
 
 	@Override
-	public void updateByProjectAllocationId(String projectAllocationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage) {
-		allocationRepository.findByProjectAllocationId(UUID.fromString(projectAllocationId))
+	public void update(ProjectAllocationId projectAllocationId, ProjectAllocationInstallationStatus status,
+	                   Optional<ErrorMessage> errorMessage) {
+		allocationRepository.findByProjectAllocationId(projectAllocationId.id)
 			.map(old -> ProjectAllocationInstallationEntity.builder()
 				.id(old.getId())
 				.correlationId(old.correlationId)
