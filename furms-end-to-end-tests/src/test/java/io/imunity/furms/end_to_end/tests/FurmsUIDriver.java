@@ -56,7 +56,9 @@ public class FurmsUIDriver<T extends FurmsUIDriver<T>> {
 		}
 
 		public LoginPage assertViewIsVisible() {
-			return checkUrlLoadedCorrectly("oauth2-as/oauth2-authz-web-entry");
+			checkUrlLoadedCorrectly("oauth2-as/oauth2-authz-web-entry");
+			super.waitDriver.until(ExpectedConditions.elementToBeClickable(By.tagName("input")));
+			return this;
 		}
 
 		public LoginPage writeUsername(String username) {
