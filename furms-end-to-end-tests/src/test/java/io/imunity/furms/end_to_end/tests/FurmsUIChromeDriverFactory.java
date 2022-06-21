@@ -17,7 +17,14 @@ public class FurmsUIChromeDriverFactory {
 		System.setProperty("webdriver.chrome.driver", chromeDriverPath);
 
 		ChromeOptions options = new ChromeOptions();
-		options.addArguments("allow-insecure-localhost");
+		options.addArguments("window-size=1280,1024", "no-sandbox", "force-device-scale-factor=1",
+			"ignore-certificate-errors", "allow-insecure-localhost");
+		String seleniumOpts = System.getProperty("selenium.opts");
+		if (seleniumOpts != null && !seleniumOpts.isEmpty())
+		{
+			String[] opts = seleniumOpts.split(",");
+			options.addArguments(opts);
+		}
 		WebDriver driver = new ChromeDriver(options);
 
 		return new FurmsUIDriver<>(driver);
