@@ -47,8 +47,7 @@ public class ResourceId {
 		try {
 			return (ProjectId) id;
 		} catch (ClassCastException e) {
-			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
-				ProjectId.class.getName()) , e);
+			throw new WrongResourceIdentifierUseException(id.getClass().getName(), ProjectId.class.getName(), e);
 		}
 	}
 
@@ -56,8 +55,7 @@ public class ResourceId {
 		try {
 			return (CommunityId) id;
 		} catch (ClassCastException e) {
-			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
-				CommunityId.class.getName()) , e);
+			throw new WrongResourceIdentifierUseException(id.getClass().getName(), CommunityId.class.getName(), e);
 		}
 	}
 
@@ -65,8 +63,13 @@ public class ResourceId {
 		try {
 			return (SiteId) id;
 		} catch (ClassCastException e) {
-			throw new IdClassCastException(String.format("%s cannot be cast to %s", id.getClass().getName(),
-				SiteId.class.getName()) , e);
+			throw new WrongResourceIdentifierUseException(id.getClass().getName(), SiteId.class.getName(), e);
+		}
+	}
+
+	static class WrongResourceIdentifierUseException extends RuntimeException {
+		public WrongResourceIdentifierUseException(String from, String to, Throwable cause) {
+			super("There was a try to use " + from + " as " + to + " ,this should be fix!", cause);
 		}
 	}
 }
