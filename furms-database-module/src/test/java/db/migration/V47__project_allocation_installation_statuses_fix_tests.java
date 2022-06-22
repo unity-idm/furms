@@ -6,20 +6,28 @@
 package db.migration;
 
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
 import io.imunity.furms.spi.project_allocation.ProjectAllocationRepository;
@@ -39,7 +47,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
@@ -74,8 +81,8 @@ class V47__project_allocation_installation_statuses_fix_tests {
 	@Autowired
 	private Flyway flyway;
 
-	private UUID siteId;
-	private UUID projectAllocationId;
+	private SiteId siteId;
+	private ProjectAllocationId projectAllocationId;
 
 	@BeforeEach
 	void setUp() {
@@ -90,17 +97,17 @@ class V47__project_allocation_installation_statuses_fix_tests {
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
 
-		UUID communityId = UUID.fromString(communityRepository.create(community));
+		CommunityId communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -110,52 +117,52 @@ class V47__project_allocation_installation_statuses_fix_tests {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		UUID projectId = UUID.fromString(projectRepository.create(project));
+		ProjectId projectId = projectRepository.create(project);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		UUID resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		ResourceCreditId resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		UUID communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		CommunityAllocationId communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
+		);
 
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
+		projectAllocationId = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(5))
 				.build()
-		));
+		);
 	}
 
 	@AfterEach
@@ -168,8 +175,8 @@ class V47__project_allocation_installation_statuses_fix_tests {
 	void shouldNotMigrateStatusAcknowledgedToInstallIfAllocationHasNoChunks() {
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
 			.correlationId(CorrelationId.randomID())
-			.siteId(siteId.toString())
-			.projectAllocationId(projectAllocationId.toString())
+			.siteId(siteId)
+			.projectAllocationId(projectAllocationId)
 			.status(ACKNOWLEDGED)
 			.build();
 
@@ -177,7 +184,7 @@ class V47__project_allocation_installation_statuses_fix_tests {
 
 		V47__project_allocation_installation_statuses_fix.migrate(jdbcTemplate);
 
-		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId.toString()).status,
+		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId).status,
 			ACKNOWLEDGED);
 	}
 
@@ -185,12 +192,12 @@ class V47__project_allocation_installation_statuses_fix_tests {
 	void shouldNotMigrateStatusUpdatingToInstall() {
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
 			.correlationId(CorrelationId.randomID())
-			.siteId(siteId.toString())
-			.projectAllocationId(projectAllocationId.toString())
+			.siteId(siteId)
+			.projectAllocationId(projectAllocationId)
 			.status(UPDATING)
 			.build();
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId.toString())
+			.projectAllocationId(projectAllocationId)
 			.chunkId("id")
 			.amount(BigDecimal.TEN)
 			.validTo(LocalDateTime.now().minusDays(2))
@@ -202,7 +209,7 @@ class V47__project_allocation_installation_statuses_fix_tests {
 
 		V47__project_allocation_installation_statuses_fix.migrate(jdbcTemplate);
 
-		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId.toString()).status,
+		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId).status,
 			UPDATING);
 	}
 
@@ -210,12 +217,12 @@ class V47__project_allocation_installation_statuses_fix_tests {
 	void shouldMigrateStatusAcknowledgedToInstallIfAllocationHasOneChunks() {
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
 			.correlationId(CorrelationId.randomID())
-			.siteId(siteId.toString())
-			.projectAllocationId(projectAllocationId.toString())
+			.siteId(siteId)
+			.projectAllocationId(projectAllocationId)
 			.status(ACKNOWLEDGED)
 			.build();
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId.toString())
+			.projectAllocationId(projectAllocationId)
 			.chunkId("id")
 			.amount(BigDecimal.TEN)
 			.validTo(LocalDateTime.now().minusDays(2))
@@ -227,7 +234,7 @@ class V47__project_allocation_installation_statuses_fix_tests {
 
 		V47__project_allocation_installation_statuses_fix.migrate(jdbcTemplate);
 
-		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId.toString()).status,
+		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId).status,
 			INSTALLED);
 	}
 
@@ -235,19 +242,19 @@ class V47__project_allocation_installation_statuses_fix_tests {
 	void shouldMigrateStatusAcknowledgedToInstallIfAllocationHasTwoChunks() {
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
 			.correlationId(CorrelationId.randomID())
-			.siteId(siteId.toString())
-			.projectAllocationId(projectAllocationId.toString())
+			.siteId(siteId)
+			.projectAllocationId(projectAllocationId)
 			.status(ACKNOWLEDGED)
 			.build();
 		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId.toString())
+			.projectAllocationId(projectAllocationId)
 			.chunkId("id")
 			.amount(BigDecimal.TEN)
 			.validTo(LocalDateTime.now().minusDays(2))
 			.validFrom(LocalDateTime.now().plusDays(2))
 			.build();
 		ProjectAllocationChunk chunk2 = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId.toString())
+			.projectAllocationId(projectAllocationId)
 			.chunkId("id2")
 			.amount(BigDecimal.TEN)
 			.validTo(LocalDateTime.now().minusDays(2))
@@ -260,7 +267,7 @@ class V47__project_allocation_installation_statuses_fix_tests {
 
 		V47__project_allocation_installation_statuses_fix.migrate(jdbcTemplate);
 
-		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId.toString()).status,
+		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId).status,
 			INSTALLED);
 	}
 }
