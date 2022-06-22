@@ -32,7 +32,10 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,8 @@ import static java.util.stream.Collectors.toList;
 @Route(value = "project/admin/alarms", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.alarms.page.title")
 public class AlarmsView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final AlarmService alarmService;
 	private final ProjectAllocationService projectAllocationService;
 	private final Grid<AlarmGridModel> grid;
@@ -167,7 +172,9 @@ public class AlarmsView extends FurmsViewComponent {
 				alarmService.remove(projectId, alarmId);
 				loadGridContent();
 			} catch (RuntimeException e) {
-				CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not remove alarm.");
+				boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+				if(!handled)
+					LOG.error("Could not remove alarm.");
 			}
 		});
 		return furmsDialog;

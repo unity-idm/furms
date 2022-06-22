@@ -22,7 +22,10 @@ import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -33,6 +36,8 @@ import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 @Route(value = "project/admin/administrators", layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.administrators.page.title")
 public class ProjectAdministratorsView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final ProjectService projectService;
 	private final ProjectId projectId;
 	private final UsersGridComponent grid;
@@ -91,7 +96,9 @@ public class ProjectAdministratorsView extends FurmsViewComponent {
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not invite project admin.");
+			boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			if(!handled)
+				LOG.error("Could not invite project admin.");
 		}
 	}
 

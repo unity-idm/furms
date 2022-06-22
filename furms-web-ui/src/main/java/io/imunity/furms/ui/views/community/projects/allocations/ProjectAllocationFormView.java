@@ -35,7 +35,10 @@ import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.projects.ProjectView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -47,6 +50,7 @@ import static java.util.Optional.ofNullable;
 @Route(value = "community/admin/project/allocation/form", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.community-admin.project-allocation.form.page.title")
 class ProjectAllocationFormView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectAllocationService projectAllocationService;
 	private final ProjectService projectService;
@@ -125,7 +129,9 @@ class ProjectAllocationFormView extends FurmsViewComponent {
 			else
 				showErrorNotification(getTranslation("name.duplicated.error.message"));
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not create allocation.");
+			boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			if(!handled)
+				LOG.error("Could not create allocation.");
 		}
 
 	}

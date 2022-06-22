@@ -31,8 +31,11 @@ import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.site.SiteAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,6 +52,8 @@ import static java.util.stream.Collectors.toList;
 @Route(value = SITE_BASE_LANDING_PAGE, layout = SiteAdminMenu.class)
 @PageTitle(key = "view.site-admin.policy-documents.page.title")
 public class PolicyDocumentsView extends FurmsLandingViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final PolicyDocumentService policyDocumentService;
 	private final Class<? extends FurmsViewComponent> acceptanceView;
 	private final boolean editable;
@@ -156,7 +161,9 @@ public class PolicyDocumentsView extends FurmsLandingViewComponent {
 				policyDocumentService.delete(siteId, policyDocumentId);
 				loadGridContent();
 			} catch (RuntimeException e) {
-				CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not remove policy.");
+				boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+				if(!handled)
+					LOG.error("Could not remove policy.");
 			}
 		});
 		return furmsDialog;

@@ -32,7 +32,10 @@ import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComb
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.DashboardView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
@@ -48,6 +51,7 @@ import static java.util.stream.Collectors.toSet;
 @Route(value = "community/admin/dashboard/allocation", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.allocate.page.title")
 public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ProjectAllocationService projectAllocationService;
 	private final ProjectService projectService;
@@ -132,7 +136,9 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 			projectAllocationService.create(viewModel.getCommunityId(), projectAllocation);
 			UI.getCurrent().navigate(DashboardView.class);
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not create allocation.");
+			boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			if(!handled)
+				LOG.error("Could not create allocation.");
 		}
 	}
 
