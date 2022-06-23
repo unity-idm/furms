@@ -51,7 +51,7 @@ import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 @Route(value = PROJECT_BASE_LANDING_PAGE, layout = ProjectAdminMenu.class)
 @PageTitle(key = "view.project-admin.users.page.title")
 public class UsersView extends FurmsLandingViewComponent {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private static final Predicate<FURMSUser> IS_ELIGIBLE_FOR_PROJECT_MEMBERSHIP = user -> user.fenixUserId.isPresent();
 	private final ProjectService projectService;
@@ -123,7 +123,9 @@ public class UsersView extends FurmsLandingViewComponent {
 					projectApplicationsService.accept(projectId, userGridItem.getFenixUserId().get());
 					showSuccessNotification(getTranslation("view.project-admin.users.application.accept"));
 				} catch (RuntimeException e) {
-					CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not accept application.");
+					boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+					if(!handled)
+						LOG.error("Could not accept application.");
 				}
 					usersDAO.reload();
 					grid.reloadGrid();
@@ -185,7 +187,9 @@ public class UsersView extends FurmsLandingViewComponent {
 		} catch (UserAlreadyAppliedForMembershipException e) {
 			showErrorNotification(getTranslation("invite.error.application.exist"));
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not invite project user.");
+			boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			if(!handled)
+				LOG.error("Could not invite project user.");
 		}
 	}
 

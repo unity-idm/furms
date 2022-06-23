@@ -40,7 +40,10 @@ import io.imunity.furms.ui.components.RouterGridLink;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.user_settings.UserSettingsMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +65,8 @@ import static java.util.stream.Collectors.toList;
 @Route(value = "users/settings/projects", layout = UserSettingsMenu.class)
 @PageTitle(key = "view.user-settings.projects.page.title")
 public class ProjectsView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final ProjectService projectService;
 	private final ProjectApplicationsService projectApplicationsService;
 	private final ProjectGridModelMapper mapper;
@@ -176,7 +181,9 @@ public class ProjectsView extends FurmsViewComponent {
 					try {
 						projectApplicationsService.removeForCurrentUser(project.id);
 					} catch (RuntimeException e){
-						CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not remove application.");
+						boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+						if(!handled)
+							LOG.error("Could not remove application.");
 					}
 					loadGridContent();
 				});

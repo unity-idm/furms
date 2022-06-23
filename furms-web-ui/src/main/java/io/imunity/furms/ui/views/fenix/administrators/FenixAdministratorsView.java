@@ -20,7 +20,10 @@ import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -29,6 +32,8 @@ import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotificatio
 @Route(value = "fenix/admin/administrators", layout = FenixAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.administrators.page.title")
 public class FenixAdministratorsView extends FurmsViewComponent {
+	private final static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
 	private final FenixUserService fenixUserService;
 	private final UsersDAO usersDAO;
 
@@ -81,7 +86,9 @@ public class FenixAdministratorsView extends FurmsViewComponent {
 			showSuccessNotification(getTranslation("invite.successful.added"));
 			gridReload();
 		} catch (RuntimeException e) {
-			CommonExceptionsHandler.showExceptionBasedNotificationError(e, "Could not invite Fenix admin.");
+			boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+			if(!handled)
+				LOG.error("Could not invite Fenix admin.");
 		}
 	}
 
