@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client.mocks;
 
+import io.imunity.furms.rabbitmq.site.client.config.PlaneRabbitTemplate;
 import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
@@ -78,9 +79,9 @@ public class SiteAgentMock {
 	private final SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock;
 	private static final long OP_SLEEP_MS = 0;
 
-	public SiteAgentMock(RabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher,
-			SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock,
-			SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock) {
+	public SiteAgentMock(PlaneRabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher,
+	                     SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock,
+	                     SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock) {
 		this.rabbitTemplate = rabbitTemplate;
 		this.publisher = publisher;
 		this.siteAgentPolicyDocumentReceiverMock = siteAgentPolicyDocumentReceiverMock;

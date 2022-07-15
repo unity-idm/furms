@@ -36,7 +36,6 @@ public class IntegrationTestBase {
 		rabbitAdmin.purgeQueue(MOCK_FURMS_PUB);
 		rabbitAdmin.purgeQueue(MOCK_SITE_PUB);
 		if (!isSiteAgentRegistered) {
-			siteAgentListenerConnector.connectListenerToQueue(MOCK_FURMS_PUB);
 			siteAgentListenerConnector.connectListenerToQueue(MOCK_SITE_PUB);
 			isSiteAgentRegistered = true;
 		}

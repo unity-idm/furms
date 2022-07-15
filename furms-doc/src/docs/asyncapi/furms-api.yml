@@ -918,7 +918,10 @@ components:
       responseMeta:
          type: object
          additionalProperties: false
-         properties: 
+         required:
+            - version
+            - status
+         properties:
             version:
                type: integer
                default: 1

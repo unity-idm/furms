@@ -29,6 +29,16 @@ public class SiteAgentErrorProducerMock {
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
 	}
 
+	public void sendMessageWithNullStatus(String messageCorrelationId, CumulativeResourceUsageRecord record) {
+		Header header = new Header(VERSION, messageCorrelationId, null, null);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
+	}
+
+	public void sendMessageWithNullVersion(String messageCorrelationId, CumulativeResourceUsageRecord record) {
+		Header header = new Header(null, messageCorrelationId, Status.OK, null);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
+	}
+
 	private Header getHeader(String messageCorrelationId) {
 		return new Header(VERSION, messageCorrelationId, Status.FAILED, null);
 	}

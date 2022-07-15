@@ -37,4 +37,26 @@ class SiteAgentErrorMessageCallbackTest extends IntegrationTestBase {
 			new AgentMessageErrorInfo(correlationId, "IllegalStateTransition", "Usage is failed - it's not supported")
 		);
 	}
+
+	@Test
+	void shouldSendMessageErrorInfoWhenReceivedMessageVersionIsNull() {
+		String correlationId = UUID.randomUUID().toString();
+		CumulativeResourceUsageRecord brokenMessage = new CumulativeResourceUsageRecord("id", "pid", BigDecimal.ONE, OffsetDateTime.now());
+		siteAgentErrorProducerMock.sendMessageWithNullVersion(correlationId, brokenMessage);
+
+		verify(receiverMock, timeout(10000)).process(
+			new AgentMessageErrorInfo(correlationId, "InvalidMessageContent", "Version property is required!")
+		);
+	}
+
+	@Test
+	void shouldSendMessageErrorInfoWhenReceivedMessageStatusIsNull() {
+		String correlationId = UUID.randomUUID().toString();
+		CumulativeResourceUsageRecord brokenMessage = new CumulativeResourceUsageRecord("id", "pid", BigDecimal.ONE, OffsetDateTime.now());
+		siteAgentErrorProducerMock.sendMessageWithNullStatus(correlationId, brokenMessage);
+
+		verify(receiverMock, timeout(10000)).process(
+			new AgentMessageErrorInfo(correlationId, "InvalidMessageContent", "Status property is required!")
+		);
+	}
 }

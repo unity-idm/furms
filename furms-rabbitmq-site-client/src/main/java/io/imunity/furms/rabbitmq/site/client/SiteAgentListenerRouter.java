@@ -6,6 +6,7 @@
 package io.imunity.furms.rabbitmq.site.client;
 
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.site_agent.InvalidMessageContentException;
 import io.imunity.furms.rabbitmq.site.client.config.PlaneRabbitTemplate;
 import io.imunity.furms.rabbitmq.site.models.Ack;
 import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
@@ -43,7 +44,7 @@ class SiteAgentListenerRouter {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	private final ApplicationEventPublisher publisher;
-	private final MessageAuthorizer validator;
+	private final MessageAuthorizer messageAuthorizer;
 	private final AgentPendingMessageSiteService agentPendingMessageSiteService;
 	private final PlaneRabbitTemplate rabbitTemplate;
 
@@ -51,7 +52,7 @@ class SiteAgentListenerRouter {
 	SiteAgentListenerRouter(ApplicationEventPublisher publisher, MessageAuthorizer validator,
 			AgentPendingMessageSiteService agentPendingMessageSiteService, PlaneRabbitTemplate rabbitTemplate) {
 		this.publisher = publisher;
-		this.validator = validator;
+		this.messageAuthorizer = validator;
 		this.agentPendingMessageSiteService = agentPendingMessageSiteService;
 		this.rabbitTemplate = rabbitTemplate;
 	}
@@ -60,7 +61,8 @@ class SiteAgentListenerRouter {
 	public void receive(Payload<?> payload, @Header(CONSUMER_QUEUE) String queueName) {
 		MDC.put(MDCKey.QUEUE_NAME.key, queueName);
 		try {
-			validator.validate(payload, queueName);
+			validContent(payload);
+			messageAuthorizer.validate(payload, queueName);
 			publisher.publishEvent(payload);
 			updateOrDeletePendingRequests(payload);
 			LOG.info("Received payload {}", payload);
@@ -86,6 +88,13 @@ class SiteAgentListenerRouter {
 		} finally {
 			MDC.remove(MDCKey.QUEUE_NAME.key);
 		}
+	}
+
+	private void validContent(Payload<?> payload) {
+		if(payload.header.version == null)
+			throw new InvalidMessageContentException("Version property is required!");
+		if(payload.header.status == null)
+			throw new InvalidMessageContentException("Status property is required!");
 	}
 
 	private void sendErrorMessageToSite(String queueName, String correlationId, String errorType, String description) {

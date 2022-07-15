@@ -29,7 +29,7 @@ public class Header {
 	}
 
 	public Header(String version, String messageCorrelationId) {
-		this(version, messageCorrelationId, null, null);
+		this(version, messageCorrelationId, Status.OK, null);
 	}
 
 	@Override
