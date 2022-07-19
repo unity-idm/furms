@@ -34,8 +34,8 @@ public class SiteAgentErrorProducerMock {
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
 	}
 
-	public void sendMessageWithNullVersion(String messageCorrelationId, CumulativeResourceUsageRecord record) {
-		Header header = new Header(null, messageCorrelationId, Status.OK, null);
+	public void sendMessageWithIncorrectVersion(String messageCorrelationId, CumulativeResourceUsageRecord record) {
+		Header header = new Header("1.5", messageCorrelationId, Status.OK, null);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
 	}
 

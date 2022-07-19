@@ -7,6 +7,7 @@ package io.imunity.furms.rabbitmq.site.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.imunity.furms.rabbitmq.site.models.consts.Protocol;
 
 import java.util.Objects;
 
@@ -22,7 +23,7 @@ public class Header {
 
 	@JsonCreator
 	public Header(String version, String messageCorrelationId, Status status, Error error) {
-		this.version = version;
+		this.version = version == null ? Protocol.VERSION : version;
 		this.messageCorrelationId = messageCorrelationId;
 		this.status = status;
 		this.error = error;

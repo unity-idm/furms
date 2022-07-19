@@ -10,6 +10,7 @@ import io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentErrorProducerMock;
 import io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentMessageErrorInfoReceiverMock;
 import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.CumulativeResourceUsageRecord;
+import io.imunity.furms.rabbitmq.site.models.consts.Protocol;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,20 +40,23 @@ class SiteAgentErrorMessageCallbackTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldSendMessageErrorInfoWhenReceivedMessageVersionIsNull() {
+	void shouldSendMessageErrorInfoWhenReceivedMessageVersionIsIncorrect() {
 		String correlationId = UUID.randomUUID().toString();
-		CumulativeResourceUsageRecord brokenMessage = new CumulativeResourceUsageRecord("id", "pid", BigDecimal.ONE, OffsetDateTime.now());
-		siteAgentErrorProducerMock.sendMessageWithNullVersion(correlationId, brokenMessage);
+		CumulativeResourceUsageRecord brokenMessage = new CumulativeResourceUsageRecord(UUID.randomUUID().toString(), "pid",
+			BigDecimal.ONE,
+			OffsetDateTime.now());
+		siteAgentErrorProducerMock.sendMessageWithIncorrectVersion(correlationId, brokenMessage);
 
 		verify(receiverMock, timeout(10000)).process(
-			new AgentMessageErrorInfo(correlationId, "InvalidMessageContent", "Version property is required!")
+			new AgentMessageErrorInfo(correlationId, "InvalidMessageContent", "Unhandled protocol version! Current " +
+				"version: " + Protocol.VERSION)
 		);
 	}
 
 	@Test
 	void shouldSendMessageErrorInfoWhenReceivedMessageStatusIsNull() {
 		String correlationId = UUID.randomUUID().toString();
-		CumulativeResourceUsageRecord brokenMessage = new CumulativeResourceUsageRecord("id", "pid", BigDecimal.ONE, OffsetDateTime.now());
+		CumulativeResourceUsageRecord brokenMessage = new CumulativeResourceUsageRecord(UUID.randomUUID().toString(), "pid", BigDecimal.ONE, OffsetDateTime.now());
 		siteAgentErrorProducerMock.sendMessageWithNullStatus(correlationId, brokenMessage);
 
 		verify(receiverMock, timeout(10000)).process(

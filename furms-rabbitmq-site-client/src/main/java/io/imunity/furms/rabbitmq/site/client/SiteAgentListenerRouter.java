@@ -61,7 +61,7 @@ class SiteAgentListenerRouter {
 	public void receive(Payload<?> payload, @Header(CONSUMER_QUEUE) String queueName) {
 		MDC.put(MDCKey.QUEUE_NAME.key, queueName);
 		try {
-			validContent(payload);
+			assertHeaderIsValid(payload);
 			messageAuthorizer.validate(payload, queueName);
 			publisher.publishEvent(payload);
 			updateOrDeletePendingRequests(payload);
@@ -90,9 +90,9 @@ class SiteAgentListenerRouter {
 		}
 	}
 
-	private void validContent(Payload<?> payload) {
-		if(payload.header.version == null)
-			throw new InvalidMessageContentException("Version property is required!");
+	private void assertHeaderIsValid(Payload<?> payload) {
+		if(!payload.header.version.equals(VERSION))
+			throw new InvalidMessageContentException("Unhandled protocol version! Current version: " + VERSION);
 		if(payload.header.status == null)
 			throw new InvalidMessageContentException("Status property is required!");
 	}
