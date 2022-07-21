@@ -48,7 +48,7 @@ class SiteAgentErrorMessageCallbackTest extends IntegrationTestBase {
 		siteAgentErrorProducerMock.sendMessageWithIncorrectVersion(correlationId, brokenMessage);
 
 		verify(receiverMock, timeout(10000)).process(
-			new AgentMessageErrorInfo(correlationId, "InvalidMessageContent", "Unhandled protocol version! Current " +
+			new AgentMessageErrorInfo(correlationId, "InvalidMessageContent", "Unsupported protocol version! Current " +
 				"version: " + Protocol.VERSION)
 		);
 	}

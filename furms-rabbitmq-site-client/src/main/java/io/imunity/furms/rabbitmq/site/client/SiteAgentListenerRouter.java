@@ -92,7 +92,7 @@ class SiteAgentListenerRouter {
 
 	private void assertHeaderIsValid(Payload<?> payload) {
 		if(!payload.header.version.equals(VERSION))
-			throw new InvalidMessageContentException("Unhandled protocol version! Current version: " + VERSION);
+			throw new InvalidMessageContentException("Unsupported protocol version! Current version: " + VERSION);
 		if(payload.header.status == null)
 			throw new InvalidMessageContentException("Status property is required!");
 	}
