@@ -8,16 +8,23 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @JsonTypeName("UserResourceUsageRecord")
 public class UserResourceUsageRecord implements Body {
+	@NotEmpty
 	public final String projectIdentifier;
+	@NotEmpty
 	public final String allocationIdentifier;
+	@NotEmpty
 	public final String fenixUserId;
+	@NotNull
 	public final BigDecimal cumulativeConsumption;
+	@NotNull
 	public final OffsetDateTime consumedUntil;
 
 	@JsonCreator

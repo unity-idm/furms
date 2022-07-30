@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimal;
+import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimalGreaterThen0;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static java.util.Optional.ofNullable;
@@ -103,7 +103,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 			.bind(ResourceCreditViewModel::getSplit, ResourceCreditViewModel::setSplit);
 		binder.forField(amountField)
 			.withValidator(
-				value -> Objects.nonNull(value) && isBigDecimal(value),
+				value -> Objects.nonNull(value) && isBigDecimalGreaterThen0(value),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.amount")
 			)
 			.bind(resourceCredit -> BigDecimalUtils.toString(resourceCredit.getAmount()),
@@ -115,7 +115,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 						&& ofNullable(endTimePicker.getValue()).map(c -> c.isAfter(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.start-time")
 			)
-			.bind(credit -> ofNullable(credit.getStartTime()).orElse(null),
+			.bind(ResourceCreditViewModel::getStartTime,
 				ResourceCreditViewModel::setStartTime);
 		binder.forField(endTimePicker)
 			.withValidator(
@@ -123,7 +123,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 						&& ofNullable(startTimePicker.getValue()).map(c -> c.isBefore(time)).orElse(true),
 				getTranslation("view.site-admin.resource-credits.form.error.validation.field.end-time")
 			)
-			.bind(credit -> ofNullable(credit.getEndTime()).orElse(null),
+			.bind(ResourceCreditViewModel::getEndTime,
 				ResourceCreditViewModel::setEndTime);
 	}
 

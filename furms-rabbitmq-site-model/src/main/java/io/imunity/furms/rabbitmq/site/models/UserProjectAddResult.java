@@ -8,10 +8,12 @@ package io.imunity.furms.rabbitmq.site.models;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.Objects;
 
 @JsonTypeName("UserProjectAddResult")
 public class UserProjectAddResult implements Body, Result {
+	@NotEmpty
 	public final String uid;
 
 	@JsonCreator

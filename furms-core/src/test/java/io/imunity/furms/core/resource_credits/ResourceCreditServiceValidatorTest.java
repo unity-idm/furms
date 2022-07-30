@@ -83,6 +83,26 @@ class ResourceCreditServiceValidatorTest {
 	}
 
 	@Test
+	void shouldNotPassCreateForAmountLessThen0() {
+		//given
+		ResourceCredit service = ResourceCredit.builder()
+			.siteId("id")
+			.resourceTypeId("id")
+			.name("name")
+			.amount(BigDecimal.ZERO)
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.build();
+
+		when(siteRepository.exists(service.siteId)).thenReturn(true);
+		when(resourceTypeRepository.exists(service.resourceTypeId)).thenReturn(true);
+		when(resourceCreditRepository.isNamePresent(any(), any())).thenReturn(false);
+
+		//when+then
+		assertThrows(IllegalArgumentException.class, () -> validator.validateCreate(service));
+	}
+
+	@Test
 	void shouldNotPassCreateForWrongDates() {
 		//given
 		ResourceCredit service = ResourceCredit.builder()
