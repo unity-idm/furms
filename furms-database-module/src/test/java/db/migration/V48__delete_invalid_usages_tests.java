@@ -7,20 +7,28 @@ package db.migration;
 
 import io.imunity.furms.db.resource_usage.ResourceUsageDatabaseRepository;
 import io.imunity.furms.domain.communities.Community;
+import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
+import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
+import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationResolved;
 import io.imunity.furms.domain.projects.Project;
+import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCredit;
+import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceType;
+import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.resource_usage.ResourceUsage;
 import io.imunity.furms.domain.resource_usage.UserResourceUsage;
 import io.imunity.furms.domain.services.InfraService;
+import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.community_allocation.CommunityAllocationRepository;
@@ -42,7 +50,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -74,12 +81,12 @@ class V48__delete_invalid_usages_tests {
 	@Autowired
 	private Flyway flyway;
 
-	private UUID siteId;
-	private UUID communityId;
-	private UUID projectId;
-	private UUID communityAllocationId;
-	private UUID resourceCreditId;
-	private UUID projectAllocationId;
+	private SiteId siteId;
+	private CommunityId communityId;
+	private ProjectId projectId;
+	private CommunityAllocationId communityAllocationId;
+	private ResourceCreditId resourceCreditId;
+	private ProjectAllocationId projectAllocationId;
 
 	@BeforeEach
 	void setUp() {
@@ -94,17 +101,17 @@ class V48__delete_invalid_usages_tests {
 			.name("name")
 			.build();
 
-		siteId = UUID.fromString(siteRepository.create(site, new SiteExternalId("id")));
+		siteId = siteRepository.create(site, new SiteExternalId("id"));
 
 		Community community = Community.builder()
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
 
-		communityId = UUID.fromString(communityRepository.create(community));
+		communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
-			.communityId(communityId.toString())
+			.communityId(communityId)
 			.name("name")
 			.description("new_description")
 			.logo(FurmsImage.empty())
@@ -114,52 +121,52 @@ class V48__delete_invalid_usages_tests {
 			.utcEndTime(LocalDateTime.now())
 			.build();
 
-		projectId = UUID.fromString(projectRepository.create(project));
+		projectId = projectRepository.create(project);
 
 		InfraService service = InfraService.builder()
-			.siteId(siteId.toString())
+			.siteId(siteId)
 			.name("name")
 			.build();
 
-		UUID serviceId = UUID.fromString(infraServiceRepository.create(service));
+		InfraServiceId serviceId = infraServiceRepository.create(service);
 
 		ResourceType resourceType = ResourceType.builder()
-			.siteId(siteId.toString())
-			.serviceId(serviceId.toString())
+			.siteId(siteId)
+			.serviceId(serviceId)
 			.name("name")
 			.type(ResourceMeasureType.FLOATING_POINT)
 			.unit(ResourceMeasureUnit.KILO)
 			.build();
-		UUID resourceTypeId = UUID.fromString(resourceTypeRepository.create(resourceType));
+		ResourceTypeId resourceTypeId = resourceTypeRepository.create(resourceType);
 
-		resourceCreditId = UUID.fromString(resourceCreditRepository.create(ResourceCredit.builder()
-			.siteId(siteId.toString())
-			.resourceTypeId(resourceTypeId.toString())
+		resourceCreditId = resourceCreditRepository.create(ResourceCredit.builder()
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.splittable(true)
 			.amount(new BigDecimal(100))
 			.utcCreateTime(LocalDateTime.now())
 			.utcStartTime(LocalDateTime.now().plusDays(1))
 			.utcEndTime(LocalDateTime.now().plusDays(3))
-			.build()));
+			.build());
 
-		communityAllocationId = UUID.fromString(communityAllocationRepository.create(
+		communityAllocationId = communityAllocationRepository.create(
 			CommunityAllocation.builder()
-				.communityId(communityId.toString())
-				.resourceCreditId(resourceCreditId.toString())
+				.communityId(communityId)
+				.resourceCreditId(resourceCreditId)
 				.name("anem")
 				.amount(new BigDecimal(10))
 				.build()
-		));
+		);
 
-		projectAllocationId = UUID.fromString(projectAllocationRepository.create(
+		projectAllocationId = projectAllocationRepository.create(
 			ProjectAllocation.builder()
-				.projectId(projectId.toString())
-				.communityAllocationId(communityAllocationId.toString())
+				.projectId(projectId)
+				.communityAllocationId(communityAllocationId)
 				.name("anem")
 				.amount(new BigDecimal(5))
 				.build()
-		));
+		);
 	}
 
 	@AfterEach
@@ -171,14 +178,14 @@ class V48__delete_invalid_usages_tests {
 	@Test
 	void shouldCleanUsagesWithNullCumulativeConsumption() {
 		ProjectAllocationResolved projectAllocationResolved = ProjectAllocationResolved.builder()
-			.site(Site.builder().id(siteId.toString()).build())
-			.communityAllocation(CommunityAllocation.builder().id(communityAllocationId.toString()).communityId(communityId.toString()).build())
-			.resourceCredit(ResourceCredit.builder().id(resourceCreditId.toString()).build())
+			.site(Site.builder().id(siteId).build())
+			.communityAllocation(CommunityAllocation.builder().id(communityAllocationId).communityId(communityId).build())
+			.resourceCredit(ResourceCredit.builder().id(resourceCreditId).build())
 			.build();
 		resourceUsageDatabaseRepository.create(
 			ResourceUsage.builder()
-				.projectId(projectId.toString())
-				.projectAllocationId(projectAllocationId.toString())
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
 				.cumulativeConsumption(null)
 				.probedAt(LocalDateTime.now().minusMinutes(5))
 				.build(),
@@ -192,7 +199,7 @@ class V48__delete_invalid_usages_tests {
 		assertThat(resourceUsagesHistory).isEmpty();
 
 		Optional<ResourceUsage> currentResourceUsage =
-			resourceUsageDatabaseRepository.findCurrentResourceUsage(projectAllocationId.toString());
+			resourceUsageDatabaseRepository.findCurrentResourceUsage(projectAllocationId);
 		assertThat(currentResourceUsage).isEmpty();
 	}
 
@@ -202,8 +209,8 @@ class V48__delete_invalid_usages_tests {
 		FenixUserId userId = new FenixUserId("userId");
 		resourceUsageDatabaseRepository.create(
 			UserResourceUsage.builder()
-				.projectId(projectId.toString())
-				.projectAllocationId(projectAllocationId.toString())
+				.projectId(projectId)
+				.projectAllocationId(projectAllocationId)
 				.fenixUserId(userId)
 				.cumulativeConsumption(null)
 				.consumedUntil(LocalDateTime.now().minusMinutes(5))

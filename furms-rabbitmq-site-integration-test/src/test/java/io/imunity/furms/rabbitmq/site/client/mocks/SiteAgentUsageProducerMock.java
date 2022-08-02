@@ -20,7 +20,7 @@ import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 @Component
 public class SiteAgentUsageProducerMock {
 
-	private static final String MOCK_FURMS_PUB = "mock-furms-pub";
+	private static final String MOCK_SITE_PUB = "mock-site-pub";
 	private final RabbitTemplate rabbitTemplate;
 
 	public SiteAgentUsageProducerMock(RabbitTemplate rabbitTemplate){
@@ -29,12 +29,12 @@ public class SiteAgentUsageProducerMock {
 
 	public void sendCumulativeResourceUsageRecord(CumulativeResourceUsageRecord record) {
 		Header header = getHeader(UUID.randomUUID().toString());
-		rabbitTemplate.convertAndSend(MOCK_FURMS_PUB, new Payload<>(header, record));
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
 	}
 
 	public void sendUserResourceUsageRecord(UserResourceUsageRecord record) {
 		Header header = getHeader(UUID.randomUUID().toString());
-		rabbitTemplate.convertAndSend(MOCK_FURMS_PUB, new Payload<>(header, record));
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
 	}
 
 	private Header getHeader(String messageCorrelationId) {

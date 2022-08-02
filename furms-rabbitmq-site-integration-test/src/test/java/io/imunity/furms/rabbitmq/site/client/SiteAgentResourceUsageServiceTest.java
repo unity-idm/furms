@@ -60,8 +60,8 @@ class SiteAgentResourceUsageServiceTest extends IntegrationTestBase {
 	@Test
 	void shouldReceiveAgentMessageErrorInfoMessageWhenCumulativeResourceUsageAmountIsNull() {
 		CumulativeResourceUsageRecord record = new CumulativeResourceUsageRecord(
-			"projectIdentifier",
-			"allocationIdentifier",
+			UUID.randomUUID().toString(),
+			UUID.randomUUID().toString(),
 			null,
 			OffsetDateTime.now()
 		);

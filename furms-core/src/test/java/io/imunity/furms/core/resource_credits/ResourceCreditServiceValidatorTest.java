@@ -93,9 +93,11 @@ class ResourceCreditServiceValidatorTest {
 	@Test
 	void shouldNotPassCreateForAmountLessThen0() {
 		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
 		ResourceCredit service = ResourceCredit.builder()
-			.siteId("id")
-			.resourceTypeId("id")
+			.siteId(siteId)
+			.resourceTypeId(resourceTypeId)
 			.name("name")
 			.amount(BigDecimal.ZERO)
 			.utcStartTime(LocalDateTime.now())
