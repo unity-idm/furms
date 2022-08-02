@@ -10,11 +10,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.ResolvableTypeProvider;
 
+import javax.validation.Valid;
 import java.util.Objects;
 
 
 public class Payload<T extends Body> implements ResolvableTypeProvider {
 	public final Header header;
+	@Valid
 	public final T body;
 
 	@SuppressWarnings("unchecked")

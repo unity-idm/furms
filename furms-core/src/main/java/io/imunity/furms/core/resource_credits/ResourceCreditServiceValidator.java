@@ -52,6 +52,7 @@ class ResourceCreditServiceValidator {
 		validateName(resourceCredit, Optional.empty());
 		notNull(resourceCredit.amount, "ResourceCredit amount cannot be null.");
 		validateCreateTime(resourceCredit.utcCreateTime);
+		assertAmountIsGreaterThen0(resourceCredit);
 		validateTime(resourceCredit.utcStartTime, resourceCredit.utcEndTime);
 	}
 
@@ -69,6 +70,10 @@ class ResourceCreditServiceValidator {
 		assertAmountAboveAlreadyDistributed(resourceCredit, existing);
 	}
 
+	private void assertAmountIsGreaterThen0(ResourceCredit resourceCredit) {
+		if (resourceCredit.amount.compareTo(BigDecimal.ZERO) < 1)
+			throw new IllegalArgumentException("ResourceCredit " + resourceCredit.amount + " have to grater then 0");
+	}
 	private void assertAmountAboveAlreadyDistributed(ResourceCredit updated, ResourceCredit existing) {
 		BigDecimal remaining = communityAllocationRepository.getAvailableAmount(existing.id);
 		BigDecimal distributed = existing.amount.subtract(remaining);

@@ -6,21 +6,29 @@
 package io.imunity.furms.rabbitmq.site.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @JsonTypeName("CumulativeResourceUsageRecord")
 public class CumulativeResourceUsageRecord implements Body {
+	@NotEmpty
 	public final String projectIdentifier;
+	@NotEmpty
 	public final String allocationIdentifier;
+	@NotNull
 	public final BigDecimal cumulativeConsumption;
+	@NotNull
 	public final OffsetDateTime probedAt;
 
 	@JsonCreator
-	public CumulativeResourceUsageRecord(String projectIdentifier, String allocationIdentifier, BigDecimal cumulativeConsumption, OffsetDateTime probedAt) {
+	public CumulativeResourceUsageRecord(String projectIdentifier, String allocationIdentifier,
+	                                     @JsonProperty(required = true) BigDecimal cumulativeConsumption, OffsetDateTime probedAt) {
 		this.projectIdentifier = projectIdentifier;
 		this.allocationIdentifier = allocationIdentifier;
 		this.cumulativeConsumption = cumulativeConsumption;

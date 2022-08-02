@@ -84,7 +84,8 @@ class SiteAgentListenerRouter {
 		MDC.put(MDCKey.QUEUE_NAME.key, queueName);
 		try {
 			LOG.info("Received object, which cannot be processed {}", errorPayload);
-			sendErrorMessageToSite(queueName, errorPayload.correlationId, "InvalidMessageContent", "The message can not be parsed: " + errorPayload.unparsableMessage);
+			sendErrorMessageToSite(queueName, errorPayload.correlationId, "InvalidMessageContent", "The message can " +
+				"not be parsed: " + errorPayload.unparsableMessage + errorPayload.reasons.map(msg -> ", Reasons: " + msg).orElse(""));
 		} finally {
 			MDC.remove(MDCKey.QUEUE_NAME.key);
 		}

@@ -5,11 +5,11 @@
 
 package io.imunity.furms.ui.utils;
 
-import static java.util.Optional.ofNullable;
+import io.imunity.furms.domain.resource_types.AmountWithUnit;
 
 import java.math.BigDecimal;
 
-import io.imunity.furms.domain.resource_types.AmountWithUnit;
+import static java.util.Optional.ofNullable;
 
 public class BigDecimalUtils {
 	public static BigDecimal toBigDecimal(String value) {
@@ -27,10 +27,10 @@ public class BigDecimalUtils {
 			.orElse(null);
 	}
 
-	public static boolean isBigDecimal(String value) {
+	public static boolean isBigDecimalGreaterThen0(String value) {
 		try {
-			new BigDecimal(value);
-			return true;
+			BigDecimal bigDecimal = new BigDecimal(value);
+			return bigDecimal.compareTo(BigDecimal.ZERO) > 0;
 		}catch (NumberFormatException e){
 			return false;
 		}

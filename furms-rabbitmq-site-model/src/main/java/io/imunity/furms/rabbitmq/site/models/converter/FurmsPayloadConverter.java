@@ -23,11 +23,15 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.UnsupportedEncodingException;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 import static java.util.Optional.ofNullable;
@@ -36,6 +40,8 @@ public class FurmsPayloadConverter implements MessageConverter {
 	private static final String TYPE_ID = "__TypeId__";
 	private static final String UTF_8 = "UTF-8";
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+	private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
 	public final ObjectMapper mapper;
 	public final Jackson2JsonMessageConverter jackson2JsonMessageConverter;
@@ -81,7 +87,7 @@ public class FurmsPayloadConverter implements MessageConverter {
 
 	@Override
 	public Object fromMessage(Message message) throws MessageConversionException {
-		String contentAsString = null;
+		String contentAsString;
 		try {
 			String contentEncoding = ofNullable(message.getMessageProperties().getContentEncoding()).orElse(UTF_8);
 			contentAsString = new String(message.getBody(), contentEncoding);
@@ -90,13 +96,25 @@ public class FurmsPayloadConverter implements MessageConverter {
 			return new ErrorPayload(null, message.toString());
 		}
 
+		Object payload;
 		try {
-			return mapper.readValue(contentAsString, mapper.constructType(Payload.class));
+			payload = mapper.readValue(contentAsString, mapper.constructType(Payload.class));
 		} catch (Exception e) {
 			LOG.error("Message cannot be convert: {}", message);
 			LOG.error("This error occurred when message was parsing: ", e);
 			return new ErrorPayload(getCorrelationId(contentAsString), contentAsString);
 		}
+
+		Set<ConstraintViolation<Object>> violations = validator.validate(payload);
+		if(!violations.isEmpty())
+			return new ErrorPayload(getCorrelationId(contentAsString), contentAsString,
+				violations.stream()
+					.map(violation -> violation.getPropertyPath() + violation.getMessage())
+					.collect(Collectors.joining(", ", "[", "]"))
+			);
+
+		return payload;
+
 	}
 
 	private String getCorrelationId(String content) {

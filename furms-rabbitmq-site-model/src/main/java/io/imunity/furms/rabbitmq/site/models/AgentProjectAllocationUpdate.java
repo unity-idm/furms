@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
@@ -16,10 +18,15 @@ import java.util.Objects;
 
 @JsonTypeName("ProjectResourceAllocationUpdate")
 public class AgentProjectAllocationUpdate implements Body {
+	@NotEmpty
 	public final String allocationIdentifier;
+	@NotEmpty
 	public final String allocationChunkIdentifier;
+	@NotNull
 	public final BigDecimal amount;
+	@NotNull
 	public final OffsetDateTime validFrom;
+	@NotNull
 	public final OffsetDateTime validTo;
 	@JsonIgnore
 	public final ZonedDateTime receivedTime = ZonedDateTime.now();
