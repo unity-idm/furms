@@ -57,7 +57,7 @@ class SiteAgentResourceUsageServiceTest extends IntegrationTestBase {
 	}
 
 	@Test
-	void shouldReceivedAgentMessageErrorInfoWhenCumulativeConsumptionIsNull() {
+	void shouldReceiveAgentMessageErrorInfoMessageWhenCumulativeResourceUsageAmountIsNull() {
 		CumulativeResourceUsageRecord record = new CumulativeResourceUsageRecord(
 			"projectIdentifier",
 			"allocationIdentifier",
