@@ -78,7 +78,7 @@ class SiteAgentResourceUsageServiceTest extends IntegrationTestBase {
 
 		ArgumentCaptor<AgentMessageErrorInfo> argumentCaptor = ArgumentCaptor.forClass(AgentMessageErrorInfo.class);
 		verify(receiverMock, timeout(10000)).process(argumentCaptor.capture());
-		assertThat(argumentCaptor.getValue().description).contains("Reasons: [body.cumulativeConsumptionmust not be null]");
+		assertThat(argumentCaptor.getValue().description).contains("Reasons: [body.cumulativeConsumption must not be null]");
 	}
 
 	@Test
