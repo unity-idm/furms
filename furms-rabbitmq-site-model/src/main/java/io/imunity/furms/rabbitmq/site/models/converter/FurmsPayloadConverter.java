@@ -109,7 +109,7 @@ public class FurmsPayloadConverter implements MessageConverter {
 		if(!violations.isEmpty())
 			return new ErrorPayload(getCorrelationId(contentAsString), contentAsString,
 				violations.stream()
-					.map(violation -> violation.getPropertyPath() + violation.getMessage())
+					.map(violation -> violation.getPropertyPath() + " "  + violation.getMessage())
 					.collect(Collectors.joining(", ", "[", "]"))
 			);
 
