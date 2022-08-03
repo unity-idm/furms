@@ -22,8 +22,6 @@ public class AgentProjectAllocationInstallationResult implements Body {
 	public final String allocationIdentifier;
 	@NotEmpty
 	public final String allocationChunkIdentifier;
-	@NotEmpty
-	public final String resourceType;
 	@NotNull
 	public final BigDecimal amount;
 	@NotNull
@@ -34,10 +32,10 @@ public class AgentProjectAllocationInstallationResult implements Body {
 	public final ZonedDateTime receivedTime = ZonedDateTime.now();
 
 	@JsonCreator
-	AgentProjectAllocationInstallationResult(String allocationIdentifier, String allocationChunkIdentifier, String resourceType, BigDecimal amount, OffsetDateTime validFrom, OffsetDateTime validTo) {
+	AgentProjectAllocationInstallationResult(String allocationIdentifier, String allocationChunkIdentifier,
+	                                         BigDecimal amount, OffsetDateTime validFrom, OffsetDateTime validTo) {
 		this.allocationIdentifier = allocationIdentifier;
 		this.allocationChunkIdentifier = allocationChunkIdentifier;
-		this.resourceType = resourceType;
 		this.amount = amount;
 		this.validFrom = validFrom;
 		this.validTo = validTo;
@@ -51,14 +49,13 @@ public class AgentProjectAllocationInstallationResult implements Body {
 		return Objects.equals(that.amount, amount)  &&
 			Objects.equals(allocationIdentifier, that.allocationIdentifier) &&
 			Objects.equals(allocationChunkIdentifier, that.allocationChunkIdentifier) &&
-			Objects.equals(resourceType, that.resourceType) &&
 			Objects.equals(validFrom, that.validFrom) &&
 			Objects.equals(validTo, that.validTo);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(allocationIdentifier, allocationChunkIdentifier, resourceType, amount, validFrom, validTo);
+		return Objects.hash(allocationIdentifier, allocationChunkIdentifier, amount, validFrom, validTo);
 	}
 
 	@Override
@@ -66,7 +63,6 @@ public class AgentProjectAllocationInstallationResult implements Body {
 		return "AgentProjectResourceAllocationResult{" +
 			"allocationIdentifier='" + allocationIdentifier + '\'' +
 			", allocationChunkIdentifier='" + allocationChunkIdentifier + '\'' +
-			", resourceType='" + resourceType + '\'' +
 			", amount=" + amount +
 			", validFrom=" + validFrom +
 			", validTo=" + validTo +
@@ -98,11 +94,6 @@ public class AgentProjectAllocationInstallationResult implements Body {
 			return this;
 		}
 
-		public AgentProjectResourceAllocationResultBuilder resourceType(String resourceType) {
-			this.resourceType = resourceType;
-			return this;
-		}
-
 		public AgentProjectResourceAllocationResultBuilder amount(BigDecimal amount) {
 			this.amount = amount;
 			return this;
@@ -119,7 +110,7 @@ public class AgentProjectAllocationInstallationResult implements Body {
 		}
 
 		public AgentProjectAllocationInstallationResult build() {
-			return new AgentProjectAllocationInstallationResult(allocationIdentifier, allocationChunkIdentifier, resourceType, amount, validFrom, validTo);
+			return new AgentProjectAllocationInstallationResult(allocationIdentifier, allocationChunkIdentifier, amount, validFrom, validTo);
 		}
 	}
 }
