@@ -887,6 +887,18 @@ This section describes the FURMS 4.1 release installation steps basing on 4.0 re
 * Make sure that RabbitMQ broker is up and running.
 * <<Starting FURMS stack,Start FURMS stack>>.
 
+== Upgrade from 4.1 to 4.2 release
+
+This section describes the FURMS 4.2 release installation steps basing on 4.1.x release configuration. This release does not introduce any new Ansible configuration, and the installation is straight forward.
+
+* Make a backup of FURMS system, follow steps in <<Backup>> section.
+* Update the FURMS Ansible scripts to the latest version, execute `./install_furms_devops_tooling.py` in the directory where tooling was installed.
+* <<Stopping FURMS stack,Stop FURMS stack>>.
+* Update your existing `groups_var/all.yml` Ansible configuration file and change the version of furmsVersion to `4.2.0`
+* <<Install FURMS stack>>.
+* Make sure that RabbitMQ broker is up and running.
+* <<Starting FURMS stack,Start FURMS stack>>.
+
 
 == Operating the system
 
