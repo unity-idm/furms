@@ -2,8 +2,6 @@
 ## [LATEST](ver/4.2.0/openapi-static.html)
 ## All versions
 * [4.2.0](ver/4.2.0/openapi-static.html)
-* [4.2.0-rc2](ver/4.2.0-rc2/openapi-static.html)
-* [4.2.0-rc1](ver/4.2.0-rc1/openapi-static.html)
 * [4.1.4](ver/4.1.4/openapi-static.html)
 * [4.1.3](ver/4.1.3/openapi-static.html)
 * [4.1.2](ver/4.1.2/openapi-static.html)
