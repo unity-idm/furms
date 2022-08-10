@@ -19,6 +19,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationR
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationUpdate;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectDeallocationRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectDeallocationRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectResourceAllocationStatusResult;
 import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
@@ -32,7 +33,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
@@ -54,7 +54,20 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	void receiveProjectResourceAllocationAck(Payload<AgentProjectAllocationInstallationAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			projectAllocationInstallationStatusUpdater.updateStatus(correlationId, ACKNOWLEDGED, empty());
+			projectAllocationInstallationStatusUpdater.updateStatusToAck(correlationId);
+		else
+			projectAllocationInstallationStatusUpdater.updateStatus(
+				correlationId,
+				FAILED,
+				getErrorMessage(ack.header.error)
+			);
+	}
+
+	@EventListener
+	void receiveProjectResourceAllocationStatusResult(Payload<AgentProjectResourceAllocationStatusResult> ack) {
+		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
+		if(ack.header.status.equals(Status.OK))
+			projectAllocationInstallationStatusUpdater.updateStatus(correlationId, INSTALLED, Optional.empty());
 		else
 			projectAllocationInstallationStatusUpdater.updateStatus(
 				correlationId,
@@ -79,8 +92,8 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	@EventListener
 	void receiveProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
-		boolean isFirstChunk = projectAllocationInstallationStatusUpdater.isFirstChunk(projectAllocationId);
-		if(isFirstChunk) {
+		boolean isStateUpdatable = projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId);
+		if(isStateUpdatable) {
 			if(Status.FAILED.equals(result.header.status)) {
 				projectAllocationInstallationStatusUpdater.updateStatus(
 					projectAllocationId,
@@ -108,6 +121,20 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 
 	@EventListener
 	void receiveProjectResourceAllocationUpdate(Payload<AgentProjectAllocationUpdate> result) {
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
+		boolean isStateUpdatable = projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId);
+		if(isStateUpdatable) {
+			if(Status.FAILED.equals(result.header.status)) {
+				projectAllocationInstallationStatusUpdater.updateStatus(
+					projectAllocationId,
+					FAILED,
+					getErrorMessage(result.header.error)
+				);
+				return;
+			}
+			projectAllocationInstallationStatusUpdater.updateStatus(projectAllocationId, INSTALLED, empty());
+		}
+
 		if(Status.FAILED.equals(result.header.status))
 			throw new UnsupportedFailedChunkException(String.format("Update of chunk of allocation %s can not be set " +
 				"to failed", result.body.allocationIdentifier));

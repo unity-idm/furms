@@ -290,7 +290,7 @@ class EndToEndTestDataInitializer implements CommandLineRunner {
 		ProjectAllocationInstallation projectAllocationInstallation = ProjectAllocationInstallation.builder()
 			.projectAllocationId(projectAllocationId)
 			.siteId(cinecaId)
-			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
+			.status(ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED)
 			.correlationId(new CorrelationId(UUID.randomUUID().toString()))
 			.build();
 

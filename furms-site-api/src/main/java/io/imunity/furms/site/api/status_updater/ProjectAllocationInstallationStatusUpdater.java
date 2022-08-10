@@ -12,10 +12,12 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import java.util.Optional;
 
 public interface ProjectAllocationInstallationStatusUpdater {
-	boolean isFirstChunk(ProjectAllocationId projectAllocationId);
+	boolean isWaitingForInstallationConfirmation(ProjectAllocationId projectAllocationId);
 	void updateStatus(ProjectAllocationId projectAllocationId, ProjectAllocationInstallationStatus status,
 	                  Optional<ErrorMessage> errorMessage);
 	void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
+
+	void updateStatusToAck(CorrelationId correlationId);
 	void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
 	void createChunk(ProjectAllocationChunk chunk);
 	void updateChunk(ProjectAllocationChunk chunk);

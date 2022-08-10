@@ -12,7 +12,6 @@ import io.imunity.furms.domain.community_allocation.CommunityAllocationId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
-import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallation;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectId;
@@ -25,6 +24,7 @@ import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraService;
 import io.imunity.furms.domain.services.InfraServiceId;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteExternalId;
 import io.imunity.furms.domain.sites.SiteId;
@@ -36,6 +36,7 @@ import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
+import io.imunity.furms.spi.site_agent_pending_message.SiteAgentPendingMessageRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
@@ -47,14 +48,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED;
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-class V47__project_allocation_installation_statuses_fix_tests {
+class V49__missing_pending_message_fix_tests {
 
 	@Autowired
 	private SiteRepository siteRepository;
@@ -72,9 +73,11 @@ class V47__project_allocation_installation_statuses_fix_tests {
 	private CommunityAllocationRepository communityAllocationRepository;
 	@Autowired
 	private ProjectAllocationRepository projectAllocationRepository;
-
 	@Autowired
 	private ProjectAllocationInstallationRepository allocationRepository;
+
+	@Autowired
+	private SiteAgentPendingMessageRepository pendingMessageEntityRepository;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -89,7 +92,7 @@ class V47__project_allocation_installation_statuses_fix_tests {
 		flyway.clean();
 		Flyway.configure()
 				.configuration(flyway.getConfiguration())
-				.target("46")
+				.target("48")
 				.load()
 				.migrate();
 
@@ -172,9 +175,10 @@ class V47__project_allocation_installation_statuses_fix_tests {
 	}
 
 	@Test
-	void shouldNotMigrateStatusAcknowledgedToInstallIfAllocationHasNoChunks() {
+	void shouldAddSiteAgentPendingMessageWhenAllocationInstallationIsACKNOWLEDGED() {
+		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
-			.correlationId(CorrelationId.randomID())
+			.correlationId(correlationId)
 			.siteId(siteId)
 			.projectAllocationId(projectAllocationId)
 			.status(INSTALLATION_ACKNOWLEDGED)
@@ -182,92 +186,31 @@ class V47__project_allocation_installation_statuses_fix_tests {
 
 		allocationRepository.create(request);
 
-		V47__project_allocation_installation_statuses_fix.migrate(jdbcTemplate);
+		V49__missing_pending_message_fix.migrate(jdbcTemplate);
 
-		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId).status,
-			INSTALLATION_ACKNOWLEDGED);
+		Optional<SiteAgentPendingMessage> siteAgentPendingMessage = pendingMessageEntityRepository.find(correlationId);
+		assertThat(siteAgentPendingMessage).isPresent();
+		assertThat(siteAgentPendingMessage.get().correlationId).isEqualTo(correlationId);
+		assertThat(siteAgentPendingMessage.get().siteExternalId).isEqualTo(siteId.externalId);
+		assertThat(siteAgentPendingMessage.get().retryCount).isEqualTo(0);
+		assertThat(siteAgentPendingMessage.get().jsonContent).isNotEmpty();
 	}
 
 	@Test
-	void shouldNotMigrateStatusUpdatingToInstall() {
+	void shouldNotAddSiteAgentPendingMessageWhenAllocationInstallationIsNotACKNOWLEDGED() {
+		CorrelationId correlationId = CorrelationId.randomID();
 		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
-			.correlationId(CorrelationId.randomID())
+			.correlationId(correlationId)
 			.siteId(siteId)
 			.projectAllocationId(projectAllocationId)
 			.status(UPDATING)
 			.build();
-		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId)
-			.chunkId("id")
-			.amount(BigDecimal.TEN)
-			.validTo(LocalDateTime.now().minusDays(2))
-			.validFrom(LocalDateTime.now().plusDays(2))
-			.build();
 
 		allocationRepository.create(request);
-		allocationRepository.create(chunk);
 
-		V47__project_allocation_installation_statuses_fix.migrate(jdbcTemplate);
+		V49__missing_pending_message_fix.migrate(jdbcTemplate);
 
-		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId).status,
-			UPDATING);
-	}
-
-	@Test
-	void shouldMigrateStatusAcknowledgedToInstallIfAllocationHasOneChunks() {
-		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
-			.correlationId(CorrelationId.randomID())
-			.siteId(siteId)
-			.projectAllocationId(projectAllocationId)
-			.status(INSTALLATION_ACKNOWLEDGED)
-			.build();
-		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId)
-			.chunkId("id")
-			.amount(BigDecimal.TEN)
-			.validTo(LocalDateTime.now().minusDays(2))
-			.validFrom(LocalDateTime.now().plusDays(2))
-			.build();
-
-		allocationRepository.create(request);
-		allocationRepository.create(chunk);
-
-		V47__project_allocation_installation_statuses_fix.migrate(jdbcTemplate);
-
-		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId).status,
-			INSTALLED);
-	}
-
-	@Test
-	void shouldMigrateStatusAcknowledgedToInstallIfAllocationHasTwoChunks() {
-		ProjectAllocationInstallation request = ProjectAllocationInstallation.builder()
-			.correlationId(CorrelationId.randomID())
-			.siteId(siteId)
-			.projectAllocationId(projectAllocationId)
-			.status(INSTALLATION_ACKNOWLEDGED)
-			.build();
-		ProjectAllocationChunk chunk = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId)
-			.chunkId("id")
-			.amount(BigDecimal.TEN)
-			.validTo(LocalDateTime.now().minusDays(2))
-			.validFrom(LocalDateTime.now().plusDays(2))
-			.build();
-		ProjectAllocationChunk chunk2 = ProjectAllocationChunk.builder()
-			.projectAllocationId(projectAllocationId)
-			.chunkId("id2")
-			.amount(BigDecimal.TEN)
-			.validTo(LocalDateTime.now().minusDays(2))
-			.validFrom(LocalDateTime.now().plusDays(2))
-			.build();
-
-		allocationRepository.create(request);
-		allocationRepository.create(chunk);
-		allocationRepository.create(chunk2);
-
-		V47__project_allocation_installation_statuses_fix.migrate(jdbcTemplate);
-
-		assertEquals(allocationRepository.findByProjectAllocationId(projectAllocationId).status,
-			INSTALLED);
+		Optional<SiteAgentPendingMessage> siteAgentPendingMessage = pendingMessageEntityRepository.find(correlationId);
+		assertThat(siteAgentPendingMessage).isEmpty();
 	}
 }

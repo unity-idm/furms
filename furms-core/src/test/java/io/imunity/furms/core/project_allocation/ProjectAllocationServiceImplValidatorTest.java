@@ -447,7 +447,7 @@ class ProjectAllocationServiceImplValidatorTest {
 			.build())
 		);
 		when(projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocation.id)).thenReturn(ProjectAllocationInstallation.builder()
-			.status(ProjectAllocationInstallationStatus.PENDING)
+			.status(ProjectAllocationInstallationStatus.INSTALLING)
 			.build()
 		);
 

@@ -508,7 +508,18 @@ channels:
                - $ref: "#/components/messageTraits/requestAck"
             payload:
                $ref: "#/components/schemas/emptyObject"
-            
+
+   site/site_id/resource/allocate/status/result:
+      publish:
+         summary: Confirm allocation installation or update
+         operationId: ProjectResourceAllocationStatusResult
+         message:
+            name: ProjectResourceAllocationStatusResult
+            traits:
+               - $ref: "#/components/messageTraits/response"
+            payload:
+               $ref: "#/components/schemas/emptyObject"
+
    site/site_id/resource/allocate/resp:
       publish:
          summary: Information about allocated resources

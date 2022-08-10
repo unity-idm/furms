@@ -12,7 +12,6 @@ import io.imunity.furms.rabbitmq.site.models.Ack;
 import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdateAck;
-import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
 import io.imunity.furms.rabbitmq.site.models.ErrorPayload;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Result;
@@ -115,13 +114,13 @@ class SiteAgentListenerRouter {
 	/**
 	 * This method update or delete pending message based on arriving message type.
 	 * If message is Ack type it should be update, if message is Result type it should be delete.
-	 * There are four exceptions AgentProjectAllocationInstallationAck, AgentPingAck, UserPolicyAcceptanceUpdateAck
+	 * There are three exceptions AgentPingAck, UserPolicyAcceptanceUpdateAck
 	 * AgentPolicyUpdateAck. When those messages arrived, pending message should be removed,
 	 * because those messages don't have result type.
 	 */
 	private void updateOrDeletePendingRequests(Payload<?> payload) {
-		if(payload.body instanceof AgentPingAck || payload.body instanceof AgentProjectAllocationInstallationAck
-			|| payload.body instanceof UserPolicyAcceptanceUpdateAck || payload.body instanceof AgentPolicyUpdateAck
+		if(payload.body instanceof AgentPingAck || payload.body instanceof UserPolicyAcceptanceUpdateAck
+			|| payload.body instanceof AgentPolicyUpdateAck
 		)
 			agentPendingMessageSiteService.delete(new CorrelationId(payload.header.messageCorrelationId));
 		else if(payload.header.status.equals(OK) && payload.body instanceof Ack)

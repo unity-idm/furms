@@ -54,7 +54,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -228,13 +228,13 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 
 		//when
 		ProjectAllocationInstallationId id = entityDatabaseRepository.create(request);
-		entityDatabaseRepository.update(correlationId, ACKNOWLEDGED, Optional.empty());
+		entityDatabaseRepository.update(correlationId, INSTALLATION_ACKNOWLEDGED, Optional.empty());
 
 		//then
 		ProjectAllocationInstallation allocationInstallation = allocationRepository.findAll(projectId).iterator().next();
 		assertThat(allocationInstallation.id).isEqualTo(id);
 		assertThat(allocationInstallation.correlationId.id).isEqualTo(correlationId.id);
-		assertThat(allocationInstallation.status).isEqualTo(ACKNOWLEDGED);
+		assertThat(allocationInstallation.status).isEqualTo(INSTALLATION_ACKNOWLEDGED);
 	}
 
 	@Test
