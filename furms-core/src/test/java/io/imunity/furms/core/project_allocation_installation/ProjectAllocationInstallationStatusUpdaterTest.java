@@ -24,7 +24,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -55,29 +54,32 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 	}
 
 	@Test
-	void shouldReturnTrueIfChunkIsFirst() {
+	void shouldReturnTrueIfAllocationWaitingForConfirmation() {
 		//given
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 
 		//when
-		when(repository.findAllChunksByAllocationId(projectAllocationId)).thenReturn(Set.of());
-
+		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
+			.projectAllocationId(projectAllocationId)
+			.status(ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED)
+			.build());
 		//then
-		assertTrue(service.isFirstChunk(projectAllocationId));
+		assertTrue(service.isWaitingForInstallationConfirmation(projectAllocationId));
 	}
 
 	@Test
-	void shouldReturnFalseIfChunkIsNotFirst() {
+	void shouldReturnFalseIfChunkIsNotWaitingForConfirmation() {
 		//given
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
 
 		//when
-		when(repository.findAllChunksByAllocationId(projectAllocationId)).thenReturn(Set.of(
-			ProjectAllocationChunk.builder().build()
-		));
+		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
+			.projectAllocationId(projectAllocationId)
+			.status(ProjectAllocationInstallationStatus.INSTALLED)
+			.build());
 
 		//then
-		assertFalse(service.isFirstChunk(projectAllocationId));
+		assertFalse(service.isWaitingForInstallationConfirmation(projectAllocationId));
 	}
 
 	@Test
@@ -88,7 +90,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		//when
 		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
 			.projectAllocationId(projectAllocationId)
-			.status(ProjectAllocationInstallationStatus.PENDING)
+			.status(ProjectAllocationInstallationStatus.INSTALLING)
 			.build());
 		service.updateStatus(projectAllocationId, ProjectAllocationInstallationStatus.INSTALLED, Optional.empty());
 
@@ -105,12 +107,12 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		//when
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
 			.projectAllocationId(UUID.randomUUID().toString())
-			.status(ProjectAllocationInstallationStatus.PENDING)
+			.status(ProjectAllocationInstallationStatus.INSTALLING)
 			.build()));
-		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		service.updateStatus(id, ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED, Optional.empty());
 
 		//then
-		orderVerifier.verify(repository).update(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		orderVerifier.verify(repository).update(id, ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED, Optional.empty());
 	}
 
 	@Test
@@ -121,12 +123,12 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 		//when
 		when(repository.findByCorrelationId(id)).thenReturn(Optional.of(ProjectAllocationInstallation.builder()
 			.projectAllocationId(UUID.randomUUID().toString())
-			.status(ProjectAllocationInstallationStatus.PENDING)
+			.status(ProjectAllocationInstallationStatus.INSTALLING)
 			.build()));
-		service.updateStatus(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		service.updateStatus(id, ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED, Optional.empty());
 
 		//then
-		orderVerifier.verify(repository).update(id, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		orderVerifier.verify(repository).update(id, ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED, Optional.empty());
 	}
 
 	@Test
@@ -157,7 +159,7 @@ class ProjectAllocationInstallationStatusUpdaterTest {
 
 		//when
 		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
-			.status(ProjectAllocationInstallationStatus.PENDING)
+			.status(ProjectAllocationInstallationStatus.INSTALLING)
 			.build());
 
 		assertThrows(IllegalArgumentException.class, () -> service.createChunk(chunk));

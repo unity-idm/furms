@@ -32,7 +32,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLING;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATE_ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING_FAILED;
 
@@ -54,8 +57,11 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 
 	@Override
 	@Transactional
-	public boolean isFirstChunk(ProjectAllocationId projectAllocationId) {
-		return projectAllocationInstallationRepository.findAllChunksByAllocationId(projectAllocationId).isEmpty();
+	public boolean isWaitingForInstallationConfirmation(ProjectAllocationId projectAllocationId) {
+		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocationId);
+		return Optional.ofNullable(job)
+			.map(j -> j.status.isTransitToInstalled())
+			.orElse(false);
 	}
 
 	@Override
@@ -87,6 +93,24 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 			projectAllocationInstallationRepository.update(correlationId, status, errorMessage);
 
 		LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, status);
+	}
+
+	@Override
+	@Transactional
+	public void updateStatusToAck(CorrelationId correlationId) {
+		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByCorrelationId(correlationId)
+			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found: " + correlationId));
+
+		if(job.status.equals(INSTALLING)) {
+			projectAllocationInstallationRepository.update(correlationId, INSTALLATION_ACKNOWLEDGED, Optional.empty());
+			LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, INSTALLATION_ACKNOWLEDGED);
+		}
+		else if(job.status.equals(UPDATING)) {
+			projectAllocationInstallationRepository.update(correlationId, UPDATE_ACKNOWLEDGED, Optional.empty());
+			LOG.info("ProjectAllocationInstallation status with given correlation id {} was updated to {}", correlationId.id, UPDATE_ACKNOWLEDGED);
+		}
+		else
+			throw new IllegalStateTransitionException(String.format("ProjectAllocation status is %s, cannot be modified", job.status));
 	}
 
 	private boolean isTransitionFromUpdatingToFailedStatus(ProjectAllocationInstallationStatus oldStatus, ProjectAllocationInstallationStatus newStatus) {

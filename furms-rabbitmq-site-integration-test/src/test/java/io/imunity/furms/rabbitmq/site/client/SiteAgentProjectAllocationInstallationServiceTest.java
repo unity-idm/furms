@@ -24,6 +24,7 @@ import io.imunity.furms.rabbitmq.site.client.mocks.SiteAgentMessageErrorInfoRece
 import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationUpdate;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectResourceAllocationStatusResult;
 import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
@@ -40,6 +41,8 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.FAILED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLED;
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getFurmsPublishQueueName;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 import static org.mockito.ArgumentMatchers.any;
@@ -81,13 +84,13 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 				.build())
 			.build();
 
-		when(projectAllocationInstallationStatusUpdater.isFirstChunk(projectAllocationResolved.id))
+		when(projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationResolved.id))
 			.thenReturn(true)
 			.thenReturn(false);
 
 		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatusToAck(correlationId);
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000)).updateStatus(projectAllocationResolved.id,
 			ProjectAllocationInstallationStatus.INSTALLED, Optional.empty());
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000).times(2)).createChunk(any());
@@ -114,7 +117,7 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 				.build())
 			.build();
 
-		when(projectAllocationInstallationStatusUpdater.isFirstChunk(projectAllocationResolved.id))
+		when(projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationResolved.id))
 			.thenReturn(true)
 			.thenReturn(false);
 
@@ -123,7 +126,7 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 		rabbitTemplate.convertAndSend(queueName, new Payload<>(new Header(VERSION, correlationId.id, Status.FAILED,
 			new Error("1", "FAILED")), request));
 
-		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId, ProjectAllocationInstallationStatus.ACKNOWLEDGED, Optional.empty());
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatusToAck(correlationId);
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000)).updateStatus(projectAllocationResolved.id,
 			ProjectAllocationInstallationStatus.FAILED, Optional.of(new ErrorMessage("1", "FAILED")));
 		verify(receiverMock, timeout(15000)).process(
@@ -170,6 +173,48 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateChunk(any());
 	}
 
+	@Test
+	void shouldUpdateProjectAllocationChunkAndAllocationStatus() {
+		ProjectAllocationId projectAllocationId = new ProjectAllocationId(UUID.randomUUID());
+		AgentProjectAllocationUpdate update = AgentProjectAllocationUpdate.builder()
+			.allocationIdentifier(projectAllocationId.id.toString())
+			.allocationChunkIdentifier("chunkId")
+			.amount(BigDecimal.TEN)
+			.validTo(OffsetDateTime.now().minusDays(5))
+			.validFrom(OffsetDateTime.now().plusDays(5))
+			.build();
+
+		when(projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId)).thenReturn(true);
+
+		producerMock.sendAgentProjectAllocationUpdate(update);
+
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(projectAllocationId, INSTALLED,
+			Optional.empty());
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateChunk(any());
+	}
+
+	@Test
+	void shouldConfirmInstallation() {
+		CorrelationId correlationId = CorrelationId.randomID();
+
+		producerMock.sendAgentProjectResourceAllocationStatusResult(correlationId,
+			new AgentProjectResourceAllocationStatusResult());
+
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId, INSTALLED,
+			Optional.empty());
+	}
+
+	@Test
+	void shouldNotConfirmInstallation() {
+		CorrelationId correlationId = CorrelationId.randomID();
+		Error error = new Error("1", "error");
+
+		producerMock.sendFailedAgentProjectResourceAllocationStatusResult(correlationId, error,
+			new AgentProjectResourceAllocationStatusResult());
+
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId, FAILED,
+			Optional.of(new ErrorMessage(error.code, error.message)));
+	}
 	@Test
 	void shouldDeallocateProject() {
 		CorrelationId correlationId = CorrelationId.randomID();

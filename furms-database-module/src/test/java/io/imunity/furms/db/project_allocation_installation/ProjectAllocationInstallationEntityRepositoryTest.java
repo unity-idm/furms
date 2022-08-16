@@ -46,7 +46,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.PROVISIONING_PROJECT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -236,7 +236,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 			.correlationId(save.correlationId)
 			.siteId(save.siteId)
 			.projectAllocationId(save.projectAllocationId)
-			.status(ACKNOWLEDGED)
+			.status(INSTALLATION_ACKNOWLEDGED)
 			.build();
 
 		entityRepository.save(entityToUpdate);
@@ -245,7 +245,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 		Optional<ProjectAllocationInstallationEntity> byId = entityRepository.findById(entityToSave.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(save.getId());
-		assertThat(byId.get().status).isEqualTo(ACKNOWLEDGED.getPersistentId());
+		assertThat(byId.get().status).isEqualTo(INSTALLATION_ACKNOWLEDGED.getPersistentId());
 		assertThat(byId.get().correlationId).isEqualTo(correlationId);
 	}
 
@@ -305,7 +305,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 			.correlationId(correlationId1)
 			.siteId(siteId2.id)
 			.projectAllocationId(projectAllocationId2.id)
-			.status(ACKNOWLEDGED)
+			.status(INSTALLATION_ACKNOWLEDGED)
 			.build();
 
 		entityRepository.save(toSave);
@@ -333,7 +333,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 			.correlationId(correlationId1)
 			.siteId(siteId2.id)
 			.projectAllocationId(projectAllocationId2.id)
-			.status(ACKNOWLEDGED)
+			.status(INSTALLATION_ACKNOWLEDGED)
 			.build();
 
 		entityRepository.save(toSave);
@@ -381,7 +381,7 @@ class ProjectAllocationInstallationEntityRepositoryTest extends DBIntegrationTes
 			.correlationId(correlationId1)
 			.siteId(siteId2.id)
 			.projectAllocationId(projectAllocationId2.id)
-			.status(ACKNOWLEDGED)
+			.status(INSTALLATION_ACKNOWLEDGED)
 			.build();
 
 		//when

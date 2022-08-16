@@ -101,7 +101,7 @@ public class ProjectAllocationInstallationService {
 			.correlationId(correlationId)
 			.siteId(projectAllocationResolved.site.getId())
 			.projectAllocationId(projectAllocationId)
-			.status(ProjectAllocationInstallationStatus.PENDING)
+			.status(ProjectAllocationInstallationStatus.INSTALLING)
 			.build();
 		projectAllocationInstallationRepository.create(projectAllocationInstallation);
 		postCommitRunner.runAfterCommit(
@@ -113,14 +113,14 @@ public class ProjectAllocationInstallationService {
 	@Transactional
 	public void startWaitingAllocations(ProjectId projectId, SiteId siteId) {
 		projectAllocationInstallationRepository.findAll(projectId, siteId).forEach(allocation -> {
-			projectAllocationInstallationRepository.update(allocation.correlationId, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
+			projectAllocationInstallationRepository.update(allocation.correlationId, ProjectAllocationInstallationStatus.INSTALLING, Optional.empty());
 			ProjectAllocationResolved projectAllocationResolved = projectAllocationRepository.findByIdWithRelatedObjects(allocation.projectAllocationId)
 				.orElseThrow(() -> new IllegalArgumentException("Project Allocation Id doesn't exist"));
 			postCommitRunner.runAfterCommit(() ->
 				siteAgentProjectAllocationInstallationService.allocateProject(allocation.correlationId,
 					projectAllocationResolved)
 			);
-			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, ProjectAllocationInstallationStatus.PENDING);
+			LOG.info("ProjectAllocationInstallation with given correlationId {} was updated to: {}", allocation.correlationId.id, ProjectAllocationInstallationStatus.INSTALLING);
 		});
 	}
 

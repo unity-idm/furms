@@ -140,7 +140,7 @@ class ProjectAllocationInstallationServiceTest {
 		service.startWaitingAllocations(projectId, siteId);
 
 		//then
-		orderVerifier.verify(repository).update(correlationId, ProjectAllocationInstallationStatus.PENDING, Optional.empty());
+		orderVerifier.verify(repository).update(correlationId, ProjectAllocationInstallationStatus.INSTALLING, Optional.empty());
 		orderVerifier.verify(siteAgentProjectAllocationInstallationService).allocateProject(eq(correlationId), any());
 	}
 
@@ -158,7 +158,7 @@ class ProjectAllocationInstallationServiceTest {
 
 		//when
 		when(repository.findByProjectAllocationId(projectAllocationId)).thenReturn(ProjectAllocationInstallation.builder()
-			.status(ProjectAllocationInstallationStatus.ACKNOWLEDGED)
+			.status(ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED)
 			.siteId(siteId)
 			.build()
 		);

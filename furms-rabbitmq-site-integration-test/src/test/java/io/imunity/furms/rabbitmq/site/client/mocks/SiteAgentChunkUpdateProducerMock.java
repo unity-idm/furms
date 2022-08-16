@@ -5,7 +5,10 @@
 
 package io.imunity.furms.rabbitmq.site.client.mocks;
 
+import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationUpdate;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectResourceAllocationStatusResult;
+import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Status;
@@ -29,6 +32,18 @@ public class SiteAgentChunkUpdateProducerMock {
 	public void sendAgentProjectAllocationUpdate(AgentProjectAllocationUpdate update) {
 		Header header = getHeader(UUID.randomUUID().toString());
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, update));
+	}
+
+	public void sendAgentProjectResourceAllocationStatusResult(CorrelationId correlationId,
+	                                                           AgentProjectResourceAllocationStatusResult result) {
+		Header header = getHeader(correlationId.id);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
+	}
+
+	public void sendFailedAgentProjectResourceAllocationStatusResult(CorrelationId correlationId, Error error,
+	                                                           AgentProjectResourceAllocationStatusResult result) {
+		Header header = new Header(VERSION, correlationId.id, Status.FAILED, error);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, result));
 	}
 
 	public void sendAgentProjectAllocationUpdate(AgentProjectAllocationUpdate update, Header header) {
