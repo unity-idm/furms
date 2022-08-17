@@ -91,12 +91,14 @@ class SiteAgentRetryServiceTest extends IntegrationTestBase {
 		String json = String.format(jsonTemplate, correlationId.id, projectId.id, allocationId.id, resourceCreditId.id,
 			"type", BigDecimal.ONE, offsetDateTime, offsetDateTime);
 
-		when(projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(allocationId)).thenReturn(true);
+		when(projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(allocationId)).thenReturn(true)
+			.thenReturn(false);
 
 		siteAgentRetryService.retry(new SiteExternalId("mock"), json);
 
 		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatusToAcknowledged(correlationId);
-		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(allocationId, INSTALLED,
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(allocationId,
+			INSTALLED,
 			Optional.empty());
 	}
 }
