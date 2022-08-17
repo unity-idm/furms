@@ -60,8 +60,14 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	public boolean isWaitingForInstallationConfirmation(ProjectAllocationId projectAllocationId) {
 		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocationId);
 		return Optional.ofNullable(job)
-			.map(j -> j.status.isTransitToInstalled())
+			.map(j -> j.status.isTransitionToInstalledAllowed())
 			.orElse(false);
+	}
+
+	@Override
+	public CorrelationId getCorrelationId(ProjectAllocationId projectAllocationId) {
+		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByProjectAllocationId(projectAllocationId);
+		return job.correlationId;
 	}
 
 	@Override
@@ -97,7 +103,7 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 
 	@Override
 	@Transactional
-	public void updateStatusToAck(CorrelationId correlationId) {
+	public void updateStatusToAcknowledged(CorrelationId correlationId) {
 		ProjectAllocationInstallation job = projectAllocationInstallationRepository.findByCorrelationId(correlationId)
 			.orElseThrow(() -> new InvalidCorrelationIdException("Correlation Id not found: " + correlationId));
 

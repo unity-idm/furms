@@ -24,6 +24,7 @@ import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Status;
+import io.imunity.furms.site.api.AgentPendingMessageSiteService;
 import io.imunity.furms.site.api.site_agent.SiteAgentProjectAllocationInstallationService;
 import io.imunity.furms.site.api.status_updater.ProjectAllocationInstallationStatusUpdater;
 import org.springframework.amqp.AmqpConnectException;
@@ -45,16 +46,21 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	private final RabbitTemplate rabbitTemplate;
 	private final ProjectAllocationInstallationStatusUpdater projectAllocationInstallationStatusUpdater;
 
-	SiteAgentProjectAllocationInstallationServiceImpl(RabbitTemplate rabbitTemplate, ProjectAllocationInstallationStatusUpdater projectAllocationInstallationStatusUpdater) {
+	private final AgentPendingMessageSiteService agentPendingMessageSiteService;
+
+	SiteAgentProjectAllocationInstallationServiceImpl(RabbitTemplate rabbitTemplate,
+	                                                  ProjectAllocationInstallationStatusUpdater projectAllocationInstallationStatusUpdater,
+	                                                  AgentPendingMessageSiteService agentPendingMessageSiteService) {
 		this.rabbitTemplate = rabbitTemplate;
 		this.projectAllocationInstallationStatusUpdater = projectAllocationInstallationStatusUpdater;
+		this.agentPendingMessageSiteService = agentPendingMessageSiteService;
 	}
 
 	@EventListener
 	void receiveProjectResourceAllocationAck(Payload<AgentProjectAllocationInstallationAck> ack) {
 		CorrelationId correlationId = new CorrelationId(ack.header.messageCorrelationId);
 		if(ack.header.status.equals(Status.OK))
-			projectAllocationInstallationStatusUpdater.updateStatusToAck(correlationId);
+			projectAllocationInstallationStatusUpdater.updateStatusToAcknowledged(correlationId);
 		else
 			projectAllocationInstallationStatusUpdater.updateStatus(
 				correlationId,
@@ -94,6 +100,7 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
 		boolean isStateUpdatable = projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId);
 		if(isStateUpdatable) {
+			deletePendingMethod(projectAllocationId);
 			if(Status.FAILED.equals(result.header.status)) {
 				projectAllocationInstallationStatusUpdater.updateStatus(
 					projectAllocationId,
@@ -124,6 +131,7 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
 		boolean isStateUpdatable = projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId);
 		if(isStateUpdatable) {
+			deletePendingMethod(projectAllocationId);
 			if(Status.FAILED.equals(result.header.status)) {
 				projectAllocationInstallationStatusUpdater.updateStatus(
 					projectAllocationId,
@@ -148,6 +156,12 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 			.receivedTime(convertToUTCTime(result.body.receivedTime))
 			.build();
 		projectAllocationInstallationStatusUpdater.updateChunk(chunk);
+	}
+
+	private void deletePendingMethod(ProjectAllocationId projectAllocationId) {
+		CorrelationId correlationId =
+			projectAllocationInstallationStatusUpdater.getCorrelationId(projectAllocationId);
+		agentPendingMessageSiteService.delete(correlationId);
 	}
 
 	private Optional<ErrorMessage> getErrorMessage(Error error) {

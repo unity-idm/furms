@@ -13,11 +13,14 @@ import java.util.Optional;
 
 public interface ProjectAllocationInstallationStatusUpdater {
 	boolean isWaitingForInstallationConfirmation(ProjectAllocationId projectAllocationId);
+
+	CorrelationId getCorrelationId(ProjectAllocationId projectAllocationId);
+
 	void updateStatus(ProjectAllocationId projectAllocationId, ProjectAllocationInstallationStatus status,
 	                  Optional<ErrorMessage> errorMessage);
 	void updateStatus(CorrelationId correlationId, ProjectAllocationInstallationStatus status, Optional<ErrorMessage> errorMessage);
 
-	void updateStatusToAck(CorrelationId correlationId);
+	void updateStatusToAcknowledged(CorrelationId correlationId);
 	void updateStatus(CorrelationId correlationId, ProjectDeallocationStatus status, Optional<ErrorMessage> errorMessage);
 	void createChunk(ProjectAllocationChunk chunk);
 	void updateChunk(ProjectAllocationChunk chunk);

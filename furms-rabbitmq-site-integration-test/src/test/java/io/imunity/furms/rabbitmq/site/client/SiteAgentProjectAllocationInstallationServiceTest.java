@@ -90,7 +90,7 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 
 		siteAgentProjectAllocationInstallationService.allocateProject(correlationId, projectAllocationResolved);
 
-		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatusToAck(correlationId);
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatusToAcknowledged(correlationId);
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000)).updateStatus(projectAllocationResolved.id,
 			ProjectAllocationInstallationStatus.INSTALLED, Optional.empty());
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000).times(2)).createChunk(any());
@@ -126,7 +126,7 @@ class SiteAgentProjectAllocationInstallationServiceTest extends IntegrationTestB
 		rabbitTemplate.convertAndSend(queueName, new Payload<>(new Header(VERSION, correlationId.id, Status.FAILED,
 			new Error("1", "FAILED")), request));
 
-		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatusToAck(correlationId);
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatusToAcknowledged(correlationId);
 		verify(projectAllocationInstallationStatusUpdater, timeout(15000)).updateStatus(projectAllocationResolved.id,
 			ProjectAllocationInstallationStatus.FAILED, Optional.of(new ErrorMessage("1", "FAILED")));
 		verify(receiverMock, timeout(15000)).process(

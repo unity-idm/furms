@@ -112,8 +112,8 @@ class SiteAgentListenerRouter {
 	}
 
 	/**
-	 * This method update or delete pending message based on arriving message type.
-	 * If message is Ack type it should be update, if message is Result type it should be delete.
+	 * This method updates or deletes pending message based on arriving message type.
+	 * If message is Ack type it should be updated, if message is Result type it should be deleted.
 	 * There are three exceptions AgentPingAck, UserPolicyAcceptanceUpdateAck
 	 * AgentPolicyUpdateAck. When those messages arrived, pending message should be removed,
 	 * because those messages don't have result type.
