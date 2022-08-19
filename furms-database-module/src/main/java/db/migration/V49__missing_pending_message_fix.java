@@ -50,9 +50,9 @@ public class V49__missing_pending_message_fix extends BaseJavaMigration {
 				"join resource_type rt on rc.resource_type_id = rt.id " +
 				"where pai.status = " + INSTALLATION_ACKNOWLEDGED.getPersistentId(),
 			(rs, rowNum) -> new DataHolder(
-				rs.getString("site_id"),
+				UUID.fromString(rs.getString("site_id")),
 				rs.getString("site_external_id"),
-				rs.getString("correlation_id"),
+				UUID.fromString(rs.getString("correlation_id")),
 				rs.getString("allocation_id"),
 				rs.getString("resourceCredit_id"),
 				rs.getString("project_id"),
@@ -60,7 +60,7 @@ public class V49__missing_pending_message_fix extends BaseJavaMigration {
 				rs.getString("amount"),
 				rs.getTimestamp("validFrom").toLocalDateTime().atOffset(ZoneOffset.UTC).toString(),
 				rs.getTimestamp("validTo").toLocalDateTime().atOffset(ZoneOffset.UTC).toString(),
-				rs.getTimestamp("creation").toLocalDateTime().atOffset(ZoneOffset.UTC).toString()
+				rs.getTimestamp("creation").toLocalDateTime()
 			)
 		);
 
@@ -74,7 +74,7 @@ public class V49__missing_pending_message_fix extends BaseJavaMigration {
 					0,
 					crateJson(row),
 					row.creation,
-					LocalDateTime.now().atOffset(ZoneOffset.UTC).toString()
+					LocalDateTime.now()
 				}));
 	}
 
@@ -84,9 +84,9 @@ public class V49__missing_pending_message_fix extends BaseJavaMigration {
 	}
 
 	static class DataHolder {
-		public final String siteId;
+		public final UUID siteId;
 		public final String siteExternalId;
-		public final String correlationId;
+		public final UUID correlationId;
 		public final String allocationId;
 		public final String resourceCreditId;
 		public final String project_id;
@@ -94,11 +94,11 @@ public class V49__missing_pending_message_fix extends BaseJavaMigration {
 		public final String amount;
 		public final String validFrom;
 		public final String validTo;
-		public final String creation;
+		public final LocalDateTime creation;
 
-		DataHolder(String siteId, String siteExternalId, String correlationId, String allocationId,
+		DataHolder(UUID siteId, String siteExternalId, UUID correlationId, String allocationId,
 		           String resourceCreditId, String project_id, String resourceType, String amount, String validFrom,
-		           String validTo, String creation) {
+		           String validTo, LocalDateTime creation) {
 			this.siteId = siteId;
 			this.siteExternalId = siteExternalId;
 			this.correlationId = correlationId;
