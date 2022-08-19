@@ -467,6 +467,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#upgrade-from-2-0-to-3-0-release">Upgrade from 2.0 to 3.0 release</a></li>
 <li><a href="#upgrade-from-3-0-to-3-1-release">Upgrade from 3.0 to 3.1 release</a></li>
 <li><a href="#upgrade-from-3-x-to-4-0-release">Upgrade from 3.x to 4.0 release</a></li>
+<li><a href="#upgrade-from-4-0-to-4-1-release">Upgrade from 4.0 to 4.1 release</a></li>
+<li><a href="#upgrade-from-4-1-to-4-2-release">Upgrade from 4.1 to 4.2 release</a></li>
 <li><a href="#operating-the-system">Operating the system</a>
 <ul class="sectlevel2">
 <li><a href="#starting-furms-stack">Starting FURMS stack</a></li>
@@ -1907,7 +1909,7 @@ The HTML content of a panel must consists of exactly one top level element, exam
 <h2 id="upgrade-from-3-0-to-3-1-release"><a class="anchor" href="#upgrade-from-3-0-to-3-1-release"></a>Upgrade from 3.0 to 3.1 release</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This section describes the FURMS 3.1 release installation steps basing on 3.0 release configuration. This release does not introduce any new Ansible configuration, so the installation straight forward.</p>
+<p>This section describes the FURMS 3.1 release installation steps basing on 3.0 release configuration. This release does not introduce any new Ansible configuration, so the installation is straight forward.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1990,6 +1992,72 @@ furmsServer:
 </li>
 <li>
 <p>Optional step: the <code>resourceUsageAlarm.html</code> and <code>resourceUsageAlarmWithoutUrl.html</code> email templates has been introduced in this release. If the administrator will not configure customized templates, then the default once are used. Please refer to the <a href="#email-templates-configuration">Email templates configuration</a> section in case aforementioned email template customizations are required.</p>
+</li>
+<li>
+<p><a href="#install-furms-stack">Install FURMS stack</a>.</p>
+</li>
+<li>
+<p>Make sure that RabbitMQ broker is up and running.</p>
+</li>
+<li>
+<p><a href="#starting-furms-stack">Start FURMS stack</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrade-from-4-0-to-4-1-release"><a class="anchor" href="#upgrade-from-4-0-to-4-1-release"></a>Upgrade from 4.0 to 4.1 release</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes the FURMS 4.1 release installation steps basing on 4.0 release configuration. This release does not introduce any new Ansible configuration, so the installation is straight forward.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Make a backup of FURMS system, follow steps in <a href="#backup">Backup</a> section.</p>
+</li>
+<li>
+<p>Update the FURMS Ansible scripts to the latest version, execute <code>./install_furms_devops_tooling.py</code> in the directory where tooling was installed.</p>
+</li>
+<li>
+<p><a href="#stopping-furms-stack">Stop FURMS stack</a>.</p>
+</li>
+<li>
+<p>Update your existing <code>groups_var/all.yml</code> Ansible configuration file and change the version of furmsVersion to <code>4.1.0</code></p>
+</li>
+<li>
+<p><a href="#install-furms-stack">Install FURMS stack</a>.</p>
+</li>
+<li>
+<p>Make sure that RabbitMQ broker is up and running.</p>
+</li>
+<li>
+<p><a href="#starting-furms-stack">Start FURMS stack</a>.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="upgrade-from-4-1-to-4-2-release"><a class="anchor" href="#upgrade-from-4-1-to-4-2-release"></a>Upgrade from 4.1 to 4.2 release</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes the FURMS 4.2 release installation steps basing on 4.1.x release configuration. This release does not introduce any new Ansible configuration, and the installation is straight forward.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Make a backup of FURMS system, follow steps in <a href="#backup">Backup</a> section.</p>
+</li>
+<li>
+<p>Update the FURMS Ansible scripts to the latest version, execute <code>./install_furms_devops_tooling.py</code> in the directory where tooling was installed.</p>
+</li>
+<li>
+<p><a href="#stopping-furms-stack">Stop FURMS stack</a>.</p>
+</li>
+<li>
+<p>Update your existing <code>groups_var/all.yml</code> Ansible configuration file and change the version of furmsVersion to <code>4.2.0</code></p>
 </li>
 <li>
 <p><a href="#install-furms-stack">Install FURMS stack</a>.</p>
@@ -2108,10 +2176,10 @@ FURMS devops tooling comes with handy Ansible Playbooks to perform backup and re
 <div class="ulist">
 <ul>
 <li>
-<p>Compressed FURMS database dump file named: <code>&lt;furmsServer.db.dbName&gt;.dump.tar.gz</code>,</p>
+<p>Compressed FURMS database dump file named: <code>furmsDb.dump.tar.gz</code>,</p>
 </li>
 <li>
-<p>Compressed Unity-IdM database dump file named: <code>&lt;unity.db.dbName&gt;.dump.tar.gz</code>,</p>
+<p>Compressed Unity-IdM database dump file named: <code>unityDb.dump.tar.gz</code>,</p>
 </li>
 <li>
 <p>Compressed Ansible configuration file named: <code>ansible_config.tar.gz</code>. The archive consists of <code>inventory</code> and <code>group_vars</code> directory, as well as FURMS configuration files e.g. email templates, truststore etc.</p>
@@ -2241,7 +2309,7 @@ FURMS devops tooling comes with handy Ansible Playbooks to perform backup and re
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-04-06 17:48:47 UTC
+Last updated 2022-08-19 11:54:00 UTC
 </div>
 </div>
 <style>
