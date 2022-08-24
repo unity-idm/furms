@@ -423,6 +423,13 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<runOrder>alphabetical</runOrder>
+					<includes>
+						<include>**/Test*.java</include>
+						<include>"**/*Test.java</include>
+						<include>**/*Tests.java*</include>
+						<include>**/*tests.java*</include>
+						<include>**/*TestCase.java</include>
+					</includes>
 					<excludes>
 						<exclude>**/*PerformanceTest.java</exclude>
 					</excludes>
