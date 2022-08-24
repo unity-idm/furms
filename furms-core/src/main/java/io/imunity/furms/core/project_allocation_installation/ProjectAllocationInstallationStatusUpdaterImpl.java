@@ -48,7 +48,10 @@ class ProjectAllocationInstallationStatusUpdaterImpl implements ProjectAllocatio
 	private final ResourceAccessRepository resourceAccessRepository;
 	private final ApplicationEventPublisher publisher;
 
-	ProjectAllocationInstallationStatusUpdaterImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository, ProjectAllocationRepository projectAllocationRepository, ResourceAccessRepository resourceAccessRepository, ApplicationEventPublisher publisher) {
+	ProjectAllocationInstallationStatusUpdaterImpl(ProjectAllocationInstallationRepository projectAllocationInstallationRepository,
+	                                               ProjectAllocationRepository projectAllocationRepository,
+	                                               ResourceAccessRepository resourceAccessRepository,
+	                                               ApplicationEventPublisher publisher) {
 		this.projectAllocationInstallationRepository = projectAllocationInstallationRepository;
 		this.projectAllocationRepository = projectAllocationRepository;
 		this.resourceAccessRepository = resourceAccessRepository;
