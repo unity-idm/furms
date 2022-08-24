@@ -37,7 +37,7 @@ class CommunityAllocation {
 		this.siteName = siteName;
 		this.serviceId = serviceId;
 		this.serviceName = serviceName;
-		this.amount = amount;
+		this.amount = new BigDecimal(amount.toPlainString());
 	}
 
 	CommunityAllocation(CommunityAllocationResolved communityAllocation) {
