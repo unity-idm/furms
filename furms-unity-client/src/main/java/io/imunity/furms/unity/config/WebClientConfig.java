@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriUtils;
 import reactor.netty.http.client.HttpClient;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import static java.lang.String.format;
@@ -70,14 +71,14 @@ public class WebClientConfig {
 	}
 
 	private String createAuthorizationKey(String username, String password) {
-		byte[] userPass = format("%s:%s", username, password).getBytes();
+		byte[] userPass = format("%s:%s", username, password).getBytes(StandardCharsets.UTF_8);
 		String token = Base64.getEncoder().encodeToString(userPass);
 		return format("Basic %s", token);
 	}
 
 	private String createUrlEncodedAuthorizationKey(String username, String password) {
-		String urlEncodedCredentials = UriUtils.encodePath(format("%s:%s", username, password), "UTF-8");
-		String token = Base64.getEncoder().encodeToString(urlEncodedCredentials.getBytes());
+		String urlEncodedCredentials = UriUtils.encodePath(format("%s:%s", username, password), StandardCharsets.UTF_8);
+		String token = Base64.getEncoder().encodeToString(urlEncodedCredentials.getBytes(StandardCharsets.UTF_8));
 		return format("Basic %s", token);
 	}
 
