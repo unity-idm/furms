@@ -32,4 +32,8 @@ class UnityOauthClient {
 				.bodyToMono(clazz)
 				.block();
 	}
+
+	public void post(URI uri, MediaType mediaType) {
+		postForObject(uri, Void.class, null, mediaType);
+	}
 }
