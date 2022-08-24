@@ -165,7 +165,7 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 	@Test
 	void shouldReturnAvailableAmountWhenProjectAllocationsDoesntExist() {
 		BigDecimal sum = entityReadRepository.calculateAvailableAmount(communityAllocationId.id).getAmount();
-		assertThat(sum).isEqualTo(new BigDecimal(10));
+		assertThat(sum.compareTo(new BigDecimal(10))).isEqualTo(0);
 	}
 
 	@Test
@@ -205,13 +205,13 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectAllocationReadEntity> entity = entityReadRepository.findById(save.getId());
 		assertThat(entity).isPresent();
 		assertThat(entity.get().name).isEqualTo("anem");
-		assertThat(entity.get().amount).isEqualTo(new BigDecimal(10));
+		assertThat(entity.get().amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 		assertThat(entity.get().site.getName()).isEqualTo("name");
 		assertThat(entity.get().resourceType.type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
 		assertThat(entity.get().resourceType.unit).isEqualTo(ResourceMeasureUnit.KILO);
 		assertThat(entity.get().resourceCredit.name).isEqualTo("name");
 		assertThat(entity.get().resourceCredit.split).isEqualTo(true);
-		assertThat(entity.get().resourceCredit.amount).isEqualTo(new BigDecimal(100));
+		assertThat(entity.get().resourceCredit.amount.compareTo(new BigDecimal(100))).isEqualTo(0);
 	}
 
 	@Test
@@ -229,13 +229,13 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(entities.size()).isEqualTo(1);
 		ProjectAllocationReadEntity entity = entities.iterator().next();
 		assertThat(entity.name).isEqualTo("anem");
-		assertThat(entity.amount).isEqualTo(new BigDecimal(10));
+		assertThat(entity.amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 		assertThat(entity.site.getName()).isEqualTo("name");
 		assertThat(entity.resourceType.type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
 		assertThat(entity.resourceType.unit).isEqualTo(ResourceMeasureUnit.KILO);
 		assertThat(entity.resourceCredit.name).isEqualTo("name");
 		assertThat(entity.resourceCredit.split).isEqualTo(true);
-		assertThat(entity.resourceCredit.amount).isEqualTo(new BigDecimal(100));
+		assertThat(entity.resourceCredit.amount.compareTo(new BigDecimal(100))).isEqualTo(0);
 	}
 
 
@@ -259,7 +259,7 @@ class ProjectAllocationEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().projectId).isEqualTo(projectId.id);
 		assertThat(byId.get().communityAllocationId).isEqualTo(communityAllocationId.id);
 		assertThat(byId.get().name).isEqualTo("name");
-		assertThat(byId.get().amount).isEqualTo(new BigDecimal(10));
+		assertThat(byId.get().amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 	}
 
 	@Test

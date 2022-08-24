@@ -172,13 +172,13 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 			entityDatabaseRepository.findByIdWithRelatedObjects(new CommunityAllocationId(save.getId()));
 		assertThat(entity).isPresent();
 		assertThat(entity.get().name).isEqualTo("anem");
-		assertThat(entity.get().amount).isEqualTo(new BigDecimal(10));
+		assertThat(entity.get().amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 		assertThat(entity.get().site.getName()).isEqualTo("name");
 		assertThat(entity.get().resourceType.type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
 		assertThat(entity.get().resourceType.unit).isEqualTo(ResourceMeasureUnit.TERA);
 		assertThat(entity.get().resourceCredit.name).isEqualTo("name");
 		assertThat(entity.get().resourceCredit.splittable).isEqualTo(true);
-		assertThat(entity.get().resourceCredit.amount).isEqualTo(new BigDecimal(100));
+		assertThat(entity.get().resourceCredit.amount.compareTo(new BigDecimal(100))).isEqualTo(0);
 	}
 
 	@Test
@@ -230,13 +230,13 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(entities.size()).isEqualTo(1);
 		CommunityAllocationResolved entity = entities.iterator().next();
 		assertThat(entity.name).isEqualTo("anem");
-		assertThat(entity.amount).isEqualTo(new BigDecimal(10));
+		assertThat(entity.amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 		assertThat(entity.site.getName()).isEqualTo("name");
 		assertThat(entity.resourceType.type).isEqualTo(ResourceMeasureType.FLOATING_POINT);
 		assertThat(entity.resourceType.unit).isEqualTo(ResourceMeasureUnit.TERA);
 		assertThat(entity.resourceCredit.name).isEqualTo("name");
 		assertThat(entity.resourceCredit.splittable).isEqualTo(true);
-		assertThat(entity.resourceCredit.amount).isEqualTo(new BigDecimal(100));
+		assertThat(entity.resourceCredit.amount.compareTo(new BigDecimal(100))).isEqualTo(0);
 	}
 
 	@Test
@@ -386,7 +386,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(allocation.communityId.id).isEqualTo(entity.communityId);
 		assertThat(allocation.resourceCreditId.id).isEqualTo(entity.resourceCreditId);
 		assertThat(allocation.name).isEqualTo(entity.name);
-		assertThat(byId.get().amount).isEqualTo(new BigDecimal(10));
+		assertThat(byId.get().amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 	}
 
 	@Test
@@ -487,7 +487,7 @@ class CommunityAllocationDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().communityId).isEqualTo(communityId);
 		assertThat(byId.get().resourceCreditId).isEqualTo(resourceCreditId);
 		assertThat(byId.get().name).isEqualTo("name");
-		assertThat(byId.get().amount).isEqualTo(new BigDecimal(10));
+		assertThat(byId.get().amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 	}
 
 	@Test

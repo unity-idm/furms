@@ -208,7 +208,7 @@ class ProjectAllocationChunkEntityRepositoryTest extends DBIntegrationTest {
 		Optional<ProjectAllocationChunkEntity> byId = entityRepository.findById(saved.getId());
 		assertThat(byId).isPresent();
 		assertThat(byId.get().getId()).isEqualTo(saved.getId());
-		assertThat(byId.get().amount).isEqualTo(saved.amount);
+		assertThat(byId.get().amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 		assertThat(byId.get().chunkId).isEqualTo(saved.chunkId);
 	}
 

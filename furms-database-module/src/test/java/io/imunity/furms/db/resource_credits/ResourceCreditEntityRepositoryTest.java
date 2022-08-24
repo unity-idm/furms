@@ -127,7 +127,7 @@ class ResourceCreditEntityRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().resourceTypeId).isEqualTo(resourceTypeId.id);
 		assertThat(byId.get().name).isEqualTo("name");
 		assertThat(byId.get().split).isEqualTo(true);
-		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
+		assertThat(byId.get().amount.compareTo(new BigDecimal(100))).isEqualTo(0);
 		assertThat(byId.get().createTime).isEqualTo(createTime);
 		assertThat(byId.get().startTime).isEqualTo(startTime);
 		assertThat(byId.get().endTime).isEqualTo(endTime);

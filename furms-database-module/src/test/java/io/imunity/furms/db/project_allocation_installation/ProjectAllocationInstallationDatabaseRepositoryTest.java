@@ -304,7 +304,7 @@ class ProjectAllocationInstallationDatabaseRepositoryTest extends DBIntegrationT
 		//then
 		Optional<ProjectAllocationChunkEntity> updatedEntity = chunkRepository.findById(savedEntity.getId());
 		assertThat(updatedEntity).isPresent();
-		assertThat(updatedEntity.get().amount).isEqualTo(chunk.amount);
+		assertThat(updatedEntity.get().amount.compareTo(new BigDecimal(10))).isEqualTo(0);
 		assertThat(updatedEntity.get().validFrom).isEqualToIgnoringNanos(chunk.validFrom);
 		assertThat(updatedEntity.get().validTo).isEqualToIgnoringNanos(chunk.validTo);
 	}

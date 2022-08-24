@@ -260,13 +260,15 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 		assertTrue(resourceUsageEntity.isPresent());
 		assertEquals(projectAllocationId.id, resourceUsageEntity.get().projectAllocationId);
 		assertEquals(projectId.id, resourceUsageEntity.get().projectId);
-		assertEquals(BigDecimal.TEN, resourceUsageEntity.get().cumulativeConsumption);
+		assertEquals(BigDecimal.TEN.compareTo(resourceUsageEntity.get().cumulativeConsumption), 0);
 
 		Set<ResourceUsageHistoryEntity> resourceUsageHistoryEntities = resourceUsageHistoryEntityRepository.findAllByProjectAllocationId(projectAllocationId.id);
 		assertEquals(2, resourceUsageHistoryEntities.size());
-		Set<BigDecimal> resourceUsageHistoryAmounts = resourceUsageHistoryEntities.stream().map(x -> x.cumulativeConsumption).collect(toSet());
-		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.ONE));
-		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.TEN));
+		Set<String> resourceUsageHistoryAmounts =
+			resourceUsageHistoryEntities.stream().map(x -> x.cumulativeConsumption.toPlainString())
+				.collect(toSet());
+		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.ONE.toPlainString()));
+		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.TEN.toPlainString()));
 
 	}
 
@@ -324,13 +326,14 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 		assertEquals(projectAllocationId.id, resourceUsageEntity.get().projectAllocationId);
 		assertEquals(projectId.id, resourceUsageEntity.get().projectId);
 		assertEquals("userId", resourceUsageEntity.get().fenixUserId);
-		assertEquals(BigDecimal.TEN, resourceUsageEntity.get().cumulativeConsumption);
+		assertEquals(BigDecimal.TEN.compareTo(resourceUsageEntity.get().cumulativeConsumption), 0);
 
 		Set<UserResourceUsageHistoryEntity> resourceUsageHistoryEntities = userResourceUsageHistoryEntityRepository.findAllByProjectAllocationId(projectAllocationId.id);
 		assertEquals(2, resourceUsageHistoryEntities.size());
-		Set<BigDecimal> resourceUsageHistoryAmounts = resourceUsageHistoryEntities.stream().map(x -> x.cumulativeConsumption).collect(toSet());
-		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.ONE));
-		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.TEN));
+		Set<String> resourceUsageHistoryAmounts =
+			resourceUsageHistoryEntities.stream().map(x -> x.cumulativeConsumption.toPlainString()).collect(toSet());
+		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.ONE.toPlainString()));
+		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.TEN.toPlainString()));
 	}
 
 	@Test
@@ -362,9 +365,10 @@ class ResourceUsageDatabaseRepositoryTest extends DBIntegrationTest {
 
 		Set<ResourceUsage> resourceUsageEntities = databaseRepository.findCurrentResourceUsages(projectId);
 		assertEquals(2, resourceUsageEntities.size());
-		Set<BigDecimal> resourceUsageHistoryAmounts = resourceUsageEntities.stream().map(x -> x.cumulativeConsumption).collect(toSet());
-		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.ONE));
-		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.TEN));
+		Set<String> resourceUsageHistoryAmounts =
+			resourceUsageEntities.stream().map(x -> x.cumulativeConsumption.toPlainString()).collect(toSet());
+		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.ONE.toPlainString()));
+		assertTrue(resourceUsageHistoryAmounts.contains(BigDecimal.TEN.toPlainString()));
 	}
 
 	@Test

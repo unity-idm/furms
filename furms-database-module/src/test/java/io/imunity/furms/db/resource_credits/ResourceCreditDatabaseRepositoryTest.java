@@ -136,7 +136,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(project.id.id).isEqualTo(entity.getId());
 		assertThat(project.name).isEqualTo(entity.name);
 		assertThat(byId.get().splittable).isEqualTo(true);
-		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
+		assertThat(byId.get().amount.compareTo(new BigDecimal(100))).isEqualTo(0);
 		assertThat(byId.get().utcCreateTime).isEqualTo(createTime);
 		assertThat(byId.get().utcStartTime).isEqualTo(startTime);
 		assertThat(byId.get().utcEndTime).isEqualTo(endTime);
@@ -348,7 +348,7 @@ class ResourceCreditDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(byId.get().id).isNotNull();
 		assertThat(byId.get().name).isEqualTo("name");
 		assertThat(byId.get().splittable).isEqualTo(true);
-		assertThat(byId.get().amount).isEqualTo(new BigDecimal(100));
+		assertThat(byId.get().amount.compareTo(new BigDecimal(100))).isEqualTo(0);
 		assertThat(byId.get().utcCreateTime).isEqualTo(createTime);
 		assertThat(byId.get().utcStartTime).isEqualTo(startTime);
 		assertThat(byId.get().utcEndTime).isEqualTo(endTime);
