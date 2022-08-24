@@ -425,6 +425,7 @@
 					<runOrder>alphabetical</runOrder>
 					<includes>
 						<include>**/*test.java</include>
+						<include>**/*tests.java</include>
 						<include>**/Tests*.java</include>
 						<include>**/Test*.java</include>
 						<include>**/*Test.java</include>
