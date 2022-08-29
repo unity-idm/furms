@@ -73,7 +73,7 @@ class ResourceUsageCSVExporterImpl implements ResourceUsageCSVExporter {
 	}
 
 	@Override
-	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId.id")
+	@FurmsAuthorize(capability = COMMUNITY_READ, resourceType = COMMUNITY, id = "communityId")
 	public Supplier<String> getCsvForCommunityAllocation(CommunityId communityId, CommunityAllocationId communityAllocationId) {
 		return () -> {
 			exportHelper.assertCommunityAndAllocationAreRelated(communityId, communityAllocationId);
