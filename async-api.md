@@ -1,6 +1,7 @@
 [back](index)
-## [LATEST](ver/4.2.1/async-api.html)
+## [LATEST](ver/4.2.2/async-api.html)
 ## All versions
+* [4.2.2](ver/4.2.2/async-api.html)
 * [4.2.1](ver/4.2.1/async-api.html)
 * [4.2.1-rc1](ver/4.2.1-rc1/async-api.html)
 * [4.2.0](ver/4.2.0/async-api.html)
