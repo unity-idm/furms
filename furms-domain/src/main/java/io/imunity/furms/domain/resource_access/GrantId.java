@@ -5,11 +5,11 @@
 
 package io.imunity.furms.domain.resource_access;
 
-import io.imunity.furms.domain.Id;
-
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import io.imunity.furms.domain.Id;
 
 public class GrantId implements Id {
 	public final UUID id;
@@ -48,5 +48,10 @@ public class GrantId implements Id {
 		return "GrantId{" +
 			"id=" + id +
 			'}';
+	}
+	
+	@Override
+	public String asRawString() {
+		return RawIdParser.asRawString(id);
 	}
 }

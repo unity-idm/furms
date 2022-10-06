@@ -22,6 +22,7 @@ import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
 import io.imunity.furms.ui.components.GridActionsButtonLayout;
+import io.imunity.furms.ui.components.IdRenderer;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
@@ -74,7 +75,7 @@ public class InfraServicesView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.site-admin.service.grid.column.name"))
 			.setSortable(true)
 			.setComparator(item -> item.getName().toLowerCase());
-		grid.addColumn(InfraServiceViewModel::getId)
+		grid.addColumn(new IdRenderer<>(InfraServiceViewModel::getId))
 			.setHeader(getTranslation("view.site-admin.service.grid.column.id"))
 			.setSortable(true);
 		grid.addColumn(InfraServiceViewModel::getDescription)

@@ -43,4 +43,9 @@ public class AlarmId implements Id {
 			"id=" + id +
 			'}';
 	}
+
+	@Override
+	public String asRawString() {
+		return RawIdParser.asRawString(id);
+	}
 }
