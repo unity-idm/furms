@@ -5,6 +5,45 @@
 
 package io.imunity.furms.unity.client.users;
 
+import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
+import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
+import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
+import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
+import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
+import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
+import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
+import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
+import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
+import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.IDENTITY_TYPE;
+import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
+import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
+import static io.imunity.furms.unity.common.UnityConst.STRING;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP;
+import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS_MULTI;
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.CommunityId;
@@ -22,42 +61,7 @@ import io.imunity.rest.api.RestEntityInformation;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
 import io.imunity.rest.api.RestIdentity;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import pl.edu.icm.unity.types.basic.Attribute;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
-import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
-import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
-import static io.imunity.furms.domain.authz.roles.Role.PROJECT_ADMIN;
-import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
-import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
-import static io.imunity.furms.unity.common.UnityConst.FENIX_PATTERN;
-import static io.imunity.furms.unity.common.UnityConst.FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE;
-import static io.imunity.furms.unity.common.UnityConst.GROUPS_PATTERNS;
-import static io.imunity.furms.unity.common.UnityConst.IDENTIFIER_IDENTITY;
-import static io.imunity.furms.unity.common.UnityConst.IDENTITY_TYPE;
-import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
-import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
-import static io.imunity.furms.unity.common.UnityConst.STRING;
-import static io.imunity.furms.unity.common.UnityPaths.GROUP;
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 public class UserServiceTest {
@@ -263,5 +267,22 @@ public class UserServiceTest {
 		userService.removeUserFromGroup(userId, group);
 
 		verify(unityClient, times(1)).delete(eq(path), eq(Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY)));
+	}
+	
+	@Test
+	void shouldQueryTwiceForGroupMembers() {
+		// given
+		String path = UriComponentsBuilder.newInstance()
+				.path(GROUP_MEMBERS_MULTI)
+				.encode()
+				.toUriString();
+		when(unityClient.get(eq(path), anyMap(), any()))
+			.thenReturn(new RestMultiGroupMembersWithAttributes(Map.of()));
+		
+		// when
+		userService.getAllUsersPolicyAcceptanceFromGroups(Map.of("communityId", Set.of("1".repeat(5024), "2".repeat(5024))));
+
+		// then
+		verify(unityClient, times(2)).get(eq(path), anyMap(), any());
 	}
 }

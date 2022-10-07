@@ -5,37 +5,6 @@
 
 package io.imunity.furms.unity.client.users;
 
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.GroupedUsers;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.furms.unity.users.UnityUserMapper;
-import io.imunity.rest.api.RestAttributeExt;
-import io.imunity.rest.api.RestGroupMemberWithAttributes;
-import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import static io.imunity.furms.unity.common.UnityConst.ALL_GROUPS_PATTERNS;
 import static io.imunity.furms.unity.common.UnityConst.COMMUNITY_ID;
 import static io.imunity.furms.unity.common.UnityConst.ENUMERATION;
@@ -62,6 +31,38 @@ import static io.imunity.furms.unity.common.UnityPaths.GROUP_MEMBERS_MULTI;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
+import io.imunity.furms.domain.policy_documents.UserPolicyAcceptances;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.GroupedUsers;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.furms.unity.users.UnityUserMapper;
+import io.imunity.rest.api.RestAttributeExt;
+import io.imunity.rest.api.RestGroupMemberWithAttributes;
+import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.Identity;
 
 @Service
 public class UserService {
@@ -316,16 +317,20 @@ public class UserService {
 			.encode()
 			.toUriString();
 
-		List<String> groups = ids.entrySet().stream()
+		List<String> allGroups = ids.entrySet().stream()
 			.map(entry -> getProjectPaths(entry.getKey(), entry.getValue()))
 			.flatMap(Collection::stream)
 			.collect(toList());
-
-		RestMultiGroupMembersWithAttributes multiGroupMembers = unityClient.get(path, Map.of("groups", groups),
-			new ParameterizedTypeReference<>() {});
-
-		return groups.stream()
-			.flatMap(group -> multiGroupMembers.members.getOrDefault(group, List.of()).stream()
+		
+		Map<String, List<RestGroupMemberWithAttributes>> members = GroupMembersMultiPaginationProvider.get(allGroups).stream()
+			.map(page -> unityClient.get(path, Map.of("groups", page.getGroups()), 
+					new ParameterizedTypeReference<RestMultiGroupMembersWithAttributes>() {}))
+			.map(RestMultiGroupMembersWithAttributes::getMembers)
+			.flatMap(map -> map.entrySet().stream())
+			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+		
+		return allGroups.stream()
+			.flatMap(group -> members.getOrDefault(group, List.of()).stream()
 				.map(attributes -> UnityUserMapper.map(attributes, group)
 					.map(user -> new UserPolicyAcceptances(user, getPolicyAcceptancesFromAttributes(attributes.getAttributes())))
 				)
