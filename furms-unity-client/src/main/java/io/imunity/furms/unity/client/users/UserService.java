@@ -44,8 +44,11 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import io.imunity.furms.domain.authz.roles.Role;
@@ -66,6 +69,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 
 @Service
 public class UserService {
+	private static final Logger LOG = LoggerFactory.getLogger(UserService.class);
 	private final UnityClient unityClient;
 
 	public UserService(UnityClient unityClient) {
@@ -216,19 +220,21 @@ public class UserService {
 	}
 
 	public Optional<FURMSUser> getUser(PersistentId userId){
+		Entity entity  = getEntity(userId).orElse(null);
+		if (entity == null)
+			return Optional.empty();
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
-		Entity entity  = getEntity(userId);
-		
 		return UnityUserMapper.map(userId, entity, attributesFromGroup);
 	}
 
-	public Optional<FURMSUser> getUser(FenixUserId userId){
+	public Optional<FURMSUser> getUser(FenixUserId userId) {
+		Entity entity = getEntity(userId).orElse(null);
+		if (entity == null)
+			return Optional.empty();
 		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
-		Entity entity  = getEntity(userId);
-
 		return UnityUserMapper.map(userId, entity, attributesFromGroup);
 	}
-
+	
 	private List<Attribute> getAttributesFromGroup(PersistentId userId, String group) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(GROUP_ATTRIBUTES)
@@ -257,8 +263,28 @@ public class UserService {
 			.toUriString();
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY));
 	}
+	
+	private Optional<Entity> getEntity(PersistentId userId) {
+		try {
+			Entity entity = getEntityThrowing(userId);
+			return Optional.of(entity);
+		} catch (BadRequest e) {
+			LOG.debug("User {} not found", userId, e);
+			return Optional.empty();
+		}
+	}
+	
+	private Optional<Entity> getEntity(FenixUserId userId) {
+		try {
+			Entity entity = getEntityThrowing(userId);
+			return Optional.of(entity);
+		} catch (BadRequest e) {
+			LOG.debug("User {} not found", userId, e);
+			return Optional.empty();
+		}
+	}
 
-	private Entity getEntity(PersistentId userId) {
+	private Entity getEntityThrowing(PersistentId userId) {
 		String path = UriComponentsBuilder.newInstance()
 			.path(ENTITY_BASE)
 			.path(userId.id)
@@ -267,7 +293,7 @@ public class UserService {
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 	
-	private Entity getEntity(FenixUserId userId) {
+	private Entity getEntityThrowing(FenixUserId userId) {
 		String path = UriComponentsBuilder.newInstance()
 			.path(ENTITY_BASE)
 			.path(userId.id)
@@ -388,14 +414,14 @@ public class UserService {
 	}
 
 	public PersistentId getPersistentId(FenixUserId userId) {
-		return getEntity(userId).getIdentities().stream()
+		return getEntityThrowing(userId).getIdentities().stream()
 				.filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY)).findAny()
 				.map(Identity::getComparableValue).map(PersistentId::new).orElse(null);
 
 	}
 	
 	public FenixUserId getFenixUserId(PersistentId userId) {
-		return getEntity(userId).getIdentities().stream()
+		return getEntityThrowing(userId).getIdentities().stream()
 				.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY)).findAny()
 				.map(Identity::getComparableValue).map(FenixUserId::new).orElse(null);
 

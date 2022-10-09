@@ -8,6 +8,7 @@ public class UnknownUserException extends RuntimeException {
 	public final FenixUserId userId;
 
 	public UnknownUserException(FenixUserId userId) {
+		super(userId.id);
 		this.userId = userId;
 	}
 }

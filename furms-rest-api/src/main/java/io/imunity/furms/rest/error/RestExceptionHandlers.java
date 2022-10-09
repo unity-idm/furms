@@ -47,7 +47,7 @@ class RestExceptionHandlers {
 		return ResponseEntity
 				.status(NOT_FOUND)
 				.body(RestExceptionData.builder()
-						.message(format("User %s not found", ex.userId))
+						.message(format("User %s not found", ex.userId.id))
 						.error(NOT_FOUND.getReasonPhrase())
 						.path(request.getRequestURI())
 						.build());
