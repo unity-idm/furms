@@ -268,9 +268,11 @@ class SitesRestService {
 	}
 
 	List<SiteUser> findAllSiteUsersBySiteId(SiteId siteId) {
-		final Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId.id,
-				() -> userAllocationsService.findUserAdditionsBySiteId(siteId));
-		return userAdditionsBySite.stream()
+		Set<UserAddition> installedUserAdditionsBySite = resourceChecker.performIfExists(siteId.id,
+				() -> userAllocationsService.findUserAdditionsBySiteId(siteId).stream()
+						.filter(userAddition -> userAddition.status.isInstalled())
+						.collect(toSet()));
+		return installedUserAdditionsBySite.stream()
 				.collect(groupingBy(userAddition -> userAddition.userId, toSet()))
 				.entrySet().stream()
 				.map(entry -> createSiteUser(entry.getKey(), entry.getValue(), siteId))
@@ -278,9 +280,11 @@ class SitesRestService {
 	}
 
 	SiteUser findSiteUserByUserIdAndSiteId(FenixUserId userId, SiteId siteId) {
-		Set<UserAddition> userAdditionsBySite = resourceChecker.performIfExists(siteId.id,
-			() -> userAllocationsService.findUserAdditionsBySiteAndFenixUserId(siteId, userId));
-		return createSiteUser(userId, userAdditionsBySite, siteId);
+		Set<UserAddition> installedUserAdditionsBySite = resourceChecker.performIfExists(siteId.id,
+				() -> userAllocationsService.findUserAdditionsBySiteAndFenixUserId(siteId, userId).stream()
+						.filter(userAddition -> userAddition.status.isInstalled())
+						.collect(toSet()));
+		return createSiteUser(userId, installedUserAdditionsBySite, siteId);
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsBySiteId(SiteId siteId) {
@@ -377,20 +381,22 @@ class SitesRestService {
 				.get();
 	}
 
-	private SiteUser createSiteUser(FenixUserId fenixUserId, Set<UserAddition> userAdditions, SiteId siteId) {
+	private SiteUser createSiteUser(FenixUserId fenixUserId, Set<UserAddition> installedUserAdditions, SiteId siteId) {
 		return userService.findByFenixUserId(fenixUserId)
 				.map(user -> new SiteUser(
 						new User(user),
-						getFirstUserId(userAdditions),
+						findFirstUserIdOrThrow(installedUserAdditions, fenixUserId),
 						sshKeyService.findSiteSSHKeysByUserIdAndSite(user.id.get(), siteId).sshKeys,
-						userAdditions.stream()
+						installedUserAdditions.stream()
 							.map(userAddition -> userAddition.projectId.id.toString())
 							.collect(toSet())))
 				.orElseThrow(() -> new UnknownUserException(fenixUserId));
 	}
 	
-	private String getFirstUserId(Set<UserAddition> userAdditions) {
-		return userAdditions.stream()
+	private String findFirstUserIdOrThrow(Set<UserAddition> installedUserAdditions, FenixUserId fenixUserId) {
+		if (installedUserAdditions.isEmpty())
+			throw new IllegalArgumentException(fenixUserId.id + " not provisioned on a given site");
+		return installedUserAdditions.stream()
 				.filter(userAddition -> StringUtils.hasText(userAddition.uid))
 				.findAny()
 				.map(userAddition -> userAddition.uid)
