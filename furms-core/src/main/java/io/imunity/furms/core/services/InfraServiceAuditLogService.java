@@ -95,7 +95,7 @@ class InfraServiceAuditLogService {
 		if (infraService.siteId != null)
 			json.put("siteId", infraService.siteId.asRawString());
 		json.put("description", infraService.description);
-		if(infraService.policyId.id != null)
+		if(infraService.policyId != null)
 			json.put("policyId", infraService.policyId.asRawString());
 
 		try {
