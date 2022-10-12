@@ -92,7 +92,8 @@ class InfraServiceAuditLogService {
 		Map<String, Object> json = new HashMap<>();
 		json.put("id", infraService.id.asRawString());
 		json.put("name", infraService.name);
-		json.put("siteId", infraService.siteId.asRawString());
+		if (infraService.siteId != null)
+			json.put("siteId", infraService.siteId.asRawString());
 		json.put("description", infraService.description);
 		if(infraService.policyId.id != null)
 			json.put("policyId", infraService.policyId.asRawString());

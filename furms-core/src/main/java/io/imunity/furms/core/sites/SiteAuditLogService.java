@@ -93,7 +93,7 @@ class SiteAuditLogService {
 		json.put("name", site.getName());
 		if(site.isSshKeyFromOptionMandatory() != null)
 			json.put("sshKeyFromOptionMandatory", site.isSshKeyFromOptionMandatory());
-		if(site.getPolicyId().id != null)
+		if(site.getPolicyId() != null)
 			json.put("policyId", site.getPolicyId().asRawString());
 		if(site.getOauthClientId() != null)
 			json.put("oauthClientId", site.getOauthClientId());

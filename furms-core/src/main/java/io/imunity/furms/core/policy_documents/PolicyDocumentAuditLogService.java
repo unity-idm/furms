@@ -126,7 +126,8 @@ class PolicyDocumentAuditLogService {
 		Map<String, Object> json = new HashMap<>();
 		json.put("id", policyDocument.id.asRawString());
 		json.put("name", policyDocument.name);
-		json.put("siteId", policyDocument.siteId.asRawString());
+		if (policyDocument.siteId != null)
+			json.put("siteId", policyDocument.siteId.asRawString());
 		json.put("workflow", policyDocument.workflow);
 		json.put("revision", policyDocument.revision);
 		json.put("contentType", policyDocument.contentType);
