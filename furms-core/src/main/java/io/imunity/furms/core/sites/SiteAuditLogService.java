@@ -89,12 +89,12 @@ class SiteAuditLogService {
 
 	private String toJson(Site site) {
 		Map<String, Object> json = new HashMap<>();
-		json.put("id", site.getId());
+		json.put("id", site.getId().asRawString());
 		json.put("name", site.getName());
 		if(site.isSshKeyFromOptionMandatory() != null)
 			json.put("sshKeyFromOptionMandatory", site.isSshKeyFromOptionMandatory());
 		if(site.getPolicyId().id != null)
-			json.put("policyId", site.getPolicyId().id);
+			json.put("policyId", site.getPolicyId().asRawString());
 		if(site.getOauthClientId() != null)
 			json.put("oauthClientId", site.getOauthClientId());
 

@@ -89,7 +89,7 @@ class CommunityAuditLogService {
 
 	private String toJson(Community community) {
 		Map<String, Object> json = new HashMap<>();
-		json.put("id", community.getId());
+		json.put("id", community.getId().asRawString());
 		json.put("name", community.getName());
 		json.put("description", community.getDescription());
 

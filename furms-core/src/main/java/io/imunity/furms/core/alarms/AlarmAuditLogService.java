@@ -94,9 +94,9 @@ class AlarmAuditLogService {
 
 	private String toJson(AlarmWithUserIds alarm) {
 		Map<String, Object> json = new HashMap<>();
-		json.put("id", alarm.id.id);
-		json.put("projectId", alarm.projectId);
-		json.put("projectAllocationId", alarm.projectAllocationId);
+		json.put("id", alarm.id.asRawString());
+		json.put("projectId", alarm.projectId.asRawString());
+		json.put("projectAllocationId", alarm.projectAllocationId.asRawString());
 		json.put("name", alarm.name);
 		json.put("threshold", alarm.threshold);
 		json.put("notifyAllUsers", alarm.allUsers);

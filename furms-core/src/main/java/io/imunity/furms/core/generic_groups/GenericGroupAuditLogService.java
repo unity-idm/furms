@@ -121,8 +121,8 @@ class GenericGroupAuditLogService {
 
 	private String toJson(GenericGroup group) {
 		Map<String, Object> json = new HashMap<>();
-		json.put("id", group.id.id);
-		json.put("communityId", group.communityId);
+		json.put("id", group.id.asRawString());
+		json.put("communityId", group.communityId.asRawString());
 		json.put("name", group.name);
 		json.put("description", group.description);
 

@@ -92,8 +92,8 @@ class ProjectAuditLogService {
 
 	private String toJson(Project project) {
 		Map<String, Object> json = new HashMap<>();
-		json.put("id", project.getId());
-		json.put("communityId", project.getCommunityId());
+		json.put("id", project.getId().asRawString());
+		json.put("communityId", project.getCommunityId().asRawString());
 		json.put("name", project.getName());
 		json.put("researchField", project.getResearchField());
 		json.put("utcStartTime", project.getUtcStartTime());

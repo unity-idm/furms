@@ -110,7 +110,7 @@ class PolicyDocumentAuditLogService {
 
 	private String toJson(PolicyAcceptance policyAcceptance) {
 		Map<String, Object> json = new HashMap<>();
-		json.put("id", policyAcceptance.policyDocumentId.id);
+		json.put("id", policyAcceptance.policyDocumentId.asRawString());
 		json.put("policyDocumentRevision", policyAcceptance.policyDocumentRevision);
 		json.put("acceptanceStatus", policyAcceptance.acceptanceStatus);
 		json.put("decisionTs", policyAcceptance.decisionTs);
@@ -124,9 +124,9 @@ class PolicyDocumentAuditLogService {
 
 	private String toJson(PolicyDocument policyDocument) {
 		Map<String, Object> json = new HashMap<>();
-		json.put("id", policyDocument.id.id);
+		json.put("id", policyDocument.id.asRawString());
 		json.put("name", policyDocument.name);
-		json.put("siteId", policyDocument.siteId);
+		json.put("siteId", policyDocument.siteId.asRawString());
 		json.put("workflow", policyDocument.workflow);
 		json.put("revision", policyDocument.revision);
 		json.put("contentType", policyDocument.contentType);

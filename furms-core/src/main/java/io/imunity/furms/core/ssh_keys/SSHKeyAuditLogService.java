@@ -5,29 +5,35 @@
 
 package io.imunity.furms.core.ssh_keys;
 
+import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
+
+import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
 import io.imunity.furms.domain.audit_log.AuditLogEvent;
 import io.imunity.furms.domain.audit_log.AuditLogException;
 import io.imunity.furms.domain.audit_log.Operation;
+import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyCreatedEvent;
 import io.imunity.furms.domain.ssh_keys.SSHKeyRemovedEvent;
 import io.imunity.furms.domain.ssh_keys.SSHKeyUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-
-import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import static io.imunity.furms.utils.UTCTimeUtils.convertToUTCTime;
 
 @Service
 class SSHKeyAuditLogService {
@@ -89,18 +95,24 @@ class SSHKeyAuditLogService {
 
 	private String toJson(SSHKey sshKey) {
 		Map<String, Object> json = new HashMap<>();
-		json.put("id", sshKey.id);
+		json.put("id", sshKey.id.asRawString());
 		json.put("name", sshKey.name);
 		json.put("createTime", sshKey.createTime);
 		if(sshKey.updateTime != null)
 			json.put("updateTime", sshKey.updateTime);
-		json.put("sites", sshKey.sites);
+		json.put("sites", siteIds(sshKey.sites));
 
 		try {
 			return objectMapper.writeValueAsString(json);
 		} catch (JsonProcessingException e) {
 			throw new AuditLogException(String.format("SSH Key with id %s cannot be parse", sshKey.id), e);
 		}
+	}
+	
+	private List<String> siteIds(Set<SiteId> sites) {
+		if (sites == null)
+			return List.of();
+		return sites.stream().map(SiteId::asRawString).collect(Collectors.toList());
 	}
 
 	private String toJsonDiff(SSHKey oldSshKey, SSHKey newSshKey) {
