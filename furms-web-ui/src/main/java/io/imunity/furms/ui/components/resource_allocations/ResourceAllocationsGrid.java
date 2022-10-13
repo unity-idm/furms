@@ -140,7 +140,7 @@ public class ResourceAllocationsGrid extends DenseGrid<ResourceAllocationsGridIt
 	}
 
 	private Object showResource(DashboardGridResource item) {
-		return format("%s %s", item.getAmount(), item.getUnit().getSuffix());
+		return format("%s %s", item.getAmount().toPlainString(), item.getUnit().getSuffix());
 	}
 
 	private LocalDate extractLocalDate(ZonedDateTime dateTime) {
