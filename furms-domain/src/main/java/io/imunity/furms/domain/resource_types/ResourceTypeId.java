@@ -5,53 +5,26 @@
 
 package io.imunity.furms.domain.resource_types;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class ResourceTypeId implements Id {
-	public final UUID id;
-
-	public ResourceTypeId(UUID id) {
-		this.id = id;
-	}
+public class ResourceTypeId extends UUIDBasedIdentifier {
 
 	public ResourceTypeId(String id) {
-		this.id = Optional.ofNullable(id)
-			.map(UUID::fromString)
-			.orElse(null);
+		super(id);
+	}
+
+	public ResourceTypeId(UUID id) {
+		super(id);
 	}
 
 	public ResourceTypeId(ResourceTypeId id) {
-		this.id = Optional.ofNullable(id)
-			.map(resourceCreditId -> resourceCreditId.id)
-			.orElse(null);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ResourceTypeId resourceTypeId = (ResourceTypeId) o;
-		return Objects.equals(id, resourceTypeId.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
+		super(id);
 	}
 
 	@Override
 	public String toString() {
-		return "ResourceTypeId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "ResourceTypeId{" + "id=" + id + '}';
 	}
 }

@@ -5,53 +5,26 @@
 
 package io.imunity.furms.domain.services;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class InfraServiceId implements Id {
-	public final UUID id;
-
-	public InfraServiceId(UUID id) {
-		this.id = id;
-	}
+public class InfraServiceId extends UUIDBasedIdentifier {
 
 	public InfraServiceId(String id) {
-		this.id = Optional.ofNullable(id)
-			.map(UUID::fromString)
-			.orElse(null);
+		super(id);
+	}
+
+	public InfraServiceId(UUID id) {
+		super(id);
 	}
 
 	public InfraServiceId(InfraServiceId id) {
-		this.id = Optional.ofNullable(id)
-			.map(resourceCreditId -> resourceCreditId.id)
-			.orElse(null);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		InfraServiceId infraServiceId = (InfraServiceId) o;
-		return Objects.equals(id, infraServiceId.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
+		super(id);
 	}
 
 	@Override
 	public String toString() {
-		return "InfraServiceId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "InfraServiceId{" + "id=" + id + '}';
 	}
 }

@@ -5,53 +5,26 @@
 
 package io.imunity.furms.domain.ssh_keys;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class SSHKeyId implements Id {
-	public final UUID id;
-
-	public SSHKeyId(UUID id) {
-		this.id = id;
-	}
+public class SSHKeyId extends UUIDBasedIdentifier {
 
 	public SSHKeyId(String id) {
-		this.id = Optional.ofNullable(id)
-			.map(UUID::fromString)
-			.orElse(null);
+		super(id);
+	}
+
+	public SSHKeyId(UUID id) {
+		super(id);
 	}
 
 	public SSHKeyId(SSHKeyId id) {
-		this.id = Optional.ofNullable(id)
-			.map(resourceCreditId -> resourceCreditId.id)
-			.orElse(null);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		SSHKeyId sshKeyId = (SSHKeyId) o;
-		return Objects.equals(id, sshKeyId.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
+		super(id);
 	}
 
 	@Override
 	public String toString() {
-		return "SSHKeyId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "SSHKeyId{" + "id=" + id + '}';
 	}
 }

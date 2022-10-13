@@ -5,44 +5,26 @@
 
 package io.imunity.furms.domain.invitations;
 
-import java.util.Objects;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class InvitationId implements Id {
-	public final UUID id;
-
-	public InvitationId(UUID id) {
-		this.id = id;
-	}
+public class InvitationId extends UUIDBasedIdentifier {
 
 	public InvitationId(String id) {
-		this.id = UUID.fromString(id);
+		super(id);
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		InvitationId that = (InvitationId) o;
-		return Objects.equals(id, that.id);
+	public InvitationId(UUID id) {
+		super(id);
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
+	public InvitationId(InvitationId id) {
+		super(id);
 	}
 
 	@Override
 	public String toString() {
-		return "InvitationId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "InvitationId{" + "id=" + id + '}';
 	}
 }

@@ -5,20 +5,22 @@
 
 package io.imunity.furms.domain.generic_groups;
 
-import java.util.Objects;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class GenericGroupId implements Id {
-	public final UUID id;
-
-	public GenericGroupId(UUID id) {
-		this.id = id;
-	}
+public class GenericGroupId extends UUIDBasedIdentifier {
 
 	public GenericGroupId(String id) {
-		this.id = UUID.fromString(id);
+		super(id);
+	}
+
+	public GenericGroupId(UUID id) {
+		super(id);
+	}
+
+	public GenericGroupId(GenericGroupId id) {
+		super(id);
 	}
 
 	public static GenericGroupId empty() {
@@ -26,27 +28,7 @@ public class GenericGroupId implements Id {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		GenericGroupId that = (GenericGroupId) o;
-		return Objects.equals(id, that.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
-
-	@Override
 	public String toString() {
-		return "GenericGroupId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "GenericGroupId{" + "id=" + id + '}';
 	}
 }

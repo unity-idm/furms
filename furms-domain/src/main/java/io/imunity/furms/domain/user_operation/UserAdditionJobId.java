@@ -5,53 +5,26 @@
 
 package io.imunity.furms.domain.user_operation;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class UserAdditionJobId implements Id {
-	public final UUID id;
-
-	public UserAdditionJobId(UUID id) {
-		this.id = id;
-	}
+public class UserAdditionJobId extends UUIDBasedIdentifier {
 
 	public UserAdditionJobId(String id) {
-		this.id = Optional.ofNullable(id)
-			.map(UUID::fromString)
-			.orElse(null);
+		super(id);
+	}
+
+	public UserAdditionJobId(UUID id) {
+		super(id);
 	}
 
 	public UserAdditionJobId(UserAdditionJobId id) {
-		this.id = Optional.ofNullable(id)
-			.map(resourceCreditId -> resourceCreditId.id)
-			.orElse(null);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		UserAdditionJobId userAdditionId = (UserAdditionJobId) o;
-		return Objects.equals(id, userAdditionId.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
+		super(id);
 	}
 
 	@Override
 	public String toString() {
-		return "UserAdditionJobId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "UserAdditionJobId{" + "id=" + id + '}';
 	}
 }

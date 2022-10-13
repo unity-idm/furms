@@ -53,14 +53,11 @@ public class SiteId implements Id {
 
 	@Override
 	public String toString() {
-		return "SiteId{" +
-			"id='" + id + '\'' +
-			", externalId=" + externalId +
-			'}';
+		return "SiteId{" + "id='" + id + '\'' + ", externalId=" + externalId + '}';
 	}
-	
+
 	@Override
 	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return id == null ? null : id.toString();
 	}
 }

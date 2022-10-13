@@ -5,53 +5,26 @@
 
 package io.imunity.furms.domain.project_installation;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class ProjectInstallationId implements Id {
-	public final UUID id;
-
-	public ProjectInstallationId(UUID id) {
-		this.id = id;
-	}
+public class ProjectInstallationId extends UUIDBasedIdentifier {
 
 	public ProjectInstallationId(String id) {
-		this.id = Optional.ofNullable(id)
-			.map(UUID::fromString)
-			.orElse(null);
+		super(id);
+	}
+
+	public ProjectInstallationId(UUID id) {
+		super(id);
 	}
 
 	public ProjectInstallationId(ProjectInstallationId id) {
-		this.id = Optional.ofNullable(id)
-			.map(projectInstallationId -> projectInstallationId.id)
-			.orElse(null);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ProjectInstallationId projectInstallationId = (ProjectInstallationId) o;
-		return Objects.equals(id, projectInstallationId.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
+		super(id);
 	}
 
 	@Override
 	public String toString() {
-		return "ProjectInstallationId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "ProjectInstallationId{" + "id=" + id + '}';
 	}
 }

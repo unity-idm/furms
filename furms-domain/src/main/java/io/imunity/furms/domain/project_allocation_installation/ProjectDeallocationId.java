@@ -5,53 +5,26 @@
 
 package io.imunity.furms.domain.project_allocation_installation;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class ProjectDeallocationId implements Id {
-	public final UUID id;
-
-	public ProjectDeallocationId(UUID id) {
-		this.id = id;
-	}
+public class ProjectDeallocationId extends UUIDBasedIdentifier {
 
 	public ProjectDeallocationId(String id) {
-		this.id = Optional.ofNullable(id)
-			.map(UUID::fromString)
-			.orElse(null);
+		super(id);
+	}
+
+	public ProjectDeallocationId(UUID id) {
+		super(id);
 	}
 
 	public ProjectDeallocationId(ProjectDeallocationId id) {
-		this.id = Optional.ofNullable(id)
-			.map(projectDeallocationId -> projectDeallocationId.id)
-			.orElse(null);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		ProjectDeallocationId projectAllocationInstallationId = (ProjectDeallocationId) o;
-		return Objects.equals(id, projectAllocationInstallationId.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
+		super(id);
 	}
 
 	@Override
 	public String toString() {
-		return "ProjectDeallocationId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "ProjectDeallocationId{" + "id=" + id + '}';
 	}
 }

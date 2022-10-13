@@ -5,53 +5,26 @@
 
 package io.imunity.furms.domain.communities;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
-import io.imunity.furms.domain.Id;
+import io.imunity.furms.domain.UUIDBasedIdentifier;
 
-public class CommunityId implements Id {
-	public final UUID id;
-
-	public CommunityId(UUID id) {
-		this.id = id;
-	}
+public class CommunityId extends UUIDBasedIdentifier {
 
 	public CommunityId(String id) {
-		this.id = Optional.ofNullable(id)
-			.map(UUID::fromString)
-			.orElse(null);
+		super(id);
+	}
+
+	public CommunityId(UUID id) {
+		super(id);
 	}
 
 	public CommunityId(CommunityId id) {
-		this.id = Optional.ofNullable(id)
-			.map(communityId -> communityId.id)
-			.orElse(null);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		CommunityId communityId = (CommunityId) o;
-		return Objects.equals(id, communityId.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
+		super(id);
 	}
 
 	@Override
 	public String toString() {
-		return "CommunityId{" +
-			"id=" + id +
-			'}';
-	}
-	
-	@Override
-	public String asRawString() {
-		return RawIdParser.asRawString(id);
+		return "CommunityId{" + "id=" + id + '}';
 	}
 }
