@@ -30,7 +30,7 @@ public class DefaultNameField extends CustomField<String> {
 	private Supplier<Set<String>> occupiedNamesGetter;
 
 	public DefaultNameField() {
-		textField = new TextField();
+		textField = new FormTextField();
 		textField.setValueChangeMode(EAGER);
 		textField.setMaxLength(20);
 		textField.getStyle().set("margin", "0");

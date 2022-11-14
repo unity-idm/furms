@@ -25,6 +25,8 @@ import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
+import io.imunity.furms.ui.components.FormTextArea;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
@@ -62,12 +64,12 @@ public class GroupFormView extends FurmsViewComponent {
 		this.communityId = new CommunityId(getCurrentResourceId());
 		FormLayout formLayout = new FurmsFormLayout();
 
-		TextField nameField = new TextField();
+		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.groups.form.layout.name"));
 
-		TextArea descriptionField = new TextArea();
+		TextArea descriptionField = new FormTextArea();
 		descriptionField.setClassName("description-text-area");
 		descriptionField.setValueChangeMode(EAGER);
 		descriptionField.setMaxLength(MAX_DESCRIPTION_LENGTH);

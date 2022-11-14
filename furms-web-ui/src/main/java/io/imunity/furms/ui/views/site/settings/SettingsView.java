@@ -26,6 +26,7 @@ import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.FormButtons;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.FurmsViewComponent;
@@ -137,7 +138,7 @@ public class SettingsView extends FurmsViewComponent {
 	}
 
 	private TextField oauthClientIdRow(Binder<SiteSettingsDto> binder) {
-		final TextField oauthClientId = new TextField();
+		final TextField oauthClientId = new FormTextField();
 		oauthClientId.setPlaceholder(getTranslation("view.site-admin.settings.form.oauth-client.placeholder"));
 		oauthClientId.setValueChangeMode(EAGER);
 		oauthClientId.setMaxLength(100);

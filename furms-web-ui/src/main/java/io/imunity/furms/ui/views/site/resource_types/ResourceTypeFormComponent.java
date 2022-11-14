@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.resource_types.ResourceMeasureType;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 
 import java.util.Objects;
@@ -43,7 +44,7 @@ class ResourceTypeFormComponent extends Composite<Div> {
 
 		this.formLayout = new FurmsFormLayout();
 
-		TextField nameField = new TextField();
+		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.resource-types.form.field.name"));

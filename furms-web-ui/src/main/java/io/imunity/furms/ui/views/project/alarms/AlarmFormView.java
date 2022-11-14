@@ -37,6 +37,7 @@ import io.imunity.furms.domain.project_allocation.ProjectAllocation;
 import io.imunity.furms.domain.project_allocation.ProjectAllocationId;
 import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.ui.components.FormButtons;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -79,7 +80,7 @@ public class AlarmFormView extends FurmsViewComponent {
 		this.projectId = new ProjectId(getCurrentResourceId());
 		FormLayout formLayout = new FurmsFormLayout();
 
-		TextField nameField = new TextField();
+		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(25);
 		formLayout.addFormItem(nameField, getTranslation("view.project-admin.alarms.form.layout.name"));

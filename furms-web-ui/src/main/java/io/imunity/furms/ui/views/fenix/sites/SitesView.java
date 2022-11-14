@@ -25,6 +25,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.DenseGrid;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsDialog;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.GridActionMenu;
@@ -142,7 +143,7 @@ public class SitesView extends FurmsViewComponent {
 	}
 
 	private Component addEditForm(Editor<SiteGridItem> siteEditor) {
-		TextField siteNameField = new TextField();
+		TextField siteNameField = new FormTextField();
 		siteNameField.setMaxLength(NAME_MAX_LENGTH);
 		siteNameField.setWidthFull();
 		siteNameField.setValueChangeMode(EAGER);

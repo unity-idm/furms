@@ -19,6 +19,7 @@ import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.FormButtons;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
@@ -49,7 +50,7 @@ public class SitesAddView extends FurmsViewComponent {
 	SitesAddView(SiteService siteService) {
 		this.siteService = siteService;
 
-		name = new TextField();
+		name = new FormTextField();
 		name.focus();
 		
 		addHeader();

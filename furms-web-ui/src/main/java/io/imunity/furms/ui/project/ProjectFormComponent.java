@@ -15,6 +15,8 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.ui.components.FormTextArea;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.components.FurmsImageUpload;
@@ -42,7 +44,7 @@ public class ProjectFormComponent extends Composite<Div> {
 	private final Binder<ProjectViewModel> binder;
 	private final List<FurmsViewUserModel> userModels;
 	private final FurmsImageUpload uploadComponent = createUploadComponent();
-	private final TextArea descriptionField = new TextArea();
+	private final TextArea descriptionField = new FormTextArea();
 	private final FurmsDateTimePicker startDateTimePicker;
 	private final FurmsDateTimePicker endDateTimePicker;
 	private final IdFormItem idFormItem;
@@ -57,7 +59,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		idFormItem.setVisible(false);
 		formLayout.add(idFormItem);
 
-		TextField nameField = new TextField();
+		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		nameField.setReadOnly(restrictedEditing);
@@ -68,7 +70,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		descriptionField.setMaxLength(MAX_DESCRIPTION_LENGTH);
 		formLayout.addFormItem(descriptionField, getTranslation("view.community-admin.project.form.field.description"));
 
-		TextField acronymField = new TextField();
+		TextField acronymField = new FormTextField();
 		acronymField.setValueChangeMode(EAGER);
 		acronymField.setMaxLength(MAX_ACRONYM_LENGTH);
 		acronymField.setReadOnly(restrictedEditing);
@@ -82,7 +84,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		endDateTimePicker.setReadOnly(restrictedEditing);
 		formLayout.addFormItem(endDateTimePicker, getTranslation("view.community-admin.project.form.field.end-time"));
 
-		TextField researchField = new TextField();
+		TextField researchField = new FormTextField();
 		researchField.setValueChangeMode(EAGER);
 		researchField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));

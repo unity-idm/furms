@@ -13,6 +13,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.ui.components.FormTextArea;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsImageUpload;
 import io.imunity.furms.ui.components.IdFormItem;
 
@@ -44,12 +46,12 @@ public class CommunityFormComponent extends Composite<Div> {
 		idFormItem.setVisible(false);
 		formLayout.add(idFormItem);
 
-		TextField name = new TextField();
+		TextField name = new FormTextField();
 		name.setValueChangeMode(EAGER);
 		name.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(name, getTranslation("view.fenix-admin.community.form.field.name"));
 
-		TextArea description = new TextArea();
+		TextArea description = new FormTextArea();
 		description.setClassName("description-text-area");
 		description.setValueChangeMode(EAGER);
 		description.setMaxLength(MAX_DESCRIPTION_LENGTH);

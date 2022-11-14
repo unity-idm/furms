@@ -29,6 +29,7 @@ import io.imunity.furms.domain.policy_documents.PolicyFile;
 import io.imunity.furms.domain.policy_documents.PolicyId;
 import io.imunity.furms.domain.policy_documents.PolicyWorkflow;
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FormButtons;
 import io.imunity.furms.ui.components.FurmsFormLayout;
@@ -70,7 +71,7 @@ public class PolicyDocumentFormView extends FurmsViewComponent {
 		this.siteId = new SiteId(getCurrentResourceId());
 		FormLayout formLayout = new FurmsFormLayout();
 
-		TextField nameField = new TextField();
+		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.policy-documents.form.layout.name"));

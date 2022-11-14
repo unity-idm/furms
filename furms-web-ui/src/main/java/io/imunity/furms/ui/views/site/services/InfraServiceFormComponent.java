@@ -14,6 +14,8 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.ui.components.FormTextArea;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.views.site.PolicyDto;
 
@@ -34,12 +36,12 @@ class InfraServiceFormComponent extends Composite<Div> {
 		this.binder = binder;
 		this.formLayout = new FurmsFormLayout();
 
-		TextField nameField = new TextField();
+		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.service.form.field.name"));
 
-		TextArea descriptionField = new TextArea();
+		TextArea descriptionField = new FormTextArea();
 		descriptionField.setClassName("description-text-area");
 		descriptionField.setValueChangeMode(EAGER);
 		descriptionField.setMaxLength(MAX_DESCRIPTION_LENGTH);

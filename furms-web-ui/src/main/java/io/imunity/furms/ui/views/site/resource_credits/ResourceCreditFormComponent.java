@@ -15,6 +15,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.DefaultNameField;
+import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsDateTimePicker;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import io.imunity.furms.ui.utils.BigDecimalUtils;
@@ -58,7 +59,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		Checkbox splitCheckbox = new Checkbox(getTranslation("view.site-admin.resource-credits.form.check-box.split"));
 		formLayout.addFormItem(splitCheckbox, "");
 
-		TextField amountField = new TextField();
+		TextField amountField = new FormTextField();
 		amountField.setValueChangeMode(EAGER);
 		amountField.setMaxLength(MAX_NAME_LENGTH);
 		resourceTypeComboBox.addValueChangeListener(event -> createUnitLabel(amountField, event.getValue().unit));
