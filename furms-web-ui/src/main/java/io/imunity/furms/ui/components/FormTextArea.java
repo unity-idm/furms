@@ -13,4 +13,9 @@ public class FormTextArea extends TextArea implements HasCharsInformationHelper 
 		addValueChangeListener(event -> setRemainingCharsInformation(event.getValue().length(), getMaxLength()));
 	}
 
+	@Override
+	public void setMaxLength(int maxLength) {
+		super.setMaxLength(maxLength);
+		setRemainingCharsInformation(getValue().length(), maxLength);
+	}
 }
