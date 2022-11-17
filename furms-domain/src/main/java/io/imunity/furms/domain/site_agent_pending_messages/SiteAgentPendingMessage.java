@@ -5,11 +5,13 @@
 
 package io.imunity.furms.domain.site_agent_pending_messages;
 
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.sites.SiteExternalId;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 public class SiteAgentPendingMessage {
 	public final SiteExternalId siteExternalId;
@@ -18,15 +20,19 @@ public class SiteAgentPendingMessage {
 	public final String jsonContent;
 	public final LocalDateTime utcSentAt;
 	public final LocalDateTime utcAckAt;
+	public final Optional<ErrorMessage> errorMessage;
+
 
 	SiteAgentPendingMessage(SiteExternalId siteExternalId, CorrelationId correlationId,
-	                        int retryCount, String jsonContent, LocalDateTime utcSentAt, LocalDateTime utcAckAt) {
+	                        int retryCount, String jsonContent, LocalDateTime utcSentAt, LocalDateTime utcAckAt,
+	                        Optional<ErrorMessage> errorMessage) {
 		this.siteExternalId = siteExternalId;
 		this.correlationId = correlationId;
 		this.retryCount = retryCount;
 		this.jsonContent = jsonContent;
 		this.utcSentAt = utcSentAt;
 		this.utcAckAt = utcAckAt;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
@@ -39,12 +45,13 @@ public class SiteAgentPendingMessage {
 			retryCount == that.retryCount &&
 			Objects.equals(jsonContent, that.jsonContent) &&
 			Objects.equals(utcSentAt, that.utcSentAt) &&
-			Objects.equals(utcAckAt, that.utcAckAt);
+			Objects.equals(utcAckAt, that.utcAckAt) &&
+			Objects.equals(errorMessage, that.errorMessage);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(siteExternalId, correlationId, retryCount, jsonContent, utcSentAt, utcAckAt);
+		return Objects.hash(siteExternalId, correlationId, retryCount, jsonContent, utcSentAt, utcAckAt, errorMessage);
 	}
 
 	@Override
@@ -56,6 +63,7 @@ public class SiteAgentPendingMessage {
 			", jsonContent='" + jsonContent + '\'' +
 			", utcSentAt=" + utcSentAt +
 			", utcAckAt=" + utcAckAt +
+			", errorMessage=" + errorMessage +
 			'}';
 	}
 
@@ -70,6 +78,8 @@ public class SiteAgentPendingMessage {
 		public String jsonContent;
 		public LocalDateTime utcSentAt;
 		public LocalDateTime utcAckAt;
+		public Optional<ErrorMessage> errorStatus = Optional.empty();
+
 
 		private SiteAgentPendingMessageBuilder() {
 		}
@@ -104,8 +114,15 @@ public class SiteAgentPendingMessage {
 			return this;
 		}
 
+		public SiteAgentPendingMessageBuilder errorMessage(String code, String message) {
+			if (code == null && message == null)
+				return this;
+			this.errorStatus = Optional.of(new ErrorMessage(code, message));
+			return this;
+		}
+
 		public SiteAgentPendingMessage build() {
-			return new SiteAgentPendingMessage(siteId, correlationId, retryCount, jsonContent, utcSentAt, utcAckAt);
+			return new SiteAgentPendingMessage(siteId, correlationId, retryCount, jsonContent, utcSentAt, utcAckAt, errorStatus);
 		}
 	}
 }

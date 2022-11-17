@@ -151,6 +151,8 @@ class SiteAgentPendingMessageEntityRepositoryTest extends DBIntegrationTest {
 			.ackAt(LocalDate.now().atStartOfDay())
 			.retryCount(2)
 			.jsonContent("json1")
+			.errorCode("error code")
+			.errorMessage("error msg")
 			.build();
 		SiteAgentPendingMessageEntity updated = repository.save(updateEntity);
 

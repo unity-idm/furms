@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rabbitmq.site.client;
 
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.InvalidMessageContentException;
 import io.imunity.furms.rabbitmq.site.client.config.PlaneRabbitTemplate;
@@ -28,9 +29,11 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Component;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Optional;
 
 import static io.imunity.furms.rabbitmq.site.client.QueueNamesService.getOppositeDirectionQueue;
 import static io.imunity.furms.rabbitmq.site.client.SiteAgentListenerRouter.FURMS_LISTENER;
+import static io.imunity.furms.rabbitmq.site.models.Status.FAILED;
 import static io.imunity.furms.rabbitmq.site.models.Status.OK;
 import static io.imunity.furms.rabbitmq.site.models.consts.Protocol.VERSION;
 import static org.springframework.amqp.support.AmqpHeaders.CONSUMER_QUEUE;
@@ -62,8 +65,10 @@ class SiteAgentListenerRouter {
 		try {
 			assertHeaderIsValid(payload);
 			messageAuthorizer.validate(payload, queueName);
+			if(payload.header.status.equals(FAILED))
+				updateFailedPendingRequest(payload);
 			publisher.publishEvent(payload);
-			updateOrDeletePendingRequests(payload);
+			updateOrDeleteSuccessPendingRequests(payload);
 			LOG.info("Received payload {}", payload);
 		} catch (Exception e) {
 			LOG.error("This error occurred while processing payload: {} from queue {}", payload, queueName, e);
@@ -118,7 +123,7 @@ class SiteAgentListenerRouter {
 	 * AgentPolicyUpdateAck. When those messages arrived, pending message should be removed,
 	 * because those messages don't have result type.
 	 */
-	private void updateOrDeletePendingRequests(Payload<?> payload) {
+	private void updateOrDeleteSuccessPendingRequests(Payload<?> payload) {
 		if(payload.body instanceof AgentPingAck || payload.body instanceof UserPolicyAcceptanceUpdateAck
 			|| payload.body instanceof AgentPolicyUpdateAck
 		)
@@ -127,5 +132,24 @@ class SiteAgentListenerRouter {
 			agentPendingMessageSiteService.setAsAcknowledged(new CorrelationId(payload.header.messageCorrelationId));
 		else if(payload.header.status.equals(OK) && payload.body instanceof Result)
 			agentPendingMessageSiteService.delete(new CorrelationId(payload.header.messageCorrelationId));
+	}
+
+	private void updateFailedPendingRequest(Payload<?> payload) {
+		updateAcknowledgedStatus(payload);
+		agentPendingMessageSiteService.updateErrorMessage(
+			new CorrelationId(payload.header.messageCorrelationId),
+			new ErrorMessage(
+				Optional.ofNullable(payload.header.error).map(x -> x.code).orElse(null),
+				Optional.ofNullable(payload.header.error).map(x -> x.message).orElse(null))
+		);
+	}
+
+	private void updateAcknowledgedStatus(Payload<?> payload) {
+		if(payload.body instanceof AgentPingAck
+			|| payload.body instanceof UserPolicyAcceptanceUpdateAck
+			|| payload.body instanceof AgentPolicyUpdateAck)
+			return;
+		if(payload.body instanceof Ack)
+			agentPendingMessageSiteService.setAsAcknowledged(new CorrelationId(payload.header.messageCorrelationId));
 	}
 }

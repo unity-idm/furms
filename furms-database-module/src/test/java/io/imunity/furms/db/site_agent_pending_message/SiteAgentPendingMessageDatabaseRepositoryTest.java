@@ -7,6 +7,7 @@ package io.imunity.furms.db.site_agent_pending_message;
 
 
 import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.domain.sites.Site;
@@ -158,6 +159,31 @@ class SiteAgentPendingMessageDatabaseRepositoryTest extends DBIntegrationTest {
 		assertThat(siteAgentPendingMessageEntity.get().siteExternalId).isEqualTo("eId");
 		assertThat(siteAgentPendingMessageEntity.get().sentAt).isEqualTo(newSentAt);
 		assertThat(siteAgentPendingMessageEntity.get().retryCount).isEqualTo(1);
+	}
+
+	@Test
+	void shouldUpdateErrorMessage(){
+		LocalDateTime sentAt = LocalDate.now().atStartOfDay().minusDays(2);
+		ErrorMessage errorMessage = new ErrorMessage("123", "Super error");
+		SiteAgentPendingMessage message = SiteAgentPendingMessage.builder()
+			.correlationId(CorrelationId.randomID())
+			.siteExternalId(new SiteExternalId("eId"))
+			.utcSentAt(sentAt)
+			.jsonContent("json")
+			.build();
+		repository.create(message);
+
+		repository.updateErrorMessage(message.correlationId, errorMessage);
+
+		Optional<SiteAgentPendingMessageEntity> siteAgentPendingMessageEntity = entityRepository.findByCorrelationId(UUID.fromString(message.correlationId.id));
+
+		assertThat(siteAgentPendingMessageEntity).isPresent();
+		assertThat(siteAgentPendingMessageEntity.get().correlationId).isEqualTo(UUID.fromString(message.correlationId.id));
+		assertThat(siteAgentPendingMessageEntity.get().jsonContent).isEqualTo("json");
+		assertThat(siteAgentPendingMessageEntity.get().siteExternalId).isEqualTo("eId");
+		assertThat(siteAgentPendingMessageEntity.get().errorCode).isEqualTo("123");
+		assertThat(siteAgentPendingMessageEntity.get().errorMessage).isEqualTo("Super error");
+		assertThat(siteAgentPendingMessageEntity.get().retryCount).isEqualTo(0);
 	}
 
 	@Test

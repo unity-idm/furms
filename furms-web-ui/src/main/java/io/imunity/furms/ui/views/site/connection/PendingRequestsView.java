@@ -30,6 +30,7 @@ import io.imunity.furms.ui.components.GridActionsButtonLayout;
 import io.imunity.furms.ui.components.IconButton;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
+import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.SearchLayout;
 import io.imunity.furms.ui.user_context.UIContext;
@@ -159,7 +160,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		})
 			.setHeader(new HorizontalLayout(mainContextMenu, new Label(getTranslation("view.site-admin.pending-requests.page.grid.1"))))
 			.setFlexGrow(2);
-		grid.addColumn(model -> model.status)
+		grid.addComponentColumn(model -> new StatusLayout(model.status, model.errorMessage, getContent()))
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.2"))
 			.setSortable(true);
 		grid.addColumn(model -> model.sentAt.format(dateTimeFormatter))
@@ -279,6 +280,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 					)
 					.retryAmount(message.retryCount)
 					.json(JsonPendingRequestParser.getPrettier(message.jsonContent))
+					.errorMessage(message.errorMessage.map(msg -> msg.message).orElse(null))
 					.build()
 			)
 			.filter(model -> rowContains(model, searchLayout.getSearchText(), searchLayout))

@@ -21,9 +21,12 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 	public final String jsonContent;
 	public final LocalDateTime sentAt;
 	public final LocalDateTime ackAt;
+	public final String errorCode;
+	public final String errorMessage;
 
 	SiteAgentPendingMessageEntity(UUID id, UUID siteId, String siteExternalId, UUID correlationId,
-	                              int retryCount, String jsonContent, LocalDateTime sentAt, LocalDateTime ackAt) {
+	                              int retryCount, String jsonContent, LocalDateTime sentAt, LocalDateTime ackAt,
+	                              String errorCode, String errorMessage) {
 		this.id = id;
 		this.siteId = siteId;
 		this.siteExternalId = siteExternalId;
@@ -32,6 +35,8 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 		this.jsonContent = jsonContent;
 		this.sentAt = sentAt;
 		this.ackAt = ackAt;
+		this.errorCode = errorCode;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
@@ -46,12 +51,14 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 			Objects.equals(correlationId, that.correlationId) &&
 			Objects.equals(jsonContent, that.jsonContent) &&
 			Objects.equals(sentAt, that.sentAt) &&
-			Objects.equals(ackAt, that.ackAt);
+			Objects.equals(ackAt, that.ackAt) &&
+			Objects.equals(errorCode, that.errorCode) &&
+			Objects.equals(errorMessage, that.errorMessage);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, siteId, siteExternalId, correlationId, retryCount, jsonContent, sentAt, ackAt);
+		return Objects.hash(id, siteId, siteExternalId, correlationId, retryCount, jsonContent, sentAt, ackAt, errorCode, errorMessage);
 	}
 
 	public static SiteAgentPendingMessageEntityBuilder builder() {
@@ -68,6 +75,8 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 		private String jsonContent;
 		private LocalDateTime sentAt;
 		private LocalDateTime ackAt;
+		private String errorCode;
+		private String errorMessage;
 
 		private SiteAgentPendingMessageEntityBuilder() {
 		}
@@ -112,8 +121,19 @@ class SiteAgentPendingMessageEntity extends UUIDIdentifiable {
 			return this;
 		}
 
+		public SiteAgentPendingMessageEntityBuilder errorMessage(String message) {
+			this.errorMessage = message;
+			return this;
+		}
+
+		public SiteAgentPendingMessageEntityBuilder errorCode(String code) {
+			this.errorCode = code;
+			return this;
+		}
+
 		public SiteAgentPendingMessageEntity build() {
-			return new SiteAgentPendingMessageEntity(id, siteId, siteExternalId, correlationId, retryCount, jsonContent, sentAt, ackAt);
+			return new SiteAgentPendingMessageEntity(id, siteId, siteExternalId, correlationId, retryCount,
+				jsonContent, sentAt, ackAt, errorCode, errorMessage);
 		}
 	}
 }

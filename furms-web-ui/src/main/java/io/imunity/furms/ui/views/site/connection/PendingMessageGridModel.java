@@ -18,8 +18,10 @@ class PendingMessageGridModel {
 	public final LocalDateTime sentAt;
 	public final LocalDateTime ackAt;
 	public final int retryAmount;
+	public final String errorMessage;
 
-	PendingMessageGridModel(CorrelationId id, String operationType, String status, String json, LocalDateTime sentAt, LocalDateTime ackAt, int retryAmount) {
+	PendingMessageGridModel(CorrelationId id, String operationType, String status, String json, LocalDateTime sentAt,
+	                        LocalDateTime ackAt, int retryAmount, String errorMessage) {
 		this.id = id;
 		this.operationType = operationType;
 		this.status = status;
@@ -27,6 +29,7 @@ class PendingMessageGridModel {
 		this.json = json;
 		this.ackAt = ackAt;
 		this.retryAmount = retryAmount;
+		this.errorMessage = errorMessage;
 	}
 
 	@Override
@@ -52,6 +55,7 @@ class PendingMessageGridModel {
 			", ackAt=" + ackAt +
 			", json=" + json +
 			", retryAmount=" + retryAmount +
+			", errorMessage=" + errorMessage +
 			'}';
 	}
 
@@ -67,6 +71,7 @@ class PendingMessageGridModel {
 		public LocalDateTime sentAt;
 		public LocalDateTime ackAt;
 		public int retryAmount;
+		public String errorMessage;
 
 		private PendingMessageGridModelBuilder() {
 		}
@@ -78,6 +83,11 @@ class PendingMessageGridModel {
 
 		public PendingMessageGridModelBuilder json(String json) {
 			this.json = json;
+			return this;
+		}
+
+		public PendingMessageGridModelBuilder errorMessage(String errorMessage) {
+			this.errorMessage = errorMessage;
 			return this;
 		}
 
@@ -107,7 +117,7 @@ class PendingMessageGridModel {
 		}
 
 		public PendingMessageGridModel build() {
-			return new PendingMessageGridModel(id, operationType, status, json, sentAt, ackAt, retryAmount);
+			return new PendingMessageGridModel(id, operationType, status, json, sentAt, ackAt, retryAmount, errorMessage);
 		}
 	}
 }

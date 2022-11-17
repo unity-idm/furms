@@ -6,6 +6,7 @@
 package io.imunity.furms.core.site_agent_pending_message;
 
 import io.imunity.furms.core.config.security.method.FurmsPublicAccess;
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.site.api.AgentPendingMessageSiteService;
@@ -44,6 +45,12 @@ public class AgentPendingMessageSiteServiceImpl implements AgentPendingMessageSi
 	@FurmsPublicAccess
 	public void setAsAcknowledged(CorrelationId id) {
 		repository.updateAckTime(id, UTCTimeUtils.convertToUTCTime(ZonedDateTime.now(clock)));
+	}
+
+	@Override
+	@FurmsPublicAccess
+	public void updateErrorMessage(CorrelationId id, ErrorMessage errorMessage) {
+		repository.updateErrorMessage(id, errorMessage);
 	}
 
 	@Override

@@ -6,6 +6,7 @@
 package io.imunity.furms.spi.site_agent_pending_message;
 
 
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.domain.sites.SiteId;
@@ -25,5 +26,6 @@ public interface SiteAgentPendingMessageRepository {
 
 	void updateAckTime(CorrelationId id, LocalDateTime ackAt);
 
+	void updateErrorMessage(CorrelationId id, ErrorMessage errorMessage);
 	void delete(CorrelationId id);
 }

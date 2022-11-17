@@ -5,7 +5,9 @@
 
 package io.imunity.furms.rabbitmq.site.client.mocks;
 
+import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
 import io.imunity.furms.rabbitmq.site.models.CumulativeResourceUsageRecord;
+import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.Status;
@@ -26,6 +28,12 @@ public class SiteAgentErrorProducerMock {
 
 	public void sendCumulativeResourceUsageRecord(String messageCorrelationId, CumulativeResourceUsageRecord record) {
 		Header header = getHeader(messageCorrelationId);
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
+	}
+
+	public void sendMessageWithErrorMessage(String messageCorrelationId, AgentProjectAllocationInstallationAck record,
+	                                        Error errorMessage) {
+		Header header = new Header("1.5", messageCorrelationId, Status.FAILED, errorMessage);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
 	}
 

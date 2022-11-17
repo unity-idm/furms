@@ -5,6 +5,7 @@
 
 package io.imunity.furms.db.site_agent_pending_message;
 
+import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.domain.sites.SiteExternalId;
@@ -40,6 +41,7 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 					.retryCount(message.retryCount)
 					.utcSentAt(message.sentAt)
 					.utcAckAt(message.ackAt)
+					.errorMessage(message.errorCode, message.errorMessage)
 					.build()
 			)
 			.collect(Collectors.toSet());
@@ -56,6 +58,7 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 					.retryCount(message.retryCount)
 					.utcSentAt(message.sentAt)
 					.utcAckAt(message.ackAt)
+					.errorMessage(message.errorCode, message.errorMessage)
 					.build()
 			);
 	}
@@ -85,6 +88,28 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 					.retryCount(message.retryCount)
 					.sentAt(message.sentAt)
 					.ackAt(ackAt)
+					.errorCode(message.errorCode)
+					.errorMessage(message.errorMessage)
+					.build()
+			)
+			.ifPresent(repository::save);
+	}
+
+	@Override
+	public void updateErrorMessage(CorrelationId id, ErrorMessage errorMessage) {
+		repository.findByCorrelationId(UUID.fromString(id.id))
+			.map(message ->
+				SiteAgentPendingMessageEntity.builder()
+					.id(message.getId())
+					.siteId(message.siteId)
+					.siteExternalId(message.siteExternalId)
+					.correlationId(message.correlationId)
+					.jsonContent(message.jsonContent)
+					.retryCount(message.retryCount)
+					.sentAt(message.sentAt)
+					.ackAt(message.ackAt)
+					.errorCode(errorMessage.code)
+					.errorMessage(errorMessage.message)
 					.build()
 			)
 			.ifPresent(repository::save);
@@ -102,6 +127,8 @@ class SiteAgentPendingMessageDatabaseRepository implements SiteAgentPendingMessa
 					.jsonContent(message.jsonContent)
 					.retryCount(message.retryCount + 1)
 					.sentAt(sentAt)
+					.errorCode(message.errorCode)
+					.errorMessage(message.errorMessage)
 					.build()
 			)
 			.ifPresent(repository::save);
