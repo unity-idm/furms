@@ -36,7 +36,6 @@ import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.resource_type.ResourceTypeRepository;
 import io.imunity.furms.spi.services.InfraServiceRepository;
-import io.imunity.furms.spi.site_agent_pending_message.SiteAgentPendingMessageRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
@@ -48,7 +47,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.List;
 
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.INSTALLATION_ACKNOWLEDGED;
 import static io.imunity.furms.domain.project_allocation_installation.ProjectAllocationInstallationStatus.UPDATING;
@@ -75,9 +74,6 @@ class V49__missing_pending_message_fix_tests {
 	private ProjectAllocationRepository projectAllocationRepository;
 	@Autowired
 	private ProjectAllocationInstallationRepository allocationRepository;
-
-	@Autowired
-	private SiteAgentPendingMessageRepository pendingMessageEntityRepository;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -188,12 +184,28 @@ class V49__missing_pending_message_fix_tests {
 
 		V49__missing_pending_message_fix.migrate(jdbcTemplate);
 
-		Optional<SiteAgentPendingMessage> siteAgentPendingMessage = pendingMessageEntityRepository.find(correlationId);
-		assertThat(siteAgentPendingMessage).isPresent();
-		assertThat(siteAgentPendingMessage.get().correlationId).isEqualTo(correlationId);
-		assertThat(siteAgentPendingMessage.get().siteExternalId).isEqualTo(siteId.externalId);
-		assertThat(siteAgentPendingMessage.get().retryCount).isEqualTo(0);
-		assertThat(siteAgentPendingMessage.get().jsonContent).isNotEmpty();
+		List<SiteAgentPendingMessage> siteAgentPendingMessages = getSiteAgentPendingMessages(correlationId);
+		assertThat(siteAgentPendingMessages.size()).isEqualTo(1);
+		assertThat(siteAgentPendingMessages.get(0).correlationId).isEqualTo(correlationId);
+		assertThat(siteAgentPendingMessages.get(0).siteExternalId).isEqualTo(siteId.externalId);
+		assertThat(siteAgentPendingMessages.get(0).retryCount).isEqualTo(0);
+		assertThat(siteAgentPendingMessages.get(0).jsonContent).isNotEmpty();
+	}
+
+	private List<SiteAgentPendingMessage> getSiteAgentPendingMessages(CorrelationId correlationId) {
+		return jdbcTemplate.query(
+			"select sm.* " +
+				"from site_agent_pending_message sm " +
+				"where sm.correlation_id = '" + correlationId.id + "'",
+			(rs, rowNum) -> SiteAgentPendingMessage.builder()
+				.siteExternalId(new SiteExternalId(rs.getString("site_external_id")))
+				.correlationId(new CorrelationId(rs.getString("correlation_id")))
+				.retryCount(rs.getInt("retry_count"))
+				.jsonContent(rs.getString("json_content"))
+				.utcAckAt(rs.getTimestamp("ack_at").toLocalDateTime())
+				.utcSentAt(rs.getTimestamp("sent_at").toLocalDateTime())
+				.build()
+		);
 	}
 
 	@Test
@@ -210,7 +222,7 @@ class V49__missing_pending_message_fix_tests {
 
 		V49__missing_pending_message_fix.migrate(jdbcTemplate);
 
-		Optional<SiteAgentPendingMessage> siteAgentPendingMessage = pendingMessageEntityRepository.find(correlationId);
-		assertThat(siteAgentPendingMessage).isEmpty();
+		List<SiteAgentPendingMessage> siteAgentPendingMessages = getSiteAgentPendingMessages(correlationId);
+		assertThat(siteAgentPendingMessages).isEmpty();
 	}
 }
