@@ -33,7 +33,7 @@ public class SiteAgentErrorProducerMock {
 
 	public void sendMessageWithErrorMessage(String messageCorrelationId, AgentProjectAllocationInstallationAck record,
 	                                        Error errorMessage) {
-		Header header = new Header("1.5", messageCorrelationId, Status.FAILED, errorMessage);
+		Header header = new Header(VERSION, messageCorrelationId, Status.FAILED, errorMessage);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, record));
 	}
 
