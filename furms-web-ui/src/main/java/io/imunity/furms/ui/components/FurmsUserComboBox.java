@@ -5,10 +5,7 @@
 
 package io.imunity.furms.ui.components;
 
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.combobox.GeneratedVaadinComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,6 +14,7 @@ import io.imunity.furms.ui.user_context.FurmsViewUserModel;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 	private final CustomValueCheckBox<FurmsViewUserModel>  comboBox = new CustomValueCheckBox<>();
@@ -75,13 +73,13 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 		);
 	}
 
-	public void addCustomValueSetListener(ComponentEventListener<GeneratedVaadinComboBox.CustomValueSetEvent<ComboBox<FurmsViewUserModel>>> listener) {
-		comboBox.addCustomValueSetListener(listener);
+	public void addCustomValueSetListener(Consumer<String> consumer) {
+		comboBox.addCustomValueSetListener(consumer);
 	}
 
 	public String getEmail(){
 		return Optional.ofNullable(comboBox.getValue())
-			.map(x -> x.email)
+			.map(viewUserModel -> viewUserModel.email)
 			.orElse(comboBox.getCustomValue());
 	}
 

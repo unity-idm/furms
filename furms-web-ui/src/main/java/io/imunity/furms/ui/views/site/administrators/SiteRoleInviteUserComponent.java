@@ -79,7 +79,7 @@ class SiteRoleInviteUserComponent extends HorizontalLayout {
 		siteRoleComboBox.addValueChangeListener(event ->
 			inviteButton.setEnabled((isMailValid(furmsUserComboBox.getEmail()) || furmsUserComboBox.hasValue()) && siteRoleComboBox.getValue() != null));
 		furmsUserComboBox.addCustomValueSetListener(customValue ->
-			inviteButton.setEnabled(isMailValid(customValue.getDetail()))
+			inviteButton.setEnabled(isMailValid(customValue))
 		);
 		add(furmsUserComboBox, siteRoleComboBox, inviteButton);
 	}

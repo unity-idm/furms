@@ -55,7 +55,7 @@ public class InviteUserComponent extends HorizontalLayout {
 			inviteButton.setEnabled(furmsUserComboBox.hasValue())
 		);
 		furmsUserComboBox.addCustomValueSetListener(customValue ->
-			inviteButton.setEnabled(!emailValidator.apply(customValue.getDetail(), new ValueContext()).isError())
+			inviteButton.setEnabled(!emailValidator.apply(customValue, new ValueContext()).isError())
 		);
 		add(furmsUserComboBox, inviteButton);
 	}
