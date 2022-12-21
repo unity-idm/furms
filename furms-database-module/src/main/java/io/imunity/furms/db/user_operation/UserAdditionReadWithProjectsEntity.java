@@ -15,6 +15,7 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 	public final String projectId;
 	public final String projectName;
 	public final String uid;
+	public final String gid;
 	public final int status;
 	public final String code;
 	public final String message;
@@ -23,6 +24,7 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 	                                          String projectId,
 	                                          String projectName,
 	                                          String uid,
+	                                          String gid,
 	                                          int status,
 	                                          String code,
 	                                          String message) {
@@ -30,6 +32,7 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 		this.projectId = projectId;
 		this.projectName = projectName;
 		this.uid = uid;
+		this.gid = gid;
 		this.status = status;
 		this.code = code;
 		this.message = message;
@@ -45,13 +48,14 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 				Objects.equals(projectId, that.projectId) &&
 				Objects.equals(projectName, that.projectName) &&
 				Objects.equals(uid, that.uid) &&
+				Objects.equals(gid, that.gid) &&
 				Objects.equals(code, that.code) &&
 				Objects.equals(message, that.message);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(siteName, projectId, projectName, uid, status, code, message);
+		return Objects.hash(siteName, projectId, projectName, uid, gid, status, code, message);
 	}
 
 	@Override
@@ -61,6 +65,7 @@ class UserAdditionReadWithProjectsEntity extends UUIDIdentifiable {
 				", projectId='" + projectId + '\'' +
 				", projectName='" + projectName + '\'' +
 				", uid='" + uid + '\'' +
+				", gid='" + gid + '\'' +
 				", status=" + status +
 				", code=" + code +
 				", message='" + message + '\'' +

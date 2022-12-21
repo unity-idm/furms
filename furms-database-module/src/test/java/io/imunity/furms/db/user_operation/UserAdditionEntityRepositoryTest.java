@@ -6,9 +6,12 @@
 package io.imunity.furms.db.user_operation;
 
 import io.imunity.furms.db.DBIntegrationTest;
+import io.imunity.furms.db.project_installation.ProjectInstallationJobEntity;
+import io.imunity.furms.db.project_installation.ProjectInstallationJobEntityRepository;
 import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.images.FurmsImage;
+import io.imunity.furms.domain.project_installation.ProjectInstallationStatus;
 import io.imunity.furms.domain.projects.Project;
 import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.Site;
@@ -43,6 +46,8 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	private UserAdditionEntityRepository userAdditionEntityRepository;
 	@Autowired
 	private UserAdditionJobEntityRepository userAdditionJobEntityRepository;
+	@Autowired
+	private ProjectInstallationJobEntityRepository projectInstallationRepository;
 
 	private SiteId siteId;
 	private ProjectId projectId;
@@ -72,6 +77,16 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 			.build();
 
 		projectId = projectRepository.create(project);
+
+		UUID correlationId = UUID.randomUUID();
+		ProjectInstallationJobEntity entityToSave = ProjectInstallationJobEntity.builder()
+			.correlationId(correlationId)
+			.siteId(siteId.id)
+			.projectId(projectId.id)
+			.status(ProjectInstallationStatus.INSTALLED)
+			.gid("gid")
+			.build();
+		projectInstallationRepository.save(entityToSave);
 	}
 
 	@Test
@@ -185,11 +200,12 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 						.build()
 		);
 
-		final Set<UserAdditionReadWithProjectsEntity> userAdditions = userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(siteId.id, "userId");
+		Set<UserAdditionReadWithProjectsEntity> userAdditions = userAdditionEntityRepository.findAllWithSiteAndProjectsBySiteIdAndUserId(siteId.id, "userId");
 		assertThat(userAdditions.size()).isEqualTo(1);
 		assertThat(userAdditions.iterator().next().status).isEqualTo(UserStatus.REMOVAL_PENDING.getPersistentId());
 		assertThat(userAdditions.iterator().next().siteName).isEqualTo("name");
 		assertThat(userAdditions.iterator().next().projectName).isEqualTo("name");
+		assertThat(userAdditions.iterator().next().gid).isEqualTo("gid");
 	}
 
 	@Test

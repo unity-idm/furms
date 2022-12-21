@@ -15,17 +15,20 @@ public class UserProjectsInstallationInfoData {
 
 	private final ProjectId projectId;
 	private final String name;
+	private final String localProjectName;
 	private final String remoteAccountName;
 	private final UserStatus status;
 	private final UserAdditionErrorMessage errorMessage;
 
 	public UserProjectsInstallationInfoData(ProjectId projectId,
 	                                        String name,
+	                                        String localProjectName,
 	                                        String remoteAccountName,
 	                                        UserStatus status,
 	                                        UserAdditionErrorMessage errorMessage) {
 		this.projectId = projectId;
 		this.name = name;
+		this.localProjectName = localProjectName;
 		this.remoteAccountName = remoteAccountName;
 		this.status = status;
 		this.errorMessage = errorMessage;
@@ -37,6 +40,10 @@ public class UserProjectsInstallationInfoData {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getLocalProjectName() {
+		return localProjectName;
 	}
 
 	public String getRemoteAccountName() {
@@ -58,6 +65,7 @@ public class UserProjectsInstallationInfoData {
 		UserProjectsInstallationInfoData that = (UserProjectsInstallationInfoData) o;
 		return Objects.equals(projectId, that.projectId) &&
 				Objects.equals(name, that.name) &&
+				Objects.equals(localProjectName, that.localProjectName) &&
 				Objects.equals(remoteAccountName, that.remoteAccountName) &&
 				status == that.status &&
 				Objects.equals(errorMessage, that.errorMessage);
@@ -65,7 +73,7 @@ public class UserProjectsInstallationInfoData {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, projectId, remoteAccountName, status, errorMessage);
+		return Objects.hash(name, projectId, localProjectName, remoteAccountName, status, errorMessage);
 	}
 
 	@Override
@@ -75,6 +83,7 @@ public class UserProjectsInstallationInfoData {
 				", projectId='" + projectId + '\'' +
 				", remoteAccountName='" + remoteAccountName + '\'' +
 				", status=" + status +
+				", localProjectName=" + localProjectName +
 				", errorMessage='" + errorMessage + '\'' +
 				'}';
 	}
@@ -86,6 +95,7 @@ public class UserProjectsInstallationInfoData {
 	public static final class UserProjectsInstallationInfoDataBuilder {
 		private ProjectId projectId;
 		private String name;
+		private String localProjectName;
 		private String remoteAccountName;
 		private UserStatus status;
 		private UserAdditionErrorMessage errorMessage;
@@ -100,6 +110,11 @@ public class UserProjectsInstallationInfoData {
 
 		public UserProjectsInstallationInfoDataBuilder name(String name) {
 			this.name = name;
+			return this;
+		}
+
+		public UserProjectsInstallationInfoDataBuilder localProjectName(String localProjectName) {
+			this.localProjectName = localProjectName;
 			return this;
 		}
 
@@ -119,7 +134,8 @@ public class UserProjectsInstallationInfoData {
 		}
 
 		public UserProjectsInstallationInfoData build() {
-			return new UserProjectsInstallationInfoData(projectId, name, remoteAccountName, status, errorMessage);
+			return new UserProjectsInstallationInfoData(projectId, name, localProjectName, remoteAccountName, status,
+				errorMessage);
 		}
 	}
 }

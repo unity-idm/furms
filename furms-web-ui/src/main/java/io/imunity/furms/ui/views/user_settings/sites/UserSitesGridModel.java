@@ -14,6 +14,7 @@ public class UserSitesGridModel {
 	private final String siteName;
 	private final String connectionInfo;
 	private final String projectName;
+	private final String localProjectName;
 	private final String remoteAccountName;
 	private final UserStatus status;
 	private final String errorMessage;
@@ -21,10 +22,12 @@ public class UserSitesGridModel {
 	public UserSitesGridModel(String siteName,
 	                          String connectionInfo,
 	                          String projectName,
+	                          String localProjectName,
 	                          String remoteAccountName,
 	                          UserStatus status,
 	                          String errorMessage) {
 		this.siteName = siteName;
+		this.localProjectName = localProjectName;
 		this.connectionInfo = connectionInfo;
 		this.projectName = projectName;
 		this.remoteAccountName = remoteAccountName;
@@ -42,6 +45,10 @@ public class UserSitesGridModel {
 
 	public String getProjectName() {
 		return projectName;
+	}
+
+	public String getLocalProjectName() {
+		return localProjectName;
 	}
 
 	public String getRemoteAccountName() {
@@ -95,6 +102,7 @@ public class UserSitesGridModel {
 		private String connectionInfo;
 		private String projectName;
 		private String remoteAccountName;
+		private String localProjectName;
 		private UserStatus status;
 		private String errorMessage;
 
@@ -121,6 +129,11 @@ public class UserSitesGridModel {
 			return this;
 		}
 
+		public UserSitesGridModelBuilder localProjectName(String localProjectName) {
+			this.localProjectName = localProjectName;
+			return this;
+		}
+
 		public UserSitesGridModelBuilder status(UserStatus status) {
 			this.status = status;
 			return this;
@@ -132,7 +145,8 @@ public class UserSitesGridModel {
 		}
 
 		public UserSitesGridModel build() {
-			return new UserSitesGridModel(siteName, connectionInfo, projectName, remoteAccountName, status, errorMessage);
+			return new UserSitesGridModel(siteName, connectionInfo, projectName, localProjectName, remoteAccountName,
+				status, errorMessage);
 		}
 	}
 }

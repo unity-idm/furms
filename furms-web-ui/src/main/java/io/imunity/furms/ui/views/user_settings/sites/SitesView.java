@@ -92,16 +92,21 @@ public class SitesView extends FurmsViewComponent implements AfterNavigationObse
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.siteAccountName"))
 				.setComparator(comparing(UserSitesGridModel::getRemoteAccountName))
 				.setSortable(true)
-				.setWidth("30%");
+				.setWidth("20%");
+		grid.addColumn(UserSitesGridModel::getLocalProjectName)
+				.setHeader(getTranslation("view.user-settings.sites.grid.title.siteProjectName"))
+				.setComparator(comparing(UserSitesGridModel::getLocalProjectName))
+				.setSortable(true)
+				.setWidth("20%");
 		grid.addComponentColumn(this::showStatus)
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.status"))
 				.setComparator(comparing(item -> item.getStatus().name()))
 				.setSortable(true)
-				.setWidth("15%");
+				.setWidth("10%");
 		grid.addComponentColumn(this::showConnectionInfoButton)
 				.setHeader(getTranslation("view.user-settings.sites.grid.title.connectionInfo"))
 				.setTextAlign(ColumnTextAlign.END)
-				.setWidth("15%");
+				.setWidth("10%");
 		grid.addItemClickListener(item -> showConnectionInfo(item.getItem()));
 		getContent().add(grid);
 	}
@@ -173,6 +178,7 @@ public class SitesView extends FurmsViewComponent implements AfterNavigationObse
 								.siteName(info.getSiteName())
 								.connectionInfo(info.getConnectionInfo())
 								.projectName(project.getName())
+								.localProjectName(project.getLocalProjectName())
 								.remoteAccountName(project.getRemoteAccountName())
 								.status(project.getStatus())
 								.errorMessage(buildErrorMessage(project))

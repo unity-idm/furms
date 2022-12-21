@@ -98,6 +98,7 @@ class UserOperationDatabaseRepository implements UserOperationRepository {
 						.siteName(userAddition.siteName)
 						.projectId(userAddition.projectId)
 						.projectName(userAddition.projectName)
+						.localProjectName(userAddition.gid)
 						.userId(userAddition.uid)
 						.status(UserStatus.valueOf(userAddition.status))
 						.errorMessage(new UserAdditionErrorMessage(userAddition.code, userAddition.message))

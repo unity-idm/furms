@@ -172,6 +172,7 @@ public class UserOperationService implements UserAllocationsService {
 			.map(userAddition -> UserProjectsInstallationInfoData.builder()
 				.projectId(userAddition.getProjectId())
 				.name(userAddition.getProjectName())
+				.localProjectName(userAddition.getLocalProjectName())
 				.remoteAccountName(userAddition.getUserId().id)
 				.status(userAddition.getStatus())
 				.errorMessage(userAddition.getErrorMessage())

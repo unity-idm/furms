@@ -15,6 +15,7 @@ public class UserAdditionWithProject {
 	private final String siteName;
 	private final ProjectId projectId;
 	private final String projectName;
+	private final String localProjectName;
 	private final FenixUserId userId;
 	private final UserStatus status;
 	private final UserAdditionErrorMessage errorMessage;
@@ -22,12 +23,14 @@ public class UserAdditionWithProject {
 	public UserAdditionWithProject(String siteName,
 	                               ProjectId projectId,
 	                               String projectName,
+	                               String localProjectName,
 	                               FenixUserId userId,
 	                               UserStatus status,
 	                               UserAdditionErrorMessage errorMessage) {
 		this.siteName = siteName;
 		this.projectId = projectId;
 		this.projectName = projectName;
+		this.localProjectName = localProjectName;
 		this.userId = userId;
 		this.status = status;
 		this.errorMessage = errorMessage;
@@ -43,6 +46,10 @@ public class UserAdditionWithProject {
 
 	public String getProjectName() {
 		return projectName;
+	}
+
+	public String getLocalProjectName() {
+		return localProjectName;
 	}
 
 	public FenixUserId getUserId() {
@@ -95,6 +102,7 @@ public class UserAdditionWithProject {
 		private String siteName;
 		private ProjectId projectId;
 		private String projectName;
+		private String localProjectName;
 		private FenixUserId userId;
 		private UserStatus status;
 		private UserAdditionErrorMessage errorMessage;
@@ -117,6 +125,11 @@ public class UserAdditionWithProject {
 			return this;
 		}
 
+		public UserAdditionWithProjectBuilder localProjectName(String localProjectName) {
+			this.localProjectName = localProjectName;
+			return this;
+		}
+
 		public UserAdditionWithProjectBuilder userId(String userId) {
 			this.userId = new FenixUserId(userId);
 			return this;
@@ -133,7 +146,8 @@ public class UserAdditionWithProject {
 		}
 
 		public UserAdditionWithProject build() {
-			return new UserAdditionWithProject(siteName, projectId, projectName, userId, status, errorMessage);
+			return new UserAdditionWithProject(siteName, projectId, projectName, localProjectName, userId, status,
+				errorMessage);
 		}
 	}
 }
