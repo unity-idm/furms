@@ -47,7 +47,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		this.resolver = resolver;
 		this.formLayout = new FurmsFormLayout();
 
-		defaultNameField = new DefaultNameField();
+		defaultNameField = new DefaultNameField(MAX_NAME_LENGTH);
 		formLayout.addFormItem(defaultNameField, getTranslation("view.site-admin.resource-credits.form.field.name"));
 
 		resourceTypeComboBox = new ComboBox<>();

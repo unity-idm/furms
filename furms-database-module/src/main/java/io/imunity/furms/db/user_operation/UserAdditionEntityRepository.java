@@ -88,7 +88,7 @@ public interface UserAdditionEntityRepository extends CrudRepository<UserAdditio
 			"   JOIN user_addition_job uaj ON ua.id = uaj.user_addition_id" +
 			"   JOIN site s ON ua.site_id = s.id" +
 			"   JOIN project p ON ua.project_id = p.id" +
-			"   JOIN project_installation_job pij ON ua.project_id = pij.project_Id AND ua.site_id = pij.site_Id" +
+			"   LEFT JOIN project_installation_job pij ON ua.project_id = pij.project_Id AND ua.site_id = pij.site_Id" +
 			" WHERE ua.site_id = :site_id AND ua.user_id = :user_id")
 	Set<UserAdditionReadWithProjectsEntity> findAllWithSiteAndProjectsBySiteIdAndUserId(@Param("site_id") UUID siteId, @Param("user_id") String userId);
 
