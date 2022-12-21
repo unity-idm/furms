@@ -154,7 +154,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	}
 
 	private DefaultNameField nameField() {
-		final DefaultNameField nameField = new DefaultNameField();
+		final DefaultNameField nameField = DefaultNameField.createLongDefaultNameField();
 		binder.forField(nameField)
 				.withValidator(
 						value -> Objects.nonNull(value) && !value.isBlank(),

@@ -46,7 +46,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		this.resolver = resolver;
 		FormLayout formLayout = new FurmsFormLayout();
 
-		defaultNameField = new DefaultNameField();
+		defaultNameField = DefaultNameField.createLongDefaultNameField();
 		formLayout.addFormItem(defaultNameField, getTranslation("view.community-admin.project-allocation.form.field.name"));
 
 		resourceTypeComboBox = new ComboBox<>();
@@ -56,6 +56,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 
 		communityAllocationComboBox = new ComboBox<>();
 		communityAllocationComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
+		communityAllocationComboBox.setWidth("17em");
 		formLayout.addFormItem(communityAllocationComboBox, getTranslation("view.community-admin.project-allocation.form.field.community_allocation"));
 		
 		BigDecimalField amountField = new BigDecimalField();

@@ -7,6 +7,7 @@ package io.imunity.furms.ui.components;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.shared.Registration;
@@ -19,8 +20,11 @@ import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
+@CssImport(value="./styles/components/default-name-filed.css", themeFor="vaadin-text-field")
 public class DefaultNameField extends CustomField<String> {
 	private static final DateTimeFormatter DD_MM_YY_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
+	private static final int LONG_MAX_ALLOCATION_NAME_SIZE = 80;
+	private static final int LONG_GENERATED_NAME_SIZE = 40;
 	private static final int MAX_NAME_SIZE = 20;
 	public final TextField textField;
 	public final Checkbox checkbox;
@@ -28,6 +32,7 @@ public class DefaultNameField extends CustomField<String> {
 	private String resourceName;
 	private Optional<String> currentName;
 	private Supplier<Set<String>> occupiedNamesGetter;
+	private Integer generatedNameSize;
 
 	public DefaultNameField() {
 		textField = new FormTextField();
@@ -46,6 +51,26 @@ public class DefaultNameField extends CustomField<String> {
 		div.getStyle().set("display", "flex");
 		div.getStyle().set("flex-direction", "column");
 		add(div);
+	}
+
+	public static DefaultNameField createLongDefaultNameField() {
+		DefaultNameField defaultNameField = new DefaultNameField();
+		defaultNameField.setMaxLength(LONG_MAX_ALLOCATION_NAME_SIZE);
+		defaultNameField.setGeneratedNameSize(LONG_GENERATED_NAME_SIZE);
+		defaultNameField.setClassName("long-default-name-field");
+		return defaultNameField;
+	}
+
+	public void setMaxLength(int generatedNameSize) {
+		textField.setMaxLength(generatedNameSize);
+	}
+
+	public void setGeneratedNameSize(int generatedNameSize) {
+		this.generatedNameSize = generatedNameSize;
+	}
+
+	public void setClassName(String className) {
+		textField.setClassName(className);
 	}
 
 	@Override
@@ -69,9 +94,9 @@ public class DefaultNameField extends CustomField<String> {
 		checkbox.setValue(readOnly);
 	}
 	public void reloadName(String resourceName, Supplier<Set<String>> occupiedNamesGetter, boolean initialValue, String currentName) {
-		reloadName(resourceName, occupiedNamesGetter, currentName);
 		textField.setReadOnly(initialValue);
 		checkbox.setValue(initialValue);
+		reloadName(resourceName, occupiedNamesGetter, currentName);
 	}
 
 	public void reloadName(String resourceName, Supplier<Set<String>> occupiedNamesGetter, String currentName) {
@@ -95,6 +120,7 @@ public class DefaultNameField extends CustomField<String> {
 	}
 
 	public void generateName() {
+		int generatedNameSize = this.generatedNameSize == null ? MAX_NAME_SIZE : this.generatedNameSize;
 		if(resourceName.isEmpty())
 			return;
 		Set<String> names = occupiedNamesGetter.get();
@@ -104,8 +130,8 @@ public class DefaultNameField extends CustomField<String> {
 		do {
 			String timeAndIteration = ZonedDateTime.now().format(DD_MM_YY_FORMAT) + "-" + i;
 			name = resourceName + "-" + timeAndIteration;
-			if(name.length() > MAX_NAME_SIZE)
-				name = resourceName.substring(0, MAX_NAME_SIZE - timeAndIteration.length() - 1) + "-" + timeAndIteration;
+			if(name.length() > generatedNameSize)
+				name = resourceName.substring(0, generatedNameSize - timeAndIteration.length() - 1) + "-" + timeAndIteration;
 			i++;
 		} while(names.contains(name));
 		setValue(name);

@@ -143,7 +143,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	}
 
 	private DefaultNameField nameField() {
-		final DefaultNameField nameField = new DefaultNameField();
+		final DefaultNameField nameField = DefaultNameField.createLongDefaultNameField();
 		binder.forField(nameField)
 				.withValidator(
 						value -> Objects.nonNull(value) && !value.isBlank(),
@@ -202,10 +202,11 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	}
 
 	private ComboBox<AllocationCommunityComboBoxModel> communityAllocation(Label availableAmountLabel) {
-		final ComboBox<AllocationCommunityComboBoxModel> communityAllocationComboBox = new ComboBox<>();
+		ComboBox<AllocationCommunityComboBoxModel> communityAllocationComboBox = new ComboBox<>();
 		communityAllocationComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		communityAllocationComboBox.setReadOnly(true);
 		communityAllocationComboBox.setItems(binder.getBean().getAllocationCommunity());
+		communityAllocationComboBox.setWidth("17em");
 		AllocationCommunityComboBoxModel allocationCommunity = binder.getBean().getAllocationCommunity();
 		availableAmount = projectAllocationService.getAvailableAmount(binder.getBean().getCommunityId(),
 				allocationCommunity.id);

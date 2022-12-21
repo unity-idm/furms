@@ -32,6 +32,7 @@ import java.util.function.Supplier;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 
 public class CommunityAllocationFormComponent extends Composite<Div> {
+
 	private final Binder<CommunityAllocationViewModel> binder;
 	private final CommunityAllocationComboBoxesModelsResolver resolver;
 
@@ -50,7 +51,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		this.resolver = resolver;
 		FormLayout formLayout = new FurmsFormLayout();
 
-		defaultNameField = new DefaultNameField();
+		defaultNameField = DefaultNameField.createLongDefaultNameField();
 		formLayout.addFormItem(defaultNameField, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.name"));
 
 		siteComboBox = new ComboBox<>();
