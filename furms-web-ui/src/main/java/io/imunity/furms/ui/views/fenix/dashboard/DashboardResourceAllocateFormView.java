@@ -226,6 +226,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	private ComboBox<ResourceCreditComboBoxModel> resourceCreditField(Label availableAmountLabel) {
 		final ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox = new ComboBox<>();
 		resourceCreditComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
+		resourceCreditComboBox.setWidth("17em");
 		resourceCreditComboBox.setReadOnly(true);
 		ResourceCreditComboBoxModel resourceCredit = binder.getBean().getResourceCredit();
 		resourceCreditComboBox.setItems(resourceCredit);

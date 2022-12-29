@@ -68,6 +68,7 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		formLayout.addFormItem(resourceTypeComboBox, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_type"));
 
 		resourceCreditComboBox = new ComboBox<>();
+		resourceCreditComboBox.setWidth("17em");
 		resourceCreditComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		formLayout.addFormItem(resourceCreditComboBox, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_credit"));
 
