@@ -87,8 +87,7 @@ public class CommunityAllocationComponent extends Composite<Div> {
 		grid.addComponentColumn(model -> new RouterLink(model.name, CommunityAllocationFormView.class, model.id.id.toString()))
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.2"))
 			.setSortable(true)
-			.setComparator(model -> model.name.toLowerCase())
-			.setAutoWidth(true);
+			.setComparator(model -> model.name.toLowerCase());
 		grid.addColumn(model -> model.resourceCreditName)
 			.setHeader(getTranslation("view.fenix-admin.resource-credits-allocation.grid.column.3"))
 			.setSortable(true);
