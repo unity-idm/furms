@@ -19,7 +19,9 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.imunity.furms.core.constant.ValidationConst.*;
+import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
+import static io.imunity.furms.core.constant.ValidationConst.MAX_ACRONYM_LENGTH;
+import static io.imunity.furms.core.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 

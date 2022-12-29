@@ -25,7 +25,6 @@ public class DefaultNameField extends CustomField<String> {
 	private static final DateTimeFormatter DD_MM_YY_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 	private static final int LONG_MAX_ALLOCATION_NAME_LENGTH = 80;
 	private static final int LONG_GENERATED_NAME_LENGTH = 40;
-	private static final int MAX_NAME_LENGTH = 20;
 	public final TextField textField;
 	public final Checkbox checkbox;
 	private Registration registration;
