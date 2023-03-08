@@ -83,7 +83,8 @@ public class ProjectAllocationComponent extends Composite<Div> {
 		this.actionComponent = new ActionComponent(
 				projectId,
 				projectService.isProjectExpired(projectId),
-				() -> projectService.isProjectInTerminalState(communityId, projectId));
+				() -> true
+		);
 
 		loadGridContent();
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
