@@ -230,7 +230,8 @@ class ProjectAllocationServiceImpl implements ProjectAllocationService {
 	private void allocateProject(ProjectAllocation projectAllocation, ProjectAllocationId id) {
 		ProjectInstallation projectInstallation = projectInstallationService.findProjectInstallationOfProjectAllocation(id);
 		if(!projectInstallationService.isProjectInstalled(projectInstallation.siteId, projectAllocation.projectId)) {
-			projectInstallationService.createOrUpdate(projectAllocation.projectId, projectInstallation);
+			if(!projectInstallationService.isProjectInstallationPending(projectInstallation.siteId, projectAllocation.projectId))
+				projectInstallationService.createOrUpdate(projectAllocation.projectId, projectInstallation);
 			projectAllocationInstallationService.createAllocation(id);
 		}
 		else {

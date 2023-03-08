@@ -169,6 +169,15 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
+	public boolean pendingInstallationProjectExistsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId) {
+		return installationRepository.existsBySiteIdAndProjectIdAndStatus(
+			siteId.id,
+			projectId.id,
+			ProjectInstallationStatus.PENDING.getPersistentId()
+		);
+	}
+
+	@Override
 	public boolean areAllProjectOperationInTerminateState(ProjectId projectId) {
 		return !(installationRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(
 			projectId.id,

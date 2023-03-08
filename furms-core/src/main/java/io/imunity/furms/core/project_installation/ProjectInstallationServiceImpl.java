@@ -68,6 +68,11 @@ class ProjectInstallationServiceImpl implements ProjectInstallationService {
 	}
 
 	@Override
+	public boolean isProjectInstallationPending(SiteId siteId, ProjectId projectId) {
+		return projectOperationRepository.pendingInstallationProjectExistsBySiteIdAndProjectId(siteId, projectId);
+	}
+
+	@Override
 	public boolean isProjectInTerminalState(ProjectId projectId) {
 		return projectOperationRepository.areAllProjectOperationInTerminateState(projectId);
 	}

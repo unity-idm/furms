@@ -38,9 +38,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -161,6 +163,34 @@ class ProjectAllocationServiceImplTest {
 
 		orderVerifier.verify(projectAllocationRepository).create(eq(request));
 		orderVerifier.verify(publisher).publishEvent(eq(new ProjectAllocationCreatedEvent(request)));
+	}
+
+	@Test
+	void shouldNotCreateProjectInstallationWhenInstallationPending() {
+		//given
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		ProjectAllocationId id = new ProjectAllocationId(UUID.randomUUID());
+		ProjectAllocation request = ProjectAllocation.builder()
+			.id(id)
+			.projectId(new ProjectId(UUID.randomUUID()))
+			.communityAllocationId(new CommunityAllocationId(UUID.randomUUID()))
+			.name("name")
+			.amount(new BigDecimal(1))
+			.build();
+
+		//when
+		when(projectInstallationService.findProjectInstallationOfProjectAllocation(id)).thenReturn(
+			ProjectInstallation.builder()
+				.siteId(new SiteId(UUID.randomUUID()))
+				.build()
+		);
+		when(projectInstallationService.isProjectInstallationPending(any(), any())).thenReturn(true);
+		when(projectAllocationRepository.create(request)).thenReturn(id);
+		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(request));
+
+		service.create(communityId, request);
+
+		verify(projectInstallationService, times(0)).createOrUpdate(any(), any());
 	}
 
 	@Test
