@@ -48,7 +48,7 @@ public class UserSitesGridModel {
 	}
 
 	public String getLocalProjectName() {
-		return localProjectName;
+		return localProjectName == null ? "" : localProjectName;
 	}
 
 	public String getRemoteAccountName() {
