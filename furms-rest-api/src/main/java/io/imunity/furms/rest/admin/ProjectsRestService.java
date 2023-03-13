@@ -64,7 +64,8 @@ class ProjectsRestService {
 	}
 
 	Project update(ProjectId projectId, ProjectUpdateRequest request) {
-		final io.imunity.furms.domain.projects.Project project = resourceChecker.performIfExists(
+		validProject(request.projectLeaderId, request.validity);
+		io.imunity.furms.domain.projects.Project project = resourceChecker.performIfExists(
 				projectId.id, () -> projectService.findById(projectId))
 				.get();
 
@@ -88,7 +89,8 @@ class ProjectsRestService {
 	}
 
 	Project create(ProjectCreateRequest request) {
-		final ProjectId projectId = projectService.create(io.imunity.furms.domain.projects.Project.builder()
+		validProject(request.projectLeaderId, request.validity);
+		ProjectId projectId = projectService.create(io.imunity.furms.domain.projects.Project.builder()
 				.communityId(request.communityId)
 				.name(request.name)
 				.description(request.description)
@@ -103,6 +105,18 @@ class ProjectsRestService {
 				.map(converter::convert)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
 						"with specific id"));
+	}
+
+	void validProject(String projectLeaderId, Validity validity)
+	{
+		if(projectLeaderId == null || projectLeaderId.isBlank())
+			throw new IllegalArgumentException("ProjectLeaderId cannot be null or empty");
+		if(validity == null)
+			throw new IllegalArgumentException("Validity cannot be null");
+		if(validity.to == null)
+			throw new IllegalArgumentException("Validity.to cannot be null");
+		if(validity.from == null)
+			throw new IllegalArgumentException("Validity.from cannot be null");
 	}
 
 	List<ProjectAllocation> findAllProjectAllocationsByProjectId(ProjectId projectId) {
