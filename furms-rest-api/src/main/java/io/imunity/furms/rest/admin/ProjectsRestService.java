@@ -89,6 +89,7 @@ class ProjectsRestService {
 	}
 
 	Project create(ProjectCreateRequest request) {
+		validCommunityId(request.communityId);
 		validProject(request.projectLeaderId, request.validity);
 		ProjectId projectId = projectService.create(io.imunity.furms.domain.projects.Project.builder()
 				.communityId(request.communityId)
@@ -105,6 +106,12 @@ class ProjectsRestService {
 				.map(converter::convert)
 				.orElseThrow(() -> new ProjectRestNotFoundException("Could not find project " +
 						"with specific id"));
+	}
+
+	void validCommunityId(String communityId)
+	{
+		if(communityId == null || communityId.isBlank())
+			throw new IllegalArgumentException("CommunityId cannot be null or empty");
 	}
 
 	void validProject(String projectLeaderId, Validity validity)

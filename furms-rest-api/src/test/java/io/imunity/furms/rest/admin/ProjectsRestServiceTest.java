@@ -56,6 +56,26 @@ class ProjectsRestServiceTest
 	}
 
 	@Test
+	void shouldThrowExceptionWhenCommunityIdIsNull()
+	{
+		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest(
+			null,
+			"acrontm",
+			"gid",
+			"name",
+			"desc",
+			new Validity(LocalDateTime.MAX, LocalDateTime.MAX),
+			"resarches",
+			"id"
+		);
+
+		String message = assertThrows(IllegalArgumentException.class,
+			() -> projectsRestService.create(projectCreateRequest)).getMessage();
+
+		assertThat(message).isEqualTo("CommunityId cannot be null or empty");
+	}
+
+	@Test
 	void shouldThrowExceptionWhenValidityToIsNull()
 	{
 		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest(
