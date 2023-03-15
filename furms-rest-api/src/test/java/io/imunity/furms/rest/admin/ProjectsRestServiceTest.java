@@ -5,9 +5,11 @@
 
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
+import io.imunity.furms.domain.communities.CommunityId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectsRestServiceTest
@@ -30,6 +33,8 @@ class ProjectsRestServiceTest
 	@Mock
 	private ProjectInstallationsService projectInstallationsService;
 	@Mock
+	private CommunityService communityService;
+	@Mock
 	private ProjectsRestConverter converter;
 
 	@InjectMocks
@@ -38,8 +43,9 @@ class ProjectsRestServiceTest
 	@Test
 	void shouldThrowExceptionWhenValidityIsNull()
 	{
+		String communityId = UUID.randomUUID().toString();
 		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest(
-			UUID.randomUUID().toString(),
+			communityId,
 			"acrontm",
 			"gid",
 			"name",
@@ -48,11 +54,33 @@ class ProjectsRestServiceTest
 			"resarches",
 			"id"
 		);
+		when(communityService.existsById(new CommunityId(communityId))).thenReturn(true);
 
 		String message = assertThrows(IllegalArgumentException.class,
 			() -> projectsRestService.create(projectCreateRequest)).getMessage();
 
 		assertThat(message).isEqualTo("Validity cannot be null");
+	}
+
+	@Test
+	void shouldThrowExceptionWhenCommunityIdDoesntExist()
+	{
+		String communityId = UUID.randomUUID().toString();
+		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest(
+			communityId,
+			"acrontm",
+			"gid",
+			"name",
+			"desc",
+			new Validity(LocalDateTime.MAX, LocalDateTime.MAX),
+			"resarches",
+			"id"
+		);
+
+		String message = assertThrows(IllegalArgumentException.class,
+			() -> projectsRestService.create(projectCreateRequest)).getMessage();
+
+		assertThat(message).isEqualTo("CommunityId doesn't exist");
 	}
 
 	@Test
@@ -78,8 +106,9 @@ class ProjectsRestServiceTest
 	@Test
 	void shouldThrowExceptionWhenValidityToIsNull()
 	{
+		String communityId = UUID.randomUUID().toString();
 		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest(
-			UUID.randomUUID().toString(),
+			communityId,
 			"acrontm",
 			"gid",
 			"name",
@@ -88,6 +117,7 @@ class ProjectsRestServiceTest
 			"resarches",
 			"id"
 		);
+		when(communityService.existsById(new CommunityId(communityId))).thenReturn(true);
 
 		String message = assertThrows(IllegalArgumentException.class,
 			() -> projectsRestService.create(projectCreateRequest)).getMessage();
@@ -98,8 +128,9 @@ class ProjectsRestServiceTest
 	@Test
 	void shouldThrowExceptionWhenValidityFormIsNull()
 	{
+		String communityId = UUID.randomUUID().toString();
 		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest(
-			UUID.randomUUID().toString(),
+			communityId,
 			"acrontm",
 			"gid",
 			"name",
@@ -108,6 +139,7 @@ class ProjectsRestServiceTest
 			"resarches",
 			"id"
 		);
+		when(communityService.existsById(new CommunityId(communityId))).thenReturn(true);
 
 		String message = assertThrows(IllegalArgumentException.class,
 			() -> projectsRestService.create(projectCreateRequest)).getMessage();
@@ -118,8 +150,9 @@ class ProjectsRestServiceTest
 	@Test
 	void shouldThrowExceptionWhenProjectLeaderIdIsNull()
 	{
+		String communityId = UUID.randomUUID().toString();
 		ProjectCreateRequest projectCreateRequest = new ProjectCreateRequest(
-			UUID.randomUUID().toString(),
+			communityId,
 			"acrontm",
 			"gid",
 			"name",
@@ -128,6 +161,7 @@ class ProjectsRestServiceTest
 			"resarches",
 			null
 		);
+		when(communityService.existsById(new CommunityId(communityId))).thenReturn(true);
 
 		String message = assertThrows(IllegalArgumentException.class,
 			() -> projectsRestService.create(projectCreateRequest)).getMessage();

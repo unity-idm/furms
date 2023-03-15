@@ -5,6 +5,7 @@
 
 package io.imunity.furms.rest.admin;
 
+import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.project_installation.ProjectInstallationsService;
 import io.imunity.furms.api.projects.ProjectService;
@@ -28,6 +29,7 @@ import static java.util.stream.Collectors.toList;
 class ProjectsRestService {
 
 	private final ProjectService projectService;
+	private final CommunityService communityService;
 	private final ProjectAllocationService projectAllocationService;
 	private final ProjectInstallationsService projectInstallationsService;
 	private final ResourceChecker resourceChecker;
@@ -36,12 +38,14 @@ class ProjectsRestService {
 	ProjectsRestService(ProjectService projectService,
 	                    ProjectAllocationService projectAllocationService,
 	                    ProjectInstallationsService projectInstallationsService,
-	                    ProjectsRestConverter converter) {
+	                    ProjectsRestConverter converter,
+	                    CommunityService communityService) {
 		this.projectService = projectService;
 		this.projectAllocationService = projectAllocationService;
 		this.resourceChecker = new ResourceChecker(id -> projectService.existsById(new ProjectId(id)));
 		this.projectInstallationsService = projectInstallationsService;
 		this.converter = converter;
+		this.communityService = communityService;
 	}
 
 	List<Project> findAll() {
@@ -112,6 +116,8 @@ class ProjectsRestService {
 	{
 		if(communityId == null || communityId.isBlank())
 			throw new IllegalArgumentException("CommunityId cannot be null or empty");
+		if(!communityService.existsById(new CommunityId(communityId)))
+			throw new IllegalArgumentException("CommunityId doesn't exist");
 	}
 
 	void validProject(String projectLeaderId, Validity validity)
