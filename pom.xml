@@ -36,7 +36,7 @@
 
 		<qpid-broker.version>8.0.6</qpid-broker.version>
 
-		<selenium.version>4.4.0</selenium.version>
+		<selenium.version>4.8.3</selenium.version>
 
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.language>java</sonar.language>
