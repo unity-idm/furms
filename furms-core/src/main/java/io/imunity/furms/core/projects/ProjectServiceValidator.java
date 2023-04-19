@@ -22,6 +22,7 @@ import java.util.Optional;
 import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
 import static io.imunity.furms.core.constant.ValidationConst.MAX_ACRONYM_LENGTH;
 import static io.imunity.furms.core.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
+import static io.imunity.furms.core.constant.ValidationConst.MAX_PROJECT_NAME_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -72,7 +73,7 @@ class ProjectServiceValidator {
 
 	private void validateName(Project project) {
 		notNull(project.getName(), "Project name has to be declared.");
-		validateLength("name", project.getName(), MAX_NAME_LENGTH);
+		validateLength("name", project.getName(), MAX_PROJECT_NAME_LENGTH);
 		if (isNameOccupied(project)) {
 			throw new DuplicatedNameValidationError("Project name has to be unique.");
 		}

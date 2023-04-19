@@ -108,6 +108,7 @@ public class ProjectsView extends FurmsViewComponent {
 		grid.addComponentHierarchyColumn(this::createNameComponent)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.1"))
 			.setSortable(true)
+			.setAutoWidth(true)
 			.setComparator(x -> x.name.toLowerCase());
 		grid.addColumn(c -> c.description)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.2"))

@@ -37,7 +37,8 @@ import static java.util.Optional.ofNullable;
 
 @CssImport("./styles/components/furms-combo-box.css")
 public class ProjectFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 20;
+	private static final int MAX_NAME_LENGTH = 40;
+	private static final int MAX_RESEARCH_LENGTH = 20;
 	private static final int MAX_DESCRIPTION_LENGTH = 510;
 	private static final int MAX_ACRONYM_LENGTH = 8;
 
@@ -86,7 +87,7 @@ public class ProjectFormComponent extends Composite<Div> {
 
 		TextField researchField = new FormTextField();
 		researchField.setValueChangeMode(EAGER);
-		researchField.setMaxLength(MAX_NAME_LENGTH);
+		researchField.setMaxLength(MAX_RESEARCH_LENGTH);
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));
 
 		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels, true);

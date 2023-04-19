@@ -28,7 +28,7 @@ import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static java.util.Optional.ofNullable;
 
 public class CommunityFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 20;
+	private static final int MAX_NAME_LENGTH = 40;
 	private static final int MAX_DESCRIPTION_LENGTH = 510;
 
 	private final Binder<CommunityViewModel> binder;
