@@ -73,6 +73,19 @@ public class SitesRestController {
 		return sitesRestService.findOneById(new SiteId(siteId));
 	}
 
+	@Operation(
+		summary = "Retrieve particular site availability",
+		description = "Returns availability status (AVAILABLE or UNAVAILABLE)",
+		security = { @SecurityRequirement(name = APIDocConstants.FURMS_SECURITY_SCHEME) })
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "Successful operation"),
+		@ApiResponse(responseCode = "403", description = "Permission denied"),
+		@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
+	@GetMapping("/{siteId}/availability")
+	public SiteAvailability getSiteAvailability(@PathVariable("siteId") String siteId) {
+		return sitesRestService.findStatusById(new SiteId(siteId));
+	}
+
 	/********************************************************************************************
 	 * 
 	 * Site's credits.

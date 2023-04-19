@@ -12,6 +12,7 @@ import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.resource_credits.ResourceCreditId;
 import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.domain.services.InfraServiceId;
+import io.imunity.furms.domain.site_agent.AvailabilityStatus;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
@@ -103,6 +104,27 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.policies[0].policyId").value(policyId.id.toString()))
 				.andExpect(jsonPath("$.policies[0].name").value("name"))
 				.andExpect(jsonPath("$.policies[0].revision").value(0));
+	}
+
+	@Test
+	void shouldFindSiteStatusById() throws Exception {
+		//given
+		SiteId siteId = new SiteId(UUID.randomUUID());
+		ResourceTypeId typeId = new ResourceTypeId(UUID.randomUUID());
+		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
+		ResourceCreditId resourceCreditId = new ResourceCreditId(UUID.randomUUID());
+		PolicyId policyId = new PolicyId(UUID.randomUUID());
+		PolicyId policyId1 = new PolicyId(UUID.randomUUID());
+
+		Site site = createSite(siteId, resourceCreditId, typeId, infraServiceId, policyId, policyId1);
+		when(sitesRestService.findOneById(siteId)).thenReturn(site);
+		when(sitesRestService.findStatusById(siteId)).thenReturn(new SiteAvailability(AvailabilityStatus.AVAILABLE));
+
+		//when + then
+		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/availability", siteId.id)
+				.header(AUTHORIZATION, authKey()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.status").value(AvailabilityStatus.AVAILABLE.toString()));
 	}
 
 	@Test
