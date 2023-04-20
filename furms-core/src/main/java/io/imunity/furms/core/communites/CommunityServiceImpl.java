@@ -16,7 +16,9 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityCreatedEvent;
 import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.communities.CommunityInstallation;
 import io.imunity.furms.domain.communities.CommunityRemovedEvent;
+import io.imunity.furms.domain.communities.CommunityUpdate;
 import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.invitations.Invitation;
 import io.imunity.furms.domain.invitations.InvitationId;
@@ -26,6 +28,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserRoleGrantedEvent;
 import io.imunity.furms.domain.users.UserRoleRevokedEvent;
+import io.imunity.furms.site.api.site_agent.SiteAgentCommunityOperationService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import org.slf4j.Logger;
@@ -58,6 +61,7 @@ class CommunityServiceImpl implements CommunityService {
 	private final AuthzService authzService;
 	private final CapabilityCollector capabilityCollector;
 	private final InvitatoryService invitatoryService;
+	private final SiteAgentCommunityOperationService siteAgentCommunityOperationService;
 
 	CommunityServiceImpl(CommunityRepository communityRepository,
 	                     CommunityGroupsDAO communityGroupsDAO,
@@ -65,7 +69,8 @@ class CommunityServiceImpl implements CommunityService {
 	                     AuthzService authzService,
 	                     ApplicationEventPublisher publisher,
 	                     CapabilityCollector capabilityCollector,
-						 InvitatoryService invitatoryService) {
+						 InvitatoryService invitatoryService,
+						 SiteAgentCommunityOperationService siteAgentCommunityOperationService) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.validator = validator;
@@ -73,6 +78,7 @@ class CommunityServiceImpl implements CommunityService {
 		this.authzService = authzService;
 		this.capabilityCollector = capabilityCollector;
 		this.invitatoryService = invitatoryService;
+		this.siteAgentCommunityOperationService = siteAgentCommunityOperationService;
 	}
 
 	@Override
@@ -116,6 +122,9 @@ class CommunityServiceImpl implements CommunityService {
 		CommunityId id = communityRepository.create(community);
 		Community created = communityRepository.findById(id).get();
 		communityGroupsDAO.create(new CommunityGroup(id, community.getName()));
+		siteAgentCommunityOperationService.installCommunity(new CommunityInstallation(
+			id, community.getName(), community.getDescription())
+		);
 		LOG.info("Community with given ID: {} was created: {}", id, community);
 		publisher.publishEvent(new CommunityCreatedEvent(created));
 	}
@@ -128,6 +137,9 @@ class CommunityServiceImpl implements CommunityService {
 		Community oldCommunity = communityRepository.findById(community.getId()).get();
 		communityRepository.update(community);
 		communityGroupsDAO.update(new CommunityGroup(community.getId(), community.getName()));
+		siteAgentCommunityOperationService.updateCommunity(new CommunityUpdate(
+			community.getId(), community.getName(), community.getDescription())
+		);
 		LOG.info("Community was updated: {}", community);
 		publisher.publishEvent(new CommunityUpdatedEvent(oldCommunity, community));
 	}
@@ -140,6 +152,7 @@ class CommunityServiceImpl implements CommunityService {
 		Community community = communityRepository.findById(id).get();
 		communityRepository.delete(id);
 		communityGroupsDAO.delete(id);
+		siteAgentCommunityOperationService.removeCommunity(id);
 		LOG.info("Community with given ID: {} was deleted", id);
 		publisher.publishEvent(new CommunityRemovedEvent(community));
 	}

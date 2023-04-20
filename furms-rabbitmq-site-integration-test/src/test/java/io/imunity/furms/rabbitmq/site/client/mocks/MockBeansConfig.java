@@ -63,5 +63,7 @@ class MockBeansConfig {
 	@MockBean
 	private SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock;
 	@MockBean
+	private SiteAgentCommunityReceiverMock siteAgentCommunityReceiverMock;
+	@MockBean
 	private SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock;
 }

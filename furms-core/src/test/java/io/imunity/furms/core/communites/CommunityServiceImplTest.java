@@ -12,14 +12,17 @@ import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.communities.Community;
-import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.communities.CommunityCreatedEvent;
+import io.imunity.furms.domain.communities.CommunityGroup;
 import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.communities.CommunityInstallation;
 import io.imunity.furms.domain.communities.CommunityRemovedEvent;
+import io.imunity.furms.domain.communities.CommunityUpdate;
 import io.imunity.furms.domain.communities.CommunityUpdatedEvent;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserRoleRevokedEvent;
+import io.imunity.furms.site.api.site_agent.SiteAgentCommunityOperationService;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
@@ -66,6 +69,8 @@ class CommunityServiceImplTest {
 	private CapabilityCollector capabilityCollector;
 	@Mock
 	private InvitatoryService invitatoryService;
+	@Mock
+	private SiteAgentCommunityOperationService siteAgentCommunityOperationService;
 
 	private CommunityServiceImpl service;
 	private InOrder orderVerifier;
@@ -74,8 +79,8 @@ class CommunityServiceImplTest {
 	void init() {
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
 		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, validator, authzService,
-				publisher, capabilityCollector, invitatoryService);
-		orderVerifier = inOrder(communityRepository, communityGroupsDAO, publisher);
+				publisher, capabilityCollector, invitatoryService, siteAgentCommunityOperationService);
+		orderVerifier = inOrder(communityRepository, communityGroupsDAO, siteAgentCommunityOperationService, publisher);
 	}
 
 	@Test
@@ -124,6 +129,7 @@ class CommunityServiceImplTest {
 			.id(id)
 			.name("userFacingName")
 			.build();
+		CommunityInstallation communityInstallation = new CommunityInstallation(id, "userFacingName", null);
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
 		when(communityRepository.findById(id)).thenReturn(Optional.of(request));
 		when(communityRepository.create(request)).thenReturn(id);
@@ -133,6 +139,7 @@ class CommunityServiceImplTest {
 
 		orderVerifier.verify(communityRepository).create(eq(request));
 		orderVerifier.verify(communityGroupsDAO).create(eq(groupRequest));
+		orderVerifier.verify(siteAgentCommunityOperationService).installCommunity(eq(communityInstallation));
 		orderVerifier.verify(publisher).publishEvent(eq(new CommunityCreatedEvent(request)));
 	}
 
@@ -161,6 +168,7 @@ class CommunityServiceImplTest {
 			.id(id)
 			.name("userFacingName")
 			.build();
+		CommunityUpdate communityUpdate = new CommunityUpdate(id, "userFacingName", null);
 		when(communityRepository.exists(request.getId())).thenReturn(true);
 		when(communityRepository.isUniqueName(request.getName())).thenReturn(true);
 		when(communityRepository.findById(id)).thenReturn(Optional.of(request));
@@ -171,6 +179,7 @@ class CommunityServiceImplTest {
 
 		orderVerifier.verify(communityRepository).update(eq(request));
 		orderVerifier.verify(communityGroupsDAO).update(eq(groupRequest));
+		orderVerifier.verify(siteAgentCommunityOperationService).updateCommunity(eq(communityUpdate));
 		orderVerifier.verify(publisher).publishEvent(eq(new CommunityUpdatedEvent( request, request)));
 	}
 
@@ -187,6 +196,7 @@ class CommunityServiceImplTest {
 
 		orderVerifier.verify(communityRepository).delete(eq(id));
 		orderVerifier.verify(communityGroupsDAO).delete(eq(id));
+		orderVerifier.verify(siteAgentCommunityOperationService).removeCommunity(eq(id));
 		orderVerifier.verify(publisher).publishEvent(eq(new CommunityRemovedEvent(community)));
 	}
 

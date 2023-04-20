@@ -18,6 +18,7 @@ import io.imunity.furms.domain.communities.Community;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.site.api.site_agent.SiteAgentCommunityOperationService;
 import io.imunity.furms.spi.audit_log.AuditLogRepository;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.communites.CommunityRepository;
@@ -64,6 +65,8 @@ class CommunityAuditLogServiceTest {
 	private ApplicationEventPublisher publisher;
 	@MockBean
 	private AuditLogRepository auditLogRepository;
+	@MockBean
+	private SiteAgentCommunityOperationService siteAgentCommunityOperationService;
 
 	private CommunityServiceImpl service;
 
@@ -71,7 +74,7 @@ class CommunityAuditLogServiceTest {
 	void setUp() {
 		CommunityServiceValidator validator = new CommunityServiceValidator(communityRepository, projectRepository);
 		service = new CommunityServiceImpl(communityRepository, communityGroupsDAO, validator, authzService,
-			publisher, capabilityCollector, invitatoryService);
+			publisher, capabilityCollector, invitatoryService, siteAgentCommunityOperationService);
 	}
 
 	@Test

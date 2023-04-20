@@ -5,6 +5,12 @@
 
 package io.imunity.furms.agent.runner;
 
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityInstallationRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityInstallationRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityRemovalRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityRemovalRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityUpdateRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityUpdateRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
@@ -102,6 +108,39 @@ class MockListeners {
 	@EventListener
 	public void receiveAgentMessageErrorInfo(Payload<AgentMessageErrorInfo> message) throws InterruptedException {
 
+	}
+
+	@EventListener
+	public void receiveCommunityInstallationRequest(Payload<AgentCommunityInstallationRequest> message) throws InterruptedException {
+		TimeUnit.SECONDS.sleep(5);
+
+		Header header = getHeader(message.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(
+			header,
+			new AgentCommunityInstallationRequestAck())
+		);
+	}
+
+	@EventListener
+	public void receiveCommunityUpdateRequest(Payload<AgentCommunityUpdateRequest> message) throws InterruptedException {
+		TimeUnit.SECONDS.sleep(5);
+
+		Header header = getHeader(message.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(
+			header,
+			new AgentCommunityUpdateRequestAck())
+		);
+	}
+
+	@EventListener
+	public void receiveCommunityRemovalRequest(Payload<AgentCommunityRemovalRequest> message) throws InterruptedException {
+		TimeUnit.SECONDS.sleep(5);
+
+		Header header = getHeader(message.header);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(
+			header,
+			new AgentCommunityRemovalRequestAck())
+		);
 	}
 
 	@EventListener

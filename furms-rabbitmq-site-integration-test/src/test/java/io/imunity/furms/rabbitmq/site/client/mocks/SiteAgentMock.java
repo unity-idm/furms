@@ -6,6 +6,9 @@
 package io.imunity.furms.rabbitmq.site.client.mocks;
 
 import io.imunity.furms.rabbitmq.site.client.config.PlaneRabbitTemplate;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityInstallationRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityRemovalRequest;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityUpdateRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPingRequest;
@@ -76,15 +79,18 @@ public class SiteAgentMock {
 	private final RabbitTemplate rabbitTemplate;
 	private final ApplicationEventPublisher publisher;
 	private final SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock;
+	private final SiteAgentCommunityReceiverMock siteAgentCommunityReceiverMock;
 	private final SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock;
 	private static final long OP_SLEEP_MS = 0;
 
 	public SiteAgentMock(PlaneRabbitTemplate rabbitTemplate, ApplicationEventPublisher publisher,
 	                     SiteAgentPolicyDocumentReceiverMock siteAgentPolicyDocumentReceiverMock,
-	                     SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock) {
+	                     SiteAgentMessageErrorInfoReceiverMock siteAgentMessageErrorInfoReceiverMock,
+	                     SiteAgentCommunityReceiverMock siteAgentCommunityReceiverMock) {
 		this.rabbitTemplate = rabbitTemplate;
 		this.publisher = publisher;
 		this.siteAgentPolicyDocumentReceiverMock = siteAgentPolicyDocumentReceiverMock;
+		this.siteAgentCommunityReceiverMock = siteAgentCommunityReceiverMock;
 		this.siteAgentMessageErrorInfoReceiverMock = siteAgentMessageErrorInfoReceiverMock;
 	}
 
@@ -92,6 +98,21 @@ public class SiteAgentMock {
 	@RabbitListener(queues = MOCK_FURMS_PUB)
 	public void receive(Payload<?> payload) {
 		publisher.publishEvent(payload);
+	}
+
+	@EventListener
+	public void receiveCommunityInstallationRequest(Payload<AgentCommunityInstallationRequest> message) {
+		siteAgentCommunityReceiverMock.process(message.body);
+	}
+
+	@EventListener
+	public void receiveCommunityUpdateRequest(Payload<AgentCommunityUpdateRequest> message) {
+		siteAgentCommunityReceiverMock.process(message.body);
+	}
+
+	@EventListener
+	public void receiveCommunityRemovalRequest(Payload<AgentCommunityRemovalRequest> message) {
+		siteAgentCommunityReceiverMock.process(message.body);
 	}
 
 	@EventListener

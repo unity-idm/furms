@@ -10,6 +10,9 @@ import io.imunity.furms.domain.site_agent.CorrelationId;
 import io.imunity.furms.domain.site_agent.InvalidMessageContentException;
 import io.imunity.furms.rabbitmq.site.client.config.PlaneRabbitTemplate;
 import io.imunity.furms.rabbitmq.site.models.Ack;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityInstallationRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityRemovalRequestAck;
+import io.imunity.furms.rabbitmq.site.models.AgentCommunityUpdateRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentMessageErrorInfo;
 import io.imunity.furms.rabbitmq.site.models.AgentPingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentPolicyUpdateAck;
@@ -125,7 +128,8 @@ class SiteAgentListenerRouter {
 	 */
 	private void updateOrDeleteSuccessPendingRequests(Payload<?> payload) {
 		if(payload.body instanceof AgentPingAck || payload.body instanceof UserPolicyAcceptanceUpdateAck
-			|| payload.body instanceof AgentPolicyUpdateAck
+			|| payload.body instanceof AgentPolicyUpdateAck || payload.body instanceof AgentCommunityInstallationRequestAck
+			|| payload.body instanceof AgentCommunityUpdateRequestAck || payload.body instanceof AgentCommunityRemovalRequestAck
 		)
 			agentPendingMessageSiteService.delete(new CorrelationId(payload.header.messageCorrelationId));
 		else if(payload.header.status.equals(OK) && payload.body instanceof Ack)
