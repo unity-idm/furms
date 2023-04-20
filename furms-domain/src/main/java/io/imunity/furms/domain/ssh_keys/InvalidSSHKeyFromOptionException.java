@@ -8,7 +8,8 @@ package io.imunity.furms.domain.ssh_keys;
 public class InvalidSSHKeyFromOptionException extends RuntimeException {
 
 	public enum ErrorType {
-		CIDR_MASK, INVALID_HOST, WILDCARD_WITH_TLD, WILDCARD, NON_ROUTEABLE_HOST, WILDCARD_IN_ADDRESS
+		CIDR_MASK, INVALID_HOST, WILDCARD_WITH_TLD, WILDCARD, NON_ROUTEABLE_HOST, WILDCARD_IN_ADDRESS,
+		MISSING_QUOTATION_MARKS
 	}
 
 	public final String fromOption;

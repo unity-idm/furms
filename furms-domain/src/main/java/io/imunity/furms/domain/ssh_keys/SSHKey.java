@@ -17,6 +17,9 @@ import java.util.Objects;
 import java.util.Set;
 
 public class SSHKey {
+	private static final String FROM = "from";
+	private static final String QUOTATION_MARK = "\"";
+
 	public final SSHKeyId id;
 	public final String name;
 	public final String value;
@@ -76,13 +79,28 @@ public class SSHKey {
 	}
 
 	public void validateFromOption() {
-		SSHKeyFromOptionValidator.validateFromOption(getKeyOptions().get("from"));
+		SSHKeyFromOptionValidator.validateFromOption(getKeyOptions().get(FROM));
 	}
 	
 	public static Map<String, String> getKeyOptions(String publicSSHKey) {
 
 		validate(publicSSHKey);
-		return AuthorizedKeyEntry.parseAuthorizedKeyEntry(publicSSHKey).getLoginOptions();
+		Map<String, String> loginOptions = AuthorizedKeyEntry.parseAuthorizedKeyEntry(publicSSHKey).getLoginOptions();
+
+		handleFromQuotationMarksVisibility(publicSSHKey, loginOptions);
+		return loginOptions;
+	}
+
+	private static void handleFromQuotationMarksVisibility(String publicSSHKey, Map<String, String> loginOptions)
+	{
+		String from = loginOptions.get(FROM);
+		if(from != null && !from.isBlank())
+		{
+			if (publicSSHKey.charAt(publicSSHKey.lastIndexOf(from) - 1) == QUOTATION_MARK.charAt(0))
+				loginOptions.put(FROM, QUOTATION_MARK + loginOptions.get(FROM));
+			if (publicSSHKey.charAt(publicSSHKey.lastIndexOf(from) + from.length()) == QUOTATION_MARK.charAt(0))
+				loginOptions.put(FROM, loginOptions.get(FROM) + QUOTATION_MARK);
+		}
 	}
 
 	public String getFingerprint() {

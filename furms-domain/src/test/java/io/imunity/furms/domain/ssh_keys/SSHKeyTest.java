@@ -5,13 +5,13 @@
 
 package io.imunity.furms.domain.ssh_keys;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SSHKeyTest {
 
@@ -40,7 +40,7 @@ public class SSHKeyTest {
 						+ "2jDzb0m0HR1jbLzBO43sxqnVHC7yf9DM7Tpbbgd1Q2km5eySfit/5E3EJBYY4PvankHzGts1NCblK8rX6"
 						+ "w+MlV5L1pVZkstVF6hn9gMSM0fInvpJobhQ5KzcL8sJTKO5ALmb9xUkdFjZk9bL demo@demo.pl")
 				.build().getKeyOptions();
-		assertThat(keyOptions.get("from")).isEqualTo("*.sales.example.net,!pc.sales.example.net");
+		assertThat(keyOptions.get("from")).isEqualTo("\"*.sales.example.net,!pc.sales.example.net\"");
 		assertThat(keyOptions.get("permitlisten")).isEqualTo("localhost:8080");
 		assertThat(keyOptions.get("permitopen")).isEqualTo("192.0.2.1:80");
 		assertThat(keyOptions.get("command")).isEqualTo("dump /home");

@@ -20,7 +20,6 @@ import io.imunity.furms.domain.ssh_keys.InvalidSSHKeyFromOptionException;
 import io.imunity.furms.domain.ssh_keys.SSHKey;
 import io.imunity.furms.domain.ssh_keys.SSHKeyFromOptionValidator;
 import io.imunity.furms.ui.components.BigMultiSelectComboBox;
-import io.imunity.furms.ui.components.FormTextArea;
 import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
 import org.vaadin.gatanaso.MultiselectComboBox;
@@ -63,7 +62,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 		formLayout.addFormItem(sitesComboBox,
 				getTranslation("view.user-settings.ssh-keys.form.combo-box.sites"));
 
-		keyValueField = new FormTextArea();
+		keyValueField = new TextArea();
 		keyValueField.setValueChangeMode(EAGER);
 		keyValueField.setClassName("wide-text-area");
 		formLayout.addFormItem(keyValueField, getTranslation("view.user-settings.ssh-keys.form.field.key"));

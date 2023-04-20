@@ -119,12 +119,13 @@ public class SSHKeyServiceValidator {
 		notNull(key.value, "SSH key value has to be declared.");
 		hasText(key.value, "Invalid SSH key value: SSH key value is empty.");
 		key.validate();
-		if (siteRepository.findAll().stream().anyMatch(s -> key.sites.contains(s.getId())
-			&& (s.isSshKeyFromOptionMandatory() != null && s.isSshKeyFromOptionMandatory()))) {
+		boolean validateFromOption = siteRepository.findAll().stream()
+			.anyMatch(s ->
+				key.sites.contains(s.getId()) &&
+					(s.isSshKeyFromOptionMandatory() != null && s.isSshKeyFromOptionMandatory())
+			);
+		if (validateFromOption)
 				key.validateFromOption();
-		}
-		
-		
 	}
 
 	void validateIsNamePresentIgnoringRecord(String name, SSHKeyId recordToIgnore) {
