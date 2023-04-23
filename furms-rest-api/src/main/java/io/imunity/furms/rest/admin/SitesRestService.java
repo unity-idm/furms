@@ -119,7 +119,7 @@ class SitesRestService {
 				.get();
 	}
 
-	SiteAvailability findStatusById(SiteId siteId) {
+	SiteAvailability getStatusById(SiteId siteId) {
 		return resourceChecker.performIfExists(siteId.id, () -> siteService.findById(siteId))
 			.map(site -> siteAgentConnectionService.getSiteAgentStatus(site.getId()))
 			.map(statusPendingJob -> statusPendingJob.jobFuture.join().status)

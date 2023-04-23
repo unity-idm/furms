@@ -19,11 +19,11 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_ALLOCATION_NAME_LENGTH;
 
 @CssImport(value="./styles/components/default-name-filed.css", themeFor="vaadin-text-field")
 public class DefaultNameField extends CustomField<String> {
 	private static final DateTimeFormatter DD_MM_YY_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
-	private static final int LONG_MAX_ALLOCATION_NAME_LENGTH = 80;
 	private static final int LONG_GENERATED_NAME_LENGTH = 40;
 	public final TextField textField;
 	public final Checkbox checkbox;
@@ -55,7 +55,7 @@ public class DefaultNameField extends CustomField<String> {
 
 	public static DefaultNameField createLongDefaultNameField() {
 		DefaultNameField defaultNameField = new DefaultNameField(LONG_GENERATED_NAME_LENGTH);
-		defaultNameField.setMaxLength(LONG_MAX_ALLOCATION_NAME_LENGTH);
+		defaultNameField.setMaxLength(MAX_ALLOCATION_NAME_LENGTH);
 		defaultNameField.setClassName("long-default-name-field");
 		return defaultNameField;
 	}

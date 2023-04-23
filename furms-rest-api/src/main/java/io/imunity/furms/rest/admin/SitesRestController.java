@@ -83,7 +83,7 @@ public class SitesRestController {
 		@ApiResponse(responseCode = "404", description = "Site not found", content = { @Content }) })
 	@GetMapping("/{siteId}/availability")
 	public SiteAvailability getSiteAvailability(@PathVariable("siteId") String siteId) {
-		return sitesRestService.findStatusById(new SiteId(siteId));
+		return sitesRestService.getStatusById(new SiteId(siteId));
 	}
 
 	/********************************************************************************************

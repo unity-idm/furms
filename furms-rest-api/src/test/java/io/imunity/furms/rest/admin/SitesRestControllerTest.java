@@ -118,7 +118,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 
 		Site site = createSite(siteId, resourceCreditId, typeId, infraServiceId, policyId, policyId1);
 		when(sitesRestService.findOneById(siteId)).thenReturn(site);
-		when(sitesRestService.findStatusById(siteId)).thenReturn(new SiteAvailability(AvailabilityStatus.AVAILABLE));
+		when(sitesRestService.getStatusById(siteId)).thenReturn(new SiteAvailability(AvailabilityStatus.AVAILABLE));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/availability", siteId.id)

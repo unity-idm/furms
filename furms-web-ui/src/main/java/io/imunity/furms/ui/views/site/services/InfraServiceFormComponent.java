@@ -24,11 +24,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_INFRA_NAME_LENGTH;
 
 class InfraServiceFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 20;
-	private static final int MAX_DESCRIPTION_LENGTH = 510;
-
 	private final Binder<InfraServiceViewModel> binder;
 	private final FormLayout formLayout;
 
@@ -38,7 +37,7 @@ class InfraServiceFormComponent extends Composite<Div> {
 
 		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
-		nameField.setMaxLength(MAX_NAME_LENGTH);
+		nameField.setMaxLength(MAX_INFRA_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.service.form.field.name"));
 
 		TextArea descriptionField = new FormTextArea();

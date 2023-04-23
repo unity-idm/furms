@@ -14,6 +14,9 @@ import io.imunity.furms.spi.resource_credits.ResourceCreditRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
+import static io.imunity.furms.api.constant.ValidationConst.MAX_SITE_NAME_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -48,7 +51,14 @@ class SiteServiceValidator {
 
 	void validateName(String name) {
 		notNull(name, "Site name has to be declared.");
+		validateLength(name, MAX_SITE_NAME_LENGTH);
 		assertTrue(!siteRepository.isNamePresent(name), () -> new DuplicatedNameValidationError("Site name has to be unique."));
+	}
+
+	private void validateLength(String fieldVale, int length) {
+		if (Objects.nonNull(fieldVale) && fieldVale.length() > length) {
+			throw new IllegalArgumentException("Site name is too long.");
+		}
 	}
 
 	void validateIsNamePresentIgnoringRecord(String name, SiteId siteId) {

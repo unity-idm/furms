@@ -52,8 +52,8 @@ import java.util.stream.Collectors;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_SITE_NAME_LENGTH;
 import static io.imunity.furms.ui.components.layout.FurmsAppLayoutUtils.callReloadLogo;
-import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 
@@ -126,7 +126,7 @@ public class SettingsView extends FurmsViewComponent {
 		name.setPlaceholder(getTranslation("view.site-admin.settings.form.name.placeholder"));
 		name.setRequiredIndicatorVisible(true);
 		name.setValueChangeMode(EAGER);
-		name.setMaxLength(NAME_MAX_LENGTH);
+		name.setMaxLength(MAX_SITE_NAME_LENGTH);
 		name.setId(NAME_FIELD_ID);
 
 		binder.forField(name)

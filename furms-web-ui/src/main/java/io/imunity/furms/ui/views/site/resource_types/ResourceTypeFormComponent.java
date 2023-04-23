@@ -21,10 +21,9 @@ import io.imunity.furms.ui.components.FurmsFormLayout;
 import java.util.Objects;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_RESOURCE_TYPE_NAME_LENGTH;
 
 class ResourceTypeFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 20;
-
 	private final Binder<ResourceTypeViewModel> binder;
 	private final ServiceComboBoxModelResolver resolver;
 	private final ResourceTypeDistributionChecker resourceTypeDistChecker;
@@ -46,7 +45,7 @@ class ResourceTypeFormComponent extends Composite<Div> {
 
 		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
-		nameField.setMaxLength(MAX_NAME_LENGTH);
+		nameField.setMaxLength(MAX_RESOURCE_TYPE_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.site-admin.resource-types.form.field.name"));
 
 		servicesComboBox = new ComboBox<>();

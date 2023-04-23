@@ -30,6 +30,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_ACRONYM_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_PROJECT_NAME_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_RESEARCH_NAME_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
@@ -37,11 +41,6 @@ import static java.util.Optional.ofNullable;
 
 @CssImport("./styles/components/furms-combo-box.css")
 public class ProjectFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 40;
-	private static final int MAX_RESEARCH_LENGTH = 20;
-	private static final int MAX_DESCRIPTION_LENGTH = 510;
-	private static final int MAX_ACRONYM_LENGTH = 8;
-
 	private final Binder<ProjectViewModel> binder;
 	private final List<FurmsViewUserModel> userModels;
 	private final FurmsImageUpload uploadComponent = createUploadComponent();
@@ -62,7 +61,7 @@ public class ProjectFormComponent extends Composite<Div> {
 
 		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
-		nameField.setMaxLength(MAX_NAME_LENGTH);
+		nameField.setMaxLength(MAX_PROJECT_NAME_LENGTH);
 		nameField.setReadOnly(restrictedEditing);
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
 
@@ -87,7 +86,7 @@ public class ProjectFormComponent extends Composite<Div> {
 
 		TextField researchField = new FormTextField();
 		researchField.setValueChangeMode(EAGER);
-		researchField.setMaxLength(MAX_RESEARCH_LENGTH);
+		researchField.setMaxLength(MAX_RESEARCH_NAME_LENGTH);
 		formLayout.addFormItem(researchField, getTranslation("view.community-admin.project.form.field.research-field"));
 
 		FurmsUserComboBox furmsUserComboBox = new FurmsUserComboBox(userModels, true);

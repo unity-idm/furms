@@ -24,13 +24,12 @@ import java.util.UUID;
 
 import static com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep.LabelsPosition.TOP;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_COMMUNITY_NAME_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static java.util.Optional.ofNullable;
 
 public class CommunityFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 40;
-	private static final int MAX_DESCRIPTION_LENGTH = 510;
-
 	private final Binder<CommunityViewModel> binder;
 	private final FurmsImageUpload upload;
 
@@ -48,7 +47,7 @@ public class CommunityFormComponent extends Composite<Div> {
 
 		TextField name = new FormTextField();
 		name.setValueChangeMode(EAGER);
-		name.setMaxLength(MAX_NAME_LENGTH);
+		name.setMaxLength(MAX_COMMUNITY_NAME_LENGTH);
 		formLayout.addFormItem(name, getTranslation("view.fenix-admin.community.form.field.name"));
 
 		TextArea description = new FormTextArea();

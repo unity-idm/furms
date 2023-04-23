@@ -30,12 +30,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_SSH_KEY_NAME_LENGTH;
 
 
 @CssImport("./styles/views/settings/ssh-keys.css")
 class SSHKeyFormComponent extends Composite<Div> {
-
-	private static final int MAX_NAME_LENGTH = 20;
 
 	private final Binder<SSHKeyUpdateModel> binder;
 	private final SiteComboBoxModelResolver resolver;
@@ -53,7 +52,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 
 		TextField nameField = new FormTextField();
 		nameField.setValueChangeMode(EAGER);
-		nameField.setMaxLength(MAX_NAME_LENGTH);
+		nameField.setMaxLength(MAX_SSH_KEY_NAME_LENGTH);
 		formLayout.addFormItem(nameField, getTranslation("view.user-settings.ssh-keys.form.field.name"));
 
 		sitesComboBox = new BigMultiSelectComboBox<>();

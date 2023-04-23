@@ -53,8 +53,8 @@ import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE;
 import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 import static com.vaadin.flow.component.icon.VaadinIcon.USERS;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_SITE_NAME_LENGTH;
 import static io.imunity.furms.domain.constant.RoutesConst.FENIX_ADMIN_SITES;
-import static io.imunity.furms.ui.utils.FormSettings.NAME_MAX_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.NotificationUtils.showSuccessNotification;
 import static java.util.stream.Collectors.toList;
@@ -144,7 +144,7 @@ public class SitesView extends FurmsViewComponent {
 
 	private Component addEditForm(Editor<SiteGridItem> siteEditor) {
 		TextField siteNameField = new FormTextField();
-		siteNameField.setMaxLength(NAME_MAX_LENGTH);
+		siteNameField.setMaxLength(MAX_SITE_NAME_LENGTH);
 		siteNameField.setWidthFull();
 		siteNameField.setValueChangeMode(EAGER);
 		siteEditor.getBinder().forField(siteNameField)

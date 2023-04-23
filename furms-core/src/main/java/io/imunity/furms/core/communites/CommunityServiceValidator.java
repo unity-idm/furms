@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.imunity.furms.core.constant.ValidationConst.MAX_COMMUNITY_NAME_LENGTH;
-import static io.imunity.furms.core.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_COMMUNITY_NAME_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 

@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_RESOURCE_TYPE_NAME_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -71,7 +71,7 @@ class ResourceTypeServiceValidator {
 
 	private void validateName(ResourceType resourceType) {
 		notNull(resourceType.name, "ResourceType name has to be declared.");
-		validateLength("name", resourceType.name, MAX_NAME_LENGTH);
+		validateLength("name", resourceType.name, MAX_RESOURCE_TYPE_NAME_LENGTH);
 		if (isNameOccupied(resourceType)) {
 			throw new DuplicatedNameValidationError("ResourceType name has to be unique.");
 		}

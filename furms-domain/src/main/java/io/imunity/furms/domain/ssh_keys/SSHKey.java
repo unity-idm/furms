@@ -19,6 +19,7 @@ import java.util.Set;
 public class SSHKey {
 	private static final String FROM = "from";
 	private static final String QUOTATION_MARK = "\"";
+	private static final char QUOTATION_MARK_CHAR = '"';
 
 	public final SSHKeyId id;
 	public final String name;
@@ -96,10 +97,13 @@ public class SSHKey {
 		String from = loginOptions.get(FROM);
 		if(from != null && !from.isBlank())
 		{
-			if (publicSSHKey.charAt(publicSSHKey.lastIndexOf(from) - 1) == QUOTATION_MARK.charAt(0))
+			int indexOfSupposedFirstQuotationMark = publicSSHKey.lastIndexOf(from) - 1;
+			if (publicSSHKey.charAt(indexOfSupposedFirstQuotationMark) == QUOTATION_MARK_CHAR)
 				loginOptions.put(FROM, QUOTATION_MARK + loginOptions.get(FROM));
-			if (publicSSHKey.charAt(publicSSHKey.lastIndexOf(from) + from.length()) == QUOTATION_MARK.charAt(0))
-				loginOptions.put(FROM, loginOptions.get(FROM) + QUOTATION_MARK);
+			int indexOfSupposedSecondQuotationMark = publicSSHKey.lastIndexOf(from) + from.length();
+			if (publicSSHKey.length() > indexOfSupposedSecondQuotationMark &&
+				publicSSHKey.charAt(indexOfSupposedSecondQuotationMark) == QUOTATION_MARK_CHAR)
+					loginOptions.put(FROM, loginOptions.get(FROM) + QUOTATION_MARK);
 		}
 	}
 

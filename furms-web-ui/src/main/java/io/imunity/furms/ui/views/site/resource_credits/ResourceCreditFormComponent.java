@@ -25,14 +25,13 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_RESOURCE_CREDIT_NAME_LENGTH;
 import static io.imunity.furms.ui.utils.BigDecimalUtils.isBigDecimalGreaterThen0;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_END_TIME;
 import static io.imunity.furms.ui.views.TimeConstants.DEFAULT_START_TIME;
 import static java.util.Optional.ofNullable;
 
 class ResourceCreditFormComponent extends Composite<Div> {
-	private static final int MAX_NAME_LENGTH = 20;
-
 	private final Binder<ResourceCreditViewModel> binder;
 	private final ResourceTypeComboBoxModelResolver resolver;
 
@@ -61,7 +60,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 
 		TextField amountField = new FormTextField();
 		amountField.setValueChangeMode(EAGER);
-		amountField.setMaxLength(MAX_NAME_LENGTH);
+		amountField.setMaxLength(MAX_RESOURCE_CREDIT_NAME_LENGTH);
 		resourceTypeComboBox.addValueChangeListener(event -> createUnitLabel(amountField, event.getValue().unit));
 		resourceTypeComboBox.addValueChangeListener(event -> defaultNameField.generateName(event.getValue().name));
 		formLayout.addFormItem(amountField, getTranslation("view.site-admin.resource-credits.form.field.amount"));

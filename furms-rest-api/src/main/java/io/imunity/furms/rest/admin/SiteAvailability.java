@@ -11,7 +11,7 @@ import java.util.Objects;
 
 class SiteAvailability
 {
-	public final AvailabilityStatus status;
+	final AvailabilityStatus status;
 
 	SiteAvailability(AvailabilityStatus status)
 	{

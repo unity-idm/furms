@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_RESOURCE_CREDIT_NAME_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -88,7 +88,7 @@ class ResourceCreditServiceValidator {
 
 	private void validateName(ResourceCredit resourceCredit, Optional<ResourceCredit> existingCredit) {
 		notNull(resourceCredit.name, "ResourceCredit name has to be declared.");
-		validateLength("name", resourceCredit.name, MAX_NAME_LENGTH);
+		validateLength("name", resourceCredit.name, MAX_RESOURCE_CREDIT_NAME_LENGTH);
 		if (isNameOccupied(resourceCredit, existingCredit)) {
 			throw new DuplicatedNameValidationError("ResourceCredit name has to be unique.");
 		}

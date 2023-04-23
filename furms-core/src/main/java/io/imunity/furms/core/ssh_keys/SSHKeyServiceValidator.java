@@ -27,10 +27,12 @@ import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.imunity.furms.api.constant.ValidationConst.MAX_SSH_KEY_NAME_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.hasText;
 import static org.springframework.util.Assert.notNull;
@@ -111,8 +113,15 @@ public class SSHKeyServiceValidator {
 
 	void validateName(String name) {
 		notNull(name, "SSHKey name has to be declared.");
+		validateLength(name, MAX_SSH_KEY_NAME_LENGTH);
 		assertTrue(!sshKeysRepository.isNamePresent(name),
 				() -> new DuplicatedNameValidationError("SSHKey name has to be unique."));
+	}
+
+	private void validateLength(String fieldVale, int length) {
+		if (Objects.nonNull(fieldVale) && fieldVale.length() > length) {
+			throw new IllegalArgumentException("SSH Key name is too long.");
+		}
 	}
 
 	private void validateValue(SSHKey key) {

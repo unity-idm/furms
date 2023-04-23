@@ -41,7 +41,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.imunity.furms.core.constant.ValidationConst.MAX_ALLOCATION_NAME_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_ALLOCATION_NAME_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertFalse;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;

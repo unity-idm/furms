@@ -23,8 +23,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.imunity.furms.core.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
-import static io.imunity.furms.core.constant.ValidationConst.MAX_NAME_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_DESCRIPTION_LENGTH;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_INFRA_NAME_LENGTH;
 import static io.imunity.furms.utils.ValidationUtils.assertTrue;
 import static org.springframework.util.Assert.notNull;
 
@@ -70,7 +70,7 @@ class InfraServiceServiceValidator {
 
 	private void validateName(InfraService infraService) {
 		notNull(infraService.name, "InfraService name has to be declared.");
-		validateLength("name", infraService.name, MAX_NAME_LENGTH);
+		validateLength("name", infraService.name, MAX_INFRA_NAME_LENGTH);
 		if (isNameOccupied(infraService)) {
 			throw new DuplicatedNameValidationError("InfraService name has to be unique.");
 		}
