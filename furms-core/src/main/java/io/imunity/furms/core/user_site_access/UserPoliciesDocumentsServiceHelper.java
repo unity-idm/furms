@@ -25,7 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-class UserPoliciesDocumentsServiceHelper {
+public class UserPoliciesDocumentsServiceHelper {
 	private final PolicyDocumentRepository policyDocumentRepository;
 	private final PolicyDocumentDAO policyDocumentDAO;
 	private final SiteRepository siteRepository;
@@ -73,7 +73,8 @@ class UserPoliciesDocumentsServiceHelper {
 			.anyMatch(site -> site.getPolicyId().id != null);
 	}
 
-	UserPolicyAcceptancesWithServicePolicies getUserPolicyAcceptancesWithServicePolicies(SiteId siteId, FenixUserId fenixUserId) {
+	public UserPolicyAcceptancesWithServicePolicies getUserPolicyAcceptancesWithServicePolicies(SiteId siteId,
+	                                                                                      FenixUserId fenixUserId) {
 		FURMSUser user = usersDAO.findById(fenixUserId)
 			.orElseThrow(() -> new UserWithoutFenixIdValidationError("User not logged via Fenix Central IdP"));
 

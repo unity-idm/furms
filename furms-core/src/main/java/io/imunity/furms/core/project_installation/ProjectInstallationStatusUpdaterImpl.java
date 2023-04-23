@@ -6,6 +6,7 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
@@ -14,8 +15,8 @@ import io.imunity.furms.domain.project_installation.ProjectUpdateJob;
 import io.imunity.furms.domain.project_installation.ProjectUpdateResult;
 import io.imunity.furms.domain.project_installation.ProjectUpdateStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
-import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
+import io.imunity.furms.domain.site_agent.InvalidCorrelationIdException;
 import io.imunity.furms.site.api.status_updater.ProjectInstallationStatusUpdater;
 import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import org.slf4j.Logger;
@@ -31,12 +32,16 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 
 	private final ProjectOperationRepository projectOperationRepository;
 	private final ProjectAllocationInstallationService projectAllocationInstallationService;
+	private final UserOperationService userOperationService;
 
 	ProjectInstallationStatusUpdaterImpl(
 		ProjectOperationRepository projectOperationRepository,
-		ProjectAllocationInstallationService projectAllocationInstallationService) {
+		ProjectAllocationInstallationService projectAllocationInstallationService,
+		UserOperationService userOperationService
+	) {
 		this.projectOperationRepository = projectOperationRepository;
 		this.projectAllocationInstallationService = projectAllocationInstallationService;
+		this.userOperationService = userOperationService;
 	}
 
 	@Override
@@ -51,6 +56,7 @@ class ProjectInstallationStatusUpdaterImpl implements ProjectInstallationStatusU
 		projectOperationRepository.update(job.id, result);
 		if(result.status.equals(ProjectInstallationStatus.INSTALLED)){
 			projectAllocationInstallationService.startWaitingAllocations(job.projectId, job.siteId);
+			userOperationService.startWaitingUserAdditions(job.siteId, job.projectId);
 		}
 		if(result.status.equals(ProjectInstallationStatus.FAILED)){
 			projectAllocationInstallationService.cancelWaitingAllocations(job.projectId, new ErrorMessage(result.error.code, result.error.message));

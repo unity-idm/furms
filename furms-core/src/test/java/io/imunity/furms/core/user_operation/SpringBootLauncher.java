@@ -10,9 +10,11 @@ import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.ssh_keys.SSHKeyService;
 import io.imunity.furms.core.MockedTransactionManager;
 import io.imunity.furms.core.post_commit.PostCommitRunner;
+import io.imunity.furms.core.user_site_access.UserPoliciesDocumentsServiceHelper;
 import io.imunity.furms.site.api.site_agent.SiteAgentResourceAccessService;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
 import io.imunity.furms.site.api.status_updater.UserOperationStatusUpdater;
+import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
@@ -50,6 +52,10 @@ class SpringBootLauncher {
 	private UserSiteAccessRepository userSiteAccessRepository;
 	@MockBean
 	private SiteAgentResourceAccessService siteAgentResourceAccessService;
+	@MockBean
+	private ProjectOperationRepository projectOperationRepository;
+	@MockBean
+	private UserPoliciesDocumentsServiceHelper policyDocumentService;
 	@Autowired
 	private PostCommitRunner postCommitRunner;
 
@@ -61,7 +67,8 @@ class SpringBootLauncher {
 	@Bean
 	UserOperationService userOperationService() {
 		return new UserOperationService(authzService, siteService, repository, siteAgentUserService, usersDAO,
-			policyService, sshKeyService, resourceAccessRepository, userSiteAccessRepository, postCommitRunner);
+			policyService, sshKeyService, resourceAccessRepository, userSiteAccessRepository,
+			projectOperationRepository, policyDocumentService, postCommitRunner);
 	}
 
 	@Bean

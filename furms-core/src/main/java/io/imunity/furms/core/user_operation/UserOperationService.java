@@ -12,6 +12,7 @@ import io.imunity.furms.api.users.UserAllocationsService;
 import io.imunity.furms.api.validation.exceptions.UserInstallationOnSiteIsNotTerminalException;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.post_commit.PostCommitRunner;
+import io.imunity.furms.core.user_site_access.UserPoliciesDocumentsServiceHelper;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptanceAtSite;
 import io.imunity.furms.domain.policy_documents.UserPolicyAcceptancesWithServicePolicies;
 import io.imunity.furms.domain.projects.ProjectId;
@@ -26,6 +27,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
+import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.user_site_access.UserSiteAccessRepository;
@@ -64,6 +66,9 @@ public class UserOperationService implements UserAllocationsService {
 	private final SSHKeyService sshKeyService;
 	private final ResourceAccessRepository resourceAccessRepository;
 	private final UserSiteAccessRepository userSiteAccessRepository;
+	private final ProjectOperationRepository projectOperationRepository;
+	private final UserPoliciesDocumentsServiceHelper policyDocumentService;
+
 	private final PostCommitRunner postCommitRunner;
 
 	UserOperationService(AuthzService authzService,
@@ -75,6 +80,8 @@ public class UserOperationService implements UserAllocationsService {
 	                     SSHKeyService sshKeyService,
 	                     ResourceAccessRepository resourceAccessRepository,
 	                     UserSiteAccessRepository userSiteAccessRepository,
+	                     ProjectOperationRepository projectOperationRepository,
+	                     UserPoliciesDocumentsServiceHelper policyDocumentService,
 	                     PostCommitRunner postCommitRunner) {
 		this.authzService = authzService;
 		this.siteService = siteService;
@@ -85,6 +92,8 @@ public class UserOperationService implements UserAllocationsService {
 		this.sshKeyService = sshKeyService;
 		this.resourceAccessRepository = resourceAccessRepository;
 		this.userSiteAccessRepository = userSiteAccessRepository;
+		this.projectOperationRepository = projectOperationRepository;
+		this.policyDocumentService = policyDocumentService;
 		this.postCommitRunner = postCommitRunner;
 	}
 
@@ -195,9 +204,21 @@ public class UserOperationService implements UserAllocationsService {
 			.status(ADDING_PENDING)
 			.build();
 		repository.create(userAddition);
-		postCommitRunner.runAfterCommit(() ->
-			siteAgentUserService.addUser(userAddition, userPolicyAcceptances)
-		);
+		if(projectOperationRepository.installedProjectExistsBySiteIdAndProjectId(siteId, projectId))
+			postCommitRunner.runAfterCommit(() ->
+				siteAgentUserService.addUser(userAddition, userPolicyAcceptances)
+			);
+	}
+
+	@Transactional
+	public void startWaitingUserAdditions(SiteId siteId, ProjectId projectId) {
+		repository.findAllUserAdditions(siteId, projectId).stream()
+			.filter(userAddition -> ADDING_PENDING.equals(userAddition.status))
+			.forEach(userAddition -> {
+				UserPolicyAcceptancesWithServicePolicies userPolicyAcceptances =
+					policyDocumentService.getUserPolicyAcceptancesWithServicePolicies(siteId, userAddition.userId);
+				siteAgentUserService.addUser(userAddition, userPolicyAcceptances);
+			});
 	}
 
 	@Transactional

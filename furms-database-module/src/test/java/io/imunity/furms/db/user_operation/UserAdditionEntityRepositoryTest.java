@@ -50,6 +50,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 	private ProjectInstallationJobEntityRepository projectInstallationRepository;
 
 	private SiteId siteId;
+	private CommunityId communityId;
 	private ProjectId projectId;
 
 	@BeforeEach
@@ -63,7 +64,7 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 			.name("name")
 			.logo(FurmsImage.empty())
 			.build();
-		CommunityId communityId = communityRepository.create(community);
+		communityId = communityRepository.create(community);
 
 		Project project = Project.builder()
 			.communityId(communityId)
@@ -113,6 +114,61 @@ class UserAdditionEntityRepositoryTest extends DBIntegrationTest {
 
 		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllByProjectIdAndUserId(projectId.id, "userId");
 		assertThat(userAdditions.size()).isEqualTo(1);
+		assertThat(userAdditions.iterator().next().status).isEqualTo(UserStatus.REMOVAL_PENDING.getPersistentId());
+		assertThat(userAdditions.iterator().next().site.getExternalId()).isEqualTo("id");
+		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId.id);
+	}
+
+	@Test
+	void shouldFindAllBySiteIdAndProjectIdWithRelatedSite(){
+		UserAdditionSaveEntity userAddition = userAdditionEntityRepository.save(
+			UserAdditionSaveEntity.builder()
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.userId("userId")
+				.build()
+		);
+		userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
+				.correlationId(UUID.randomUUID())
+				.userAdditionId(userAddition.getId())
+				.status(UserStatus.REMOVAL_PENDING)
+				.build()
+		);
+
+		Project project = Project.builder()
+			.communityId(communityId)
+			.name("name2")
+			.description("new_description2")
+			.logo(FurmsImage.empty())
+			.acronym("acronym2")
+			.researchField("research filed")
+			.utcStartTime(LocalDateTime.now())
+			.utcEndTime(LocalDateTime.now())
+			.build();
+
+		ProjectId projectId = projectRepository.create(project);
+		UserAdditionSaveEntity userAddition2 = userAdditionEntityRepository.save(
+			UserAdditionSaveEntity.builder()
+				.siteId(siteId.id)
+				.projectId(projectId.id)
+				.userId("userId2")
+				.build()
+		);
+		userAdditionJobEntityRepository.save(
+			UserAdditionJobEntity.builder()
+				.correlationId(UUID.randomUUID())
+				.userAdditionId(userAddition2.getId())
+				.status(UserStatus.REMOVAL_PENDING)
+				.build()
+		);
+
+		Set<UserAdditionReadEntity> userAdditions = userAdditionEntityRepository.findAllBySiteIdAndProjectId(
+			siteId.id,
+			projectId.id
+		);
+		assertThat(userAdditions.size()).isEqualTo(1);
+		assertThat(userAdditions.iterator().next().userId).isEqualTo("userId2");
 		assertThat(userAdditions.iterator().next().status).isEqualTo(UserStatus.REMOVAL_PENDING.getPersistentId());
 		assertThat(userAdditions.iterator().next().site.getExternalId()).isEqualTo("id");
 		assertThat(userAdditions.iterator().next().site.getId()).isEqualTo(siteId.id);

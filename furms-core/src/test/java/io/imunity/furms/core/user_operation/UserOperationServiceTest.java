@@ -22,6 +22,7 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.site.api.site_agent.SiteAgentUserService;
+import io.imunity.furms.spi.project_installation.ProjectOperationRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
 import io.imunity.furms.spi.users.UsersDAO;
@@ -47,6 +48,7 @@ import static org.junit.jupiter.params.provider.EnumSource.Mode.EXCLUDE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,6 +67,8 @@ class UserOperationServiceTest {
 	private PolicyDocumentServiceHelper policyService;
 	@Autowired
 	private ResourceAccessRepository resourceAccessRepository;
+	@Autowired
+	private ProjectOperationRepository projectOperationRepository;
 
 	@Autowired
 	private UserOperationService service;
@@ -163,7 +167,7 @@ class UserOperationServiceTest {
 	}
 
 	@Test
-	void shouldCreateUserAddition() {
+	void shouldCreateUserAdditionAndSandMessageToSite() {
 		//given
 		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
 		ProjectId projectId = new ProjectId(UUID.randomUUID());
@@ -175,12 +179,36 @@ class UserOperationServiceTest {
 			.email("email")
 			.build();
 		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of());
+		when(projectOperationRepository.installedProjectExistsBySiteIdAndProjectId(siteId, projectId)).thenReturn(true);
 
 		service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of()));
 
 		//then
 		orderVerifier.verify(repository).create(any(UserAddition.class));
 		orderVerifier.verify(siteAgentUserService).addUser(any(UserAddition.class), eq(userPolicyAcceptancesWithServicePolicies));
+	}
+
+	@Test
+	void shouldCreateUserAdditionWithoutSandingMessageToSite() {
+		//given
+		SiteId siteId = new SiteId(UUID.randomUUID().toString(), new SiteExternalId("id"));
+		ProjectId projectId = new ProjectId(UUID.randomUUID());
+		PersistentId userId = new PersistentId("userId");
+		FenixUserId fenixUserId = new FenixUserId("id");
+		FURMSUser user = FURMSUser.builder()
+			.id(userId)
+			.fenixUserId(fenixUserId)
+			.email("email")
+			.build();
+		UserPolicyAcceptancesWithServicePolicies userPolicyAcceptancesWithServicePolicies = new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of());
+		when(projectOperationRepository.installedProjectExistsBySiteIdAndProjectId(siteId, projectId)).thenReturn(false);
+
+		service.createUserAdditions(siteId, projectId, new UserPolicyAcceptancesWithServicePolicies(user, Set.of(), Optional.empty(), Set.of()));
+
+		//then
+		orderVerifier.verify(repository).create(any(UserAddition.class));
+		verify(siteAgentUserService, times(0)).addUser(any(UserAddition.class),
+			eq(userPolicyAcceptancesWithServicePolicies));
 	}
 
 	@Test

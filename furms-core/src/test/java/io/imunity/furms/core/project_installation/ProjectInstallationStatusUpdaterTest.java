@@ -6,6 +6,7 @@
 package io.imunity.furms.core.project_installation;
 
 import io.imunity.furms.core.project_allocation_installation.ProjectAllocationInstallationService;
+import io.imunity.furms.core.user_operation.UserOperationService;
 import io.imunity.furms.domain.project_installation.ProjectInstallationId;
 import io.imunity.furms.domain.project_installation.ProjectInstallationJob;
 import io.imunity.furms.domain.project_installation.ProjectInstallationResult;
@@ -40,14 +41,16 @@ class ProjectInstallationStatusUpdaterTest {
 	private ProjectOperationRepository repository;
 	@Mock
 	private ProjectAllocationInstallationService projectAllocationInstallationService;
+	@Mock
+	private UserOperationService userOperationService;
 
 	private ProjectInstallationStatusUpdaterImpl service;
 	private InOrder orderVerifier;
 
 	@BeforeEach
 	void init() {
-		service = new ProjectInstallationStatusUpdaterImpl(repository, projectAllocationInstallationService);
-		orderVerifier = inOrder(repository, projectAllocationInstallationService);
+		service = new ProjectInstallationStatusUpdaterImpl(repository, projectAllocationInstallationService, userOperationService);
+		orderVerifier = inOrder(repository, projectAllocationInstallationService, userOperationService);
 	}
 
 	@Test
@@ -93,6 +96,7 @@ class ProjectInstallationStatusUpdaterTest {
 		//then
 		orderVerifier.verify(repository).update(projectInstallationId, result);
 		orderVerifier.verify(projectAllocationInstallationService).startWaitingAllocations(projectId, siteId);
+		orderVerifier.verify(userOperationService).startWaitingUserAdditions(siteId, projectId);
 	}
 
 	@Test
