@@ -5,6 +5,8 @@
 
 package io.imunity.furms.rest.admin;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.imunity.furms.TestBeansRegistry;
 import io.imunity.furms.core.config.security.SecurityProperties;
@@ -72,6 +74,7 @@ abstract class RestApiControllerIntegrationTest extends TestBeansRegistry {
 						.id(userId)
 						.email("email@domain.com")
 						.build()));
+		objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 	}
 
 	protected String authKey() {
