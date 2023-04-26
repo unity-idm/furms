@@ -34,6 +34,7 @@ import static io.imunity.furms.api.constant.ValidationConst.MAX_SSH_KEY_NAME_LEN
 
 
 @CssImport("./styles/views/settings/ssh-keys.css")
+@CssImport(value = "./styles/components/textarea-error-message.css", themeFor = "vaadin-text-area")
 class SSHKeyFormComponent extends Composite<Div> {
 
 	private final Binder<SSHKeyUpdateModel> binder;

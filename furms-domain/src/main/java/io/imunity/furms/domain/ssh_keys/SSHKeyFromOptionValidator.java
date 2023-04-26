@@ -17,8 +17,10 @@ public class SSHKeyFromOptionValidator {
 	private static final int VALID_IPv6_SUBNET_MASK = 60;
 
 	public static void validateFromOption(String fromOption) {
-		if (fromOption == null || fromOption.isEmpty())
+		if (fromOption == null)
 			return;
+		if(fromOption.isBlank() || fromOption.length() <= 2)
+			throw new InvalidSSHKeyFromOptionException("Host in from option required", fromOption, ErrorType.INVALID_HOST);
 		if(!fromOption.startsWith("\"") || !fromOption.endsWith("\""))
 			throw new InvalidSSHKeyFromOptionException("Host should be between quotation marks", fromOption,
 				ErrorType.MISSING_QUOTATION_MARKS);
