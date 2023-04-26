@@ -28,7 +28,7 @@ channels:
 
    site/site_id/community/add/ack:
       publish:
-         summary: Acknowledge adding community
+         summary: Acknowledge community addition
          operationId: CommunityInstallationRequestAck
          message:
             name: CommunityInstallationRequestAck
@@ -60,7 +60,7 @@ channels:
 
    site/site_id/community/update/ack:
       publish:
-         summary: Acknowledge updating community
+         summary: Acknowledge community update
          operationId: CommunityUpdateRequestAck
          message:
             name: CommunityUpdateRequestAck

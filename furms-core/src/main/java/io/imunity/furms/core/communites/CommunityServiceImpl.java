@@ -70,7 +70,8 @@ class CommunityServiceImpl implements CommunityService {
 	                     ApplicationEventPublisher publisher,
 	                     CapabilityCollector capabilityCollector,
 						 InvitatoryService invitatoryService,
-						 SiteAgentCommunityOperationService siteAgentCommunityOperationService) {
+						 SiteAgentCommunityOperationService siteAgentCommunityOperationService
+	) {
 		this.communityRepository = communityRepository;
 		this.communityGroupsDAO = communityGroupsDAO;
 		this.validator = validator;
