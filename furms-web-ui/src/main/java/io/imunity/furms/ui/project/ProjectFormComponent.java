@@ -63,6 +63,7 @@ public class ProjectFormComponent extends Composite<Div> {
 		nameField.setValueChangeMode(EAGER);
 		nameField.setMaxLength(MAX_PROJECT_NAME_LENGTH);
 		nameField.setReadOnly(restrictedEditing);
+		nameField.setClassName("long-default-name-field");
 		formLayout.addFormItem(nameField, getTranslation("view.community-admin.project.form.field.name"));
 
 		descriptionField.setClassName("description-text-area");

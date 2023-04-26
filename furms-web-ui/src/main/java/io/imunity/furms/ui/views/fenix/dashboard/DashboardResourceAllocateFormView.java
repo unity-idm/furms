@@ -177,10 +177,11 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	}
 
 	private ComboBox<CommunityComboBoxModel> communityField() {
-		final Set<CommunityComboBoxModel> items = communityService.findAll().stream()
+		Set<CommunityComboBoxModel> items = communityService.findAll().stream()
 				.map(item -> new CommunityComboBoxModel(item.getId(), item.getName()))
 				.collect(toSet());
-		final ComboBox<CommunityComboBoxModel> communityComboBox = new ComboBox<>();
+		ComboBox<CommunityComboBoxModel> communityComboBox = new ComboBox<>();
+		communityComboBox.setClassName("long-combo-box");
 		communityComboBox.addValueChangeListener(event -> nameField.reloadName(
 			event.getValue().getName(),
 			() -> communityAllocationService.getOccupiedNames(event.getValue().getId()),
@@ -226,7 +227,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	private ComboBox<ResourceCreditComboBoxModel> resourceCreditField(Label availableAmountLabel) {
 		final ComboBox<ResourceCreditComboBoxModel> resourceCreditComboBox = new ComboBox<>();
 		resourceCreditComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
-		resourceCreditComboBox.setWidth("17em");
+		resourceCreditComboBox.setClassName("long-combo-box");
 		resourceCreditComboBox.setReadOnly(true);
 		ResourceCreditComboBoxModel resourceCredit = binder.getBean().getResourceCredit();
 		resourceCreditComboBox.setItems(resourceCredit);

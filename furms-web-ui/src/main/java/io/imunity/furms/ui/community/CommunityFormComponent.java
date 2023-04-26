@@ -48,6 +48,7 @@ public class CommunityFormComponent extends Composite<Div> {
 		TextField name = new FormTextField();
 		name.setValueChangeMode(EAGER);
 		name.setMaxLength(MAX_COMMUNITY_NAME_LENGTH);
+		name.setClassName("long-default-name-field");
 		formLayout.addFormItem(name, getTranslation("view.fenix-admin.community.form.field.name"));
 
 		TextArea description = new FormTextArea();

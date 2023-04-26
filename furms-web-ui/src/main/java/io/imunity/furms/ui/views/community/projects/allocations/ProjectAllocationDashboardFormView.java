@@ -159,6 +159,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 				.map(item -> new ComboBoxModel(item.getId(), item.getCommunityId(), item.getName()))
 				.collect(toSet());
 		final ComboBox<ComboBoxModel> projectsComboBox = new ComboBox<>();
+		projectsComboBox.setClassName("long-combo-box");
 		projectsComboBox.addValueChangeListener(event -> nameField.reloadName(
 			event.getValue().getName(),
 			() -> projectAllocationService.getOccupiedNames(event.getValue().getCommunityId(), event.getValue().getId()),
@@ -206,7 +207,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 		communityAllocationComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		communityAllocationComboBox.setReadOnly(true);
 		communityAllocationComboBox.setItems(binder.getBean().getAllocationCommunity());
-		communityAllocationComboBox.setWidth("17em");
+		communityAllocationComboBox.setClassName("long-combo-box");
 		AllocationCommunityComboBoxModel allocationCommunity = binder.getBean().getAllocationCommunity();
 		availableAmount = projectAllocationService.getAvailableAmount(binder.getBean().getCommunityId(),
 				allocationCommunity.id);

@@ -42,7 +42,11 @@
 }
 
 .description-text-area {
-	width: var(--vaadin-text-field-default-width, 24em);
+	width: 17em;
+}
+
+.long-combo-box {
+	width: 17em;
 }
 
 .wide-text-area {
