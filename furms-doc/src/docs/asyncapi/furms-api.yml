@@ -76,7 +76,7 @@ channels:
          message:
             name: CommunityRemovalRequest
             traits:
-               - $ref: "#/components/messageTraits/requestAck"
+               - $ref: "#/components/messageTraits/request"
             payload:
                type: object
                additionalProperties: false
