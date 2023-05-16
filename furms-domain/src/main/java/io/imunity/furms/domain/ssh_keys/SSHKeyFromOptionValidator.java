@@ -20,9 +20,9 @@ public class SSHKeyFromOptionValidator {
 		if (fromOption == null)
 			return;
 		if(fromOption.isBlank() || fromOption.length() <= 2)
-			throw new InvalidSSHKeyFromOptionException("Host in from option required", fromOption, ErrorType.INVALID_HOST);
+			throw new InvalidSSHKeyFromOptionException("At least one host is required", fromOption, ErrorType.INVALID_HOST);
 		if(!fromOption.startsWith("\"") || !fromOption.endsWith("\""))
-			throw new InvalidSSHKeyFromOptionException("Host should be between quotation marks", fromOption,
+			throw new InvalidSSHKeyFromOptionException("Address has to be provided in quotation marks", fromOption,
 				ErrorType.MISSING_QUOTATION_MARKS);
 		String[] options = fromOption.replaceAll("\"", "").split(",");
 		if (Stream.of(options).filter(o -> !o.trim().startsWith("!")).findAny().isEmpty()) {
