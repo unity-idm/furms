@@ -53,9 +53,9 @@ public class DefaultNameField extends CustomField<String> {
 		add(div);
 	}
 
-	public static DefaultNameField createLongDefaultNameField() {
+	public static DefaultNameField createLongDefaultNameField(int maxLength) {
 		DefaultNameField defaultNameField = new DefaultNameField(LONG_GENERATED_NAME_LENGTH);
-		defaultNameField.setMaxLength(MAX_ALLOCATION_NAME_LENGTH);
+		defaultNameField.setMaxLength(maxLength);
 		defaultNameField.setClassName("long-default-name-field");
 		return defaultNameField;
 	}

@@ -20,6 +20,7 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
+import io.imunity.furms.api.constant.ValidationConst;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
@@ -47,6 +48,7 @@ import java.util.Set;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_ALLOCATION_NAME_LENGTH;
 import static io.imunity.furms.ui.utils.NotificationUtils.showErrorNotification;
 import static io.imunity.furms.ui.utils.VaadinExceptionHandler.getResultOrException;
 import static java.math.BigDecimal.ZERO;
@@ -154,7 +156,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 	}
 
 	private DefaultNameField nameField() {
-		final DefaultNameField nameField = DefaultNameField.createLongDefaultNameField();
+		final DefaultNameField nameField = DefaultNameField.createLongDefaultNameField(MAX_ALLOCATION_NAME_LENGTH);
 		binder.forField(nameField)
 				.withValidator(
 						value -> Objects.nonNull(value) && !value.isBlank(),
