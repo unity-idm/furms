@@ -194,7 +194,7 @@ public class SSHKeyServiceValidator {
 		FenixUserId fenixId = validateFenixId(userId);
 		
 		assertTrue(siteRepository.findAll().stream()
-				.anyMatch(site -> userOperationRepository.isUserAdded(site.getId(), fenixId)),
+				.anyMatch(site -> userOperationRepository.isUserInstalledOnSite(fenixId, site.getId())),
 				() -> new UserWithoutSitesError("User with id" + userId.id
 						+ " don't have access to any site to install SSH keys"));
 
