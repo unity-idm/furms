@@ -119,6 +119,8 @@ class SSHKeyFormComponent extends Composite<Div> {
 	public class SSHKeyValueValidator implements Validator<String> {
 		@Override
 		public ValidationResult apply(String value, ValueContext context) {
+			if(value != null && value.contains("\n"))
+				return ValidationResult.error(getTranslation("view.user-settings.ssh-keys.form.error.validation.field.key.invalid.format.newLine"));
 			try {
 				Map<String, String> keyOptions = SSHKey.getKeyOptions(value);
 
