@@ -13,6 +13,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.furms.api.constant.ValidationConst;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.ui.components.DefaultNameField;
 import io.imunity.furms.ui.components.FormTextField;
@@ -46,7 +48,7 @@ class ResourceCreditFormComponent extends Composite<Div> {
 		this.resolver = resolver;
 		this.formLayout = new FurmsFormLayout();
 
-		defaultNameField = DefaultNameField.createLongDefaultNameField();
+		defaultNameField = DefaultNameField.createLongDefaultNameField(MAX_RESOURCE_CREDIT_NAME_LENGTH);
 		formLayout.addFormItem(defaultNameField, getTranslation("view.site-admin.resource-credits.form.field.name"));
 
 		resourceTypeComboBox = new ComboBox<>();

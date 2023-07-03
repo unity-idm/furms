@@ -12,6 +12,8 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.furms.api.constant.ValidationConst;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceTypeId;
@@ -28,6 +30,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_ALLOCATION_NAME_LENGTH;
 import static io.imunity.furms.ui.utils.ResourceGetter.getCurrentResourceId;
 
 class ProjectAllocationFormComponent extends Composite<Div> {
@@ -46,7 +49,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		this.resolver = resolver;
 		FormLayout formLayout = new FurmsFormLayout();
 
-		defaultNameField = DefaultNameField.createLongDefaultNameField();
+		defaultNameField = DefaultNameField.createLongDefaultNameField(MAX_ALLOCATION_NAME_LENGTH);
 		formLayout.addFormItem(defaultNameField, getTranslation("view.community-admin.project-allocation.form.field.name"));
 
 		resourceTypeComboBox = new ComboBox<>();

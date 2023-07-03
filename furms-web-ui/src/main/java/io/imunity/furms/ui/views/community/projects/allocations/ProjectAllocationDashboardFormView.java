@@ -5,6 +5,23 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
+import static com.vaadin.flow.component.Key.ESCAPE;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_ALLOCATION_NAME_LENGTH;
+import static java.math.BigDecimal.ZERO;
+import static java.util.stream.Collectors.toSet;
+
+import java.lang.invoke.MethodHandles;
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -17,6 +34,8 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
+
+import io.imunity.furms.api.constant.ValidationConst;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
@@ -32,21 +51,6 @@ import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComb
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.DashboardView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.invoke.MethodHandles;
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.vaadin.flow.component.Key.ESCAPE;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static java.math.BigDecimal.ZERO;
-import static java.util.stream.Collectors.toSet;
 
 @Route(value = "community/admin/dashboard/allocation", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.allocate.page.title")
@@ -143,7 +147,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 	}
 
 	private DefaultNameField nameField() {
-		final DefaultNameField nameField = DefaultNameField.createLongDefaultNameField();
+		final DefaultNameField nameField = DefaultNameField.createLongDefaultNameField(MAX_ALLOCATION_NAME_LENGTH);
 		binder.forField(nameField)
 				.withValidator(
 						value -> Objects.nonNull(value) && !value.isBlank(),
