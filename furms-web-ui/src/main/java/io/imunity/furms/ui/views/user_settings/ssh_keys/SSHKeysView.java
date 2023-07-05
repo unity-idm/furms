@@ -210,7 +210,7 @@ public class SSHKeysView extends FurmsViewComponent implements AfterNavigationOb
 			return getTranslation("view.user-settings.ssh-keys.grid.key." + donePostfix);
 		} else if (status.equals(FAILED)) {
 			if(error.isPresent() && !error.get().isEmpty())
-				return error.get();
+				return getTranslation("view.user-settings.ssh-keys.grid.key.error.prefix") + " " + error.get();
 			return getTranslation("view.user-settings.ssh-keys.grid.key." + errorPostfix);
 		} else {
 			return getTranslation("view.user-settings.ssh-keys.grid.key." + inProgressPostfix);

@@ -21,6 +21,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.site_agent_pending_message.SiteAgentConnectionService;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.site_agent_pending_messages.SiteAgentPendingMessage;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FurmsDialog;
@@ -269,10 +270,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 				PendingMessageGridModel.builder()
 					.id(message.correlationId)
 					.operationType(JsonPendingRequestParser.parseOperation(message.jsonContent))
-					.status(message.utcAckAt == null ?
-						getTranslation("view.site-admin.pending-requests.page.grid.status.pending") :
-						getTranslation("view.site-admin.pending-requests.page.grid.status.ack")
-					)
+					.status(message.errorMessage.isPresent() ? getErrorStatus() : getCorrectStatus(message))
 					.sentAt(convertToZoneTime(message.utcSentAt, browserZoneId).toLocalDateTime())
 					.ackAt(Optional.ofNullable(message.utcAckAt)
 						.map(ack -> convertToZoneTime(ack, browserZoneId).toLocalDateTime())
@@ -285,6 +283,17 @@ public class PendingRequestsView extends FurmsViewComponent {
 			)
 			.filter(model -> rowContains(model, searchLayout.getSearchText(), searchLayout))
 			.collect(Collectors.toSet());
+	}
+
+	private String getErrorStatus()
+	{
+		return getTranslation("view.site-admin.pending-requests.page.grid.status.failed");
+	}
+	private String getCorrectStatus(SiteAgentPendingMessage message)
+	{
+		return message.utcAckAt == null ?
+			getTranslation("view.site-admin.pending-requests.page.grid.status.pending") :
+			getTranslation("view.site-admin.pending-requests.page.grid.status.ack");
 	}
 
 	private VerticalLayout createSiteConnectionLayout(UI ui, SiteId siteId) {
