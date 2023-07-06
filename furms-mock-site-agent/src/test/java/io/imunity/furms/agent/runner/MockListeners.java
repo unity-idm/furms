@@ -39,6 +39,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyRemovalResult;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingAck;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentSSHKeyUpdatingResult;
+import io.imunity.furms.rabbitmq.site.models.Error;
 import io.imunity.furms.rabbitmq.site.models.Header;
 import io.imunity.furms.rabbitmq.site.models.Payload;
 import io.imunity.furms.rabbitmq.site.models.SetUserStatusRequest;
@@ -202,13 +203,35 @@ class MockListeners {
 			Payload<AgentSSHKeyAdditionRequest> agentSSHKeyInstallationRequest)
 			throws InterruptedException {
 		String correlationId = agentSSHKeyInstallationRequest.header.messageCorrelationId;
-		Header header = new Header(VERSION, correlationId, Status.OK, null);
-		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentSSHKeyAdditionAck()));
+		
+		if (agentSSHKeyInstallationRequest.body.publicKey.contains("BOMB"))
+		{
+			Header errorHeader = new Header(VERSION, correlationId, Status.FAILED, 
+					new Error("invalid_key", "bombs are disallowed"));
+			rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(errorHeader, new AgentSSHKeyAdditionAck()));
+			return;
+		}
+		if (agentSSHKeyInstallationRequest.body.publicKey.contains("NUKE"))
+		{
+			Header header = new Header(VERSION, correlationId, Status.OK, null);
+			rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentSSHKeyAdditionAck()));
+			
+			Header errorHeader = new Header(VERSION, correlationId, Status.FAILED, 
+					new Error("invalid_key", "bombs are disallowed"));
+			AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
+			rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(errorHeader, result));
+			return;
+		} else
+		{
+		
+			Header header = new Header(VERSION, correlationId, Status.OK, null);
+			rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentSSHKeyAdditionAck()));
 
-		TimeUnit.SECONDS.sleep(5);
+			TimeUnit.SECONDS.sleep(5);
 
-		AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
-		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+			AgentSSHKeyAdditionResult result = new AgentSSHKeyAdditionResult();
+			rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, result));
+		}
 	}
 
 	@EventListener
