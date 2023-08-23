@@ -40,6 +40,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.FAILED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.INSTALLED;
 import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,6 +114,54 @@ class ProjectInstallationDatabaseRepositoryTest extends DBIntegrationTest {
 		ProjectInstallationJobEntity byId = installationRepository.findAll().iterator().next();
 		assertThat(byId.correlationId.toString()).isEqualTo(correlationId.id);
 		assertThat(byId.status).isEqualTo(PENDING.getPersistentId());
+	}
+
+	@Test
+	void shouldReturnTrueWhenProjectInstallationJobIsPending() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(PENDING)
+			.build();
+		entityDatabaseRepository.createOrUpdate(request);
+
+
+		assertThat(entityDatabaseRepository.pendingOrAcknowledgedInstallationProjectExistsBySiteIdAndProjectId(siteId, projectId)).isTrue();
+	}
+
+	@Test
+	void shouldReturnTrueWhenProjectInstallationJobIsAcknowledged() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(ACKNOWLEDGED)
+			.build();
+		entityDatabaseRepository.createOrUpdate(request);
+
+
+		assertThat(entityDatabaseRepository.pendingOrAcknowledgedInstallationProjectExistsBySiteIdAndProjectId(siteId, projectId)).isTrue();
+	}
+
+	@Test
+	void shouldReturnFalseWhenProjectInstallationJobIsFaild() {
+		//given
+		CorrelationId correlationId = new CorrelationId(UUID.randomUUID().toString());
+		ProjectInstallationJob request = ProjectInstallationJob.builder()
+			.correlationId(correlationId)
+			.siteId(siteId)
+			.projectId(projectId)
+			.status(FAILED)
+			.build();
+		entityDatabaseRepository.createOrUpdate(request);
+
+
+		assertThat(entityDatabaseRepository.pendingOrAcknowledgedInstallationProjectExistsBySiteIdAndProjectId(siteId, projectId)).isFalse();
 	}
 
 	@Test

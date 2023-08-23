@@ -36,7 +36,7 @@ public interface ProjectOperationRepository {
 	void update(ProjectUpdateId id, ProjectUpdateResult result);
 
 	boolean installedProjectExistsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId);
-	boolean pendingInstallationProjectExistsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId);
+	boolean pendingOrAcknowledgedInstallationProjectExistsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId);
 
 	boolean areAllProjectOperationInTerminateState(ProjectId projectId);
 

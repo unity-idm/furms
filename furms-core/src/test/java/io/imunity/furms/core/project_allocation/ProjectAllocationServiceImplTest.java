@@ -184,7 +184,7 @@ class ProjectAllocationServiceImplTest {
 				.siteId(new SiteId(UUID.randomUUID()))
 				.build()
 		);
-		when(projectInstallationService.isProjectInstallationPending(any(), any())).thenReturn(true);
+		when(projectInstallationService.isProjectInstallationPendingOrAcknowledged(any(), any())).thenReturn(true);
 		when(projectAllocationRepository.create(request)).thenReturn(id);
 		when(projectAllocationRepository.findById(id)).thenReturn(Optional.of(request));
 

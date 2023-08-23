@@ -14,7 +14,7 @@ import io.imunity.furms.domain.sites.SiteId;
 public interface ProjectInstallationService {
 	ProjectInstallation findProjectInstallationOfProjectAllocation(ProjectAllocationId projectAllocationId);
 	boolean isProjectInstalled(SiteId siteId, ProjectId projectId);
-	boolean isProjectInstallationPending(SiteId siteId, ProjectId projectId);
+	boolean isProjectInstallationPendingOrAcknowledged(SiteId siteId, ProjectId projectId);
 	boolean isProjectInTerminalState(ProjectId projectId);
 	void createOrUpdate(ProjectId projectId, ProjectInstallation projectInstallation);
 	void update(Project project);

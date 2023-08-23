@@ -35,6 +35,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.ACKNOWLEDGED;
+import static io.imunity.furms.domain.project_installation.ProjectInstallationStatus.PENDING;
 import static java.util.Optional.ofNullable;
 
 @Repository
@@ -169,19 +171,17 @@ class ProjectOperationJobDatabaseRepository implements ProjectOperationRepositor
 	}
 
 	@Override
-	public boolean pendingInstallationProjectExistsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId) {
-		return installationRepository.existsBySiteIdAndProjectIdAndStatus(
-			siteId.id,
-			projectId.id,
-			ProjectInstallationStatus.PENDING.getPersistentId()
-		);
+	public boolean pendingOrAcknowledgedInstallationProjectExistsBySiteIdAndProjectId(SiteId siteId, ProjectId projectId) {
+		return installationRepository.findBySiteIdAndProjectId(siteId.id, projectId.id)
+			.filter(entity -> entity.status == PENDING.getPersistentId() || entity.status == ACKNOWLEDGED.getPersistentId())
+			.isPresent();
 	}
 
 	@Override
 	public boolean areAllProjectOperationInTerminateState(ProjectId projectId) {
 		return !(installationRepository.existsByProjectIdAndStatusOrProjectIdAndStatus(
 			projectId.id,
-			ProjectInstallationStatus.PENDING.getPersistentId(),
+			PENDING.getPersistentId(),
 			projectId.id,
 			ProjectInstallationStatus.ACKNOWLEDGED.getPersistentId()
 		) ||
