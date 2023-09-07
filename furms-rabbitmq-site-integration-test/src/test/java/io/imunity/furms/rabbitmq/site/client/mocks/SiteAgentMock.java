@@ -25,6 +25,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalResult;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectResourceAllocationStatusResult;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateResult;
@@ -231,6 +232,10 @@ public class SiteAgentMock {
 	public void receiveAgentProjectAllocationInstallationRequest(Payload<AgentProjectAllocationInstallationRequest> projectInstallationRequest) throws InterruptedException {
 		Header header = getHeader(projectInstallationRequest.header);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectAllocationInstallationAck()));
+
+		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
+
+		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, new AgentProjectResourceAllocationStatusResult()));
 
 		TimeUnit.MILLISECONDS.sleep(OP_SLEEP_MS);
 

@@ -29,9 +29,11 @@ public class SiteAgentChunkUpdateProducerMock {
 		this.rabbitTemplate = rabbitTemplate;
 	}
 
-	public void sendAgentProjectAllocationUpdate(AgentProjectAllocationUpdate update) {
-		Header header = getHeader(UUID.randomUUID().toString());
+	public String sendAgentProjectAllocationUpdate(AgentProjectAllocationUpdate update) {
+		String correlationId = UUID.randomUUID().toString();
+		Header header = getHeader(correlationId);
 		rabbitTemplate.convertAndSend(MOCK_SITE_PUB, new Payload<>(header, update));
+		return correlationId;
 	}
 
 	public void sendAgentProjectResourceAllocationStatusResult(CorrelationId correlationId,

@@ -11,6 +11,7 @@ import io.imunity.furms.domain.project_allocation_installation.ErrorMessage;
 import io.imunity.furms.domain.project_allocation_installation.ProjectAllocationChunk;
 import io.imunity.furms.domain.project_allocation_installation.ProjectDeallocationStatus;
 import io.imunity.furms.domain.site_agent.CorrelationId;
+import io.imunity.furms.domain.site_agent.IllegalStateTransitionException;
 import io.imunity.furms.domain.site_agent.SiteAgentException;
 import io.imunity.furms.domain.site_agent.UnsupportedFailedChunkException;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectAllocationInstallationAck;
@@ -100,16 +101,8 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
 		boolean isStateUpdatable = projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId);
 		if(isStateUpdatable) {
-			deletePendingMethod(projectAllocationId);
-			if(Status.FAILED.equals(result.header.status)) {
-				projectAllocationInstallationStatusUpdater.updateStatus(
-					projectAllocationId,
-					FAILED,
-					getErrorMessage(result.header.error)
-				);
-				return;
-			}
-			projectAllocationInstallationStatusUpdater.updateStatus(projectAllocationId, INSTALLED, empty());
+			throw new IllegalStateTransitionException(
+				String.format("Allocation %s waiting for ProjectResourceAllocationStatusResult", projectAllocationId.id));
 		}
 		if(Status.FAILED.equals(result.header.status))
 			throw new UnsupportedFailedChunkException(String.format("Subsequent allocation %s chunk can not be sent " +
@@ -131,16 +124,8 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
 		boolean isStateUpdatable = projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId);
 		if(isStateUpdatable) {
-			deletePendingMethod(projectAllocationId);
-			if(Status.FAILED.equals(result.header.status)) {
-				projectAllocationInstallationStatusUpdater.updateStatus(
-					projectAllocationId,
-					FAILED,
-					getErrorMessage(result.header.error)
-				);
-				return;
-			}
-			projectAllocationInstallationStatusUpdater.updateStatus(projectAllocationId, INSTALLED, empty());
+			throw new IllegalStateTransitionException(
+				String.format("Allocation %s waiting for ProjectResourceAllocationStatusResult", projectAllocationId.id));
 		}
 
 		if(Status.FAILED.equals(result.header.status))
