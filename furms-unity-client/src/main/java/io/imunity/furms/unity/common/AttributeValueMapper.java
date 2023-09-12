@@ -4,7 +4,7 @@
  */
 package io.imunity.furms.unity.common;
 
-import io.imunity.rest.api.RestAttributeExt;
+import io.imunity.rest.api.types.basic.RestAttributeExt;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
@@ -23,7 +23,7 @@ public class AttributeValueMapper {
 	}
 
 	public static String toFurmsAttributeValue(RestAttributeExt attribute, String value) {
-		return mappersByAttributeType.getOrDefault(attribute.getValueSyntax(), DEFAULT_VALUE_MAPPER)
+		return mappersByAttributeType.getOrDefault(attribute.valueSyntax, DEFAULT_VALUE_MAPPER)
 			.apply(value);
 	}
 	

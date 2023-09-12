@@ -5,27 +5,6 @@
 
 package io.imunity.furms.unity.client;
 
-import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
-import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
-import static java.lang.Boolean.TRUE;
-import static org.apache.http.HttpStatus.SC_OK;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-
-import java.util.Map;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.util.SocketUtils;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -36,16 +15,35 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
 import com.github.tomakehurst.wiremock.verification.VerificationResult;
-
 import io.imunity.furms.spi.notifications.EmailNotificationSender;
 import io.imunity.furms.spi.projects.ProjectRepository;
 import io.imunity.furms.spi.resource_access.ResourceAccessRepository;
 import io.imunity.furms.spi.sites.SiteRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.util.TestSocketUtils;
+
+import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.http.RequestMethod.DELETE;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.GET;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.POST;
+import static com.github.tomakehurst.wiremock.http.RequestMethod.PUT;
+import static java.lang.Boolean.TRUE;
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @SpringBootTest
 class UnityClientTest {
 
-	private final static int SERVER_PORT = SocketUtils.findAvailableTcpPort();
+	private final static int SERVER_PORT = TestSocketUtils.findAvailableTcpPort();
 
 	private final WireMockServer server = new WireMockServer(SERVER_PORT);
 

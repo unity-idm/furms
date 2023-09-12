@@ -6,7 +6,6 @@
 package io.imunity.furms.ui.views.user_settings.projects;
 
 import com.google.common.collect.ImmutableList;
-import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
@@ -17,6 +16,7 @@ import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -154,50 +154,60 @@ public class ProjectsView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout createLastColumnContent(ProjectGridModel project) {
-		switch (project.status) {
-			case ACTIVE:
+		switch (project.status)
+		{
+			case ACTIVE ->
+			{
 				return new GridActionsButtonLayout(
 					new RouterGridLink(PIE_CHART, project.id.id.toString(), ProjectView.class),
 					createContextMenu(project.id, project.name, project.communityId)
 				);
-			case NOT_ACTIVE:
+			}
+			case NOT_ACTIVE ->
+			{
 				MenuButton applyButton = new MenuButton(PLUS_CIRCLE);
-				applyButton.addClickListener(x -> {
-					try {
+				applyButton.addClickListener(x ->
+				{
+					try
+					{
 						projectApplicationsService.createForCurrentUser(project.id);
 						showSuccessNotification(getTranslation("view.user-settings.projects.applied.notification", project.name));
 						loadGridContent();
-					} catch (UserAlreadyInvitedException e){
+					} catch (UserAlreadyInvitedException e)
+					{
 						showErrorNotification(getTranslation("user.already.invited"));
-					} catch (Exception e){
+					} catch (Exception e)
+					{
 						showErrorNotification(getTranslation("base.error.message"));
 						throw e;
 					}
 				});
 				return new GridActionsButtonLayout(addApplyTooltip(applyButton));
-			case REQUESTED:
+			}
+			case REQUESTED ->
+			{
 				MenuButton removeApplicationButton = new MenuButton(TRASH);
-				removeApplicationButton.addClickListener(x -> {
-					try {
+				removeApplicationButton.addClickListener(x ->
+				{
+					try
+					{
 						projectApplicationsService.removeForCurrentUser(project.id);
-					} catch (RuntimeException e){
+					} catch (RuntimeException e)
+					{
 						boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
-						if(!handled)
+						if (!handled)
 							LOG.error("Could not remove application.");
 					}
 					loadGridContent();
 				});
 				return new GridActionsButtonLayout(removeApplicationButton);
-			default:
-				throw new RuntimeException("This should not happened");
+			}
+			default -> throw new RuntimeException("This should not happened");
 		}
 	}
 
 	private MenuButton addApplyTooltip(MenuButton menuButton) {
-		Tooltip tooltip = new Tooltip();
-		tooltip.add(getTranslation("view.user-settings.projects.apply"));
-		tooltip.attachToComponent(menuButton);
-		getContent().add(tooltip);
+		Tooltip.forComponent(menuButton).setText(getTranslation("view.user-settings.projects.apply"));
 		return menuButton;
 	}
 

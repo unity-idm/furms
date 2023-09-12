@@ -27,6 +27,7 @@ import io.imunity.furms.rabbitmq.site.models.AgentProjectInstallationResult;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectRemovalResult;
+import io.imunity.furms.rabbitmq.site.models.AgentProjectResourceAllocationStatusResult;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequest;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateRequestAck;
 import io.imunity.furms.rabbitmq.site.models.AgentProjectUpdateResult;
@@ -268,6 +269,8 @@ class MockListeners {
 			return;
 		allocationIdentifiers.add(projectInstallationRequest.body.allocationIdentifier);
 
+		TimeUnit.SECONDS.sleep(5);
+		rabbitTemplate.convertAndSend(responseQueueName, new Payload<>(header, new AgentProjectResourceAllocationStatusResult()));
 		TimeUnit.SECONDS.sleep(5);
 
 		AgentProjectAllocationInstallationResult result = AgentProjectAllocationInstallationResult.builder()

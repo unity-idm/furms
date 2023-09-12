@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.user_settings.ssh_keys;
 
 import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -22,7 +23,6 @@ import io.imunity.furms.domain.ssh_keys.SSHKeyFromOptionValidator;
 import io.imunity.furms.ui.components.BigMultiSelectComboBox;
 import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsFormLayout;
-import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.util.Map;
 import java.util.Objects;
@@ -41,7 +41,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 	private final SiteComboBoxModelResolver resolver;
 	private final SSHKeyService sshKeyService;
 	private final TextArea keyValueField;
-	private final MultiselectComboBox<SiteComboBoxModel> sitesComboBox;
+	private final MultiSelectComboBox<SiteComboBoxModel> sitesComboBox;
 	
 	SSHKeyFormComponent(Binder<SSHKeyUpdateModel> binder, SiteComboBoxModelResolver resolver,
 			SSHKeyService keyService) {
@@ -73,7 +73,7 @@ class SSHKeyFormComponent extends Composite<Div> {
 		getContent().add(formLayout);
 	}
 
-	private void prepareValidator(TextField nameField, MultiselectComboBox<SiteComboBoxModel> sitesComboBox,
+	private void prepareValidator(TextField nameField, MultiSelectComboBox<SiteComboBoxModel> sitesComboBox,
 			TextArea keyValueField) {
 		binder.forField(nameField)
 				.withValidator(value -> Objects.nonNull(value) && !value.isBlank(), getTranslation(

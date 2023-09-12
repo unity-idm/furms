@@ -48,7 +48,6 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 			comboBox.setPlaceholder(getTranslation("component.furms-user-comb-box.placeholder"));
 		} else {
 			comboBox.setAllowCustomValue(false);
-			comboBox.setPreventInvalidInput(true);
 		}
 	}
 

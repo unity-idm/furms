@@ -5,9 +5,6 @@
 
 package io.imunity.furms.ui.views.user_settings.sites;
 
-import com.vaadin.componentfactory.Tooltip;
-import com.vaadin.componentfactory.TooltipAlignment;
-import com.vaadin.componentfactory.TooltipPosition;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -15,6 +12,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
@@ -157,11 +155,7 @@ public class SitesView extends FurmsViewComponent implements AfterNavigationObse
 		if (item.getStatus().isErrorStatus()) {
 			final Button button = new Button(WARNING.create());
 			button.addThemeVariants(LUMO_TERTIARY);
-			final Tooltip tooltip = new Tooltip(button, TooltipPosition.BOTTOM, TooltipAlignment.RIGHT);
-			tooltip.add(item.getErrorMessage());
-			tooltip.setThemeName("Light");
-			getContent().add(tooltip);
-
+			button.setTooltipText(item.getErrorMessage()).setPosition(Tooltip.TooltipPosition.BOTTOM_END);
 			return new Div(label, button);
 		}
 		return new Div(label);

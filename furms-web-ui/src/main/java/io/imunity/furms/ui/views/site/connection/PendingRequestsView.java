@@ -161,7 +161,7 @@ public class PendingRequestsView extends FurmsViewComponent {
 		})
 			.setHeader(new HorizontalLayout(mainContextMenu, new Label(getTranslation("view.site-admin.pending-requests.page.grid.1"))))
 			.setFlexGrow(2);
-		grid.addComponentColumn(model -> new StatusLayout(model.status, model.errorMessage, getContent()))
+		grid.addComponentColumn(model -> new StatusLayout(model.status, model.errorMessage))
 			.setHeader(getTranslation("view.site-admin.pending-requests.page.grid.2"))
 			.setSortable(true);
 		grid.addColumn(model -> model.sentAt.format(dateTimeFormatter))

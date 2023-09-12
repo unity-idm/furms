@@ -8,7 +8,6 @@ package io.imunity.furms.performance.tests.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.api.user.api.key.UserApiKeyService;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.ProjectId;
@@ -16,12 +15,12 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.rest.api.types.basic.RestGroupMember;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.GroupMember;
 
 import java.util.HashSet;
 import java.util.List;
@@ -55,18 +54,15 @@ class UserDataLoader {
 	private final UnityClient unityClient;
 	private final UserApiKeyService userApiKeyService;
 	private final CommunityGroupsDAO communityDao;
-	private final ProjectService projectService;
 	private final ProjectGroupsDAO projectGroupsDAO;
 
 	UserDataLoader(UnityClient unityClient,
 	               UserApiKeyService userApiKeyService,
 	               CommunityGroupsDAO communityDao,
-	               ProjectGroupsDAO projectGroupsDAO,
-	               ProjectService projectService) {
+	               ProjectGroupsDAO projectGroupsDAO) {
 		this.unityClient = unityClient;
 		this.userApiKeyService = userApiKeyService;
 		this.communityDao = communityDao;
-		this.projectService = projectService;
 		this.projectGroupsDAO = projectGroupsDAO;
 	}
 
@@ -83,12 +79,12 @@ class UserDataLoader {
 				.pathSegment("{groupPath}")
 				.buildAndExpand(Map.of("groupPath", "/fenix/users"))
 				.encode()
-				.toUriString(), new ParameterizedTypeReference<Set<GroupMember>>() {})
+				.toUriString(), new ParameterizedTypeReference<Set<RestGroupMember>>() {})
 				.stream()
 				.filter(groupMember -> hasIdentity(groupMember, "identifier"))
 				.map(groupMember -> new Data.User(
 						getIdentity(groupMember, "persistent"),
-						groupMember.getEntity().getId(),
+						groupMember.entity.entityInformation.entityId,
 						getIdentity(groupMember, "identifier")))
 				.collect(toSet());
 	}
@@ -221,16 +217,16 @@ class UserDataLoader {
 				});
 	}
 
-	private boolean hasIdentity(GroupMember groupMember, String typeId) {
-		return groupMember.getEntity().getIdentities().stream()
-			.anyMatch(identity -> identity.getTypeId().equals(typeId));
+	private boolean hasIdentity(RestGroupMember groupMember, String typeId) {
+		return groupMember.entity.identities.stream()
+			.anyMatch(identity -> identity.typeId.equals(typeId));
 	}
 
-	private String getIdentity(GroupMember groupMember, String typeId) {
-		return groupMember.getEntity().getIdentities().stream()
-				.filter(identity -> identity.getTypeId().equals(typeId))
+	private String getIdentity(RestGroupMember groupMember, String typeId) {
+		return groupMember.entity.identities.stream()
+				.filter(identity -> identity.typeId.equals(typeId))
 				.findFirst()
 				.orElseThrow(() -> new IllegalArgumentException("Entity has to have " + typeId + " identity"))
-				.getValue();
+				.value;
 	}
 }

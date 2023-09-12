@@ -4,11 +4,12 @@
  */
 package io.imunity.furms.ui.components;
 
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
-import org.vaadin.gatanaso.MultiselectComboBox;
 
 @CssImport(value = "./styles/components/big-multiselect-combo-box.css")
-public class BigMultiSelectComboBox<T> extends MultiselectComboBox<T> {
+public class BigMultiSelectComboBox<T> extends MultiSelectComboBox<T>
+{
 
 	public BigMultiSelectComboBox() {
 		setDefaults();

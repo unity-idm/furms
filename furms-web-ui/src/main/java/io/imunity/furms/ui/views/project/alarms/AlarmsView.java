@@ -5,7 +5,6 @@
 
 package io.imunity.furms.ui.views.project.alarms;
 
-import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -15,6 +14,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.alarms.AlarmService;
@@ -124,10 +124,7 @@ public class AlarmsView extends FurmsViewComponent {
 					.collect(Collectors.joining()) + (model.users.size() > 3 ? "..." : "")
 			);
 
-			Tooltip tooltip = new Tooltip();
-			tooltip.add(String.join(", ", model.users));
-			tooltip.attachToComponent(label);
-			getContent().add(tooltip);
+			Tooltip.forComponent(label).setText(String.join(", ", model.users));
 			return label;
 		})
 			.setHeader(getTranslation("view.project-admin.alarms.page.grid.5"))

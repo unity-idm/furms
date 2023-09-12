@@ -5,9 +5,6 @@
 
 package io.imunity.furms.ui.views.community.projects;
 
-import com.vaadin.componentfactory.Tooltip;
-import com.vaadin.componentfactory.TooltipAlignment;
-import com.vaadin.componentfactory.TooltipPosition;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -17,6 +14,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -116,7 +114,7 @@ public class ProjectsView extends FurmsViewComponent {
 		grid.addColumn(c -> c.siteName)
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.3"))
 			.setSortable(true);
-		grid.addComponentColumn(c -> new StatusLayout(c.status, c.message, getContent()))
+		grid.addComponentColumn(c -> new StatusLayout(c.status, c.message))
 			.setHeader(getTranslation("view.community-admin.projects.grid.column.4"))
 			.setSortable(true);
 		grid.addComponentColumn(this::createLastColumnContent)
@@ -132,10 +130,8 @@ public class ProjectsView extends FurmsViewComponent {
 
 		if (projectViewModel.expired) {
 			final Icon warningIcon = TIME_BACKWARD.create();
-			final Tooltip warningTooltip = new Tooltip(warningIcon, TooltipPosition.BOTTOM, TooltipAlignment.CENTER);
-			warningTooltip.add(getTranslation("view.community-admin.projects.grid.column.1.expired.project.tooltip"));
-			getContent().add(warningTooltip);
-
+			warningIcon.setTooltipText(getTranslation("view.community-admin.projects.grid.column.1.expired.project.tooltip"))
+				.setPosition(Tooltip.TooltipPosition.BOTTOM);
 			nameComponent.add(warningIcon);
 		}
 

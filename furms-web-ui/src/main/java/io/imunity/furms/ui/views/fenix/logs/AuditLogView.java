@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridSortOrder;
@@ -36,7 +37,6 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.administrators.SearchLayout;
 import io.imunity.furms.ui.user_context.UIContext;
 import io.imunity.furms.ui.views.fenix.menu.FenixAdminMenu;
-import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -64,9 +64,9 @@ public class AuditLogView extends FurmsViewComponent {
 	private final Grid<AuditLogGridModel> grid;
 	private final FurmsDateTimePicker startDateTimePicker;
 	private final FurmsDateTimePicker endDateTimePicker;
-	private final MultiselectComboBox<FURMSUser> userComboBox;
-	private final MultiselectComboBox<Operation> operationComboBox;
-	private final MultiselectComboBox<Action> actionComboBox;
+	private final MultiSelectComboBox<FURMSUser> userComboBox;
+	private final MultiSelectComboBox<Operation> operationComboBox;
+	private final MultiSelectComboBox<Action> actionComboBox;
 	private final SearchLayout searchLayout;
 
 	private Set<AuditLogGridModel> data;

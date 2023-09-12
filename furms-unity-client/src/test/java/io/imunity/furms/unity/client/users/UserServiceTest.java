@@ -5,6 +5,37 @@
 
 package io.imunity.furms.unity.client.users;
 
+import io.imunity.furms.domain.authz.roles.ResourceId;
+import io.imunity.furms.domain.authz.roles.Role;
+import io.imunity.furms.domain.communities.CommunityId;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
+import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
+import io.imunity.furms.domain.policy_documents.PolicyId;
+import io.imunity.furms.domain.users.FURMSUser;
+import io.imunity.furms.domain.users.FenixUserId;
+import io.imunity.furms.domain.users.GroupedUsers;
+import io.imunity.furms.domain.users.PersistentId;
+import io.imunity.furms.domain.users.UserStatus;
+import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.rest.api.RestGroupMemberWithAttributes;
+import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
+import io.imunity.rest.api.types.basic.RestAttributeExt;
+import io.imunity.rest.api.types.basic.RestEntityInformation;
+import io.imunity.rest.api.types.basic.RestIdentity;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.util.UriComponentsBuilder;
+import pl.edu.icm.unity.types.basic.Attribute;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import static io.imunity.furms.domain.authz.roles.ResourceType.APP_LEVEL;
 import static io.imunity.furms.domain.authz.roles.ResourceType.COMMUNITY;
 import static io.imunity.furms.domain.authz.roles.Role.COMMUNITY_ADMIN;
@@ -30,38 +61,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import io.imunity.furms.domain.authz.roles.ResourceId;
-import io.imunity.furms.domain.authz.roles.Role;
-import io.imunity.furms.domain.communities.CommunityId;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
-import io.imunity.furms.domain.policy_documents.PolicyAcceptanceStatus;
-import io.imunity.furms.domain.policy_documents.PolicyId;
-import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.domain.users.FenixUserId;
-import io.imunity.furms.domain.users.GroupedUsers;
-import io.imunity.furms.domain.users.PersistentId;
-import io.imunity.furms.domain.users.UserStatus;
-import io.imunity.furms.unity.client.UnityClient;
-import io.imunity.rest.api.RestAttributeExt;
-import io.imunity.rest.api.RestEntityInformation;
-import io.imunity.rest.api.RestGroupMemberWithAttributes;
-import io.imunity.rest.api.RestIdentity;
-import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 @ExtendWith(SpringExtension.class)
 public class UserServiceTest {
@@ -156,9 +155,12 @@ public class UserServiceTest {
 		String path = "/group-members-attributes/fenix%2Fgroup";
 
 		when(unityClient.get(path, new ParameterizedTypeReference<List<RestGroupMemberWithAttributes>>() {}))
-			.thenReturn(List.of(new RestGroupMemberWithAttributes(mock(RestEntityInformation.class),
-				List.of(),
-				List.of())));
+			.thenReturn(List.of(RestGroupMemberWithAttributes.builder()
+					.withEntityInformation(mock(RestEntityInformation.class))
+					.withIdentities(List.of())
+					.withAttributes(List.of())
+					.build()
+			));
 
 		List<FURMSUser> allUsersFromGroup = userService.getAllUsersFromGroup(group, attr -> true);
 
@@ -179,37 +181,112 @@ public class UserServiceTest {
 			Set.of(COMMUNITY_ADMIN)
 		);
 
-		RestMultiGroupMembersWithAttributes multiGroupMembers = new RestMultiGroupMembersWithAttributes(
+		RestMultiGroupMembersWithAttributes multiGroupMembers = RestMultiGroupMembersWithAttributes.builder().withMembers(
 			Map.of(
 				FENIX_PATTERN,
 				List.of(
-					new RestGroupMemberWithAttributes(
-						new RestEntityInformation(1L, "valid", null, null, null),
-						List.of(new RestIdentity(1, null, null, "1", PERSISTENT_IDENTITY, "1", null, null)),
-						List.of(
-							new RestAttributeExt(true,null, null, "name", null, FENIX_PATTERN, List.of("name"), null, null),
-							new RestAttributeExt(true,null, null, "email", "", FENIX_PATTERN, List.of("email"), null, null)
-					))
+					RestGroupMemberWithAttributes.builder()
+						.withEntityInformation(
+							RestEntityInformation.builder()
+								.withEntityId(1L)
+								.withState("valid")
+								.build()
+						)
+						.withIdentities(
+							List.of(RestIdentity.builder()
+								.withEntityId(1L)
+								.withComparableValue("1")
+								.withTypeId(PERSISTENT_IDENTITY)
+								.build())
+						)
+						.withAttributes(
+							List.of(
+								RestAttributeExt.builder()
+									.withName("name")
+									.withDirect(true)
+									.withGroupPath(FENIX_PATTERN)
+									.withValues(List.of("name"))
+									.withValueSyntax("")
+									.build(),
+								RestAttributeExt.builder()
+									.withName("email")
+									.withDirect(true)
+									.withGroupPath(FENIX_PATTERN)
+									.withValues(List.of("email"))
+									.withValueSyntax("")
+									.build()
+							)
+						).build()
 				),
 				communityPath,
 				List.of(
-					new RestGroupMemberWithAttributes(
-						new RestEntityInformation(2L, "valid", null, null, null),
-						List.of(new RestIdentity(2, null, null, "2", PERSISTENT_IDENTITY, "2", null, null)),
-						List.of(
-							new RestAttributeExt(true,null, null, COMMUNITY_ADMIN.unityRoleAttribute, "", communityPath, List.of(COMMUNITY_ADMIN.unityRoleValue), null, null),
-							new RestAttributeExt(true,null, null, "email", "", FENIX_PATTERN, List.of("email2"), null, null)
-					)),
-					new RestGroupMemberWithAttributes(
-						new RestEntityInformation(3L, "valid", null, null, null),
-						List.of(new RestIdentity(3, null, null, "3", PERSISTENT_IDENTITY, "3", null, null)),
-						List.of(
-							new RestAttributeExt(true,null, null, PROJECT_ADMIN.unityRoleAttribute, "", communityPath, List.of(PROJECT_ADMIN.unityRoleValue), null, null),
-							new RestAttributeExt(true,null, null, "email", "", FENIX_PATTERN, List.of("email3"), null, null)
-					))
+					RestGroupMemberWithAttributes.builder()
+						.withEntityInformation(
+							RestEntityInformation.builder()
+								.withEntityId(2L)
+								.withState("valid")
+								.build()
+						)
+						.withIdentities(
+							List.of(RestIdentity.builder()
+								.withEntityId(2L)
+								.withComparableValue("2")
+								.withTypeId(PERSISTENT_IDENTITY)
+								.build())
+						)
+						.withAttributes(
+							List.of(
+								RestAttributeExt.builder()
+									.withName(COMMUNITY_ADMIN.unityRoleAttribute)
+									.withDirect(true)
+									.withGroupPath(communityPath)
+									.withValues(List.of(COMMUNITY_ADMIN.unityRoleValue))
+									.withValueSyntax("")
+									.build(),
+								RestAttributeExt.builder()
+									.withName("email")
+									.withDirect(true)
+									.withGroupPath(FENIX_PATTERN)
+									.withValues(List.of("email2"))
+									.withValueSyntax("")
+									.build()
+							)
+						).build(),
+					RestGroupMemberWithAttributes.builder()
+						.withEntityInformation(
+							RestEntityInformation.builder()
+								.withEntityId(3L)
+								.withState("valid")
+								.build()
+						)
+						.withIdentities(
+							List.of(RestIdentity.builder()
+								.withEntityId(2L)
+								.withComparableValue("3")
+								.withTypeId(PERSISTENT_IDENTITY)
+								.build())
+						)
+						.withAttributes(
+							List.of(
+								RestAttributeExt.builder()
+									.withName(PROJECT_ADMIN.unityRoleAttribute)
+									.withDirect(true)
+									.withGroupPath(communityPath)
+									.withValues(List.of(PROJECT_ADMIN.unityRoleValue))
+									.withValueSyntax("")
+									.build(),
+								RestAttributeExt.builder()
+									.withName("email")
+									.withDirect(true)
+									.withGroupPath(FENIX_PATTERN)
+									.withValues(List.of("email3"))
+									.withValueSyntax("")
+									.build()
+							)
+						).build()
 				)
 			)
-			);
+		).build();
 		when(unityClient.get(eq(path), anyMap(),
 				eq(new ParameterizedTypeReference<RestMultiGroupMembersWithAttributes>() {})))
 			.thenReturn(multiGroupMembers);
@@ -277,7 +354,7 @@ public class UserServiceTest {
 				.encode()
 				.toUriString();
 		when(unityClient.get(eq(path), anyMap(), any()))
-			.thenReturn(new RestMultiGroupMembersWithAttributes(Map.of()));
+			.thenReturn(RestMultiGroupMembersWithAttributes.builder().withMembers(Map.of()).build());
 		
 		// when
 		userService.getAllUsersPolicyAcceptanceFromGroups(Map.of("communityId", Set.of("1".repeat(5024), "2".repeat(5024))));

@@ -99,7 +99,7 @@ public class SitesView extends FurmsViewComponent {
 			.setHeader(getTranslation("view.project-admin.sites.grid.1"))
 			.setSortable(true)
 			.setFlexGrow(25);
-		grid.addComponentColumn(model -> new StatusLayout(model.status, model.message, getContent()))
+		grid.addComponentColumn(model -> new StatusLayout(model.status, model.message))
 			.setHeader(getTranslation("view.project-admin.sites.grid.2"))
 			.setSortable(true)
 			.setFlexGrow(6);
@@ -122,8 +122,7 @@ public class SitesView extends FurmsViewComponent {
 		grid.addComponentColumn(model -> Optional.ofNullable(model.userAccessStatus)
 			.map(status -> (Component) new StatusLayout(
 				getTranslation("view.project-admin.sites." + status.status.name()),
-				status.message,
-				getContent()))
+				status.message))
 			.orElse(new Div())
 		)
 			.setHeader(getTranslation("view.project-admin.sites.grid.6"))

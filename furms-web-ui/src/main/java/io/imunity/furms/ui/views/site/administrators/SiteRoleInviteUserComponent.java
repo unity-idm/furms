@@ -56,7 +56,6 @@ class SiteRoleInviteUserComponent extends HorizontalLayout {
 		siteRoleComboBox.setClassName("furms-role-type-combo-box");
 		siteRoleComboBox.setRequired(true);
 		siteRoleComboBox.setAllowCustomValue(false);
-		siteRoleComboBox.setPreventInvalidInput(true);
 		siteRoleComboBox.setValue(SiteRole.ADMIN);
 		siteRoleComboBox.addValueChangeListener(event -> {
 			if(event.getValue() == null)

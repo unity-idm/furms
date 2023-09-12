@@ -6,6 +6,7 @@
 package io.imunity.furms.ui.views.project.resource_access;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -27,7 +28,6 @@ import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.StatusLayout;
 import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
-import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,8 @@ public class ResourceAccessView extends FurmsViewComponent {
 	public final ResourceAccessViewService resourceAccessViewService;
 
 	public final TreeGrid<ResourceAccessModel> treeGrid;
-	public final MultiselectComboBox<String> multiselectComboBox = new BigMultiSelectComboBox<>(getTranslation("view.project-admin.resource-access.multi-combo-box.filter"));
+	public final MultiSelectComboBox<String> multiselectComboBox = new BigMultiSelectComboBox<>(getTranslation("view" +
+		".project-admin.resource-access.multi-combo-box.filter"));
 	public final TextField searchTextField = new TextField();
 
 	ResourceAccessView(ProjectService projectService, ProjectAllocationService projectAllocationService, ResourceAccessService resourceAccessService) {
@@ -166,7 +167,7 @@ public class ResourceAccessView extends FurmsViewComponent {
 	}
 
 	private HorizontalLayout getStatusLayout(ResourceAccessModel resourceAccessModel) {
-		return new StatusLayout(resourceAccessModel.getStatus(), resourceAccessModel.getMessage(), getContent());
+		return new StatusLayout(resourceAccessModel.getStatus(), resourceAccessModel.getMessage());
 	}
 
 

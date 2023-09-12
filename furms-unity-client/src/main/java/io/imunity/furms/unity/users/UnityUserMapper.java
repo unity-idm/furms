@@ -12,17 +12,16 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.unity.common.AttributeValueMapper;
-import io.imunity.rest.api.RestAttributeExt;
-import io.imunity.rest.api.RestEntityInformation;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
-import io.imunity.rest.api.RestIdentity;
+import io.imunity.rest.api.types.basic.RestAttributeExt;
+import io.imunity.rest.api.types.basic.RestEntityInformation;
+import io.imunity.rest.api.types.basic.RestIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.Identity;
 
 import java.lang.invoke.MethodHandles;
@@ -51,10 +50,6 @@ public class UnityUserMapper {
 	private static final String FIRSTNAME = "firstname";
 	private static final String SURNAME = "surname";
 	private static final String EMAIL = "email";
-
-	public static Optional<FURMSUser> map(GroupMember groupMember){
-		return getFurmsUser(() -> buildUser(groupMember));
-	}
 
 	public static Optional<FURMSUser> map(RestGroupMemberWithAttributes groupMember, String group){
 		return getFurmsUser(() -> buildUser(groupMember, group));
@@ -88,27 +83,15 @@ public class UnityUserMapper {
 		return Optional.of(user);
 	}
 
-	private static FURMSUser buildUser(GroupMember groupMember) {
-		return FURMSUser.builder()
-			.id(new PersistentId(getId(groupMember)))
-			.fenixUserId(getFenixId(groupMember))
-			.firstName(getFirstAttributeValue(groupMember, FIRSTNAME))
-			.lastName(getFirstAttributeValue(groupMember, SURNAME))
-			.email(getFirstAttributeValue(groupMember, EMAIL))
-			.status(getStatus(groupMember))
-			.roles(getRoles(groupMember.getGroup(), groupMember.getAttributes()))
-			.build();
-	}
-
 	private static FURMSUser buildUser(RestGroupMemberWithAttributes groupMember, String group) {
 		return FURMSUser.builder()
-			.id(new PersistentId(getIdFromIdentities(groupMember.getIdentities())))
-			.fenixUserId(getFenixIdFromIdentities(groupMember.getIdentities()))
-			.firstName(getFirstAttributeValueFromAttributes(groupMember.getAttributes(), "firstname"))
-			.lastName(getFirstAttributeValueFromAttributes(groupMember.getAttributes(), "surname"))
-			.email(getFirstAttributeValueFromAttributes(groupMember.getAttributes(), "email"))
-			.status(getStatus(groupMember.getEntityInformation()))
-			.roles(getRolesFromAttributes(group, groupMember.getAttributes()))
+			.id(new PersistentId(getIdFromIdentities(groupMember.identities)))
+			.fenixUserId(getFenixIdFromIdentities(groupMember.identities))
+			.firstName(getFirstAttributeValueFromAttributes(groupMember.attributes, "firstname"))
+			.lastName(getFirstAttributeValueFromAttributes(groupMember.attributes, "surname"))
+			.email(getFirstAttributeValueFromAttributes(groupMember.attributes, "email"))
+			.status(getStatus(groupMember.entityInformation))
+			.roles(getRolesFromAttributes(group, groupMember.attributes))
 			.build();
 	}
 
@@ -132,9 +115,9 @@ public class UnityUserMapper {
 			return Map.of();
 		ResourceId resourceId = getResourceId(group);
 		Set<Role> roles = attributeExts.stream()
-			.filter(attribute -> attribute.getName().toUpperCase().contains("ROLE"))
-			.flatMap(attribute -> attribute.getValues().stream()
-				.map(attributeValue -> Role.translateRole(attribute.getName(), attributeValue)))
+			.filter(attribute -> attribute.name.toUpperCase().contains("ROLE"))
+			.flatMap(attribute -> attribute.values.stream()
+				.map(attributeValue -> Role.translateRole(attribute.name, attributeValue)))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toSet());
@@ -172,10 +155,6 @@ public class UnityUserMapper {
 			.build();
 	}
 
-	private static String getId(GroupMember groupMember) {
-		return getId(groupMember.getEntity().getIdentities());
-	}
-
 	private static String getId(List<Identity> identities) {
 		return identities.stream()
 			.filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY))
@@ -186,14 +165,10 @@ public class UnityUserMapper {
 
 	private static String getIdFromIdentities(List<RestIdentity> identities) {
 		return identities.stream()
-			.filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY))
+			.filter(identity -> identity.typeId.equals(PERSISTENT_IDENTITY))
 			.findAny()
-			.map(RestIdentity::getComparableValue)
+			.map(identity -> identity.comparableValue)
 			.orElse(null);
-	}
-
-	private static FenixUserId getFenixId(GroupMember groupMember) {
-		return getFenixId(groupMember.getEntity().getIdentities());
 	}
 
 	private static FenixUserId getFenixId(List<Identity> identities) {
@@ -207,9 +182,9 @@ public class UnityUserMapper {
 
 	private static FenixUserId getFenixIdFromIdentities(List<RestIdentity> identities) {
 		return identities.stream()
-			.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY))
+			.filter(identity -> identity.typeId.equals(IDENTIFIER_IDENTITY))
 			.findAny()
-			.map(RestIdentity::getComparableValue)
+			.map(identity -> identity.comparableValue)
 			.map(FenixUserId::new)
 			.orElse(null);
 	}
@@ -219,16 +194,12 @@ public class UnityUserMapper {
 			.findAny().map(Identity::getComparableValue).map(PersistentId::new).orElse(null);
 	}
 
-	private static UserStatus getStatus(GroupMember groupMember) {
-		return getStatus(groupMember.getEntity().getEntityInformation().getState().name());
-	}
-
 	private static UserStatus getStatus(EntityInformation entityInformation) {
 		return getStatus(entityInformation.getState().name());
 	}
 
 	private static UserStatus getStatus(RestEntityInformation entityInformation) {
-		return getStatus(entityInformation.getEntityState());
+		return getStatus(entityInformation.state);
 	}
 
 	private static UserStatus getStatus(EntityState state) {
@@ -239,16 +210,6 @@ public class UnityUserMapper {
 		return hasText(entityState) && (entityState.equals(valid.name()) || entityState.equals(onlyLoginPermitted.name()))
 				? ENABLED
 				: DISABLED;
-	}
-
-	private static String getFirstAttributeValue(GroupMember groupMember, String attributeValue) {
-		return groupMember.getAttributes()
-			.stream()
-			.filter(attribute -> attribute.getName().equals(attributeValue))
-			.filter(attribute -> !attribute.getValues().isEmpty())
-			.map(attribute -> AttributeValueMapper.toFurmsAttributeValue(attribute, attribute.getValues().get(0)))
-			.findFirst()
-			.orElse(null);
 	}
 
 	private static String getFirstAttributeValue(Collection<? extends Attribute> attributes, String attributeValue) {
@@ -265,9 +226,9 @@ public class UnityUserMapper {
 	                                              String attributeValue) {
 		return attributes
 			.stream()
-			.filter(attribute -> attribute.getName().equals(attributeValue))
-			.filter(attribute -> !attribute.getValues().isEmpty())
-			.map(attribute -> AttributeValueMapper.toFurmsAttributeValue(attribute, attribute.getValues().get(0)))
+			.filter(attribute -> attribute.name.equals(attributeValue))
+			.filter(attribute -> !attribute.values.isEmpty())
+			.map(attribute -> AttributeValueMapper.toFurmsAttributeValue(attribute, attribute.values.get(0)))
 			.findFirst()
 			.orElse(null);
 	}

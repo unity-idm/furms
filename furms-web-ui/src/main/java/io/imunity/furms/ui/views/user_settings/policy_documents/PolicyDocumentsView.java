@@ -5,7 +5,6 @@
 
 package io.imunity.furms.ui.views.user_settings.policy_documents;
 
-import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -14,6 +13,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
@@ -99,11 +99,8 @@ public class PolicyDocumentsView extends FurmsViewComponent {
 	}
 
 	private Label getTooltipName(PolicyDocumentExtended policyDocument) {
-		Tooltip tooltip = new Tooltip();
-		tooltip.add(policyDocument.name);
 		Label label = new Label(policyDocument.name);
-		tooltip.attachToComponent(label);
-		getContent().add(tooltip);
+		Tooltip.forComponent(label).setText(policyDocument.name);
 		return label;
 	}
 

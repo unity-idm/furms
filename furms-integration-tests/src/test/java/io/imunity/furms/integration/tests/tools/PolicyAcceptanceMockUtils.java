@@ -10,11 +10,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
-import io.imunity.rest.api.RestAttributeExt;
-import io.imunity.rest.api.RestEntityInformation;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
-import io.imunity.rest.api.RestIdentity;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
+import io.imunity.rest.api.types.basic.RestAttributeExt;
+import io.imunity.rest.api.types.basic.RestEntityInformation;
+import io.imunity.rest.api.types.basic.RestIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -47,12 +47,15 @@ public class PolicyAcceptanceMockUtils {
 	}
 
 	public void createPolicyAcceptancesMock(Map<String, List<PolicyUser>> pathWithPolicies) throws JsonProcessingException {
-		final RestMultiGroupMembersWithAttributes multiGroupMembers = new RestMultiGroupMembersWithAttributes(
-			pathWithPolicies.entrySet().stream()
-					.collect(toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
-						.map(policyUser -> createEntityGroupInformation(entry.getKey(), policyUser))
-						.collect(toList())
-					)));
+		RestMultiGroupMembersWithAttributes multiGroupMembers = RestMultiGroupMembersWithAttributes.builder()
+				.withMembers(pathWithPolicies.entrySet().stream()
+					.collect(
+						toMap(
+							Map.Entry::getKey,
+							entry -> entry.getValue().stream()
+								.map(policyUser -> createEntityGroupInformation(entry.getKey(), policyUser))
+								.collect(toList())
+					))).build();
 
 		server.stubFor(WireMock.get(WireMock.urlPathEqualTo("/unity/multi-group-members-attributes/"))
 				.willReturn(aResponse().withStatus(200)
@@ -74,53 +77,57 @@ public class PolicyAcceptanceMockUtils {
 							1,
 							ACCEPTED.name(),
 							LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
-			return new RestGroupMemberWithAttributes(map(policyAcceptance.user.getEntity().getEntityInformation()),
-				policyAcceptance.user.getEntity().getIdentities().stream().map(PolicyAcceptanceMockUtils::map).collect(toList()),
-				attributes);
+			return RestGroupMemberWithAttributes.builder()
+				.withEntityInformation(map(policyAcceptance.user.getEntity().getEntityInformation()))
+				.withIdentities(policyAcceptance.user.getEntity().getIdentities().stream().map(PolicyAcceptanceMockUtils::map).collect(toList()))
+				.withAttributes(attributes)
+				.build();
 		} catch (JsonProcessingException e) {
 			return null;
 		}
 	}
 
 	static RestAttributeExt map(Attribute attributeExt) {
-		return new RestAttributeExt(
-			true,
-			null,
-			null,
-			attributeExt.getName(),
-			attributeExt.getValueSyntax(),
-			attributeExt.getGroupPath(),
-			attributeExt.getValues(),
-			attributeExt.getTranslationProfile(),
-			attributeExt.getRemoteIdp()
-		);
+		return RestAttributeExt.builder()
+			.withName(attributeExt.getName())
+			.withValueSyntax(attributeExt.getValueSyntax())
+			.withDirect(true)
+			.withGroupPath(attributeExt.getGroupPath())
+			.withValues(attributeExt.getValues())
+			.withTranslationProfile(attributeExt.getTranslationProfile())
+			.withRemoteIdp(attributeExt.getRemoteIdp())
+			.build();
 	}
 
 	static RestIdentity map(Identity identity) {
-		return new RestIdentity(
-			identity.getEntityId(),
-			identity.getCreationTs(),
-			identity.getUpdateTs(),
-			identity.getComparableValue(),
-			identity.getTypeId(),
-			identity.getValue(),
-			identity.getTarget(),
-			identity.getRealm()
-		);
+		return RestIdentity.builder()
+			.withEntityId(identity.getEntityId())
+			.withCreationTs(identity.getCreationTs())
+			.withUpdateTs(identity.getUpdateTs())
+			.withComparableValue(identity.getComparableValue())
+			.withTypeId(identity.getTypeId())
+			.withValue(identity.getValue())
+			.withTarget(identity.getTarget())
+			.withRealm(identity.getRealm())
+			.build();
 	}
 
 	static RestEntityInformation map(EntityInformation entityInformation) {
-		return new RestEntityInformation(
-			entityInformation.getId(),
-			Optional.ofNullable(entityInformation.getEntityState())
-				.map(Enum::name)
-				.orElse(null),
-			entityInformation.getScheduledOperationTime(),
-			Optional.ofNullable(entityInformation.getScheduledOperation())
-				.map(Enum::name)
-				.orElse(null),
-			entityInformation.getRemovalByUserTime()
-		);
+		return RestEntityInformation.builder()
+			.withEntityId(entityInformation.getId())
+			.withState(
+				Optional.ofNullable(entityInformation.getEntityState())
+					.map(Enum::name)
+					.orElse(null)
+			)
+			.withScheduledOperationTime(entityInformation.getScheduledOperationTime())
+			.withScheduledOperation(
+				Optional.ofNullable(entityInformation.getScheduledOperation())
+					.map(Enum::name)
+					.orElse(null)
+			)
+			.withRemovalByUserTime(entityInformation.getRemovalByUserTime())
+			.build();
 	}
 
 	public static class PolicyUser {

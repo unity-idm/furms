@@ -97,7 +97,7 @@ class SiteAgentRetryServiceTest extends IntegrationTestBase {
 		siteAgentRetryService.retry(new SiteExternalId("mock"), json);
 
 		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatusToAcknowledged(correlationId);
-		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(allocationId,
+		verify(projectAllocationInstallationStatusUpdater, timeout(10000)).updateStatus(correlationId,
 			INSTALLED,
 			Optional.empty());
 	}

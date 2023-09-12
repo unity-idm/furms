@@ -52,7 +52,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 		this.disableThreshold = disableThreshold;
 		ApexCharts areaChart = ApexChartsBuilder.get()
 			.withChart(ChartBuilder.get()
-				.withType(Type.area)
+				.withType(Type.AREA)
 				.withZoom(ZoomBuilder.get()
 					.withEnabled(true)
 					.build())
@@ -76,13 +76,13 @@ public class ResourceAllocationChart extends VerticalLayout {
 			.withColors(COLORS.toArray(String[]::new))
 			.withTitle(TitleSubtitleBuilder.get()
 				.withText(chartData.projectAllocationName)
-				.withAlign(Align.left).build())
+				.withAlign(Align.LEFT).build())
 			.withLabels(chartData.getAllXArguments().stream()
 				.map(LocalDate::toString)
 				.toArray(String[]::new)
 			)
 			.withXaxis(XAxisBuilder.get()
-				.withType(XAxisType.datetime)
+				.withType(XAxisType.DATETIME)
 				.build()
 			)
 			.withYaxis(YAxisBuilder.get()
@@ -92,7 +92,7 @@ public class ResourceAllocationChart extends VerticalLayout {
 				)
 				.build()
 			)
-			.withLegend(LegendBuilder.get().withHorizontalAlign(HorizontalAlign.left).build())
+			.withLegend(LegendBuilder.get().withHorizontalAlign(HorizontalAlign.LEFT).build())
 			.build();
 
 		Component contextMenu = new ChartContextMenu(chartData, jsonGetter, csvGetter);
@@ -107,19 +107,19 @@ public class ResourceAllocationChart extends VerticalLayout {
 		List<Curve> curves = new ArrayList<>();
 		List<Double> widths = new ArrayList<>();
 
-		curves.add(Curve.smooth);
+		curves.add(Curve.SMOOTH);
 		widths.add(5D);
 
-		curves.add(Curve.stepline);
+		curves.add(Curve.STEPLINE);
 		widths.add(5D);
 
 		if(!(chartData.getThresholdValue() < 1 || disableThreshold)) {
-			curves.add(Curve.smooth);
+			curves.add(Curve.SMOOTH);
 			widths.add(5D);
 		}
 
 		for(int i = 0; i < chartData.yUsersUsageLinesValues.size(); i++) {
-			curves.add(Curve.smooth);
+			curves.add(Curve.SMOOTH);
 			widths.add(2D);
 		}
 
@@ -131,13 +131,15 @@ public class ResourceAllocationChart extends VerticalLayout {
 	private Series<?>[] createSeries(ChartData chartData) {
 		List<Series<Object>> series = new ArrayList<>();
 
-		series.add(new Series<>(getTranslation("chart.series.consumption"), SeriesType.area, chartData.yResourceUsageLineValues.toArray()));
+		series.add(new Series<>(getTranslation("chart.series.consumption"), SeriesType.AREA,
+			chartData.yResourceUsageLineValues.toArray()));
 		if(!chartData.yChunkLineValues.isEmpty())
-			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.line, chartData.yChunkLineValues.toArray()));
+			series.add(new Series<>(getTranslation("chart.series.chunk"), SeriesType.LINE, chartData.yChunkLineValues.toArray()));
 		if(!(chartData.getThresholdValue() < 1 || disableThreshold))
-			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.line, chartData.yThresholdLineValues.toArray()));
+			series.add(new Series<>(getTranslation("chart.series.threshold"), SeriesType.LINE, chartData.yThresholdLineValues.toArray()));
 		for(UserResourceUsage userResourceUsage : chartData.yUsersUsageLinesValues){
-			series.add(new Series<>(userResourceUsage.userEmail, SeriesType.line, userResourceUsage.yUserCumulativeUsageValues.toArray()));
+			series.add(new Series<>(userResourceUsage.userEmail, SeriesType.LINE,
+				userResourceUsage.yUserCumulativeUsageValues.toArray()));
 		}
 
 		return series.toArray(Series[]::new);

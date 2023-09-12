@@ -9,3 +9,5 @@
 /webpack.generated.js
 /package-lock.json
 /package.json
+/vite.config.ts
+/vite.generated.ts

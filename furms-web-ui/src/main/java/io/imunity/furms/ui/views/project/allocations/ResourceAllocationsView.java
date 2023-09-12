@@ -106,8 +106,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 				int statusId = deallocation.get().status.getPersistentId();
 				return new StatusLayout(
 					getTranslation("view.community-admin.project-allocation.deallocation-status." + statusId),
-					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null),
-					getContent()
+					deallocation.flatMap(x -> x.errorMessage).map(x -> x.message).orElse(null)
 				);
 			}
 			return projectAllocationInstallations
@@ -115,8 +114,7 @@ public class ResourceAllocationsView extends FurmsViewComponent {
 					final int statusId = installation.status.getPersistentId();
 					return new StatusLayout(
 						getTranslation("view.community-admin.project-allocation.status." + statusId),
-						installation.errorMessage.map(x -> x.message).orElse(null),
-						getContent());
+						installation.errorMessage.map(x -> x.message).orElse(null));
 				}
 				).orElseGet(StatusLayout::new);
 		})

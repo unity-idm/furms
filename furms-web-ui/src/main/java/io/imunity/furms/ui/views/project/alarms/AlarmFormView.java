@@ -11,6 +11,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
@@ -43,7 +44,6 @@ import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.PageTitle;
 import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.views.project.ProjectAdminMenu;
-import org.vaadin.gatanaso.MultiselectComboBox;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -98,7 +98,7 @@ public class AlarmFormView extends FurmsViewComponent {
 
 		IntegerField thresholdField = new IntegerField();
 		thresholdField.setValue(1);
-		thresholdField.setHasControls(true);
+		thresholdField.setStepButtonsVisible(true);
 		thresholdField.setMin(1);
 		thresholdField.setMax(100);
 		thresholdField.setSuffixComponent(new Label("%"));
@@ -110,10 +110,10 @@ public class AlarmFormView extends FurmsViewComponent {
 		checkbox.setLabel(getTranslation("view.project-admin.alarms.form.layout.notification.all"));
 		formLayout.addFormItem(checkbox, "");
 
-		MultiselectComboBox<String> multiselectComboBox = new MultiselectComboBox<>();
-		multiselectComboBox.setAllowCustomValues(true);
-		multiselectComboBox.setItems(projectService.findAllUsers(projectId).stream().map(user -> user.email));
-		multiselectComboBox.addCustomValuesSetListener(x -> {
+		MultiSelectComboBox<String> multiselectComboBox = new MultiSelectComboBox<>();
+		multiselectComboBox.setAllowCustomValue(true);
+		multiselectComboBox.setItems(projectService.findAllUsers(projectId).stream().map(user -> user.email).collect(Collectors.toList()));
+		multiselectComboBox.addCustomValueSetListener(x -> {
 			HashSet<String> values = new HashSet<>(multiselectComboBox.getValue());
 			values.add(x.getDetail());
 			multiselectComboBox.setValue(values);
@@ -137,7 +137,7 @@ public class AlarmFormView extends FurmsViewComponent {
 	private void prepareValidator(TextField nameField,
 	                              ComboBox<ProjectAllocationId> allocationComboBox,
 	                              IntegerField thresholdField,
-	                              Checkbox checkbox, MultiselectComboBox<String> multiselectComboBox) {
+	                              Checkbox checkbox, MultiSelectComboBox<String> multiselectComboBox) {
 		binder.forField(nameField)
 			.withValidator(
 				value -> Objects.nonNull(value) && !value.isBlank(),

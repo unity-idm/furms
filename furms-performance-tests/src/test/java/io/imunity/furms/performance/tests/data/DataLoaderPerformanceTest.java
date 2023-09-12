@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Profile;
 
 import java.lang.invoke.MethodHandles;
 import java.time.Duration;
@@ -72,7 +71,7 @@ public class DataLoaderPerformanceTest {
 	void setUp() {
 		siteDataLoader = new SiteDataLoader(policyDocumentService, resourceTypeService, infraServiceService, siteService);
 		communityDataLoader = new CommunityDataLoader(communityService, projectService);
-		userDataLoader = new UserDataLoader(unityClient, userApiKeyService, communityGroupsDAO, projectGroupsDAO, projectService);
+		userDataLoader = new UserDataLoader(unityClient, userApiKeyService, communityGroupsDAO, projectGroupsDAO);
 		projectMembershipsDataLoader = new ProjectMembershipsDataLoader(projectGroupsDAO);
 	}
 
