@@ -42,6 +42,7 @@
 		<sonar.language>java</sonar.language>
 		<sonar.java.source>17</sonar.java.source>
 		<sonar.sources>src/main/java</sonar.sources>
+		<jetty.version>10.0.15</jetty.version>
 	</properties>
 
 	<scm>
@@ -141,6 +142,22 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter</artifactId>
 				<version>${spring.boot.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>4.0.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.websocket</groupId>
+				<artifactId>websocket-javax-server</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.websocket</groupId>
+				<artifactId>websocket-jetty-server</artifactId>
+				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.shell</groupId>
