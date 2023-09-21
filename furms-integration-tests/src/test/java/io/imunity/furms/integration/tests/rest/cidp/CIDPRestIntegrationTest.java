@@ -31,10 +31,10 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.integration.tests.IntegrationTestBase;
 import io.imunity.furms.integration.tests.tools.PolicyAcceptanceMockUtils;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -102,14 +102,17 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 			List.of(new PolicyAcceptanceMockUtils.PolicyUser(data.policyId.id.toString(), testUser))
 		));
 
-		testUser.getAttributes().put(path, Set.of(new Attribute(
-						FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
-						path,
-						List.of(objectMapper.writeValueAsString(new PolicyAcceptanceMockUtils.PolicyAcceptanceUnityMock(
-								data.policyId.id.toString(),
-								1,
-								ACCEPTED.name(),
-								LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
+		testUser.getAttributes().put(path, Set.of(
+			RestAttribute.builder()
+				.withName(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE)
+				.withValueSyntax(STRING)
+				.withGroupPath(path)
+				.withValues(List.of(objectMapper.writeValueAsString(new PolicyAcceptanceMockUtils.PolicyAcceptanceUnityMock(
+					data.policyId.id.toString(),
+					1,
+					ACCEPTED.name(),
+					LocalDateTime.now().toInstant(ZoneOffset.UTC)))))
+				.build()));
 		setupUser(testUser);
 
 		createSiteInstalledProject(data.projectId, data.siteId, INSTALLED);
@@ -165,14 +168,17 @@ public class CIDPRestIntegrationTest extends IntegrationTestBase {
 		final Optional<PolicyDocument> oldRevision = policyDocumentRepository.findById(data.policyId);
 		policyDocumentRepository.update(oldRevision.get(), true);
 
-		testUser.getAttributes().put(path, Set.of(new Attribute(
-				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
-				path,
-				List.of(objectMapper.writeValueAsString(new PolicyAcceptanceMockUtils.PolicyAcceptanceUnityMock(
-						data.policyId.id.toString(),
-						1,
-						ACCEPTED.name(),
-						LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
+		testUser.getAttributes().put(path, Set.of(
+			RestAttribute.builder()
+				.withName(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE)
+				.withValueSyntax(STRING)
+				.withGroupPath(path)
+				.withValues(List.of(objectMapper.writeValueAsString(new PolicyAcceptanceMockUtils.PolicyAcceptanceUnityMock(
+					data.policyId.id.toString(),
+					1,
+					ACCEPTED.name(),
+					LocalDateTime.now().toInstant(ZoneOffset.UTC)))))
+				.build()));
 		setupUser(testUser);
 
 		createSiteInstalledProject(data.projectId, data.siteId, INSTALLED);

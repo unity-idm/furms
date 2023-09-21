@@ -15,12 +15,12 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
+import io.imunity.rest.api.types.basic.RestAttribute;
+import io.imunity.rest.api.types.basic.RestEntity;
 import io.imunity.rest.api.types.basic.RestGroupMember;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Entity;
 
 import java.util.HashSet;
 import java.util.List;
@@ -100,7 +100,12 @@ class UserDataLoader {
 								Map.of("entityId", String.valueOf(fenixAdmin.entityId)))
 						.encode()
 						.toUriString(),
-				new Attribute("furmsFenixRole", ENUMERATION, "/fenix/users", List.of("ADMIN")), Map.of());
+			RestAttribute.builder()
+				.withName("furmsFenixRole")
+				.withValueSyntax(ENUMERATION)
+				.withGroupPath("/fenix/users")
+				.withValues(List.of("ADMIN"))
+				.build());
 
 		final PersistentId persistentId = new PersistentId(fenixAdmin.persistentId);
 		final String apiKey = UUID.randomUUID().toString();
@@ -155,12 +160,12 @@ class UserDataLoader {
 				.pathSegment("{entityId}")
 				.buildAndExpand(Map.of("entityId", String.valueOf(id.entityId)))
 				.encode()
-				.toUriString(), Entity.class)
-				.getIdentities().stream()
-				.filter(identity -> identity.getTypeId().equals("persistent"))
+				.toUriString(), RestEntity.class)
+				.identities.stream()
+				.filter(identity -> identity.typeId.equals("persistent"))
 				.findFirst()
 				.get()
-				.getValue();
+				.value;
 
 		return new Data.User(persistentId, id.entityId, fenixId);
 	}
@@ -181,18 +186,42 @@ class UserDataLoader {
 	}
 
 	private void assignAttributes(EntityId id, String userName, String role) {
-		final Set<Attribute> attributes = Set.of(
-				new Attribute("email", "verifiableEmail", "/",
-						List.of("{\"value\":\"" + userName.replace("-", "") + "@domain.com\"," +
-								"\"confirmationData\":{" +
-									"\"confirmed\":true," +
-									"\"confirmationDate\":1491257136061," +
-									"\"sentRequestAmount\":0}," +
-								"\"tags\":[]}")),
-				new Attribute("firstname", STRING, "/", List.of(userName)),
-				new Attribute("name", STRING, "/", List.of(userName)),
-				new Attribute("surname", STRING, "/", List.of(userName)),
-				new Attribute("sys:AuthorizationRole", ENUMERATION, "/", List.of(role)));
+		final Set<RestAttribute> attributes = Set.of(
+			RestAttribute.builder()
+				.withName("email")
+				.withValueSyntax("verifiableEmail")
+				.withGroupPath("/")
+				.withValues(List.of("{\"value\":\"" + userName.replace("-", "") + "@domain.com\"," +
+					"\"confirmationData\":{" +
+					"\"confirmed\":true," +
+					"\"confirmationDate\":1491257136061," +
+					"\"sentRequestAmount\":0}," +
+					"\"tags\":[]}"))
+				.build(),
+			RestAttribute.builder()
+				.withName("firstname")
+				.withValueSyntax(STRING)
+				.withGroupPath("/")
+				.withValues(List.of(userName))
+				.build(),
+			RestAttribute.builder()
+				.withName("name")
+				.withValueSyntax(STRING)
+				.withGroupPath("/")
+				.withValues(List.of("userName"))
+				.build(),
+			RestAttribute.builder()
+				.withName("surname")
+				.withValueSyntax(STRING)
+				.withGroupPath("/")
+				.withValues(List.of(userName))
+				.build(),
+			RestAttribute.builder()
+				.withName("sys:AuthorizationRole")
+				.withValueSyntax(ENUMERATION)
+				.withGroupPath("/")
+				.withValues(List.of(role))
+				.build());
 		unityClient.put(UriComponentsBuilder.newInstance()
 				.path("/entity/")
 				.pathSegment("{entityId}")

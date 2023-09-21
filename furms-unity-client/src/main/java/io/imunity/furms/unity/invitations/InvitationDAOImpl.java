@@ -5,24 +5,23 @@
 
 package io.imunity.furms.unity.invitations;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.invitations.InvitationCode;
 import io.imunity.furms.spi.invitations.InvitationDAO;
 import io.imunity.furms.unity.client.UnityClient;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
-import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
+import io.imunity.rest.api.types.basic.RestAttribute;
+import io.imunity.rest.api.types.registration.RestGroupSelection;
+import io.imunity.rest.api.types.registration.invite.RestFormPrefill;
+import io.imunity.rest.api.types.registration.invite.RestPrefilledEntry;
+import io.imunity.rest.api.types.registration.invite.RestRegistrationInvitationParam;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 
 @Service
 class InvitationDAOImpl implements InvitationDAO {
@@ -40,35 +39,60 @@ class InvitationDAOImpl implements InvitationDAO {
 	public InvitationCode createInvitation(ResourceId resourceId, Role role, String email, Instant expiration) {
 		String group = groupResolver.resolveGroup(resourceId, role);
 		String formId = invitationFormIdResolver.getFormId(role);
-		RegistrationInvitationParam registrationInvitationParam = new RegistrationInvitationParam(formId, expiration, email);
-		addMessageParameters(role, registrationInvitationParam);
-		addGroupAndAttributes(role, group, registrationInvitationParam);
+		RestRegistrationInvitationParam registrationInvitationParam = RestRegistrationInvitationParam.builder()
+			.withFormPrefill(RestFormPrefill.builder()
+				.withFormId(formId)
+				.withMessageParams(getMessageParameters(role))
+				.withGroupSelections(Map.of(0, getGroupSelections(group)))
+				.withAttributes(Map.of(0, getAttributes(role, group)))
+				.build()
+			)
+			.withExpiration(expiration.toEpochMilli())
+			.withContactAddress(email)
+			.build();
 		String code = unityClient.post("/invitation", registrationInvitationParam, Map.of(), new ParameterizedTypeReference<>() {});
 		return new InvitationCode(code);
 	}
 
-	private void addGroupAndAttributes(Role role, String group, RegistrationInvitationParam registrationInvitationParam) {
-		registrationInvitationParam
-			.getFormPrefill()
-			.getGroupSelections()
-			.put(0, new PrefilledEntry<>(new GroupSelection(group), PrefilledEntryMode.HIDDEN));
-		registrationInvitationParam
-			.getFormPrefill()
-			.getAttributes()
-			.put(0, new PrefilledEntry<>(new Attribute(role.unityRoleAttribute, "enumeration", group, List.of(role.unityRoleValue)), PrefilledEntryMode.HIDDEN));
+	private RestPrefilledEntry<RestGroupSelection> getGroupSelections(String group) {
+		return new RestPrefilledEntry.Builder<RestGroupSelection>()
+				.withEntry(RestGroupSelection.builder().withSelectedGroups(List.of(group)).build())
+				.withMode("HIDDEN")
+				.build();
 	}
 
-	private void addMessageParameters(Role role, RegistrationInvitationParam registrationInvitationParam) {
-		registrationInvitationParam.getFormPrefill().getMessageParams().put("custom.role", role.toString().toLowerCase().replace("_", " "));
+	private RestPrefilledEntry<RestAttribute> getAttributes(Role role, String group) {
+		return new RestPrefilledEntry.Builder<RestAttribute>()
+				.withEntry(RestAttribute.builder()
+				.withName(role.unityRoleAttribute)
+				.withValueSyntax("enumeration")
+				.withGroupPath(group)
+				.withValues(List.of(role.unityRoleValue))
+				.build()
+				)
+			.withMode("HIDDEN")
+			.build();
+	}
+
+	private Map<String, String> getMessageParameters(Role role) {
+		return Map.of("custom.role", role.toString().toLowerCase().replace("_", " "));
 	}
 
 	@Override
 	public void updateInvitation(ResourceId resourceId, Role role, String email, InvitationCode code, Instant expiration) {
 		String group = groupResolver.resolveGroup(resourceId, role);
 		String formId = invitationFormIdResolver.getFormId(role);
-		RegistrationInvitationParam registrationInvitationParam = new RegistrationInvitationParam(formId, expiration, email);
-		addMessageParameters(role, registrationInvitationParam);
-		addGroupAndAttributes(role, group, registrationInvitationParam);
+		RestRegistrationInvitationParam registrationInvitationParam = RestRegistrationInvitationParam.builder()
+			.withFormPrefill(RestFormPrefill.builder()
+				.withFormId(formId)
+				.withMessageParams(getMessageParameters(role))
+				.withGroupSelections(Map.of(0, getGroupSelections(group)))
+				.withAttributes(Map.of(0, getAttributes(role, group)))
+				.build()
+			)
+			.withExpiration(expiration.toEpochMilli())
+			.withContactAddress(email)
+			.build();
 		unityClient.put("/invitation/" + code.code, registrationInvitationParam);
 	}
 

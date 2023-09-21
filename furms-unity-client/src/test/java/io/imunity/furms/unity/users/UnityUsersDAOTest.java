@@ -14,9 +14,9 @@ import io.imunity.furms.domain.users.UserAttributes;
 import io.imunity.furms.spi.invitations.InvitationDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +39,13 @@ public class UnityUsersDAOTest {
 		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"),
 				any(ParameterizedTypeReference.class), any()))
-			.thenReturn(Map.of("/", List.of(new Attribute("attr1", "string", "/", List.of("val1")))));
+			.thenReturn(Map.of("/", List.of(
+				RestAttribute.builder()
+					.withName("attr1")
+					.withValueSyntax("string")
+					.withGroupPath("/")
+					.withValues(List.of("val1"))
+					.build())));
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/"));
@@ -62,7 +68,13 @@ public class UnityUsersDAOTest {
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/fenix/communities/" + id + "/users", 
-					List.of(new Attribute("attr1", "string", "/fenix/communities/" + id + "/users", List.of("val1")))));
+					List.of(
+						RestAttribute.builder()
+							.withName("attr1")
+							.withValueSyntax("string")
+							.withGroupPath("/fenix/communities/" + id + "/users")
+							.withValues(List.of("val1"))
+							.build())));
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/", "/fenix", "/fenix/communities", 
@@ -87,7 +99,13 @@ public class UnityUsersDAOTest {
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Map.of("/fenix/communities/foo/projects/" + id + "/users", 
-					List.of(new Attribute("attr1", "string", "/fenix/communities/" + idC + "/projects/" + id + "/users", List.of("val1")))));
+					List.of(
+						RestAttribute.builder()
+							.withName("attr1")
+							.withValueSyntax("string")
+							.withGroupPath("/fenix/communities/" + idC + "/projects/" + id + "/users")
+							.withValues(List.of("val1"))
+							.build())));
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/", "/fenix", "/fenix/communities", 
@@ -135,8 +153,14 @@ public class UnityUsersDAOTest {
 		InvitationDAO invitationDAO = mock(InvitationDAO.class);
 		when(unityClient.getWithListParam(eq("/entity/user1/groups/attributes"), 
 				any(ParameterizedTypeReference.class), any()))
-			.thenReturn(Map.of("/", List.of(new Attribute("attr1", "verifiableEmail", "/", 
-					List.of("{\"value\":\"test@example.com\",\"confirmationData\":{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0},\"tags\":[]}")))));
+			.thenReturn(Map.of("/", List.of(
+				RestAttribute.builder()
+					.withName("attr1")
+					.withValueSyntax("verifiableEmail")
+					.withGroupPath("/")
+					.withValues(List.of("{\"value\":\"test@example.com\",\"confirmationData\":{\"confirmed\":false," +
+						"\"confirmationDate\":0,\"sentRequestAmount\":0},\"tags\":[]}"))
+					.build())));
 		when(unityClient.get(eq("/entity/user1/groups"), 
 				any(ParameterizedTypeReference.class), any()))
 			.thenReturn(Set.of("/"));

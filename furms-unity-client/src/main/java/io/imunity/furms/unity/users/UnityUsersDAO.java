@@ -27,12 +27,11 @@ import io.imunity.furms.unity.client.users.UserService;
 import io.imunity.furms.unity.common.AttributeValueMapper;
 import io.imunity.furms.unity.common.UnityConst;
 import io.imunity.furms.unity.common.UnityPaths;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityState;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -105,12 +104,12 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public void setUserStatus(FenixUserId fenixUserId, UserStatus status) {
-		EntityState unityStatus = status == UserStatus.ENABLED ? EntityState.valid : EntityState.disabled;
+		String unityStatus = status == UserStatus.ENABLED ? "valid" : "disabled";
 		String uri = UriComponentsBuilder.newInstance()
 			.path(ENTITY_BASE)
 			.path(fenixUserId.id)
 			.path("/status/")
-			.path(unityStatus.name())
+			.path(unityStatus)
 			.toUriString();
 		try {
 			unityClient.put(uri, null, Map.of("identityType", "identifier"));
@@ -128,8 +127,7 @@ class UnityUsersDAO implements UsersDAO {
 		try {
 			ObjectNode response = unityClient.get(uri, ObjectNode.class, Map.of("identityType", "identifier"));
 			String statusStr = response.get("entityInformation").get("state").asText();
-			EntityState unityState = EntityState.valueOf(statusStr);
-			return unityState == EntityState.valid ? UserStatus.ENABLED : UserStatus.DISABLED;
+			return statusStr.equals("valid") ? UserStatus.ENABLED : UserStatus.DISABLED;
 		} catch (WebClientResponseException e) {
 			throw new UnityFailureException(e.getMessage(), e);
 		}
@@ -157,23 +155,23 @@ class UnityUsersDAO implements UsersDAO {
 
 	@Override
 	public UserAttributes getUserAttributes(FenixUserId fenixUserId) {
-		Map<String, List<Attribute>> userAttributes = fetchUserAttributes(fenixUserId);
+		Map<String, List<RestAttribute>> userAttributes = fetchUserAttributes(fenixUserId);
 		Set<String> userGroups = fetchUserGroups(fenixUserId);
 		return getUserAttributes(userAttributes, userGroups);
 	}
 
 	@Override
 	public UserAttributes getUserAttributes(PersistentId persistentId) {
-		Map<String, List<Attribute>> userAttributes = fetchUserAttributes(persistentId);
+		Map<String, List<RestAttribute>> userAttributes = fetchUserAttributes(persistentId);
 		Set<String> userGroups = fetchUserGroups(persistentId);
 		return getUserAttributes(userAttributes, userGroups);
 	}
 
-	private UserAttributes getUserAttributes(Map<String, List<Attribute>> userAttributes, Set<String> userGroups) {
-		Map<ResourceId, Set<Attribute>> resourceToAttributesMap = getResourceToAttributesMap(userAttributes);
-		Map<ResourceId, Set<Attribute>> resourceToAttributesMapComplete = addEmptyMemberships(
+	private UserAttributes getUserAttributes(Map<String, List<RestAttribute>> userAttributes, Set<String> userGroups) {
+		Map<ResourceId, Set<RestAttribute>> resourceToAttributesMap = getResourceToAttributesMap(userAttributes);
+		Map<ResourceId, Set<RestAttribute>> resourceToAttributesMapComplete = addEmptyMemberships(
 			resourceToAttributesMap, userGroups);
-		List<Attribute> rootAttributes = userAttributes.getOrDefault(UnityConst.ROOT_GROUP, emptyList());
+		List<RestAttribute> rootAttributes = userAttributes.getOrDefault(UnityConst.ROOT_GROUP, emptyList());
 		return new UserAttributes(toFurmsAttributes(rootAttributes),
 			toFurmsAttributesMap(resourceToAttributesMapComplete));
 	}
@@ -189,10 +187,10 @@ class UnityUsersDAO implements UsersDAO {
 		return new AllUsersAndFenixAdmins(groupedUsers.getUsers(FENIX_GROUP), groupedUsers.getUsers(FENIX_PATTERN));
 	}
 
-	private Map<ResourceId, Set<Attribute>> addEmptyMemberships(
-			Map<ResourceId, Set<Attribute>> resourceToAttributesMap, Set<String> userGroups)
+	private Map<ResourceId, Set<RestAttribute>> addEmptyMemberships(
+			Map<ResourceId, Set<RestAttribute>> resourceToAttributesMap, Set<String> userGroups)
 	{
-		Map<ResourceId, Set<Attribute>> ret = new HashMap<>(resourceToAttributesMap);
+		Map<ResourceId, Set<RestAttribute>> ret = new HashMap<>(resourceToAttributesMap);
 		userGroups.stream()
 			.filter(UnityGroupParser.COMMUNITY_BASE_GROUP_PREDICATE)
 			.map(UnityGroupParser::getResourceId)
@@ -203,33 +201,33 @@ class UnityUsersDAO implements UsersDAO {
 	}
 
 	private Map<ResourceId, Set<UserAttribute>> toFurmsAttributesMap(
-			Map<ResourceId, Set<Attribute>> unityAttributesMap) {
+			Map<ResourceId, Set<RestAttribute>> unityAttributesMap) {
 		return unityAttributesMap.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, entry -> toFurmsAttributes(entry.getValue())));
 	}
 	
-	private Set<UserAttribute> toFurmsAttributes(Collection<Attribute> unityAttributes) {
+	private Set<UserAttribute> toFurmsAttributes(Collection<RestAttribute> unityAttributes) {
 		return unityAttributes.stream()
 				.map(this::toFurmsAttribute)
 				.collect(Collectors.toSet());
 	}
 	
-	private UserAttribute toFurmsAttribute(Attribute unityAttribute) {
-		return new UserAttribute(unityAttribute.getName(), 
-				unityAttribute.getValues().stream()
+	private UserAttribute toFurmsAttribute(RestAttribute unityAttribute) {
+		return new UserAttribute(unityAttribute.name,
+				unityAttribute.values.stream()
 					.map(value -> AttributeValueMapper.toFurmsAttributeValue(unityAttribute, value))
 					.collect(Collectors.toList()));
 	}
 	
-	private Map<String, List<Attribute>> fetchUserAttributes(FenixUserId fenixUserId) {
+	private Map<String, List<RestAttribute>> fetchUserAttributes(FenixUserId fenixUserId) {
 		return fetchUserAttributes(fenixUserId.id, IDENTIFIER_IDENTITY);
 	}
 
-	private Map<String, List<Attribute>> fetchUserAttributes(PersistentId persistentId) {
+	private Map<String, List<RestAttribute>> fetchUserAttributes(PersistentId persistentId) {
 		return fetchUserAttributes(persistentId.id, PERSISTENT_IDENTITY);
 	}
 
-	private Map<String, List<Attribute>> fetchUserAttributes(String id, String identityType) {
+	private Map<String, List<RestAttribute>> fetchUserAttributes(String id, String identityType) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(GROUP_ATTRIBUTES)
 			.uriVariables(Map.of(ID, id))
@@ -270,7 +268,7 @@ class UnityUsersDAO implements UsersDAO {
 		}
 	}
 
-	private static Map<ResourceId, Set<Attribute>> getResourceToAttributesMap(Map<String, List<Attribute>> attributes) {
+	private static Map<ResourceId, Set<RestAttribute>> getResourceToAttributesMap(Map<String, List<RestAttribute>> attributes) {
 		return attributes.values().stream()
 			.flatMap(Collection::stream)
 			.filter(usersGroupPredicate4Attr)

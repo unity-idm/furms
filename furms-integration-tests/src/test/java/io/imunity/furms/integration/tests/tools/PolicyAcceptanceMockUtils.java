@@ -12,20 +12,16 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import io.imunity.furms.integration.tests.tools.users.TestUser;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import io.imunity.rest.api.types.basic.RestAttributeExt;
-import io.imunity.rest.api.types.basic.RestEntityInformation;
-import io.imunity.rest.api.types.basic.RestIdentity;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Identity;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
@@ -65,68 +61,39 @@ public class PolicyAcceptanceMockUtils {
 
 	private RestGroupMemberWithAttributes createEntityGroupInformation(String path, PolicyUser policyAcceptance) {
 		try {
-			final List<RestAttributeExt> attributes = policyAcceptance.user.getAttributes().values().stream()
+			List<RestAttribute> attributes = policyAcceptance.user.getAttributes().values().stream()
 				.flatMap(Collection::stream)
-				.map(PolicyAcceptanceMockUtils::map)
 				.collect(toList());
-			attributes.add(map(new Attribute(
-					FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE, STRING,
-					path,
-					List.of(objectMapper.writeValueAsString(new PolicyAcceptanceUnityMock(
-							policyAcceptance.policyId,
-							1,
-							ACCEPTED.name(),
-							LocalDateTime.now().toInstant(ZoneOffset.UTC)))))));
+			attributes.add(
+				RestAttribute.builder()
+					.withName(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE)
+					.withValueSyntax(STRING)
+					.withGroupPath(path)
+					.withValues(List.of(objectMapper.writeValueAsString(new PolicyAcceptanceUnityMock(
+						policyAcceptance.policyId,
+						1,
+						ACCEPTED.name(),
+						LocalDateTime.now().toInstant(ZoneOffset.UTC)))))
+					.build());
 			return RestGroupMemberWithAttributes.builder()
-				.withEntityInformation(map(policyAcceptance.user.getEntity().getEntityInformation()))
-				.withIdentities(policyAcceptance.user.getEntity().getIdentities().stream().map(PolicyAcceptanceMockUtils::map).collect(toList()))
-				.withAttributes(attributes)
+				.withEntityInformation(policyAcceptance.user.getEntity().entityInformation)
+				.withIdentities(new ArrayList<>(policyAcceptance.user.getEntity().identities))
+				.withAttributes(attributes.stream().map(PolicyAcceptanceMockUtils::map).collect(toList()))
 				.build();
 		} catch (JsonProcessingException e) {
 			return null;
 		}
 	}
 
-	static RestAttributeExt map(Attribute attributeExt) {
+	static RestAttributeExt map(RestAttribute attributeExt) {
 		return RestAttributeExt.builder()
-			.withName(attributeExt.getName())
-			.withValueSyntax(attributeExt.getValueSyntax())
+			.withName(attributeExt.name)
+			.withValueSyntax(attributeExt.valueSyntax)
 			.withDirect(true)
-			.withGroupPath(attributeExt.getGroupPath())
-			.withValues(attributeExt.getValues())
-			.withTranslationProfile(attributeExt.getTranslationProfile())
-			.withRemoteIdp(attributeExt.getRemoteIdp())
-			.build();
-	}
-
-	static RestIdentity map(Identity identity) {
-		return RestIdentity.builder()
-			.withEntityId(identity.getEntityId())
-			.withCreationTs(identity.getCreationTs())
-			.withUpdateTs(identity.getUpdateTs())
-			.withComparableValue(identity.getComparableValue())
-			.withTypeId(identity.getTypeId())
-			.withValue(identity.getValue())
-			.withTarget(identity.getTarget())
-			.withRealm(identity.getRealm())
-			.build();
-	}
-
-	static RestEntityInformation map(EntityInformation entityInformation) {
-		return RestEntityInformation.builder()
-			.withEntityId(entityInformation.getId())
-			.withState(
-				Optional.ofNullable(entityInformation.getEntityState())
-					.map(Enum::name)
-					.orElse(null)
-			)
-			.withScheduledOperationTime(entityInformation.getScheduledOperationTime())
-			.withScheduledOperation(
-				Optional.ofNullable(entityInformation.getScheduledOperation())
-					.map(Enum::name)
-					.orElse(null)
-			)
-			.withRemovalByUserTime(entityInformation.getRemovalByUserTime())
+			.withGroupPath(attributeExt.groupPath)
+			.withValues(attributeExt.values)
+			.withTranslationProfile(attributeExt.translationProfile)
+			.withRemoteIdp(attributeExt.remoteIdp)
 			.build();
 	}
 

@@ -16,12 +16,12 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.projects.ProjectGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
+import io.imunity.rest.api.types.basic.RestGroup;
+import io.imunity.rest.api.types.basic.RestI18nString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -72,10 +72,10 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 
-		Group group = unityClient.get(path, Group.class);
+		RestGroup group = unityClient.get(path, RestGroup.class);
 		return Optional.ofNullable(ProjectGroup.builder()
 			.id(projectId)
-			.name(group.getDisplayedName().getDefaultValue())
+			.name(group.displayedName.defaultValue)
 			.communityId(communityId)
 			.build());
 	}
@@ -113,8 +113,10 @@ class UnityProjectGroupsDAO implements ProjectGroupsDAO {
 				.path(PROJECT_GROUP_PATTERN)
 				.uriVariables(uriVariables)
 				.buildAndExpand().toUriString();
-		Group group = new Group(metaCommunityPath);
-		group.setDisplayedName(new I18nString(projectGroup.getName()));
+		RestGroup group = RestGroup.builder()
+			.withPath(metaCommunityPath)
+			.withDisplayedName(RestI18nString.builder().withDefaultValue(projectGroup.getName()).build())
+			.build();
 		unityClient.put(GROUP_BASE, group);
 	}
 

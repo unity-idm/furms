@@ -17,15 +17,15 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.key.UserApiKey;
 import io.imunity.furms.spi.users.api.key.UserApiKeyRepository;
+import io.imunity.rest.api.types.authn.RestCredentialInfo;
+import io.imunity.rest.api.types.authn.RestCredentialPublicInformation;
+import io.imunity.rest.api.types.basic.RestAttribute;
+import io.imunity.rest.api.types.basic.RestEntity;
+import io.imunity.rest.api.types.basic.RestEntityInformation;
+import io.imunity.rest.api.types.basic.RestIdentity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import pl.edu.icm.unity.types.authn.CredentialInfo;
-import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.Identity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,15 +63,14 @@ import static java.util.stream.Collectors.toSet;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
-import static pl.edu.icm.unity.types.authn.LocalCredentialState.correct;
 
 public class TestUser {
 
 	private final String userId;
 	private final String fenixId;
 	private final String apiKey;
-	private final Map<String, Set<Attribute>> attributes;
-	private final Entity entity;
+	private final Map<String, Set<RestAttribute>> attributes;
+	private RestEntity entity;
 	private final FURMSUser furmsUser;
 
 	public TestUser(String userId, String apiKey, int entityId) {
@@ -80,23 +79,80 @@ public class TestUser {
 		this.apiKey = apiKey;
 		this.attributes = new HashMap<>();
 		this.attributes.put("/", new HashSet<>(Set.of(
-				new Attribute("sys:AuthorizationRole", ENUMERATION, "/", List.of("Regular User")),
-				new Attribute("firstname", STRING, "/", List.of("Ahsoka")),
-				new Attribute("surname", STRING, "/", List.of("Thano")),
-				new Attribute("email", STRING, "/", List.of("{\"value\":\"jedi_office@domain.com\"," +
-						"\"confirmationData\":{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0},\"tags\":[]}")))));
+			RestAttribute.builder()
+				.withName("sys:AuthorizationRole")
+				.withValueSyntax(ENUMERATION)
+				.withGroupPath("/")
+				.withValues(List.of("Regular User"))
+				.build(),
+			RestAttribute.builder()
+				.withName("firstname")
+				.withValueSyntax(STRING)
+				.withGroupPath("/")
+				.withValues(List.of("Ahsoka"))
+				.build(),
+			RestAttribute.builder()
+				.withName("surname")
+				.withValueSyntax(STRING)
+				.withGroupPath("/")
+				.withValues(List.of("Thano"))
+				.build(),
+			RestAttribute.builder()
+				.withName("email")
+				.withValueSyntax(STRING)
+				.withGroupPath("/")
+				.withValues(List.of("{\"value\":\"jedi_office@domain.com\"," +
+					"\"confirmationData\":{\"confirmed\":false,\"confirmationDate\":0,\"sentRequestAmount\":0},\"tags\":[]}"))
+				.build()
+		)));
 		this.attributes.put("/fenix/users", new HashSet<>(Set.of(
-				new Attribute("sys:AuthorizationRole", ENUMERATION, "/fenix/users", List.of("Regular User")))));
-		this.entity = new Entity(
-				new ArrayList<>(List.of(
-						new Identity(PERSISTENT_IDENTITY, userId, entityId, userId),
-						new Identity(IDENTIFIER_IDENTITY, userId, entityId, fenixId),
-						new Identity("username", userId, entityId, userId))),
-				new EntityInformation(entityId),
-				new CredentialInfo("sys:all", Map.of(
-						"userPassword", new CredentialPublicInformation(correct, ""),
-						"sys:password", new CredentialPublicInformation(correct, ""),
-						"clientPassword", new CredentialPublicInformation(correct, ""))));
+			RestAttribute.builder()
+				.withName("sys:AuthorizationRole")
+				.withValueSyntax(ENUMERATION)
+				.withGroupPath("/fenix/users")
+				.withValues(List.of("Regular User"))
+				.build())));
+		this.entity = RestEntity.builder()
+			.withIdentities(new ArrayList<>(List.of(
+				RestIdentity.builder()
+					.withTypeId(PERSISTENT_IDENTITY)
+					.withValue(userId)
+					.withEntityId(entityId)
+					.withComparableValue(userId)
+					.build(),
+				RestIdentity.builder()
+					.withTypeId(IDENTIFIER_IDENTITY)
+					.withValue(userId)
+					.withEntityId(entityId)
+					.withComparableValue(fenixId)
+					.build(),
+				RestIdentity.builder()
+					.withTypeId("username")
+					.withValue(userId)
+					.withEntityId(entityId)
+					.withComparableValue(userId)
+					.build()
+			)))
+			.withEntityInformation(RestEntityInformation.builder()
+				.withEntityId(Integer.valueOf(entityId).longValue())
+				.withState("valid")
+				.build())
+			.withCredentialInfo(RestCredentialInfo.builder()
+				.withCredentialsState(Map.of(
+					"userPassword", RestCredentialPublicInformation.builder()
+							.withState("correct")
+							.withExtraInformation("")
+							.build(),
+					"sys:password", RestCredentialPublicInformation.builder()
+						.withState("correct")
+						.withExtraInformation("")
+						.build(),
+					"clientPassword", RestCredentialPublicInformation.builder()
+						.withState("correct")
+						.withExtraInformation("")
+						.build()))
+				.build())
+			.build();
 		this.furmsUser = FURMSUser.builder()
 				.id(new PersistentId("user"))
 				.firstName("firstName")
@@ -118,11 +174,11 @@ public class TestUser {
 		return apiKey;
 	}
 
-	public Entity getEntity() {
+	public RestEntity getEntity() {
 		return entity;
 	}
 
-	public Map<String, Set<Attribute>> getAttributes() {
+	public Map<String, Set<RestAttribute>> getAttributes() {
 		return attributes;
 	}
 
@@ -152,7 +208,13 @@ public class TestUser {
 	}
 
 	public void addRole(String path, Role role) {
-		final Attribute attribute = new Attribute(role.unityRoleAttribute, ENUMERATION, path, List.of(role.unityRoleValue));
+		final RestAttribute attribute =
+			RestAttribute.builder()
+				.withName(role.unityRoleAttribute)
+				.withValueSyntax(ENUMERATION)
+				.withGroupPath(path)
+				.withValues(List.of(role.unityRoleValue))
+				.build();
 		if (attributes.get(path) != null) {
 			attributes.get(path).add(attribute);
 		} else {
@@ -163,9 +225,9 @@ public class TestUser {
 	public Map<ResourceId, Set<Role>> getRoles() {
 		return attributes.values().stream()
 				.flatMap(Collection::stream)
-				.filter(attribute -> attribute.getGroupPath().endsWith("/users"))
+				.filter(attribute -> attribute.groupPath.endsWith("/users"))
 				.collect(groupingBy(
-						attribute -> getResourceId(attribute.getGroupPath()),
+						attribute -> getResourceId(attribute.groupPath),
 						flatMapping(this::attr2Role, mapping(identity(), toSet()))
 				))
 				.entrySet().stream()
@@ -208,13 +270,19 @@ public class TestUser {
 	}
 
 	public void disableCentralIDPIdentity(WireMockServer wireMockServer) {
-		entity.getIdentities().stream()
-				.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY)
-												&& identity.getComparableValue().equals(fenixId))
+		entity.identities.stream()
+				.filter(identity -> identity.typeId.equals(IDENTIFIER_IDENTITY)
+												&& identity.comparableValue.equals(fenixId))
 				.findFirst()
 				.ifPresent(identity -> {
 					try {
-						entity.getIdentities().remove(identity);
+						entity =RestEntity.builder()
+							.withCredentialInfo(entity.credentialInfo)
+							.withEntityInformation(entity.entityInformation)
+							.withIdentities(entity.identities.stream()
+								.filter(id -> !id.equals(identity))
+								.collect(Collectors.toList()))
+							.build();
 						registerUserMock(wireMockServer);
 					} catch (JsonProcessingException e) {
 						e.printStackTrace();
@@ -228,7 +296,7 @@ public class TestUser {
 				.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
 				.withBody(new ObjectMapper().writeValueAsString(attributes.values().stream()
 					.flatMap(Collection::stream)
-					.collect(Collectors.groupingBy(Attribute::getGroupPath))))));
+					.collect(Collectors.groupingBy(attr -> attr.groupPath))))));
 		wireMockServer.stubFor(get("/unity/entity/"+userId+"/attributes?group=/")
 				.willReturn(aResponse().withStatus(200)
 						.withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
@@ -264,9 +332,9 @@ public class TestUser {
 								.collect(Collectors.toSet())))));
 	}
 
-	private Stream<Role> attr2Role(Attribute attribute) {
-		return attribute.getValues().stream()
-				.map(value -> translateRole(attribute.getName(), value))
+	private Stream<Role> attr2Role(RestAttribute attribute) {
+		return attribute.values.stream()
+				.map(value -> translateRole(attribute.name, value))
 				.filter(Optional::isPresent)
 				.map(Optional::get);
 	}

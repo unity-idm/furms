@@ -15,10 +15,10 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.communites.CommunityGroupsDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
+import io.imunity.rest.api.types.basic.RestGroup;
+import io.imunity.rest.api.types.basic.RestI18nString;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.List;
 import java.util.Map;
@@ -62,10 +62,10 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 
-		Group group = unityClient.get(path, Group.class);
+		RestGroup group = unityClient.get(path, RestGroup.class);
 		return Optional.ofNullable(CommunityGroup.builder()
 			.id(id)
-			.name(group.getDisplayedName().getDefaultValue())
+			.name(group.displayedName.defaultValue)
 			.build());
 	}
 
@@ -76,8 +76,10 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 		}
 		Map<String, Object> uriVariables = uriVariables(community);
 		String groupPath = getCommunityPath(uriVariables, COMMUNITY_GROUP_PATTERN);
-		Group group = new Group(groupPath);
-		group.setDisplayedName(new I18nString(community.getName()));
+		RestGroup group = RestGroup.builder()
+			.withPath(groupPath)
+			.withDisplayedName(RestI18nString.builder().withDefaultValue(community.getName()).build())
+			.build();
 		unityClient.post(GROUP_BASE, group);
 		String createCommunityUsersPath = UriComponentsBuilder.newInstance()
 			.path(GROUP_BASE)
@@ -97,9 +99,19 @@ class UnityCommunityGroupsDAO implements CommunityGroupsDAO {
 				.path(META)
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
-		Group group = unityClient.get(metaCommunityPath, Group.class);
-		group.setDisplayedName(new I18nString(community.getName()));
-		unityClient.put(GROUP_BASE, group);
+		RestGroup group = unityClient.get(metaCommunityPath, RestGroup.class);
+		RestGroup restGroup = RestGroup.builder()
+			.withPath(group.path)
+			.withDisplayedName(RestI18nString.builder().withDefaultValue(community.getName()).build())
+			.withI18nDescription(group.i18nDescription)
+			.withDescription(group.description)
+			.withAttributeStatements(group.attributeStatements)
+			.withAttributesClasses(group.attributesClasses)
+			.withDelegationConfiguration(group.delegationConfiguration)
+			.withPublicGroup(group.publicGroup)
+			.withProperties(group.properties)
+			.build();
+		unityClient.put(GROUP_BASE, restGroup);
 	}
 
 	@Override

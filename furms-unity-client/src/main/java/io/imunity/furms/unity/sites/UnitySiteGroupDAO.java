@@ -16,11 +16,11 @@ import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
+import io.imunity.rest.api.types.basic.RestGroup;
+import io.imunity.rest.api.types.basic.RestI18nString;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.List;
 import java.util.Map;
@@ -61,10 +61,10 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 		try {
-			Group group = unityClient.get(path, Group.class);
+			RestGroup group = unityClient.get(path, RestGroup.class);
 			return Optional.ofNullable(Site.builder()
 					.id(id)
-					.name(group.getDisplayedName().getDefaultValue())
+					.name(group.displayedName.defaultValue)
 					.build());
 		} catch (WebClientResponseException e) {
 			throw new UnityFailureException(e.getMessage(), e);
@@ -80,8 +80,10 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 				.path(SITE_PATTERN)
 				.uriVariables(uriVariables)
 				.toUriString();
-		Group group = new Group(groupPath);
-		group.setDisplayedName(new I18nString(site.getName()));
+		RestGroup group = RestGroup.builder()
+			.withPath(groupPath)
+			.withDisplayedName(RestI18nString.builder().withDefaultValue(site.getName()).build())
+			.build();
 		try {
 			unityClient.post(GROUP_BASE, group);
 		} catch (WebClientResponseException e) {
@@ -110,9 +112,19 @@ class UnitySiteGroupDAO implements SiteGroupDAO {
 				.uriVariables(uriVariables)
 				.buildAndExpand().encode().toUriString();
 		try {
-			Group group = unityClient.get(metaSitePath, Group.class);
-			group.setDisplayedName(new I18nString(site.getName()));
-			unityClient.put(GROUP_BASE, group);
+			RestGroup group = unityClient.get(metaSitePath, RestGroup.class);
+			RestGroup restGroup = RestGroup.builder()
+				.withPath(group.path)
+				.withDisplayedName(RestI18nString.builder().withDefaultValue(site.getName()).build())
+				.withI18nDescription(group.i18nDescription)
+				.withDescription(group.description)
+				.withAttributeStatements(group.attributeStatements)
+				.withAttributesClasses(group.attributesClasses)
+				.withDelegationConfiguration(group.delegationConfiguration)
+				.withPublicGroup(group.publicGroup)
+				.withProperties(group.properties)
+				.build();
+			unityClient.put(GROUP_BASE, restGroup);
 		} catch (WebClientResponseException e) {
 			throw new UnityFailureException(e.getMessage(), e);
 		}

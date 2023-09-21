@@ -19,6 +19,7 @@ import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import io.imunity.rest.api.types.basic.RestAttributeExt;
 import io.imunity.rest.api.types.basic.RestEntityInformation;
 import io.imunity.rest.api.types.basic.RestIdentity;
@@ -29,7 +30,6 @@ import org.mockito.Mock;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.util.List;
 import java.util.Map;
@@ -99,16 +99,17 @@ public class UserServiceTest {
 		String getAttributesPath = "/entity/" + userId.id + "/groups/attributes";
 		Role role = Role.COMMUNITY_ADMIN;
 
-		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<Map<String, List<Attribute>>>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS)))
+		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<Map<String, List<RestAttribute>>>() {},
+			Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS)))
 			.thenReturn(Map.of(group, emptyList()));
 		userService.addUserRole(userId, group, role);
 
-		Attribute attribute = new Attribute(
-			role.unityRoleAttribute,
-			ENUMERATION,
-			group,
-			List.of(role.unityRoleValue)
-		);
+		RestAttribute attribute = RestAttribute.builder()
+			.withName(role.unityRoleAttribute)
+			.withValueSyntax(ENUMERATION)
+			.withGroupPath(group)
+			.withValues(List.of(role.unityRoleValue))
+			.build();
 		verify(unityClient, times(1)).put(eq(path), eq(attribute));
 	}
 
@@ -119,7 +120,8 @@ public class UserServiceTest {
 		String path = "/entity/" + userId.id + "/attribute";
 		String getAttributesPath = "/entity/" + userId.id + "/attributes";
 
-		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY)))
+		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<List<RestAttribute>>() {}, Map.of(GROUP,
+			ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY)))
 			.thenReturn(emptyList());
 		String id = UUID.randomUUID().toString();
 		PolicyAcceptance policyAcceptance = PolicyAcceptance.builder()
@@ -128,12 +130,12 @@ public class UserServiceTest {
 			.build();
 		userService.addUserPolicyAcceptance(userId, policyAcceptance);
 
-		Attribute attribute = new Attribute(
-				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE,
-			STRING,
-			group,
-			List.of(PolicyAcceptanceParser.parse(PolicyAcceptanceArgument.valueOf(policyAcceptance)))
-		);
+		RestAttribute attribute = RestAttribute.builder()
+			.withName(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE)
+			.withValueSyntax(STRING)
+			.withGroupPath(group)
+			.withValues(List.of(PolicyAcceptanceParser.parse(PolicyAcceptanceArgument.valueOf(policyAcceptance))))
+			.build();
 		verify(unityClient, times(1)).put(eq(path), eq(attribute), eq(Map.of(IDENTITY_TYPE, IDENTIFIER_IDENTITY)));
 	}
 
@@ -142,11 +144,13 @@ public class UserServiceTest {
 		FenixUserId userId = new FenixUserId("userId");
 		String getAttributesPath = "/entity/" + userId.id + "/attributes";
 
-		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY)))
+		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<List<RestAttribute>>() {}, Map.of(GROUP,
+			ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY)))
 			.thenReturn(emptyList());
 		userService.getPolicyAcceptances(userId);
 
-		verify(unityClient, times(1)).get(getAttributesPath, new ParameterizedTypeReference<List<Attribute>>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY));
+		verify(unityClient, times(1)).get(getAttributesPath, new ParameterizedTypeReference<List<RestAttribute>>() {},
+			Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY));
 	}
 
 	@Test
@@ -318,19 +322,25 @@ public class UserServiceTest {
 		String putAttributePath = "/entity/" + userId.id + "/attribute";
 		Role role = Role.PROJECT_ADMIN;
 		Role role2 = Role.PROJECT_USER;
-		Attribute attribute = new Attribute(role.unityRoleAttribute, "", group, List.of(role.unityRoleValue, role2.unityRoleValue));
 
-		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<Map<String, List<Attribute>>>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS)))
+		RestAttribute attribute = RestAttribute.builder()
+			.withName(role.unityRoleAttribute)
+			.withValueSyntax("")
+			.withGroupPath(group)
+			.withValues(List.of(role.unityRoleValue, role2.unityRoleValue))
+			.build();
+		when(unityClient.get(getAttributesPath, new ParameterizedTypeReference<Map<String, List<RestAttribute>>>() {},
+			Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS)))
 			.thenReturn(Map.of(group, List.of(attribute)));
 
 		userService.removeUserRole(userId, group, role);
 
-		Attribute updatedAttribute = new Attribute(
-			role.unityRoleAttribute,
-			ENUMERATION,
-			group,
-			List.of(role2.unityRoleValue)
-		);
+		RestAttribute updatedAttribute = RestAttribute.builder()
+			.withName(role.unityRoleAttribute)
+			.withValueSyntax(ENUMERATION)
+			.withGroupPath(group)
+			.withValues(List.of(role2.unityRoleValue))
+			.build();
 
 		verify(unityClient, times(1)).put(eq(putAttributePath), eq(updatedAttribute));
 	}

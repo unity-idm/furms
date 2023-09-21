@@ -144,6 +144,36 @@
 				<version>${spring.boot.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-web</artifactId>
+				<version>${spring.boot.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-starter-tomcat</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-jetty</artifactId>
+				<version>${spring.boot.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.eclipse.jetty.websocket</groupId>
+						<artifactId>javax-websocket-server-impl</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.eclipse.jetty.websocket</groupId>
+						<artifactId>javax-websocket-client-impl</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.eclipse.jetty.websocket</groupId>
+						<artifactId>websocket-api</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>javax.servlet-api</artifactId>
 				<version>4.0.1</version>
@@ -244,6 +274,11 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>io.imunity</groupId>
+				<artifactId>unity-rest-api</artifactId>
+				<version>${unity.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>io.imunity.furms</groupId>
 				<artifactId>furms-core</artifactId>
 				<version>${project.version}</version>
@@ -316,9 +351,9 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-   		  	 	<groupId>org.apache.sshd</groupId>
-    	 	 	<artifactId>sshd-common</artifactId>
-    		 	<version>2.9.0</version>
+				<groupId>org.apache.sshd</groupId>
+				<artifactId>sshd-common</artifactId>
+				<version>2.9.0</version>
 			</dependency>
 			<dependency>
 				<groupId>net.i2p.crypto</groupId>

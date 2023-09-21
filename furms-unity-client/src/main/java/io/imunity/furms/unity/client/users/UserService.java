@@ -16,16 +16,15 @@ import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.users.UnityUserMapper;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import io.imunity.rest.api.types.basic.RestAttributeExt;
+import io.imunity.rest.api.types.basic.RestEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.Identity;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -119,12 +118,12 @@ public class UserService {
 		Set<String> roleValues = getRoleValues(userId, group, role);
 		roleValues.add(role.unityRoleValue);
 
-		Attribute attribute = new Attribute(
-			role.unityRoleAttribute,
-			ENUMERATION,
-			group,
-			new ArrayList<>(roleValues)
-		);
+		RestAttribute attribute = RestAttribute.builder()
+			.withName(role.unityRoleAttribute)
+			.withValueSyntax(ENUMERATION)
+			.withGroupPath(group)
+			.withValues(new ArrayList<>(roleValues))
+			.build();
 		unityClient.put(uriComponents, attribute);
 	}
 
@@ -137,15 +136,15 @@ public class UserService {
 		policyAcceptances.removeAll(oldRevisionPolicyAcceptance);
 		policyAcceptances.add(policyAcceptance);
 
-		Attribute attribute = new Attribute(
-				FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE,
-			STRING,
-			"/",
-			policyAcceptances.stream()
+		RestAttribute attribute = RestAttribute.builder()
+			.withName(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE)
+			.withValueSyntax(STRING)
+			.withGroupPath("/")
+			.withValues(policyAcceptances.stream()
 				.map(PolicyAcceptanceArgument::valueOf)
 				.map(PolicyAcceptanceParser::parse)
-				.collect(Collectors.toUnmodifiableList())
-		);
+				.toList())
+			.build();
 		unityClient.put(uriComponents, attribute, Map.of(IDENTITY_TYPE, IDENTIFIER_IDENTITY));
 	}
 
@@ -177,20 +176,20 @@ public class UserService {
 		Set<String> roleValues = getRoleValues(userId, group, role);
 		roleValues.remove(role.unityRoleValue);
 
-		Attribute attribute = new Attribute(
-			role.unityRoleAttribute,
-			ENUMERATION,
-			group,
-			new ArrayList<>(roleValues)
-		);
+		RestAttribute attribute = RestAttribute.builder()
+			.withName(role.unityRoleAttribute)
+			.withValueSyntax(ENUMERATION)
+			.withGroupPath(group)
+			.withValues(new ArrayList<>(roleValues))
+			.build();
 		unityClient.put(uriComponents, attribute);
 	}
 
 	public Set<String> getRoleValues(PersistentId userId, String group, Role role) {
 		return getAttributesFromGroup(userId, group)
 			.stream()
-			.filter(attribute -> attribute.getName().equals(role.unityRoleAttribute))
-			.flatMap(attribute -> attribute.getValues().stream())
+			.filter(attribute -> attribute.name.equals(role.unityRoleAttribute))
+			.flatMap(attribute -> attribute.values.stream())
 			.collect(toSet());
 	}
 
@@ -198,11 +197,11 @@ public class UserService {
 		return getPolicyAcceptances(getAttributesFromRootGroup(userId));
 	}
 
-	public Set<PolicyAcceptance> getPolicyAcceptances(Collection<? extends Attribute> attributes) {
+	public Set<PolicyAcceptance> getPolicyAcceptances(Collection<? extends RestAttribute> attributes) {
 		return attributes
 			.stream()
-			.filter(attribute -> attribute.getName().equals(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE))
-			.flatMap(attribute -> attribute.getValues().stream())
+			.filter(attribute -> attribute.name.equals(FURMS_POLICY_ACCEPTANCE_STATE_ATTRIBUTE))
+			.flatMap(attribute -> attribute.values.stream())
 			.map(PolicyAcceptanceParser::parse)
 			.map(PolicyAcceptanceArgument::toPolicyAcceptance)
 			.collect(toSet());
@@ -219,33 +218,33 @@ public class UserService {
 	}
 
 	public Optional<FURMSUser> getUser(PersistentId userId){
-		Entity entity  = getEntity(userId).orElse(null);
+		RestEntity entity  = getEntity(userId).orElse(null);
 		if (entity == null)
 			return Optional.empty();
-		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
+		List<RestAttribute> attributesFromGroup = getAttributesFromRootGroup(userId);
 		return UnityUserMapper.map(userId, entity, attributesFromGroup);
 	}
 
 	public Optional<FURMSUser> getUser(FenixUserId userId) {
-		Entity entity = getEntity(userId).orElse(null);
+		RestEntity entity = getEntity(userId).orElse(null);
 		if (entity == null)
 			return Optional.empty();
-		List<Attribute> attributesFromGroup = getAttributesFromRootGroup(userId);
+		List<RestAttribute> attributesFromGroup = getAttributesFromRootGroup(userId);
 		return UnityUserMapper.map(userId, entity, attributesFromGroup);
 	}
 	
-	private List<Attribute> getAttributesFromGroup(PersistentId userId, String group) {
+	private List<RestAttribute> getAttributesFromGroup(PersistentId userId, String group) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(GROUP_ATTRIBUTES)
 			.uriVariables(Map.of(ID, userId.id))
 			.build()
 			.toUriString();
-		Map<String, List<Attribute>> groupedAttributes =
+		Map<String, List<RestAttribute>> groupedAttributes =
 			unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUPS_PATTERNS, ALL_GROUPS_PATTERNS));
 		return groupedAttributes.getOrDefault(group, Collections.emptyList());
 	}
 
-	private List<Attribute> getAttributesFromRootGroup(PersistentId userId) {
+	private List<RestAttribute> getAttributesFromRootGroup(PersistentId userId) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(ENTITY_ATTRIBUTES)
 			.uriVariables(Map.of(ID, userId.id))
@@ -254,7 +253,7 @@ public class UserService {
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP));
 	}
 
-	private List<Attribute> getAttributesFromRootGroup(FenixUserId userId) {
+	private List<RestAttribute> getAttributesFromRootGroup(FenixUserId userId) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(ENTITY_ATTRIBUTES)
 			.uriVariables(Map.of(ID, userId.id))
@@ -263,9 +262,9 @@ public class UserService {
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(GROUP, ROOT_GROUP, IDENTITY_TYPE, IDENTIFIER_IDENTITY));
 	}
 	
-	private Optional<Entity> getEntity(PersistentId userId) {
+	private Optional<RestEntity> getEntity(PersistentId userId) {
 		try {
-			Entity entity = getEntityThrowing(userId);
+			RestEntity entity = getEntityThrowing(userId);
 			return Optional.of(entity);
 		} catch (BadRequest e) {
 			LOG.debug("User {} not found", userId, e);
@@ -273,9 +272,9 @@ public class UserService {
 		}
 	}
 	
-	private Optional<Entity> getEntity(FenixUserId userId) {
+	private Optional<RestEntity> getEntity(FenixUserId userId) {
 		try {
-			Entity entity = getEntityThrowing(userId);
+			RestEntity entity = getEntityThrowing(userId);
 			return Optional.of(entity);
 		} catch (BadRequest e) {
 			LOG.debug("User {} not found", userId, e);
@@ -283,7 +282,7 @@ public class UserService {
 		}
 	}
 
-	private Entity getEntityThrowing(PersistentId userId) {
+	private RestEntity getEntityThrowing(PersistentId userId) {
 		String path = UriComponentsBuilder.newInstance()
 			.path(ENTITY_BASE)
 			.path(userId.id)
@@ -292,7 +291,7 @@ public class UserService {
 		return unityClient.get(path, new ParameterizedTypeReference<>() {}, Map.of(IDENTITY_TYPE, PERSISTENT_IDENTITY));
 	}
 	
-	private Entity getEntityThrowing(FenixUserId userId) {
+	private RestEntity getEntityThrowing(FenixUserId userId) {
 		String path = UriComponentsBuilder.newInstance()
 			.path(ENTITY_BASE)
 			.path(userId.id)
@@ -413,16 +412,16 @@ public class UserService {
 	}
 
 	public PersistentId getPersistentId(FenixUserId userId) {
-		return getEntityThrowing(userId).getIdentities().stream()
-				.filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY)).findAny()
-				.map(Identity::getComparableValue).map(PersistentId::new).orElse(null);
+		return getEntityThrowing(userId).identities.stream()
+				.filter(identity -> identity.typeId.equals(PERSISTENT_IDENTITY)).findAny()
+				.map(identity -> identity.comparableValue).map(PersistentId::new).orElse(null);
 
 	}
 	
 	public FenixUserId getFenixUserId(PersistentId userId) {
-		return getEntityThrowing(userId).getIdentities().stream()
-				.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY)).findAny()
-				.map(Identity::getComparableValue).map(FenixUserId::new).orElse(null);
+		return getEntityThrowing(userId).identities.stream()
+				.filter(identity -> identity.typeId.equals(IDENTIFIER_IDENTITY)).findAny()
+				.map(identity -> identity.comparableValue).map(FenixUserId::new).orElse(null);
 
 	}
 }

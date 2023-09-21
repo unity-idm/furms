@@ -12,6 +12,8 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.exceptions.UnityFailureException;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
+import io.imunity.rest.api.types.basic.RestGroup;
+import io.imunity.rest.api.types.basic.RestI18nString;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,8 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,9 +58,11 @@ class UnitySiteGroupDAOTest {
 	void shouldGetMetaInfoAboutSite() {
 		//given
 		SiteId id = new SiteId(UUID.randomUUID());
-		Group group = new Group("/path/"+id);
-		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(id.id.toString()), eq(Group.class))).thenReturn(group);
+		RestGroup group = RestGroup.builder()
+			.withPath("/path/"+id)
+			.withDisplayedName(RestI18nString.builder().withDefaultValue("test").build())
+			.build();
+		when(unityClient.get(contains(id.id.toString()), eq(RestGroup.class))).thenReturn(group);
 
 		//when
 		Optional<Site> site = unitySiteWebClient.get(id);
@@ -111,15 +113,17 @@ class UnitySiteGroupDAOTest {
 				.id(new SiteId(UUID.randomUUID()))
 				.name("test")
 				.build();
-		Group group = new Group("/path/"+site.getId());
-		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(site.getId().id.toString()), eq(Group.class))).thenReturn(group);
+		RestGroup group = RestGroup.builder()
+			.withPath("/path/"+site.getId())
+			.withDisplayedName(RestI18nString.builder().withDefaultValue("test").build())
+			.build();
+		when(unityClient.get(contains(site.getId().id.toString()), eq(RestGroup.class))).thenReturn(group);
 
 		//when
 		unitySiteWebClient.update(site);
 
 		//then
-		verify(unityClient, times(1)).get(eq("/group/%2Ffenix%2Fsites%2F" + site.getId().id + "/meta"), eq(Group.class));
+		verify(unityClient, times(1)).get(eq("/group/%2Ffenix%2Fsites%2F" + site.getId().id + "/meta"), eq(RestGroup.class));
 		verify(unityClient, times(1)).put(anyString(), any());
 	}
 

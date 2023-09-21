@@ -15,9 +15,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.TestSocketUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.util.SocketUtils;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static io.imunity.furms.integration.tests.tools.users.TestUsersProvider.fenixAdmin;
@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest(classes = FumrsIntegrationTestsServer.class)
 public class IntegrationTestBase extends DBTestManager {
 
-	private final static Integer SERVER_PORT = SocketUtils.findAvailableTcpPort();
+	private final static Integer SERVER_PORT = TestSocketUtils.findAvailableTcpPort();
 
 	protected final WireMockServer server = new WireMockServer(options().port(SERVER_PORT));
 

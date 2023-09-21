@@ -84,7 +84,7 @@ public class InviteUserComponent extends HorizontalLayout {
 		List<FURMSUser> users = new ArrayList<>(fetchAllUsersAction.get());
 		List<String> currentEmails = fetchCurrentUsersAction.get().stream()
 			.map(user -> user.email)
-			.collect(Collectors.toList());
+			.toList();
 		return FurmsViewUserModelMapper.mapList(
 			users.stream()
 				.filter(user -> !currentEmails.contains(user.email))

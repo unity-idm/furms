@@ -51,13 +51,7 @@
 		<!-- Unity -->
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-types-api</artifactId>
-			<version>${unity.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
 			<artifactId>unity-rest-api</artifactId>
-			<version>${unity.version}</version>
 		</dependency>
 
 		<!-- Test -->

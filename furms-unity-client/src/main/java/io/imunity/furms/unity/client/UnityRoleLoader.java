@@ -10,11 +10,11 @@ import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.spi.roles.RoleLoader;
 import io.imunity.furms.spi.roles.RoleLoadingException;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.util.Collection;
 import java.util.List;
@@ -48,11 +48,11 @@ public class UnityRoleLoader implements RoleLoader {
 
 	@Override
 	public Map<ResourceId, Set<Role>> loadUserRoles(PersistentId sub) {
-		Map<String, List<Attribute>> attributes = loadUserAttributes(sub);
+		Map<String, List<RestAttribute>> attributes = loadUserAttributes(sub);
 		return loadUserRoles(attributes);
 	}
 
-	private Map<ResourceId, Set<Role>> loadUserRoles(Map<String, List<Attribute>> attributes) {
+	private Map<ResourceId, Set<Role>> loadUserRoles(Map<String, List<RestAttribute>> attributes) {
 		return attributes.values().stream()
 			.flatMap(Collection::stream)
 			.filter(usersGroupPredicate4Attr)
@@ -61,7 +61,7 @@ public class UnityRoleLoader implements RoleLoader {
 			.collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
-	private Collector<Attribute, ?, Map<ResourceId, Set<Role>>> getAttributeMapCollector() {
+	private Collector<RestAttribute, ?, Map<ResourceId, Set<Role>>> getAttributeMapCollector() {
 		return groupingBy(
 			this::attr2Resource,
 			flatMapping(
@@ -71,18 +71,18 @@ public class UnityRoleLoader implements RoleLoader {
 		);
 	}
 
-	private ResourceId attr2Resource(Attribute attribute) {
-		return getResourceId(attribute.getGroupPath());
+	private ResourceId attr2Resource(RestAttribute attribute) {
+		return getResourceId(attribute.groupPath);
 	}
 
-	private Stream<Role> attr2Role(Attribute attribute) {
-		return attribute.getValues().stream()
-			.map(value -> translateRole(attribute.getName(), value))
+	private Stream<Role> attr2Role(RestAttribute attribute) {
+		return attribute.values.stream()
+			.map(value -> translateRole(attribute.name, value))
 			.filter(Optional::isPresent)
 			.map(Optional::get);
 	}
 
-	private Map<String, List<Attribute>> loadUserAttributes(PersistentId persistentId) {
+	private Map<String, List<RestAttribute>> loadUserAttributes(PersistentId persistentId) {
 		String path = UriComponentsBuilder.newInstance()
 			.pathSegment(DIRECT_GROUP_ATTRIBUTES)
 			.uriVariables(Map.of(ID, persistentId.id))

@@ -27,6 +27,8 @@ public class FurmsUserComboBox extends CustomField<FurmsViewUserModel> {
 			return fullName.isBlank() ? user.email : fullName;
 		});
 		comboBox.setItems(userModels);
+		if(userModels.isEmpty())
+			comboBox.setAutoOpen(false);
 		Label emailLabel = new Label("placeholder");
 		emailLabel.getStyle().set("visibility", "hidden");
 		comboBox.addValueChangeListener(event -> Optional.ofNullable(event.getValue())

@@ -12,14 +12,14 @@ import io.imunity.furms.domain.users.FURMSUser;
 import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.unity.client.UnityClient;
 import io.imunity.furms.unity.client.users.UserService;
+import io.imunity.rest.api.types.basic.RestGroup;
+import io.imunity.rest.api.types.basic.RestI18nString;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,9 +56,11 @@ class UnityProjectGroupsDAOTest {
 		//given
 		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		ProjectId projectId = new ProjectId(UUID.randomUUID());
-		Group group = new Group("/path/" + communityId + "/projects/" + projectId);
-		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(projectId.id.toString()), eq(Group.class))).thenReturn(group);
+		RestGroup group = RestGroup.builder()
+			.withPath("/path/" + communityId + "/projects/" + projectId)
+			.withDisplayedName(RestI18nString.builder().withDefaultValue("test").build())
+			.build();
+		when(unityClient.get(contains(projectId.id.toString()), eq(RestGroup.class))).thenReturn(group);
 
 		//when
 		Optional<ProjectGroup> project = unityProjectGroupsDAO.get(communityId, projectId);
@@ -98,10 +100,12 @@ class UnityProjectGroupsDAOTest {
 				.communityId(new CommunityId(UUID.randomUUID()))
 				.name("test")
 				.build();
-		Group group = new Group("/path/"+project.getId());
-		group.setDisplayedName(new I18nString("test"));
-		when(unityClient.get(contains(project.getId().id.toString()), eq(Group.class))).thenReturn(group);
-		doNothing().when(unityClient).put(contains(project.getId().id.toString()), eq(Group.class));
+		RestGroup group = RestGroup.builder()
+			.withPath("/path/"+project.getId())
+			.withDisplayedName(RestI18nString.builder().withDefaultValue("test").build())
+			.build();
+		when(unityClient.get(contains(project.getId().id.toString()), eq(RestGroup.class))).thenReturn(group);
+		doNothing().when(unityClient).put(contains(project.getId().id.toString()), eq(RestGroup.class));
 
 		//when
 		unityProjectGroupsDAO.update(project);

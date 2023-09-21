@@ -11,6 +11,7 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.invitations.InviteeService;
@@ -102,7 +103,9 @@ public class InvitationsView extends FurmsViewComponent {
 		grid.addComponentColumn(invitationGridModel -> {
 			Checkbox checkbox = new Checkbox();
 			checkboxes.put(invitationGridModel.id ,checkbox);
-			return new HorizontalLayout(checkbox, new Label(invitationGridModel.resourceName));
+			HorizontalLayout horizontalLayout = new HorizontalLayout(checkbox, new Label(invitationGridModel.resourceName));
+			horizontalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+			return horizontalLayout;
 		}).setHeader(new HorizontalLayout(mainContextMenu, new Label(getTranslation("view.user-settings.invitations.grid.1"))));
 		grid.addColumn(x -> x.role)
 			.setHeader(getTranslation("view.user-settings.invitations.grid.2"))

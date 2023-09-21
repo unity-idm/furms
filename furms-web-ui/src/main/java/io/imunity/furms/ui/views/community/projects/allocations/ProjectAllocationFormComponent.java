@@ -12,8 +12,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.data.binder.Binder;
-
-import io.imunity.furms.api.constant.ValidationConst;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceTypeId;
@@ -61,9 +59,11 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		communityAllocationComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		communityAllocationComboBox.setWidth("17em");
 		formLayout.addFormItem(communityAllocationComboBox, getTranslation("view.community-admin.project-allocation.form.field.community_allocation"));
-		
+
+		availableAmountLabel = new Label();
 		BigDecimalField amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
+		amountField.setHelperComponent(availableAmountLabel);
 		resourceTypeComboBox.addValueChangeListener(event -> {
 			ResourceTypeId id =
 				Optional.ofNullable(event.getValue()).map(x -> x.id).orElse(new ResourceTypeId((UUID) null));
@@ -72,7 +72,6 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 		});
 		formLayout.addFormItem(amountField, getTranslation("view.community-admin.project-allocation.form.field.amount"));
 
-		availableAmountLabel = new Label();
 		communityAllocationComboBox.addValueChangeListener(event ->
 			Optional.ofNullable(event.getValue()).ifPresentOrElse(
 				allocation -> {
@@ -92,7 +91,7 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 				() -> availableAmountLabel.setText("")
 			)
 		);
-		formLayout.addFormItem(availableAmountLabel, "");
+//		formLayout.addFormItem(availableAmountLabel, "");
 
 		prepareValidator(defaultNameField, resourceTypeComboBox, communityAllocationComboBox, amountField);
 

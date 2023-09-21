@@ -4,9 +4,10 @@
  */
 package io.imunity.furms.unity.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import io.imunity.rest.api.types.basic.RestAttributeExt;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -16,18 +17,25 @@ public class AttributeValueMapper {
 	private static final Map<String, Function<String, String>> mappersByAttributeType = Map.of(
 				"verifiableEmail", AttributeValueMapper::convertEmail
 			);
-	
-	public static String toFurmsAttributeValue(Attribute attribute, String value) {
-		return mappersByAttributeType.getOrDefault(attribute.getValueSyntax(), DEFAULT_VALUE_MAPPER)
-				.apply(value);
-	}
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	public static String toFurmsAttributeValue(RestAttributeExt attribute, String value) {
 		return mappersByAttributeType.getOrDefault(attribute.valueSyntax, DEFAULT_VALUE_MAPPER)
 			.apply(value);
 	}
+
+	public static String toFurmsAttributeValue(RestAttribute attribute, String value) {
+		return mappersByAttributeType.getOrDefault(attribute.valueSyntax, DEFAULT_VALUE_MAPPER)
+			.apply(value);
+	}
 	
 	private static String convertEmail(String encodedEmail) {
-		return VerifiableEmail.fromJsonString(encodedEmail).getValue();
+		try
+		{
+			return objectMapper.readTree(encodedEmail).get("value").asText();
+		} catch (JsonProcessingException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 }

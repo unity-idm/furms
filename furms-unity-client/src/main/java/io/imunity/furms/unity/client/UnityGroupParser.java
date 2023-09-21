@@ -10,8 +10,8 @@ import io.imunity.furms.domain.authz.roles.ResourceType;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.domain.sites.SiteId;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import org.springframework.util.AntPathMatcher;
-import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +24,7 @@ public class UnityGroupParser {
 	private static final AntPathMatcher matcher = new AntPathMatcher();
 	public final static Predicate<String> COMMUNITY_BASE_GROUP_PREDICATE = 
 			group -> matcher.match(COMMUNITY_PREFIX + "*", group);
-	public final static Predicate<Attribute> usersGroupPredicate4Attr = a -> a.getGroupPath().endsWith("/users");
+	public final static Predicate<RestAttribute> usersGroupPredicate4Attr = a -> a.groupPath.endsWith("/users");
 
 	private static final Map<String, ResourceType> resourcesPatterns = Map.of(
 		FENIX_PATTERN, ResourceType.APP_LEVEL,
@@ -35,8 +35,8 @@ public class UnityGroupParser {
 		"/fenix/communities/*/projects/*", ResourceType.PROJECT
 	);
 
-	public static ResourceId attr2Resource(Attribute attribute) {
-		return getResourceId(attribute.getGroupPath());
+	public static ResourceId attr2Resource(RestAttribute attribute) {
+		return getResourceId(attribute.groupPath);
 	}
 	
 	public static ResourceId getResourceId(String group){

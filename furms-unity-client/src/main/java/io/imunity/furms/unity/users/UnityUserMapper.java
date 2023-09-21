@@ -13,16 +13,13 @@ import io.imunity.furms.domain.users.PersistentId;
 import io.imunity.furms.domain.users.UserStatus;
 import io.imunity.furms.unity.common.AttributeValueMapper;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
+import io.imunity.rest.api.types.basic.RestAttribute;
 import io.imunity.rest.api.types.basic.RestAttributeExt;
+import io.imunity.rest.api.types.basic.RestEntity;
 import io.imunity.rest.api.types.basic.RestEntityInformation;
 import io.imunity.rest.api.types.basic.RestIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityInformation;
-import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.types.basic.Identity;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
@@ -42,8 +39,6 @@ import static io.imunity.furms.unity.common.UnityConst.PERSISTENT_IDENTITY;
 import static io.imunity.furms.unity.common.UnityConst.ROOT_GROUP;
 import static io.imunity.furms.unity.common.UnityPaths.USERS_PATTERN;
 import static org.springframework.util.StringUtils.hasText;
-import static pl.edu.icm.unity.types.basic.EntityState.onlyLoginPermitted;
-import static pl.edu.icm.unity.types.basic.EntityState.valid;
 
 public class UnityUserMapper {
 	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -55,16 +50,16 @@ public class UnityUserMapper {
 		return getFurmsUser(() -> buildUser(groupMember, group));
 	}
 
-	public static Optional<FURMSUser> map(PersistentId userId, Entity entity, List<Attribute> attributes){
-		return getFurmsUser(() -> buildUser(userId, getFenixId(entity.getIdentities()), attributes, entity));
+	public static Optional<FURMSUser> map(PersistentId userId, RestEntity entity, List<RestAttribute> attributes){
+		return getFurmsUser(() -> buildUser(userId, getFenixId(entity.identities), attributes, entity));
 	}
 
-	public static Optional<FURMSUser> map(FenixUserId userId, Entity entity, List<Attribute> attributes){
-		return getFurmsUser(() -> buildUser(getPersistentId(entity.getIdentities()), userId, attributes, entity));
+	public static Optional<FURMSUser> map(FenixUserId userId, RestEntity entity, List<RestAttribute> attributes){
+		return getFurmsUser(() -> buildUser(getPersistentId(entity.identities), userId, attributes, entity));
 	}
 
-	public static Optional<FURMSUser> map(List<Identity> identities, Collection<? extends Attribute> attributes,
-	                                      EntityInformation information, String group) {
+	public static Optional<FURMSUser> map(List<RestIdentity> identities, Collection<? extends RestAttribute> attributes,
+	                                      RestEntityInformation information, String group) {
 		return getFurmsUser(() -> buildUser(identities, attributes, information, group));
 	}
 
@@ -95,14 +90,14 @@ public class UnityUserMapper {
 			.build();
 	}
 
-	private static Map<ResourceId, Set<Role>> getRoles(String group, Collection<? extends Attribute> attributeExts) {
+	private static Map<ResourceId, Set<Role>> getRoles(String group, Collection<? extends RestAttribute> attributeExts) {
 		if(!isGroupContainingUsersInPath(group))
 			return Map.of();
 		ResourceId resourceId = getResourceId(group);
 		Set<Role> roles = attributeExts.stream()
-			.filter(attribute -> attribute.getName().toUpperCase().contains("ROLE"))
-			.flatMap(attribute -> attribute.getValues().stream()
-				.map(attributeValue -> Role.translateRole(attribute.getName(), attributeValue)))
+			.filter(attribute -> attribute.name.toUpperCase().contains("ROLE"))
+			.flatMap(attribute -> attribute.values.stream()
+				.map(attributeValue -> Role.translateRole(attribute.name, attributeValue)))
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.collect(Collectors.toSet());
@@ -129,9 +124,9 @@ public class UnityUserMapper {
 	}
 
 	private static FURMSUser buildUser(
-		List<Identity> identities,
-		Collection<? extends Attribute> attributes,
-		EntityInformation entityInformation,
+		List<RestIdentity> identities,
+		Collection<? extends RestAttribute> attributes,
+		RestEntityInformation entityInformation,
 		String group) {
 		return FURMSUser.builder()
 			.id(new PersistentId(getId(identities)))
@@ -144,22 +139,23 @@ public class UnityUserMapper {
 			.build();
 	}
 
-	private static FURMSUser buildUser(PersistentId userId, FenixUserId fenixUserId, List<Attribute> attributes, Entity entity) {
+	private static FURMSUser buildUser(PersistentId userId, FenixUserId fenixUserId, List<RestAttribute> attributes,
+	                                   RestEntity entity) {
 		return FURMSUser.builder()
 			.id(userId)
 			.fenixUserId(fenixUserId)
 			.firstName(getFirstAttributeValue(attributes, FIRSTNAME))
 			.lastName(getFirstAttributeValue(attributes, SURNAME))
 			.email(getFirstAttributeValue(attributes, EMAIL))
-			.status(getStatus(entity.getState()))
+			.status(getStatus(entity.entityInformation.state))
 			.build();
 	}
 
-	private static String getId(List<Identity> identities) {
+	private static String getId(List<RestIdentity> identities) {
 		return identities.stream()
-			.filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY))
+			.filter(identity -> identity.typeId.equals(PERSISTENT_IDENTITY))
 			.findAny()
-			.map(Identity::getComparableValue)
+			.map(identity -> identity.comparableValue)
 			.orElse(null);
 	}
 
@@ -171,11 +167,11 @@ public class UnityUserMapper {
 			.orElse(null);
 	}
 
-	private static FenixUserId getFenixId(List<Identity> identities) {
+	private static FenixUserId getFenixId(List<RestIdentity> identities) {
 		return identities.stream()
-			.filter(identity -> identity.getTypeId().equals(IDENTIFIER_IDENTITY))
+			.filter(identity -> identity.typeId.equals(IDENTIFIER_IDENTITY))
 			.findAny()
-			.map(Identity::getComparableValue)
+			.map(identity -> identity.comparableValue)
 			.map(FenixUserId::new)
 			.orElse(null);
 	}
@@ -189,35 +185,27 @@ public class UnityUserMapper {
 			.orElse(null);
 	}
 
-	private static PersistentId getPersistentId(List<Identity> identities) {
-		return identities.stream().filter(identity -> identity.getTypeId().equals(PERSISTENT_IDENTITY))
-			.findAny().map(Identity::getComparableValue).map(PersistentId::new).orElse(null);
-	}
-
-	private static UserStatus getStatus(EntityInformation entityInformation) {
-		return getStatus(entityInformation.getState().name());
+	private static PersistentId getPersistentId(List<RestIdentity> identities) {
+		return identities.stream().filter(identity -> identity.typeId.equals(PERSISTENT_IDENTITY))
+			.findAny().map(identity -> identity.comparableValue).map(PersistentId::new).orElse(null);
 	}
 
 	private static UserStatus getStatus(RestEntityInformation entityInformation) {
 		return getStatus(entityInformation.state);
 	}
 
-	private static UserStatus getStatus(EntityState state) {
-		return getStatus(state.name());
-	}
-
 	private static UserStatus getStatus(String entityState) {
-		return hasText(entityState) && (entityState.equals(valid.name()) || entityState.equals(onlyLoginPermitted.name()))
+		return hasText(entityState) && (entityState.equals("valid") || entityState.equals("onlyLoginPermitted"))
 				? ENABLED
 				: DISABLED;
 	}
 
-	private static String getFirstAttributeValue(Collection<? extends Attribute> attributes, String attributeValue) {
+	private static String getFirstAttributeValue(Collection<? extends RestAttribute> attributes, String attributeValue) {
 		return attributes
 			.stream()
-			.filter(attribute -> attribute.getName().equals(attributeValue))
-			.filter(attribute -> !attribute.getValues().isEmpty())
-			.map(attribute -> AttributeValueMapper.toFurmsAttributeValue(attribute, attribute.getValues().get(0)))
+			.filter(attribute -> attribute.name.equals(attributeValue))
+			.filter(attribute -> !attribute.values.isEmpty())
+			.map(attribute -> AttributeValueMapper.toFurmsAttributeValue(attribute, attribute.values.get(0)))
 			.findFirst()
 			.orElse(null);
 	}
