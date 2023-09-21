@@ -10,6 +10,7 @@ import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -162,8 +163,9 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 	void shouldFindAllProjectAllocationsByProjectId() throws Exception {
 		//given
 		final String projectId = UUID.randomUUID().toString();
+		Validity validity = new Validity(LocalDateTime.now(), LocalDateTime.now());
 		when(projectsRestService.findAllProjectAllocationsByProjectId(new ProjectId(projectId))).thenReturn(List.of(
-				createProjectAllocation("id1"), createProjectAllocation("id2")));
+				createProjectAllocation("id1", validity), createProjectAllocation("id2", validity)));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_PROJECTS + "/{projectId}/allocations", projectId)
@@ -179,8 +181,9 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 		//given
 		final String projectId = UUID.randomUUID().toString();
 		final String allocationId = UUID.randomUUID().toString();
+		Validity validity = new Validity(LocalDateTime.now(), LocalDateTime.now());
 		when(projectsRestService.findByIdAndProjectAllocationId(new ProjectId(projectId), new ProjectAllocationId(allocationId)))
-				.thenReturn(createProjectAllocation(allocationId));
+				.thenReturn(createProjectAllocation(allocationId, validity));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_PROJECTS+"/{projectId}/allocations/{projectAllocationId}", projectId, allocationId)
@@ -221,9 +224,9 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 				new Validity(sampleFrom, sampleTo), sampleUser);
 	}
 
-	private ProjectAllocation createProjectAllocation(String id) {
+	private ProjectAllocation createProjectAllocation(String id, Validity validity) {
 		return new ProjectAllocation(id, "projectId", "allocationId", "name", "typeId", "resourceUnit", "siteId",
-				"siteName", "serviceId", "serviceName", ONE);
+				"siteName", "serviceId", "serviceName", ONE, validity);
 	}
 
 }

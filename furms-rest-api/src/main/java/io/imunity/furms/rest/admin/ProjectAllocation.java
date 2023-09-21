@@ -21,18 +21,21 @@ class ProjectAllocation {
 	public final String serviceId;
 	public final String serviceName;
 	public final BigDecimal amount;
+	public final Validity validity;
+
 
 	ProjectAllocation(String id,
-	                         String projectId,
-	                         String communityAllocationId,
-	                         String name,
-	                         String resourceTypeId,
-	                         String resourceUnit,
-	                         String siteId,
-	                         String siteName,
-	                         String serviceId,
-	                         String serviceName,
-	                         BigDecimal amount) {
+	                        String projectId,
+	                        String communityAllocationId,
+	                        String name,
+	                        String resourceTypeId,
+	                        String resourceUnit,
+	                        String siteId,
+	                        String siteName,
+	                        String serviceId,
+	                        String serviceName,
+	                        BigDecimal amount,
+	                        Validity validity) {
 		this.id = id;
 		this.projectId = projectId;
 		this.communityAllocationId = communityAllocationId;
@@ -44,14 +47,16 @@ class ProjectAllocation {
 		this.serviceId = serviceId;
 		this.serviceName = serviceName;
 		this.amount = amount;
+		this.validity = validity;
 	}
 
 	ProjectAllocation(ProjectAllocationResolved allocation) {
 		this(allocation.id.id.toString(), allocation.projectId.id.toString(), allocation.communityAllocation.id.id.toString(),
 			allocation.name,
 			allocation.resourceType.id.id.toString(),
-				allocation.resourceType.unit.getSuffix(), allocation.site.getId().id.toString(), allocation.site.getName(),
-				allocation.resourceType.serviceId.id.toString(), allocation.resourceType.serviceName, allocation.amount);
+			allocation.resourceType.unit.getSuffix(), allocation.site.getId().id.toString(), allocation.site.getName(),
+			allocation.resourceType.serviceId.id.toString(), allocation.resourceType.serviceName,
+			allocation.amount, new Validity(allocation.resourceCredit.utcStartTime, allocation.resourceCredit.utcEndTime));
 	}
 
 	@Override

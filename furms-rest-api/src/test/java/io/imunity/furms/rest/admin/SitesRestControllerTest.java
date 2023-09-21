@@ -19,7 +19,9 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rest.user.User;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -352,12 +354,14 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
 		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		Validity validity = new Validity(LocalDateTime.now(), LocalDateTime.now());
+		Validity validity1 = new Validity(LocalDateTime.now(), LocalDateTime.now());
 
 		when(sitesRestService.findAllProjectAllocationsBySiteId(siteId)).thenReturn(List.of(
 				createProjectAllocation(projectAllocationId1, communityAllocationId, projectId, resourceTypeId,
-					siteId, infraServiceId),
+					siteId, infraServiceId, validity),
 				createProjectAllocation(projectAllocationId2, communityAllocationId, projectId, resourceTypeId,
-					siteId, infraServiceId))
+					siteId, infraServiceId, validity1))
 		);
 
 		//when + then
@@ -371,7 +375,11 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.[0].communityAllocationId").value(communityAllocationId.id.toString()))
 				.andExpect(jsonPath("$.[0].name").value("name"))
 				.andExpect(jsonPath("$.[0].resourceTypeId").value(resourceTypeId.id.toString()))
-				.andExpect(jsonPath("$.[0].amount").value("1"));
+				.andExpect(jsonPath("$.[0].amount").value("1"))
+				.andExpect(jsonPath("$.[0].validity.from").value(getFormatDate(validity.from)))
+				.andExpect(jsonPath("$.[0].validity.to").value(getFormatDate(validity.to)))
+				.andExpect(jsonPath("$.[1].validity.from").value(getFormatDate(validity1.from)))
+				.andExpect(jsonPath("$.[1].validity.to").value(getFormatDate(validity1.to)));
 	}
 
 	@Test
@@ -384,12 +392,14 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
 		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
+		Validity validity = new Validity(LocalDateTime.now(), LocalDateTime.now());
+		Validity validity1 = new Validity(LocalDateTime.now(), LocalDateTime.now());
 
 		when(sitesRestService.findAllProjectAllocationsBySiteIdAndProjectId(siteId, projectId)).thenReturn(List.of(
 				createProjectAllocation(projectAllocationId1, communityAllocationId, projectId, resourceTypeId,
-					siteId, infraServiceId),
+					siteId, infraServiceId, validity),
 			createProjectAllocation(projectAllocationId2, communityAllocationId, projectId, resourceTypeId,
-				siteId, infraServiceId)));
+				siteId, infraServiceId, validity1)));
 
 		//when + then
 		mockMvc.perform(get(BASE_URL_SITES + "/{siteId}/furmsAllocations/{projectId}", siteId.id, projectId.id)
@@ -528,7 +538,8 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 
 	private ProjectAllocation createProjectAllocation(ProjectAllocationId allocationId,
 	                                                  CommunityAllocationId communityAllocationId, ProjectId projectId,
-	                                                  ResourceTypeId typeId, SiteId siteId, InfraServiceId infraServiceId) {
+	                                                  ResourceTypeId typeId, SiteId siteId,
+	                                                  InfraServiceId infraServiceId, Validity validity) {
 		return new ProjectAllocation(
 			allocationId.id.toString(),
 			projectId.id.toString(),
@@ -540,7 +551,8 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 			"siteName",
 			infraServiceId.id.toString(),
 			"serviceName",
-			ONE
+			ONE,
+			validity
 		);
 	}
 
@@ -555,6 +567,10 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 
 	private ProjectUsageRecord createProjectUsageRecord(SiteId siteId, String id) {
 		return new ProjectUsageRecord(id,"typeId", siteId.id.toString(), ONE, sampleUser.fenixIdentifier, sampleFrom, sampleTo);
+	}
+
+	private String getFormatDate(ZonedDateTime zonedDateTime) {
+		return zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS")) + "Z";
 	}
 
 }
