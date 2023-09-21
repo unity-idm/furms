@@ -19,6 +19,7 @@ import io.imunity.furms.domain.users.FenixUserId;
 import io.imunity.furms.rest.user.User;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -354,8 +355,8 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 		InfraServiceId infraServiceId = new InfraServiceId(UUID.randomUUID());
 		CommunityAllocationId communityAllocationId = new CommunityAllocationId(UUID.randomUUID());
 		ResourceTypeId resourceTypeId = new ResourceTypeId(UUID.randomUUID());
-		Validity validity = new Validity(LocalDateTime.now(), LocalDateTime.now());
-		Validity validity1 = new Validity(LocalDateTime.now(), LocalDateTime.now());
+		Validity validity = new Validity(LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay());
+		Validity validity1 = new Validity(LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay());
 
 		when(sitesRestService.findAllProjectAllocationsBySiteId(siteId)).thenReturn(List.of(
 				createProjectAllocation(projectAllocationId1, communityAllocationId, projectId, resourceTypeId,
@@ -570,7 +571,7 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 	}
 
 	private String getFormatDate(ZonedDateTime zonedDateTime) {
-		return zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS")) + "Z";
+		return zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + "Z";
 	}
 
 }
