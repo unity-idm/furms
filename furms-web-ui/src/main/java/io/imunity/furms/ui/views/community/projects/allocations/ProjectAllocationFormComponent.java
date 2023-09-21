@@ -91,7 +91,6 @@ class ProjectAllocationFormComponent extends Composite<Div> {
 				() -> availableAmountLabel.setText("")
 			)
 		);
-//		formLayout.addFormItem(availableAmountLabel, "");
 
 		prepareValidator(defaultNameField, resourceTypeComboBox, communityAllocationComboBox, amountField);
 

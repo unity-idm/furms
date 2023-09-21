@@ -10,12 +10,14 @@ import io.imunity.furms.domain.projects.ProjectId;
 import io.imunity.furms.rest.error.exceptions.ProjectRestNotFoundException;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
+import static io.imunity.furms.rest.admin.TimeFormatUtils.getFormatDate;
 import static java.math.BigDecimal.ONE;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.doThrow;
@@ -181,7 +183,7 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 		//given
 		final String projectId = UUID.randomUUID().toString();
 		final String allocationId = UUID.randomUUID().toString();
-		Validity validity = new Validity(LocalDateTime.now(), LocalDateTime.now());
+		Validity validity = new Validity(LocalDate.now().atStartOfDay(), LocalDate.now().atStartOfDay());
 		when(projectsRestService.findByIdAndProjectAllocationId(new ProjectId(projectId), new ProjectAllocationId(allocationId)))
 				.thenReturn(createProjectAllocation(allocationId, validity));
 
@@ -194,7 +196,9 @@ class ProjectsRestControllerTest extends RestApiControllerIntegrationTest {
 				.andExpect(jsonPath("$.communityAllocationId").value("allocationId"))
 				.andExpect(jsonPath("$.name").value("name"))
 				.andExpect(jsonPath("$.resourceTypeId").value("typeId"))
-				.andExpect(jsonPath("$.amount").value("1"));
+				.andExpect(jsonPath("$.amount").value("1"))
+				.andExpect(jsonPath("$.validity.from").value(getFormatDate(validity.from)))
+				.andExpect(jsonPath("$.validity.to").value(getFormatDate(validity.to)));
 	}
 
 	@Test

@@ -99,8 +99,7 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	@EventListener
 	void receiveProjectResourceAllocationResult(Payload<AgentProjectAllocationInstallationResult> result) {
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
-		boolean isStateUpdatable = projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId);
-		if(isStateUpdatable) {
+		if(projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId)) {
 			throw new IllegalStateTransitionException(
 				String.format("Allocation %s waiting for ProjectResourceAllocationStatusResult", projectAllocationId.id));
 		}
@@ -122,8 +121,7 @@ class SiteAgentProjectAllocationInstallationServiceImpl implements SiteAgentProj
 	@EventListener
 	void receiveProjectResourceAllocationUpdate(Payload<AgentProjectAllocationUpdate> result) {
 		ProjectAllocationId projectAllocationId = new ProjectAllocationId(result.body.allocationIdentifier);
-		boolean isStateUpdatable = projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId);
-		if(isStateUpdatable) {
+		if(projectAllocationInstallationStatusUpdater.isWaitingForInstallationConfirmation(projectAllocationId)) {
 			throw new IllegalStateTransitionException(
 				String.format("Allocation %s waiting for ProjectResourceAllocationStatusResult", projectAllocationId.id));
 		}

@@ -22,13 +22,13 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 import static io.imunity.furms.rest.admin.AcceptanceStatus.ACCEPTED;
+import static io.imunity.furms.rest.admin.TimeFormatUtils.getFormatDate;
 import static java.math.BigDecimal.ONE;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
@@ -568,10 +568,6 @@ class SitesRestControllerTest extends RestApiControllerIntegrationTest {
 
 	private ProjectUsageRecord createProjectUsageRecord(SiteId siteId, String id) {
 		return new ProjectUsageRecord(id,"typeId", siteId.id.toString(), ONE, sampleUser.fenixIdentifier, sampleFrom, sampleTo);
-	}
-
-	private String getFormatDate(ZonedDateTime zonedDateTime) {
-		return zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")) + "Z";
 	}
 
 }

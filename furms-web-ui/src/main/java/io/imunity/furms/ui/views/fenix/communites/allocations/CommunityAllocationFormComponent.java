@@ -12,8 +12,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.textfield.BigDecimalField;
 import com.vaadin.flow.data.binder.Binder;
-
-import io.imunity.furms.api.constant.ValidationConst;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
 import io.imunity.furms.domain.resource_types.ResourceTypeId;
 import io.imunity.furms.ui.community.allocations.CommunityAllocationComboBoxesModelsResolver;
@@ -75,8 +73,11 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		resourceCreditComboBox.setItemLabelGenerator(resourceType -> resourceType.name);
 		formLayout.addFormItem(resourceCreditComboBox, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_credit"));
 
+		availableAmountLabel = new Label();
 		amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
+		amountField.setHelperComponent(availableAmountLabel);
+
 		resourceTypeComboBox.addValueChangeListener(event -> {
 			if (event.getValue() == null) {
 				resourceCreditComboBox.setItems(Collections.emptyList());
@@ -96,7 +97,6 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 		});
 		formLayout.addFormItem(amountField, getTranslation("view.fenix-admin.resource-credits-allocation.form.field.amount"));
 
-		availableAmountLabel = new Label();
 		resourceCreditComboBox.addValueChangeListener(event ->
 			Optional.ofNullable(event.getValue()).ifPresentOrElse(
 				x -> {
@@ -106,7 +106,6 @@ public class CommunityAllocationFormComponent extends Composite<Div> {
 				() -> availableAmountLabel.setText("")
 			)
 		);
-		formLayout.addFormItem(availableAmountLabel, "");
 
 		prepareValidator(defaultNameField, siteComboBox, resourceTypeComboBox, resourceCreditComboBox, amountField);
 

@@ -74,13 +74,14 @@ class ProjectAllocation {
 				&& Objects.equals(siteName, that.siteName)
 				&& Objects.equals(serviceId, that.serviceId)
 				&& Objects.equals(serviceName, that.serviceName)
-				&& Objects.equals(amount, that.amount);
+				&& Objects.equals(amount, that.amount)
+				&& Objects.equals(validity, that.validity);
 	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(id, projectId, communityAllocationId, name, resourceTypeId, resourceUnit, siteId, siteName,
-				serviceId, serviceName, amount);
+				serviceId, serviceName, amount, validity);
 	}
 
 	@Override
@@ -97,6 +98,7 @@ class ProjectAllocation {
 				", serviceId='" + serviceId + '\'' +
 				", serviceName='" + serviceName + '\'' +
 				", amount=" + amount +
+				", validity=" + validity +
 				'}';
 	}
 }

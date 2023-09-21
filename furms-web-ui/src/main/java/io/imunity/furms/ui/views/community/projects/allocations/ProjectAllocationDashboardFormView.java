@@ -5,23 +5,6 @@
 
 package io.imunity.furms.ui.views.community.projects.allocations;
 
-import static com.vaadin.flow.component.Key.ESCAPE;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
-import static io.imunity.furms.api.constant.ValidationConst.MAX_ALLOCATION_NAME_LENGTH;
-import static java.math.BigDecimal.ZERO;
-import static java.util.stream.Collectors.toSet;
-
-import java.lang.invoke.MethodHandles;
-import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -34,8 +17,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
-
-import io.imunity.furms.api.constant.ValidationConst;
 import io.imunity.furms.api.project_allocation.ProjectAllocationService;
 import io.imunity.furms.api.projects.ProjectService;
 import io.imunity.furms.domain.project_allocation.ProjectAllocation;
@@ -51,6 +32,22 @@ import io.imunity.furms.ui.components.support.models.allocation.ResourceTypeComb
 import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import io.imunity.furms.ui.views.community.DashboardView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+import java.math.BigDecimal;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.vaadin.flow.component.Key.ESCAPE;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
+import static io.imunity.furms.api.constant.ValidationConst.MAX_ALLOCATION_NAME_LENGTH;
+import static java.math.BigDecimal.ZERO;
+import static java.util.stream.Collectors.toSet;
 
 @Route(value = "community/admin/dashboard/allocation", layout = CommunityAdminMenu.class)
 @PageTitle(key = "view.fenix-admin.dashboard.allocate.page.title")
@@ -105,9 +102,8 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 				getTranslation("view.community-admin.project-allocation.form.field.resource_type"));
 		formLayout.addFormItem(communityAllocation(availableAmountLabel),
 				getTranslation("view.community-admin.project-allocation.form.field.community_allocation"));
-		formLayout.addFormItem(amountField(),
+		formLayout.addFormItem(amountField(availableAmountLabel),
 				getTranslation("view.fenix-admin.resource-credits-allocation.form.field.amount"));
-		formLayout.addFormItem(availableAmountLabel, "");
 
 		getContent().add(formLayout);
 	}
@@ -228,7 +224,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 			"view.community-admin.project-allocation.form.label.availableNotSplit", availableAmount);
 	}
 
-	private BigDecimalField amountField() {
+	private BigDecimalField amountField(Label availableAmountLabel) {
 		final BigDecimalField amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
 		Optional<AllocationCommunityComboBoxModel> communityAlloc = Optional.ofNullable(binder.getBean().getAllocationCommunity());
@@ -246,6 +242,7 @@ public class ProjectAllocationDashboardFormView extends FurmsViewComponent {
 				)
 				.bind(ProjectAllocationViewModel::getAmount, ProjectAllocationViewModel::setAmount);
 		amountField.setValue(availableAmount);
+		amountField.setHelperComponent(availableAmountLabel);
 
 		return amountField;
 	}

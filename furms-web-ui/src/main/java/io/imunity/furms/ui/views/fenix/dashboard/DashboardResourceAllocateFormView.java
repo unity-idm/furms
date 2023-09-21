@@ -20,7 +20,6 @@ import com.vaadin.flow.function.ValueProvider;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.communites.CommunityService;
 import io.imunity.furms.api.community_allocation.CommunityAllocationService;
-import io.imunity.furms.api.constant.ValidationConst;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.domain.community_allocation.CommunityAllocation;
 import io.imunity.furms.domain.resource_types.ResourceMeasureUnit;
@@ -108,9 +107,8 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 				getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_type"));
 		formLayout.addFormItem(resourceCreditField(availableAmountLabel),
 				getTranslation("view.fenix-admin.resource-credits-allocation.form.field.resource_credit"));
-		formLayout.addFormItem(amountField(),
+		formLayout.addFormItem(amountField(availableAmountLabel),
 				getTranslation("view.fenix-admin.resource-credits-allocation.form.field.amount"));
-		formLayout.addFormItem(availableAmountLabel, "");
 
 		getContent().add(formLayout);
 	}
@@ -248,7 +246,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 			"view.fenix-admin.resource-credits-allocation.form.label.availableNotSplit", availableAmount);
 	}
 
-	private BigDecimalField amountField() {
+	private BigDecimalField amountField(Label availableAmountLabel) {
 		final BigDecimalField amountField = new BigDecimalField();
 		amountField.setValueChangeMode(EAGER);
 		amountField.setReadOnly(!binder.getBean().getResourceCredit().split);
@@ -265,6 +263,7 @@ class DashboardResourceAllocateFormView extends FurmsViewComponent {
 				)
 				.bind(CommunityAllocationViewModel::getAmount, CommunityAllocationViewModel::setAmount);
 		amountField.setValue(availableAmount);
+		amountField.setHelperComponent(availableAmountLabel);
 
 		return amountField;
 	}
