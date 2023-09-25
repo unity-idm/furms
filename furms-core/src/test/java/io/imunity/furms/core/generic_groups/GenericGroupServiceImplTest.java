@@ -128,6 +128,22 @@ class GenericGroupServiceImplTest {
 	}
 
 	@Test
+	void shouldHandleDataDesynchronization() {
+		CommunityId communityId = new CommunityId(UUID.randomUUID());
+		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());
+		GenericGroupMembership genericGroupMembership = GenericGroupMembership.builder()
+			.genericGroupId(genericGroupId)
+			.fenixUserId("userId")
+			.build();
+
+		when(genericGroupRepository.existsBy(communityId, genericGroupId)).thenReturn(true);
+		when(genericGroupRepository.findAllBy(genericGroupId)).thenReturn(Set.of(genericGroupMembership));
+		when(usersDAO.getAllUsers()).thenReturn(List.of());
+
+		assertThrows(IllegalStateException.class, () -> genericGroupService.findAll(communityId, genericGroupId));
+	}
+
+	@Test
 	void shouldCreateGroup() {
 		CommunityId communityId = new CommunityId(UUID.randomUUID());
 		GenericGroupId genericGroupId = new GenericGroupId(UUID.randomUUID());

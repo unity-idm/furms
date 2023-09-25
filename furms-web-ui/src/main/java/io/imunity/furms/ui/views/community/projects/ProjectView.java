@@ -163,13 +163,13 @@ public class ProjectView extends FurmsViewComponent {
 		membershipLayout.addDemitButtonListener(event -> {
 			if (projectService.findAllAdmins(project.getCommunityId(), project.getId()).size() > 1) {
 				handleExceptions(() -> projectService.removeAdmin(project.getCommunityId(), project.getId(), currentUserId));
-				gridReload();
 			} else {
 				showErrorNotification(getTranslation("component.administrators.error.validation.remove"));
 			}
 			usersDAO.reload();
 			inviteUser.reload();
 			membershipLayout.loadAppropriateButton();
+			gridReload();
 		});
 		ViewHeaderLayout headerLayout = new ViewHeaderLayout(
 			getTranslation("view.community-admin.project.page.header", project.getName()),

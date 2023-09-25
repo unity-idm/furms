@@ -241,7 +241,6 @@ class SiteServiceImplTest {
 		when(repository.isNamePresentIgnoringRecord(any(), any())).thenReturn(false);
 		when(repository.findById(eq(oldSite.getId()))).thenReturn(Optional.of(oldSite));
 		when(repository.update(any())).thenReturn(tempId);
-		when(repository.findById(tempId)).thenReturn(Optional.of(newSite));
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		//when
@@ -281,7 +280,6 @@ class SiteServiceImplTest {
 		when(repository.isNamePresentIgnoringRecord(any(), any())).thenReturn(false);
 		when(repository.findById(oldSite.getId())).thenReturn(Optional.of(oldSite));
 		when(repository.update(any())).thenReturn(tempId);
-		when(repository.findById(tempId)).thenReturn(Optional.of(newSite));
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
 
 		//when

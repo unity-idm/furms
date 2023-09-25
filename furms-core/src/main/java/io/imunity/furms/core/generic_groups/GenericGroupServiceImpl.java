@@ -100,8 +100,17 @@ class GenericGroupServiceImpl implements GenericGroupService {
 			.filter(x -> x.fenixUserId.isPresent())
 			.collect(toMap(x -> x.fenixUserId.get(), Function.identity()));
 		return genericGroupRepository.findAllBy(id).stream()
-			.map(x -> new GenericGroupAssignmentWithUser(collect.get(x.fenixUserId), x))
+			.map(groupMembership -> new GenericGroupAssignmentWithUser(getFurmsUser(collect, groupMembership), groupMembership))
 			.collect(Collectors.toSet());
+	}
+
+	private static FURMSUser getFurmsUser(Map<FenixUserId, FURMSUser> collect, GenericGroupMembership groupMembership)
+	{
+		FURMSUser furmsUser = collect.get(groupMembership.fenixUserId);
+		if(furmsUser == null)
+			throw new IllegalStateException(String.format("Data desynchronization, user %s doesn't " +
+				"exist in Unity, but exists in Furms groups", groupMembership.fenixUserId));
+		return furmsUser;
 	}
 
 	@Override

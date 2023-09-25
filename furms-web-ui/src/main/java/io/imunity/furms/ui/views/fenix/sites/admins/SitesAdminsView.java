@@ -10,6 +10,7 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.furms.api.authz.AuthzService;
 import io.imunity.furms.api.sites.SiteService;
+import io.imunity.furms.api.validation.exceptions.UserIsSiteSupport;
 import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.domain.sites.SiteId;
 import io.imunity.furms.domain.users.AllUsersAndSiteAdmins;
@@ -144,7 +145,11 @@ public class SitesAdminsView extends FurmsViewComponent {
 			inviteUserComponent.reload();
 			membershipLayout.loadAppropriateButton();
 			gridReload();
-		} catch (RuntimeException e) {
+		}
+		catch (UserIsSiteSupport e) {
+			showErrorNotification(getTranslation("invite.error.role.site.support"));
+		}
+		catch (RuntimeException e) {
 			boolean handled = CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 			if(!handled)
 				LOG.error("Could not invite site admin.");

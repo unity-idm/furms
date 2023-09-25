@@ -14,9 +14,9 @@ import io.imunity.furms.api.validation.exceptions.UserAlreadyIsInGroupError;
 import io.imunity.furms.api.validation.exceptions.UserNotPresentException;
 import io.imunity.furms.domain.communities.CommunityId;
 import io.imunity.furms.domain.generic_groups.GenericGroup;
+import io.imunity.furms.domain.generic_groups.GenericGroupAssignmentWithUser;
 import io.imunity.furms.domain.generic_groups.GenericGroupId;
 import io.imunity.furms.domain.users.FURMSUser;
-import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.components.FurmsViewComponent;
 import io.imunity.furms.ui.components.MenuButton;
 import io.imunity.furms.ui.components.PageTitle;
@@ -24,7 +24,9 @@ import io.imunity.furms.ui.components.ViewHeaderLayout;
 import io.imunity.furms.ui.components.administrators.UserContextMenuFactory;
 import io.imunity.furms.ui.components.administrators.UserGrid;
 import io.imunity.furms.ui.components.administrators.UsersGridComponent;
+import io.imunity.furms.ui.components.layout.BreadCrumbParameter;
 import io.imunity.furms.ui.user_context.UIContext;
+import io.imunity.furms.ui.utils.CommonExceptionsHandler;
 import io.imunity.furms.ui.views.community.CommunityAdminMenu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -83,7 +86,7 @@ public class GroupMembersView extends FurmsViewComponent {
 		getContent().removeAll();
 		ViewHeaderLayout viewHeaderLayout = new ViewHeaderLayout(groupName + " " + getTranslation("view.community-admin.groups.members.half.header"));
 
-		Supplier<List<FURMSUser>> fetchCurrentUsersAction = () -> genericGroupService.findAll(communityId, groupId).stream()
+		Supplier<List<FURMSUser>> fetchCurrentUsersAction = () -> getGenericGroupAssignmentWithUser(communityId, groupId).stream()
 			.map(x -> x.furmsUser)
 			.collect(Collectors.toList());
 		AddGroupComponent addGroupComponent = new AddGroupComponent(
@@ -115,7 +118,7 @@ public class GroupMembersView extends FurmsViewComponent {
 			.withContextMenuColumn(userContextMenuFactory);
 
 		grid = UsersGridComponent.init(
-			() -> genericGroupService.findAll(communityId, groupId).stream()
+			() -> getGenericGroupAssignmentWithUser(communityId, groupId).stream()
 				.map(groupAssignmentWithUser ->
 					new UserGroupGridItem(
 						groupAssignmentWithUser.furmsUser,
@@ -126,6 +129,19 @@ public class GroupMembersView extends FurmsViewComponent {
 		);
 
 		getContent().add(viewHeaderLayout, addGroupComponent, grid);
+	}
+
+	private Set<GenericGroupAssignmentWithUser> getGenericGroupAssignmentWithUser(CommunityId communityId, GenericGroupId groupId)
+	{
+		try
+		{
+			return genericGroupService.findAll(communityId, groupId);
+		}
+		catch (RuntimeException e)
+		{
+			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
+		}
+		return Set.of();
 	}
 
 	private void doAddAction(AddGroupComponent inviteUserComponent, GenericGroupId groupId) {

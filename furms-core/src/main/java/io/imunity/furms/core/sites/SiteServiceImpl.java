@@ -210,10 +210,9 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		validator.validateUpdate(site);
 		Site oldSite = siteRepository.findById(site.getId())
 				.orElseThrow(() -> new IllegalStateException("Site not found: " + site.getId()));
-		SiteId siteId = siteRepository.update(merge(oldSite, site));
+		Site updatedSite = merge(oldSite, site);
+		SiteId siteId = siteRepository.update(updatedSite);
 		LOG.info("Updated Site in repository with ID={}, {}", siteId, site);
-		Site updatedSite = siteRepository.findById(siteId)
-				.orElseThrow(() -> new IllegalStateException("Site has not been saved to DB correctly."));
 		try {
 			webClient.update(updatedSite);
 			handlePolicyChange(updatedSite, oldSite);
