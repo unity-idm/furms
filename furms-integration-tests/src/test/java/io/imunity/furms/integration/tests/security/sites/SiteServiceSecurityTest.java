@@ -96,6 +96,7 @@ class SiteServiceSecurityTest extends SecurityTestsBase {
 						projectUser(community, project),
 						projectUser(otherCommunity, otherProject))
 		.andForMethods(
+				() -> service.updateName(site, "name"),
 				() -> service.update(Site.builder().id(site).build()),
 				() -> service.inviteAdmin(site, persistentId),
 				() -> service.inviteAdmin(site, "indiana.jones@colorado.edu.us"),

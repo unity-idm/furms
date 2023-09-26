@@ -11,6 +11,7 @@ import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.audit_log.AuditLogPackageTestExposer;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.core.users.audit_log.RoleAssignmentAuditLogServiceTest;
 import io.imunity.furms.domain.audit_log.Action;
 import io.imunity.furms.domain.audit_log.AuditLog;
@@ -46,7 +47,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@SpringBootTest(classes = SpringBootLauncher.class)
 @SpringBootApplication(scanBasePackageClasses = {SiteAuditLogService.class, AuditLogPackageTestExposer.class, RoleAssignmentAuditLogServiceTest.class})
 class SiteAuditLogServiceIntegrationTest {
 	@MockBean
@@ -82,6 +83,8 @@ class SiteAuditLogServiceIntegrationTest {
 	private ApplicationEventPublisher publisher;
 	@MockBean
 	private AuditLogRepository auditLogRepository;
+	@Autowired
+	private PostCommitRunner postCommitRunner;
 
 	private SiteServiceImpl service;
 
@@ -89,7 +92,7 @@ class SiteAuditLogServiceIntegrationTest {
 	void setUp() {
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
 			siteAgentService, userOperationRepository, policyDocumentRepository,
-			siteAgentPolicyDocumentService, capabilityCollector, policyNotificationService, invitatoryService);
+			siteAgentPolicyDocumentService, capabilityCollector, policyNotificationService, invitatoryService, postCommitRunner);
 	}
 
 	@Test

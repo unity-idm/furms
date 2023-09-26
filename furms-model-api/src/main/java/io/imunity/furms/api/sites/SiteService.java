@@ -33,6 +33,8 @@ public interface SiteService {
 
 	void create(Site site);
 
+	void updateName(SiteId siteId, String name);
+
 	void update(Site site);
 
 	void delete(SiteId id);

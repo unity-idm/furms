@@ -10,6 +10,7 @@ import io.imunity.furms.api.authz.CapabilityCollector;
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.domain.authz.roles.ResourceId;
 import io.imunity.furms.domain.images.FurmsImage;
 import io.imunity.furms.domain.policy_documents.PolicyDocument;
@@ -38,6 +39,7 @@ import io.imunity.furms.spi.users.UsersDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
@@ -55,6 +57,7 @@ import static io.imunity.furms.domain.authz.roles.Role.SITE_ADMIN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -92,13 +95,15 @@ class SiteServiceImplTest {
 	private PolicyNotificationService policyNotificationService;
 	@Mock
 	private InvitatoryService invitatoryService;
+	@Mock
+	private PostCommitRunner postCommitRunner;
 	
 	@BeforeEach
 	void setUp() {
 		SiteServiceValidator validator = new SiteServiceValidator(repository, mock(ResourceCreditRepository.class));
 		service = new SiteServiceImpl(repository, validator, webClient, usersDAO, publisher, authzService,
 				siteAgentService, userOperationRepository, policyDocumentRepository,
-				siteAgentPolicyDocumentService, capabilityCollector, policyNotificationService, invitatoryService);
+				siteAgentPolicyDocumentService, capabilityCollector, policyNotificationService, invitatoryService, postCommitRunner);
 	}
 
 	@Test
@@ -242,6 +247,11 @@ class SiteServiceImplTest {
 		when(repository.findById(eq(oldSite.getId()))).thenReturn(Optional.of(oldSite));
 		when(repository.update(any())).thenReturn(tempId);
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
+		ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
+		doAnswer(i -> {
+			argument.getValue().run();
+			return new Object();
+		}).when(postCommitRunner).runAfterCommit(argument.capture());
 
 		//when
 		service.update(newSite);
@@ -281,6 +291,11 @@ class SiteServiceImplTest {
 		when(repository.findById(oldSite.getId())).thenReturn(Optional.of(oldSite));
 		when(repository.update(any())).thenReturn(tempId);
 		when(policyDocumentRepository.findById(policyId)).thenReturn(Optional.of(policyDocument));
+		ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
+		doAnswer(i -> {
+			argument.getValue().run();
+			return new Object();
+		}).when(postCommitRunner).runAfterCommit(argument.capture());
 
 		//when
 		service.update(newSite);
@@ -295,38 +310,43 @@ class SiteServiceImplTest {
 	}
 
 	@Test
-	void shouldUpdateOnlySentFields() {
+	void shouldUpdateName() {
 		//given
 		SiteId id = new SiteId(UUID.randomUUID());
+		String newName = "brandNewName";
 		final Site oldSite = Site.builder()
 				.id(id)
 				.name("name")
 				.logo(new FurmsImage(new byte[0], "png"))
 				.connectionInfo("connectionInfo")
-				.build();
-		final Site request = Site.builder()
-				.id(id)
-				.name("brandNewName")
+				.oauthClientId("123")
+				.sshKeyFromOptionMandatory(true)
+				.sshKeyHistoryLength(5)
+				.policyId(new PolicyId(UUID.randomUUID()))
 				.build();
 		final Site expectedSite = Site.builder()
 				.id(oldSite.getId())
-				.name(request.getName())
+				.name(newName)
 				.logo(oldSite.getLogo())
 				.connectionInfo(oldSite.getConnectionInfo())
+				.oauthClientId(oldSite.getOauthClientId())
+				.sshKeyFromOptionMandatory(oldSite.isSshKeyFromOptionMandatory())
+				.sshKeyHistoryLength(oldSite.getSshKeyHistoryLength())
+				.policyId(oldSite.getPolicyId())
 				.build();
 
-		when(repository.exists(request.getId())).thenReturn(true);
-		when(repository.isNamePresentIgnoringRecord(request.getName(), request.getId())).thenReturn(false);
-		when(repository.update(expectedSite)).thenReturn(request.getId());
-		when(repository.findById(request.getId())).thenReturn(Optional.of(oldSite))
-			.thenReturn(Optional.of(expectedSite));
+		when(repository.exists(id)).thenReturn(true);
+		when(repository.isNamePresentIgnoringRecord(newName, id)).thenReturn(false);
+		when(repository.update(expectedSite)).thenReturn(id);
+		when(repository.findById(id)).thenReturn(Optional.of(oldSite));
 
 		//when
-		service.update(request);
+		service.updateName(id, newName);
 
 		//then
 		verify(repository, times(1)).update(expectedSite);
 		verify(webClient, times(1)).update(expectedSite);
+		verify(postCommitRunner, times(0)).runAfterCommit(any());
 		verify(publisher, times(1)).publishEvent(new SiteUpdatedEvent(oldSite, expectedSite));
 	}
 

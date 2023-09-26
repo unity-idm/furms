@@ -23,7 +23,6 @@ import com.vaadin.flow.router.RouterLink;
 import io.imunity.furms.api.sites.SiteService;
 import io.imunity.furms.api.validation.exceptions.DuplicatedNameValidationError;
 import io.imunity.furms.api.validation.exceptions.SiteHasResourceCreditsRemoveValidationError;
-import io.imunity.furms.domain.sites.Site;
 import io.imunity.furms.ui.components.DenseGrid;
 import io.imunity.furms.ui.components.FormTextField;
 import io.imunity.furms.ui.components.FurmsDialog;
@@ -200,10 +199,7 @@ public class SitesView extends FurmsViewComponent {
 			if (component.isPresent()) {
 				TextField name = component.map(c -> (TextField) c).get();
 				try {
-					siteService.update(Site.builder()
-							.id(siteEditor.getItem().getId())
-							.name(name.getValue())
-							.build());
+					siteService.updateName(siteEditor.getItem().getId(), name.getValue());
 					siteEditor.cancel();
 					refreshGrid(siteEditor);
 					showSuccessNotification(getTranslation("view.sites.form.save.success"));

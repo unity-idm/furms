@@ -14,6 +14,7 @@ import io.imunity.furms.api.validation.exceptions.UserWithoutFenixIdValidationEr
 import io.imunity.furms.core.config.security.method.FurmsAuthorize;
 import io.imunity.furms.core.invitations.InvitatoryService;
 import io.imunity.furms.core.policy_documents.PolicyNotificationService;
+import io.imunity.furms.core.post_commit.PostCommitRunner;
 import io.imunity.furms.core.utils.ExternalIdGenerator;
 import io.imunity.furms.domain.authz.roles.Capability;
 import io.imunity.furms.domain.authz.roles.ResourceId;
@@ -59,8 +60,6 @@ import static io.imunity.furms.domain.authz.roles.Capability.SITE_READ;
 import static io.imunity.furms.domain.authz.roles.Capability.SITE_WRITE;
 import static io.imunity.furms.domain.authz.roles.ResourceType.SITE;
 import static io.imunity.furms.utils.ValidationUtils.assertFalse;
-import static io.imunity.furms.utils.ValidationUtils.assertTrue;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -81,6 +80,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	private final CapabilityCollector capabilityCollector;
 	private final PolicyNotificationService policyNotificationService;
 	private final InvitatoryService invitatoryService;
+	private final PostCommitRunner postCommitRunner;
 
 	SiteServiceImpl(SiteRepository siteRepository,
 	                SiteServiceValidator validator,
@@ -94,7 +94,8 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 	                SiteAgentPolicyDocumentService siteAgentPolicyDocumentService,
 	                CapabilityCollector capabilityCollector,
 	                PolicyNotificationService policyNotificationService,
-	                InvitatoryService invitatoryService) {
+	                InvitatoryService invitatoryService,
+	                PostCommitRunner postCommitRunner) {
 		this.siteRepository = siteRepository;
 		this.validator = validator;
 		this.webClient = webClient;
@@ -108,6 +109,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		this.capabilityCollector = capabilityCollector;
 		this.policyNotificationService = policyNotificationService;
 		this.invitatoryService = invitatoryService;
+		this.postCommitRunner = postCommitRunner;
 	}
 
 	@Override
@@ -205,19 +207,28 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	@Override
 	@Transactional
+	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "siteId")
+	public void updateName(SiteId siteId, String name) {
+		Site oldSite = siteRepository.findById(siteId)
+			.orElseThrow(() -> new IllegalStateException("Site not found: " + siteId));
+		Site newSite = merge(oldSite, name);
+		update(newSite);
+	}
+
+	@Override
+	@Transactional
 	@FurmsAuthorize(capability = SITE_WRITE, resourceType = SITE, id = "site.id")
 	public void update(Site site) {
 		validator.validateUpdate(site);
 		Site oldSite = siteRepository.findById(site.getId())
 				.orElseThrow(() -> new IllegalStateException("Site not found: " + site.getId()));
-		Site updatedSite = merge(oldSite, site);
-		SiteId siteId = siteRepository.update(updatedSite);
+		SiteId siteId = siteRepository.update(site);
 		LOG.info("Updated Site in repository with ID={}, {}", siteId, site);
 		try {
-			webClient.update(updatedSite);
-			handlePolicyChange(updatedSite, oldSite);
-			publisher.publishEvent(new SiteUpdatedEvent(oldSite, updatedSite));
-			LOG.info("Updated Site in Unity: {}", updatedSite);
+			webClient.update(site);
+			handlePolicyChange(site, oldSite);
+			publisher.publishEvent(new SiteUpdatedEvent(oldSite, site));
+			LOG.info("Updated Site in Unity: {}", site);
 		} catch (RuntimeException e) {
 			LOG.error("Could not update Site: ", e);
 			throw e;
@@ -226,7 +237,7 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 
 	private void handlePolicyChange(Site updatedSite, Site oldSite) {
 		if(isPolicyChange(updatedSite, oldSite)) {
-			sendUpdateToSite(updatedSite, oldSite);
+			postCommitRunner.runAfterCommit(() -> sendUpdateToSite(updatedSite, oldSite));
 			if (updatedSite.getPolicyId() != null && updatedSite.getPolicyId().id != null) {
 				policyNotificationService.notifyAllUsersAboutPolicyAssignmentChange(oldSite.getId());
 			}
@@ -506,17 +517,16 @@ class SiteServiceImpl implements SiteService, SiteExternalIdsResolver {
 		return authzService.isResourceMember(siteId, Role.SITE_SUPPORT);
 	}
 
-	private Site merge(Site oldSite, Site site) {
-		assertTrue(oldSite.getId().equals(site.getId()),() -> new IllegalArgumentException("There are different Sites during merge"));
+	private Site merge(Site oldSite, String name) {
 		return Site.builder()
 				.id(oldSite.getId())
-				.name(site.getName())
-				.logo(ofNullable(site.getLogo()).orElse(oldSite.getLogo()))
-				.oauthClientId(ofNullable(site.getOauthClientId()).orElse(oldSite.getOauthClientId()))
-				.connectionInfo(ofNullable(site.getConnectionInfo()).orElse(oldSite.getConnectionInfo()))
-				.sshKeyFromOptionMandatory(ofNullable(site.isSshKeyFromOptionMandatory()).orElse(oldSite.isSshKeyFromOptionMandatory()))
-				.sshKeyHistoryLength(ofNullable(site.getSshKeyHistoryLength()).orElse(oldSite.getSshKeyHistoryLength()))
-				.policyId(site.getPolicyId())
+				.name(name)
+				.logo(oldSite.getLogo())
+				.oauthClientId(oldSite.getOauthClientId())
+				.connectionInfo(oldSite.getConnectionInfo())
+				.sshKeyFromOptionMandatory(oldSite.isSshKeyFromOptionMandatory())
+				.sshKeyHistoryLength(oldSite.getSshKeyHistoryLength())
+				.policyId(oldSite.getPolicyId())
 				.build();
 	}
 	
