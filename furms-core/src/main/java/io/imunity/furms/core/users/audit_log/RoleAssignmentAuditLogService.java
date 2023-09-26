@@ -123,7 +123,7 @@ class RoleAssignmentAuditLogService {
 	private String toJson(Role role, ResourceId resourceId, String resourceName) {
 		Map<String, Object> diffs = new HashMap<>();
 		diffs.put("role", role.name());
-		diffs.put("resourceId", resourceId.id);
+		diffs.put("resourceId", resourceId.id.asRawString());
 		diffs.put("resourceType", resourceId.type);
 		diffs.put("resourceName", resourceName);
 
