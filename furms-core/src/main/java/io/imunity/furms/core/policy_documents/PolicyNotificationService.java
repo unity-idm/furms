@@ -5,6 +5,19 @@
 
 package io.imunity.furms.core.policy_documents;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
+
 import io.imunity.furms.domain.authz.roles.Role;
 import io.imunity.furms.domain.notification.UserPoliciesListChangedEvent;
 import io.imunity.furms.domain.policy_documents.PolicyAcceptance;
@@ -24,17 +37,6 @@ import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentDAO;
 import io.imunity.furms.spi.policy_docuemnts.PolicyDocumentRepository;
 import io.imunity.furms.spi.sites.SiteGroupDAO;
 import io.imunity.furms.spi.user_operation.UserOperationRepository;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class PolicyNotificationService {
@@ -131,7 +133,7 @@ public class PolicyNotificationService {
 	}
 
 	private void notifyAllSiteUsersAboutPolicyAssignmentChange(SiteId siteId, PolicyDocument policy) {
-		Stream.concat(
+		List<FenixUserId> usersList = Stream.concat(
 			userOperationRepository.findAllUserAdditionsBySiteId(siteId).stream()
 				.map(addition -> addition.userId),
 			siteGroupDAO.getSiteUsers(siteId, Set.of(Role.SITE_ADMIN, Role.SITE_SUPPORT)).stream()
@@ -141,10 +143,12 @@ public class PolicyNotificationService {
 			.distinct()
 			.filter(fenixUserId -> policyDocumentDAO.getPolicyAcceptances(fenixUserId).stream()
 				.noneMatch(acceptance -> isCurrentRevisionAccepted(policy, acceptance)))
-			.forEach(fenixUserId -> {
+			.toList();
+		
+		usersList.forEach(fenixUserId -> {
 				emailNotificationSender.notifySiteUserAboutPolicyAssignmentChange(fenixUserId, policy.name);
 				publisher.publishEvent(new UserPoliciesListChangedEvent(fenixUserId));
-			});
+		});
 	}
 
 	private boolean isCurrentRevisionAccepted(PolicyDocument sitePolicy, PolicyAcceptance acceptance) {
