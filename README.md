@@ -5,10 +5,7 @@ FENIX User Management System
 To be able to build and create CLI application you have to meet these requirements:
 
 - download GraalVM from https://www.graalvm.org/downloads/
-- install `native-image` plugin: 
-  
-        `gu install native-image` 
-  (more info available at https://www.graalvm.org/reference-manual/native-image/),
+
 - force Maven installation to use GraalVM JDK e.g.:
         
         export JAVA_HOME=/path/to/your/graalvm/installation
