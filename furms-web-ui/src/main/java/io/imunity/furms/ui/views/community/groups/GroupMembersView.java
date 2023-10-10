@@ -131,14 +131,11 @@ public class GroupMembersView extends FurmsViewComponent {
 		getContent().add(viewHeaderLayout, addGroupComponent, grid);
 	}
 
-	private Set<GenericGroupAssignmentWithUser> getGenericGroupAssignmentWithUser(CommunityId communityId, GenericGroupId groupId)
-	{
-		try
-		{
+	private Set<GenericGroupAssignmentWithUser> getGenericGroupAssignmentWithUser(CommunityId communityId, GenericGroupId groupId) {
+		try {
 			return genericGroupService.findAll(communityId, groupId);
 		}
-		catch (RuntimeException e)
-		{
+		catch (RuntimeException e) {
 			CommonExceptionsHandler.showExceptionBasedNotificationError(e);
 		}
 		return Set.of();

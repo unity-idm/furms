@@ -104,8 +104,7 @@ class GenericGroupServiceImpl implements GenericGroupService {
 			.collect(Collectors.toSet());
 	}
 
-	private static FURMSUser getFurmsUser(Map<FenixUserId, FURMSUser> collect, GenericGroupMembership groupMembership)
-	{
+	private static FURMSUser getFurmsUser(Map<FenixUserId, FURMSUser> collect, GenericGroupMembership groupMembership) {
 		FURMSUser furmsUser = collect.get(groupMembership.fenixUserId);
 		if(furmsUser == null)
 			throw new IllegalStateException(String.format("Data desynchronization, user %s doesn't " +
