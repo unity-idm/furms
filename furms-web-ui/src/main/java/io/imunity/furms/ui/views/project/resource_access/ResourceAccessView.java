@@ -175,7 +175,7 @@ public class ResourceAccessView extends FurmsViewComponent {
 		GridActionMenu contextMenu = new GridActionMenu();
 		if(resourceAccessViewService.isRevokeAvailable(resourceAccessModel)){
 			contextMenu.addItem(
-				new MenuButton(getTranslation("view.project-admin.resource-access.grid.context-menu.revoke"), MINUS_CIRCLE),
+				new MenuButton(getRevokeOrRemoveLabel(resourceAccessModel), MINUS_CIRCLE),
 				event -> {
 					resourceAccessViewService.revokeAccess(resourceAccessModel);
 					reloadGrid();
@@ -189,6 +189,13 @@ public class ResourceAccessView extends FurmsViewComponent {
 				});
 		}
 		return new GridActionsButtonLayout(contextMenu.getTarget());
+	}
+
+	private String getRevokeOrRemoveLabel(ResourceAccessModel resourceAccessModel)
+	{
+		if(resourceAccessViewService.isStatusGrantFailed(resourceAccessModel))
+			return getTranslation("view.project-admin.resource-access.grid.context-menu.removed");
+		return getTranslation("view.project-admin.resource-access.grid.context-menu.revoke");
 	}
 
 }

@@ -30,6 +30,7 @@ import static io.imunity.furms.domain.resource_access.AccessStatus.ACKNOWLEDGED_
 import static io.imunity.furms.domain.resource_access.AccessStatus.ENABLED_STATUES;
 import static io.imunity.furms.domain.resource_access.AccessStatus.FAILED_STATUES;
 import static io.imunity.furms.domain.resource_access.AccessStatus.GRANTED;
+import static io.imunity.furms.domain.resource_access.AccessStatus.GRANT_FAILED;
 import static io.imunity.furms.domain.resource_access.AccessStatus.PENDING_AND_ACKNOWLEDGED_STATUES;
 import static io.imunity.furms.domain.resource_access.AccessStatus.PENDING_STATUES;
 import static io.imunity.furms.domain.resource_access.AccessStatus.TERMINAL_GRANTED;
@@ -93,6 +94,11 @@ class ResourceAccessViewService {
 	public boolean isRevokeAvailable(ResourceAccessModel resourceAccessModel) {
 		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId(), resourceAccessModel.getAllocationId()));
 		return userGrant != null && TERMINAL_GRANTED.contains(userGrant.status);
+	}
+
+	public boolean isStatusGrantFailed(ResourceAccessModel resourceAccessModel) {
+		UserGrant userGrant = usersGrants.get(Pair.of(resourceAccessModel.getFenixUserId(), resourceAccessModel.getAllocationId()));
+		return GRANT_FAILED.equals(userGrant.status);
 	}
 
 	public void grantAccess(ResourceAccessModel resourceAccessModel) {
