@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>io.imunity.furms</groupId>
 		<artifactId>furms-parent</artifactId>
-		<version>4.3.1</version>
+		<version>4.4.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>furms-doc</artifactId>
 	<name>furms-doc</name>
@@ -12,7 +12,7 @@
 	<scm>
 		<connection>${scm.base}/furms-doc</connection>
 		<developerConnection>${scm.base}/furms-doc</developerConnection>
-		<tag>furms-release-4.3.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<properties>
